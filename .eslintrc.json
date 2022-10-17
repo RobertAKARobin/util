@@ -1,0 +1,41 @@
+{
+	"extends": [
+		"eslint:recommended",
+		"plugin:@typescript-eslint/eslint-recommended",
+		"plugin:@typescript-eslint/recommended"
+	],
+	"parser": "@typescript-eslint/parser",
+	"plugins": ["@typescript-eslint"],
+	"rules": {
+		"comma-dangle": ["warn", "always-multiline"],
+		"curly": ["warn", "all"],
+		"indent": ["warn", "tab", {
+			"SwitchCase": 1
+		}],
+		"key-spacing": [
+			"warn",
+			{
+				"afterColon": true,
+				"beforeColon": false,
+				"mode": "strict"
+			}
+		],
+		"object-curly-spacing": ["warn", "always"],
+		"quote-props": ["warn", "consistent"],
+		"quotes": ["warn", "backtick"],
+		"semi": ["warn", "always"],
+		"sort-keys": [
+			"warn",
+			"asc",
+			{
+				"allowLineSeparatedGroups": true
+			}
+		],
+		"sort-imports": ["warn", {
+			"allowSeparatedGroups": true
+		}],
+		"space-before-blocks": ["warn", "always"],
+		"space-before-function-paren": ["warn", "never"],
+		"space-infix-ops": ["warn"]
+	}
+}
