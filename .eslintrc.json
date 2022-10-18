@@ -1,8 +1,25 @@
+// Not using Prettier because too much of a PITA, especially when supporting .astro files and VSCode
+// TODO3: Stylelistic rules are deprecated. Migrate to Prettier when it's less of a PITA: https://typescript-eslint.io/rules/comma-dangle/
 {
 	"extends": [
 		"eslint:recommended",
 		"plugin:@typescript-eslint/eslint-recommended",
 		"plugin:@typescript-eslint/recommended"
+	],
+	"ignorePatterns": [
+		"!**/.*.json",
+		"**/package-lock.json",
+		"**/node_modules/**"
+	],
+	"overrides": [
+		{
+			"files": "**/*.json",
+			"rules": {
+				"comma-dangle": ["warn", "never"],
+				"quotes": ["warn", "double"],
+				"semi": ["warn", "never"]
+			}
+		}
 	],
 	"parser": "@typescript-eslint/parser",
 	"plugins": ["@typescript-eslint"],
@@ -24,6 +41,9 @@
 		"quote-props": ["warn", "consistent"],
 		"quotes": ["warn", "backtick"],
 		"semi": ["warn", "always"],
+		"sort-imports": ["warn", {
+			"allowSeparatedGroups": true
+		}],
 		"sort-keys": [
 			"warn",
 			"asc",
@@ -31,9 +51,6 @@
 				"allowLineSeparatedGroups": true
 			}
 		],
-		"sort-imports": ["warn", {
-			"allowSeparatedGroups": true
-		}],
 		"space-before-blocks": ["warn", "always"],
 		"space-before-function-paren": ["warn", "never"],
 		"space-infix-ops": ["warn"]

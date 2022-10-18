@@ -1,5 +1,17 @@
 {
 	"extends": "stylelint-config-standard-scss",
+	"ignoreFiles": [
+		"node_modules/**"
+	],
+	"overrides": [
+		{
+			"customSyntax": "postcss-html",
+			"files": [
+				"src/**/*.astro",
+				"src/**/*.md"
+			]
+		}
+	],
 	"plugins": ["stylelint-order"],
 	"rules": {
 		"alpha-value-notation": "number",
@@ -16,21 +28,12 @@
 		"number-leading-zero": "never",
 		"order/properties-alphabetical-order": true,
 		"property-no-vendor-prefix": null,
-		"selector-pseudo-class-no-unknown": null,
 		"scss/at-mixin-pattern": null,
 		"scss/dollar-variable-empty-line-before": null,
 		"scss/dollar-variable-pattern": null,
 		"scss/double-slash-comment-empty-line-before": null,
 		"selector-class-pattern": null,
+		"selector-pseudo-class-no-unknown": null,
 		"string-quotes": "single"
-	},
-	"overrides": [
-		{
-			"files": [
-				"src/**/*.astro",
-				"src/**/*.md"
-			],
-			"customSyntax": "postcss-html"
-		}
-	]
+	}
 }

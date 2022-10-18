@@ -17,6 +17,42 @@ npx husky install
 ```
 cd my_project
 npm i -S https://github.com/robertakarobin/util.git
+npm i -D eslint @typescript-eslint/eslint-plugin @typescript-eslint/parser stylelint
+```
+
+Then add:
+
+```
+// .vscode/settings.json
+// @see ./vscode/settings.json
+// TODO3: Extend settings instead, when/if https://github.com/microsoft/vscode/issues/15909 is done
+```
+
+```
+// package.json
+{
+	"scripts": {
+		"lint": "eslint --ext .js,.json,.ts ."
+	}
+}
+```
+
+```
+// .eslintrc.json
+{
+	"extends": [
+		"./node_modules/@robertakarobin/util/.eslintrc.json"
+	]
+}
+```
+
+```
+// .stylelintrc.json
+{
+	"extends": [
+		"./node_modules/@robertakarobin/util/.stylelintrc.json"
+	]
+}
 ```
 
 #### Extending lint rules
