@@ -15,15 +15,26 @@
 		{
 			"files": "**/*.json",
 			"rules": {
+				"@typescript-eslint/semi": "off",
 				"comma-dangle": ["warn", "never"],
-				"quotes": ["warn", "double"],
-				"semi": ["warn", "never"]
+				"quotes": ["warn", "double"]
 			}
 		}
 	],
 	"parser": "@typescript-eslint/parser",
-	"plugins": ["@typescript-eslint"],
+	"plugins": [
+		"@typescript-eslint",
+		"typescript-sort-keys"
+	],
 	"rules": {
+		"@typescript-eslint/member-delimiter-style": ["warn",
+			{
+				"singleline": {
+					"requireLast": true
+				}
+			}
+		],
+		"@typescript-eslint/semi": ["warn", "always"],
 		"comma-dangle": ["warn", "always-multiline"],
 		"curly": ["warn", "all"],
 		"indent": ["warn", "tab", {
@@ -40,7 +51,7 @@
 		"object-curly-spacing": ["warn", "always"],
 		"quote-props": ["warn", "consistent"],
 		"quotes": ["warn", "backtick"],
-		"semi": ["warn", "always"],
+		"semi": "off",
 		"sort-imports": ["warn", {
 			"allowSeparatedGroups": true
 		}],
@@ -53,6 +64,8 @@
 		],
 		"space-before-blocks": ["warn", "always"],
 		"space-before-function-paren": ["warn", "never"],
-		"space-infix-ops": ["warn"]
+		"space-infix-ops": ["warn"],
+		"typescript-sort-keys/interface": "warn",
+		"typescript-sort-keys/string-enum": "warn"
 	}
 }
