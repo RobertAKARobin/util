@@ -64,6 +64,7 @@
 		],
 		"space-before-blocks": ["warn", "always"],
 		"space-before-function-paren": ["warn", "never"],
+		"space-in-parens": ["warn"],
 		"space-infix-ops": ["warn"],
 		"typescript-sort-keys/interface": "warn",
 		"typescript-sort-keys/string-enum": "warn"
