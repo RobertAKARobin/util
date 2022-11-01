@@ -19,7 +19,7 @@
 		"url": "https://github.com/RobertAKARobin/util"
 	},
 	"scripts": {
-		"lint": "eslint ."
+		"lint": "eslint . --max-warnings=0"
 	},
-	"version": "0.0.10"
+	"version": "0.0.11"
 }
