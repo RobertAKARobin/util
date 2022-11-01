@@ -18,6 +18,10 @@ export function debounce(options: Partial<typeof debounceOptions> = debounceOpti
 	};
 }
 
+export function sleep(time: number) {
+	return new Promise((resolve) => setTimeout(resolve, time));
+}
+
 export const throttleOptions = {
 	callback: null as Callback,
 	interval: 10 as number,
@@ -36,8 +40,4 @@ export function throttle(options: Partial<typeof throttleOptions> = throttleOpti
 			timer = null;
 		}, interval);
 	};
-}
-
-export function sleep(time: number) {
-	return new Promise((resolve) => setTimeout(resolve, time));
 }
