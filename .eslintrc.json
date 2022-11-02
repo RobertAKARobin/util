@@ -22,6 +22,12 @@
 			}
 		},
 		{
+			"files": "*.js",
+			"rules": {
+				"@typescript-eslint/no-var-requires": "off"
+			}
+		},
+		{
 			"excludedFiles": ["*.test.ts", "*.spec.ts"],
 			"extends": [
 				"plugin:@typescript-eslint/recommended-requiring-type-checking"
