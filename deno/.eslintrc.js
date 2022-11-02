@@ -8,7 +8,7 @@ module.exports = {
 			files: [`*.ts`],
 			parser: `@typescript-eslint/parser`,
 			parserOptions: {
-				moduleResolver: __dirname + `/deno-resolver.js`,
+				moduleResolver: __dirname + `/eslint-resolver.js`,
 			},
 		},
 	],
