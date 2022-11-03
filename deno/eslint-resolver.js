@@ -8,12 +8,15 @@ module.exports = {
 		reusedNames,
 		redirectedReference,
 		options
-	) => moduleNames.map((moduleName) =>
-		ts.resolveModuleName(
+	) => moduleNames.map((moduleName) => {
+		if (moduleName.startsWith(`http`)) {
+			return undefined;
+		}
+		return ts.resolveModuleName(
 			moduleName.replace(tsExtension, ``),
 			containingFile,
 			options,
 			ts.sys
-		).resolvedModule
-	),
+		).resolvedModule;
+	}),
 };
