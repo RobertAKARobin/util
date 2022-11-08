@@ -51,6 +51,7 @@
 				}
 			}
 		],
+		"@typescript-eslint/member-ordering": "warn",
 		"@typescript-eslint/semi": ["warn", "always"],
 		"@typescript-eslint/space-before-function-paren": ["warn", "never"],
 		"comma-dangle": ["warn", "always-multiline"],
