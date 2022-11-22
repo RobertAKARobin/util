@@ -21,10 +21,11 @@ export async function test(
 		beforeEach: typeof beforeEach;
 		test: typeof test;
 		testx: typeof testx;
+		thrown: typeof thrown;
 	}) => $.Type.PromiseMaybe<void>
 ) {
 	console.log(message);
-	await callback({ assert, beforeEach, test, testx });
+	await callback({ assert, beforeEach, test, testx, thrown });
 }
 
 export function testx(
@@ -32,6 +33,17 @@ export function testx(
 ) {
 	const [message] = args;
 	console.log(message);
+}
+
+export function thrown(
+	callback: (...args: unknown[]) => void
+): Error | null {
+	try {
+		callback();
+	} catch (error) {
+		return error as Error;
+	}
+	return null;
 }
 
 export function valueWrap<Value>(value: Value) {

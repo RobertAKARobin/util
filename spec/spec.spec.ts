@@ -22,7 +22,7 @@ $.test(`Math`, $ => {
 
 	$.test(`division`, $ => {
 		$.assert($ => $(x) === $(12 / y));
-		$.assert(() => {throw new Error(`oh no`);});
+		$.assert(() => $.thrown(() => {throw new Error(`oh no`); }) instanceof Error);
 	});
 
 	$.test(`multiplication`, $ => {
