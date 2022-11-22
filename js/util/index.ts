@@ -6,7 +6,7 @@ export function debounce(
 	callback: () => void,
 	time: number,
 ) {
-	let timer: number = null;
+	let timer: NodeJS.Timeout = null;
 	return function() {
 		clearTimeout(timer);
 		timer = setTimeout(() => {
@@ -103,7 +103,7 @@ export function throttle(
 	callback: () => unknown,
 	time: number,
 ) {
-	let timer: number = null;
+	let timer: NodeJS.Timeout = null;
 	return function() {
 		if (timer) {
 			return;
