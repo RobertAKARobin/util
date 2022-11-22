@@ -1,41 +1,11 @@
 import * as $ from 'js/util';
 
-export async function assert(
-	callback: (arg: typeof valueWrap) => $.Type.PromiseMaybe<boolean>
-) {
-	const result = await callback(valueWrap);
-	console.log(result);
+function valueWrap<Value>(value: Value) {
+	console.log(value);
+	return value;
 }
 
-export async function beforeEach(
-	callback: () => $.Type.PromiseMaybe<void>
-) {
-	console.log(`beforEach`);
-	await callback();
-}
-
-export async function test(
-	message: string,
-	callback: (arg: {
-		assert: typeof assert;
-		beforeEach: typeof beforeEach;
-		test: typeof test;
-		testx: typeof testx;
-		thrown: typeof thrown;
-	}) => $.Type.PromiseMaybe<void>
-) {
-	console.log(message);
-	await callback({ assert, beforeEach, test, testx, thrown });
-}
-
-export function testx(
-	...args: Partial<Parameters<typeof test>>
-) {
-	const [message] = args;
-	console.log(message);
-}
-
-export function thrown(
+function thrownBy(
 	callback: (...args: unknown[]) => void
 ): Error | null {
 	try {
@@ -46,7 +16,37 @@ export function thrown(
 	return null;
 }
 
-export function valueWrap<Value>(value: Value) {
-	console.log(value);
-	return value;
+const assertionHelpers = Object.assign(valueWrap, {
+	thrownBy,
+});
+
+export class SuiteContext {
+	async assert(
+		callback: (arg: typeof assertionHelpers) => $.Type.PromiseMaybe<boolean>
+	) {
+		const result = await callback(assertionHelpers);
+		console.log(result);
+	}
+
+	async beforeEach(
+		callback: () => $.Type.PromiseMaybe<void>
+	) {
+		console.log(`beforEach`);
+		await callback();
+	}
+
+	async test(
+		message: string,
+		callback: (arg: this) => $.Type.PromiseMaybe<void>
+	) {
+		console.log(message);
+		await callback(this);
+	}
+
+	testx(
+		...args: Partial<Parameters<SuiteContext[`test`]>>
+	) {
+		const [message] = args;
+		console.log(message);
+	}
 }

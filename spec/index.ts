@@ -1,7 +1,3 @@
-export {
-	assert,
-	beforeEach,
-	test,
-	testx,
-	thrown,
-} from './lib';
+import { SuiteContext } from './lib';
+
+export default new SuiteContext();

@@ -1,4 +1,4 @@
-import * as $ from '.';
+import $ from '.';
 
 $.test(`Math`, $ => {
 	let x = 3;
@@ -22,7 +22,7 @@ $.test(`Math`, $ => {
 
 	$.test(`division`, $ => {
 		$.assert($ => $(x) === $(12 / y));
-		$.assert(() => $.thrown(() => {throw new Error(`oh no`); }) instanceof Error);
+		$.assert($ => $.thrownBy(() => {throw new Error(`oh no`); }) instanceof $(Error));
 	});
 
 	$.test(`multiplication`, $ => {
