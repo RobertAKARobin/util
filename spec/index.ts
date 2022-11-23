@@ -1,3 +1,3 @@
-import { SuiteContext } from './lib';
+import { SpecRunner } from './lib';
 
-export default new SuiteContext();
+export default new SpecRunner();

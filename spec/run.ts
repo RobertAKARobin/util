@@ -20,6 +20,8 @@ const symbols: Record<typeof resultTypes[number], string> = {
 
 import * as path from 'path';
 
+import $ from '.';
+
 void (async function() {
 	const filePaths = process.argv.slice(2);
 
@@ -28,4 +30,6 @@ void (async function() {
 			return import(path.join(process.env.PWD, filePath));
 		})
 	);
+
+	console.log(JSON.stringify($._rootSuite, null, `\t`));
 })();
