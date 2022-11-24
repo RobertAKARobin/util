@@ -32,7 +32,8 @@ type AssertionOptions = Partial<typeof assertionOptionsDefaults>;
 
 class Assertion {
 	callback: (arg: typeof assertionHelpers) => boolean;
-	index: number;
+	indexInCode: number;
+	indexInExecution: number;
 	options: AssertionOptions;
 	parent: Suite | null;
 	result: typeof resultTypes[number];
@@ -72,6 +73,7 @@ class Suite {
 	>) {
 		const assertion = new Assertion();
 		assertion.callback = input.callback;
+		assertion.indexInCode = this.children.length;
 		assertion.parent = this;
 		assertion.options = {
 			...assertionOptionsDefaults,
