@@ -24,7 +24,9 @@ $.test(`Math`, $ => {
 
 	$.test(`division`, $ => {
 		$.assert($ => $(x) === $(12 / y));
-		$.assert($ => $.thrownBy(() => {throw new Error(`oh no`); }) instanceof $(Error));
+		$.assert(() => {throw new Error(`oh no`); });
+		const throwMe = () => {throw new Error(`oh no`); };
+		$.assert($ => $.thrownBy(throwMe) instanceof $(Error));
 	});
 
 	$.test(`multiplication`, $ => {
@@ -49,6 +51,7 @@ export const expected = `
 		🟢 1.4.1 (x) === (12 / y)
 		🟡 1.4.2 throw new Error(\`oh no\`);
 			Uncaught Error: oh no
+		🟢 1.4.3 thrownBy(throwMe) instanceof (Error)
 	🔴 1.5 multiplication
 		🟢 1.5.1 (x * 4) !== (y)
 		🔴 1.5.2 (x * -1) === (y)
