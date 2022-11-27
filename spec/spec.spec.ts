@@ -1,5 +1,5 @@
 import $ from '.';
-import { SpecRunner } from './lib';
+// import { SpecRunner } from './lib';
 
 $.test(`Math`, $ => {
 	let x = 3;
@@ -73,9 +73,9 @@ Total Assertions: 8
 ⚪ Skip: 1
 `;
 
-const specRunner = new SpecRunner();
-specRunner.test(`SpecRunner`, async specRunner => {
-	await specRunner.run();
+// const specRunner = new SpecRunner();
+// specRunner.test(`SpecRunner`, async specRunner => {
+// 	await specRunner.run();
 
-	specRunner.assert($ => $(specRunner.log()) === $(expected));
-});
+// 	specRunner.assert($ => $(specRunner.log()) === $(expected));
+// });

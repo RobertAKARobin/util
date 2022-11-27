@@ -4,9 +4,26 @@ const resultTypes = [`error`, `fail`, `pass`, `skip`] as const;
 
 // #region SpecLogItem
 
-abstract class Loggable {
+abstract class SpecStep {
+	children?: Array<SpecStep>;
 	indexInCode: number;
 	indexInExecution: number;
+	parent: SpecStep;
+	prefix: string;
+
+	constructor(
+		input: Pick<
+			SpecStep,
+			| `parent`
+		>
+	) {
+		this.parent = input.parent;
+		this.indexInCode = this.parent?.children?.length || 1;
+		this.prefix = [
+			...(this.parent ? [this.parent.prefix] : []),
+			this.indexInCode,
+		].join(`.`);
+	}
 }
 
 // endregion
@@ -39,11 +56,27 @@ const assertionOptionsDefaults = {
 
 type AssertionOptions = Partial<typeof assertionOptionsDefaults>;
 
-class Assertion extends Loggable {
+class Assertion extends SpecStep {
 	callback: (arg: typeof assertionHelpers) => boolean;
 	options: AssertionOptions;
-	parent: Suite | null;
 	result: typeof resultTypes[number];
+
+	constructor(
+		input:
+			& ConstructorParameters<typeof SpecStep>[0]
+			& Pick<Assertion, `callback` | `options`>
+	) {
+		super(input);
+		this.callback = input.callback;
+		this.options = {
+			...assertionOptionsDefaults,
+			...input.options,
+		};
+	}
+
+	toJSON() {
+		return `${this.prefix} ${this.callback}`;
+	}
 }
 
 // #endregion
@@ -59,48 +92,58 @@ type SuiteOptions = Partial<typeof suiteOptionsDefaults>;
 
 type SuiteLog = Array<string | SuiteLog>;
 
-class Suite extends Loggable {
+class Suite extends SpecStep {
 	callback: (arg: SpecRunner) => void; // TODO2: Make properties alphabetical
 	children: Array<Suite | Assertion> = [];
 	message: string;
 	options: SuiteOptions = suiteOptionsDefaults;
-	parent: Suite | null;
-	prefix = ``;
 	result: typeof resultTypes[number];
 
-	addAssertion(input: Pick< // TODO2: Make methods alphabetical
-		Assertion,
-		| `callback`
-		| `options`
-	>) {
-		const assertion = new Assertion();
-		assertion.callback = input.callback;
-		assertion.indexInCode = this.children.length;
-		assertion.parent = this;
-		assertion.options = {
-			...assertionOptionsDefaults,
+	constructor(
+		input:
+			& ConstructorParameters<typeof SpecStep>[0]
+			& Pick<Suite, `callback` | `message` | `options`>
+	) {
+		super(input);
+		this.callback = input.callback;
+		this.message = input.message;
+		this.options = {
+			...suiteOptionsDefaults,
 			...input.options,
 		};
+	}
+
+	addAssertion(input: Omit<
+		ConstructorParameters<typeof Assertion>[0],
+		| `parent`
+	>) {
+		const assertion = new Assertion({
+			...input,
+			parent: this,
+		});
 		this.children.push(assertion);
 		return assertion;
 	}
 
-	addSuite(input: Pick<
-		Suite,
-		| `callback`
-		| `message`
-		| `options`
+	addSuite(input: Omit<
+		ConstructorParameters<typeof Suite>[0],
+		| `parent`
 	>) {
-		const suite = new Suite();
-		suite.callback = input.callback;
-		suite.message = input.message;
-		suite.options = {
-			...suiteOptionsDefaults,
-			...input.options,
-		};
-		suite.parent = this;
+		const suite = new Suite({
+			...input,
+			parent: this,
+		});
 		this.children.push(suite);
 		return suite;
+	}
+
+	toJSON() {
+		return this.parent
+			? [
+				`${this.prefix} ${this.message}`,
+				this.children,
+			]
+			: this.children;
 	}
 }
 
@@ -113,7 +156,12 @@ export class SpecRunner {
 	_rootSuite: Suite;
 
 	constructor() {
-		this._rootSuite = new Suite();
+		this._rootSuite = new Suite({
+			callback: null,
+			message: null,
+			options: {},
+			parent: null,
+		});
 		this._currentSuite = this._rootSuite;
 	}
 
