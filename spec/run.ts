@@ -31,5 +31,6 @@ void (async function() {
 		})
 	);
 
-	console.log(JSON.stringify($._rootSuite, null, `\t`));
+	await $.run();
+	console.log($.log());
 })();

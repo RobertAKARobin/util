@@ -1,4 +1,5 @@
 import $ from '.';
+import { SpecRunner } from './lib';
 
 $.test(`Math`, $ => {
 	let x = 3;
@@ -27,6 +28,10 @@ $.test(`Math`, $ => {
 		$.assert(() => {throw new Error(`oh no`); });
 		const throwMe = () => {throw new Error(`oh no`); };
 		$.assert($ => $.thrownBy(throwMe) instanceof $(Error));
+
+		$.test(`by zero`, $ => {
+			$.assert($ => $(3 / 0) === $(Infinity));
+		});
 	});
 
 	$.test(`multiplication`, $ => {
@@ -52,6 +57,8 @@ export const expected = `
 		🟡 1.4.2 throw new Error(\`oh no\`);
 			Uncaught Error: oh no
 		🟢 1.4.3 thrownBy(throwMe) instanceof (Error)
+		🟢 1.4.4 by zero
+			🟢 1.4.4.1 (3 / 0) === (Infinity)
 	🔴 1.5 multiplication
 		🟢 1.5.1 (x * 4) !== (y)
 		🔴 1.5.2 (x * -1) === (y)
@@ -65,3 +72,10 @@ Total Assertions: 8
 🟡 Error: 2
 ⚪ Skip: 1
 `;
+
+const specRunner = new SpecRunner();
+specRunner.test(`SpecRunner`, async specRunner => {
+	await specRunner.run();
+
+	specRunner.assert($ => $(specRunner.log()) === $(expected));
+});

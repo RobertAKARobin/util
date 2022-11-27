@@ -2,6 +2,15 @@
 
 const resultTypes = [`error`, `fail`, `pass`, `skip`] as const;
 
+// #region SpecLogItem
+
+abstract class Loggable {
+	indexInCode: number;
+	indexInExecution: number;
+}
+
+// endregion
+
 // #region Assertions
 
 function valueWrap<Value>(value: Value) {
@@ -30,17 +39,11 @@ const assertionOptionsDefaults = {
 
 type AssertionOptions = Partial<typeof assertionOptionsDefaults>;
 
-class Assertion {
+class Assertion extends Loggable {
 	callback: (arg: typeof assertionHelpers) => boolean;
-	indexInCode: number;
-	indexInExecution: number;
 	options: AssertionOptions;
 	parent: Suite | null;
 	result: typeof resultTypes[number];
-
-	toJSON() {
-		return this.callback.toString();
-	}
 }
 
 // #endregion
@@ -56,10 +59,9 @@ type SuiteOptions = Partial<typeof suiteOptionsDefaults>;
 
 type SuiteLog = Array<string | SuiteLog>;
 
-class Suite {
+class Suite extends Loggable {
 	callback: (arg: SpecRunner) => void; // TODO2: Make properties alphabetical
 	children: Array<Suite | Assertion> = [];
-	index: number;
 	message: string;
 	options: SuiteOptions = suiteOptionsDefaults;
 	parent: Suite | null;
@@ -100,13 +102,6 @@ class Suite {
 		this.children.push(suite);
 		return suite;
 	}
-
-	toJSON() {
-		return {
-			message: this.message,
-			children: this.children,
-		};
-	}
 }
 
 // #endregion
@@ -132,14 +127,12 @@ export class SpecRunner {
 		});
 	}
 
-	assertx(
-		...args: Parameters<SpecRunner[`assert`]>
-	) {
-		const [callback, options] = args;
-		return this.assert(callback, {
-			...options,
-			dry: true,
-		});
+	log(): string {
+		return ``;
+	}
+
+	run(): Promise<void> {
+		return new Promise((resolve) => resolve());
 	}
 
 	// TODO1: beforeEach
