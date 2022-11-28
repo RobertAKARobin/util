@@ -32,5 +32,6 @@ void (async function() {
 	);
 
 	// $._rootSuite.run();
-	console.log(JSON.stringify($._rootSuite.log, null, `  `));
+	console.log(JSON.stringify($.log, null, `  `));
+	console.log(JSON.stringify($, null, `  `));
 })();

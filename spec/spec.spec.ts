@@ -1,5 +1,4 @@
 import $ from '.';
-// import { SpecRunner } from './lib';
 
 $.test(`Math`, $ => {
 	let x = 3;

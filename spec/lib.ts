@@ -109,9 +109,20 @@ interface SuiteOptions extends SpecStepOptions {
 	shuffle: boolean;
 }
 
-class Suite extends SpecStep {
-	callback: (arg: SpecRunner) => void; // TODO2: Make properties alphabetical
+type SuiteHelpers = Pick<Suite,
+	| `assert`
+	| `test`
+	| `testx`
+>;
+
+export class Suite extends SpecStep {
+	callback: (arg: SuiteHelpers) => void; // TODO2: Make properties alphabetical
 	children: Array<Suite | Assertion> = [];
+	helpers: SuiteHelpers = {
+		assert: this.assert.bind(this),
+		test: this.test.bind(this),
+		testx: this.testx.bind(this),
+	};
 	options: Partial<SuiteOptions> = {
 		dry: true,
 		shuffle: false,
@@ -127,72 +138,22 @@ class Suite extends SpecStep {
 		this.callback = input.callback;
 	}
 
-	addAssertion(
-		input: Omit<ConstructorParameters<typeof Assertion>[0], `parent`>
+	assert(
+		callback: Assertion[`callback`],
+		options: Partial<AssertionOptions> = {}
 	) {
 		const assertion = new Assertion({
-			...input,
+			callback,
 			options: {
 				...this.options || {},
-				...input.options || {},
+				...options || {},
 			},
 			parent: this,
 		});
 		this.children.push(assertion);
 		this.log.push(assertion.log);
+		// assertion.callback(assertionHelpers);
 		return assertion;
-	}
-
-	addSuite(
-		input: Omit<ConstructorParameters<typeof Suite>[0], `parent`>
-	) {
-		const suite = new Suite({
-			...input,
-			options: {
-				...this.options || {},
-				...input.options || {},
-			},
-			parent: this,
-		});
-		this.children.push(suite);
-		this.log.push(suite.log);
-		return suite;
-	}
-
-	toJSON() {
-		return {
-			...super.toJSON(),
-			children: this.children,
-		};
-	}
-}
-
-// #endregion
-
-// #region SpecRunner
-
-export class SpecRunner {
-	_currentSuite: Suite;
-	_rootSuite: Suite; // TODO2: Make private
-
-	constructor() {
-		this._rootSuite = new Suite({
-			callback: null,
-			options: {},
-			parent: null,
-			textTitle: ``,
-		});
-		this._currentSuite = this._rootSuite;
-	}
-
-	assert(
-		callback: Assertion[`callback`],
-		options: Partial<AssertionOptions> = {}
-	) {
-		this._currentSuite.addAssertion({
-			callback,
-			options,
-		});
 	}
 
 	// TODO1: beforeEach
@@ -202,27 +163,38 @@ export class SpecRunner {
 		callback: Suite[`callback`],
 		options: Partial<SuiteOptions> = {}
 	) {
-		const parent = this._currentSuite;
-		const child = parent.addSuite({
+		const suite = new Suite({
 			callback,
-			options,
+			options: {
+				...this.options || {},
+				...options || {},
+			},
+			parent: this,
 			textTitle: message,
 		});
-		this._currentSuite = child;
-		if (child.callback) {
-			child.callback(this);
+		this.children.push(suite);
+		this.log.push(suite.log);
+		if (suite.options.dry && suite.callback) { // Needed for testx
+			suite.callback(suite.helpers);
 		}
-		this._currentSuite = parent;
+		return suite;
 	}
 
 	testx(/* eslint-disable-line @typescript-eslint/require-await */
-		...args: Partial<Parameters<SpecRunner[`test`]>>
+		...args: Partial<Parameters<Suite[`test`]>>
 	) {
 		const [message, callback, options] = args;
 		return this.test(message, callback, {
 			...options,
 			dry: true,
 		});
+	}
+
+	toJSON() {
+		return {
+			...super.toJSON(),
+			children: this.children,
+		};
 	}
 }
 
