@@ -6,12 +6,17 @@ const resultTypes = [`error`, `fail`, `pass`, `skip`] as const;
 
 type SpecLog = Array<string | SpecLog>;
 
+interface SpecStepOptions {
+	dry: boolean;
+}
+
 abstract class SpecStep {
 	callback: (...arg: Array<unknown>) => $.Type.PromiseMaybe<unknown>;
 	children?: Array<SpecStep>;
 	indexInCode: number;
 	indexInExecution: number;
 	log: SpecLog;
+	options: Partial<SpecStepOptions> = {};
 	parent: SpecStep;
 	textPrefix: string;
 	textTitle: string;
@@ -19,18 +24,24 @@ abstract class SpecStep {
 	constructor(
 		input: Pick<
 			SpecStep,
+			| `options` // TODO3: Require these to be alphabetized
 			| `parent`
 			| `textTitle`
 		>
 	) {
+		this.options = {
+			...this.options,
+			...input.options,
+		};
 		this.parent = input.parent;
+		this.textTitle = input.textTitle;
+
 		this.indexInCode = (this.parent?.children.length || 0) + 1;
 		this.textPrefix = (
 			this.parent
 				?	(this.parent?.textPrefix || ``) + `${this.indexInCode}.`
 				: ``
 		);
-		this.textTitle = input.textTitle;
 		this.log = (
 			(this.textPrefix && this.textTitle)
 				? [`${this.textPrefix} ${this.textTitle}`]
@@ -38,7 +49,7 @@ abstract class SpecStep {
 		);
 	}
 
-	toJSON() { // TODO1: Don't use toJSON, probably
+	toJSON() {
 		return {
 			textPrefix: this.textPrefix,
 			textTitle: this.textTitle,
@@ -70,15 +81,11 @@ const assertionHelpers = Object.assign(valueWrap, {
 	thrownBy,
 });
 
-const assertionOptionsDefaults = {
-	dry: true as boolean,
-} as const;
-
-type AssertionOptions = Partial<typeof assertionOptionsDefaults>;
+interface AssertionOptions extends SpecStepOptions {}
 
 class Assertion extends SpecStep {
 	callback: (arg: typeof assertionHelpers) => boolean;
-	options: AssertionOptions;
+	options: Partial<AssertionOptions> = {};
 	result: typeof resultTypes[number];
 
 	constructor(
@@ -91,10 +98,6 @@ class Assertion extends SpecStep {
 			textTitle: input.callback.toString(),
 		});
 		this.callback = input.callback;
-		this.options = {
-			...assertionOptionsDefaults,
-			...input.options,
-		};
 	}
 }
 
@@ -102,17 +105,17 @@ class Assertion extends SpecStep {
 
 // #region Suites
 
-const suiteOptionsDefaults = {
-	dry: true as boolean,
-	shuffle: false as boolean,
-} as const;
-
-type SuiteOptions = Partial<typeof suiteOptionsDefaults>;
+interface SuiteOptions extends SpecStepOptions {
+	shuffle: boolean;
+}
 
 class Suite extends SpecStep {
 	callback: (arg: SpecRunner) => void; // TODO2: Make properties alphabetical
 	children: Array<Suite | Assertion> = [];
-	options: SuiteOptions = suiteOptionsDefaults;
+	options: Partial<SuiteOptions> = {
+		dry: true,
+		shuffle: false,
+	};
 	result: typeof resultTypes[number];
 
 	constructor(
@@ -122,10 +125,6 @@ class Suite extends SpecStep {
 	) {
 		super(input);
 		this.callback = input.callback;
-		this.options = {
-			...suiteOptionsDefaults,
-			...input.options,
-		};
 	}
 
 	addAssertion(
@@ -133,6 +132,10 @@ class Suite extends SpecStep {
 	) {
 		const assertion = new Assertion({
 			...input,
+			options: {
+				...this.options || {},
+				...input.options || {},
+			},
 			parent: this,
 		});
 		this.children.push(assertion);
@@ -145,6 +148,10 @@ class Suite extends SpecStep {
 	) {
 		const suite = new Suite({
 			...input,
+			options: {
+				...this.options || {},
+				...input.options || {},
+			},
 			parent: this,
 		});
 		this.children.push(suite);
@@ -166,7 +173,7 @@ class Suite extends SpecStep {
 
 export class SpecRunner {
 	_currentSuite: Suite;
-	_rootSuite: Suite;
+	_rootSuite: Suite; // TODO2: Make private
 
 	constructor() {
 		this._rootSuite = new Suite({
@@ -180,7 +187,7 @@ export class SpecRunner {
 
 	assert(
 		callback: Assertion[`callback`],
-		options: AssertionOptions = {}
+		options: Partial<AssertionOptions> = {}
 	) {
 		this._currentSuite.addAssertion({
 			callback,
@@ -193,7 +200,7 @@ export class SpecRunner {
 	test(
 		message: string,
 		callback: Suite[`callback`],
-		options: SuiteOptions = {}
+		options: Partial<SuiteOptions> = {}
 	) {
 		const parent = this._currentSuite;
 		const child = parent.addSuite({
