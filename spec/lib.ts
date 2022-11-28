@@ -18,11 +18,18 @@ abstract class SpecStep {
 		>
 	) {
 		this.parent = input.parent;
-		this.indexInCode = this.parent?.children?.length || 1;
-		this.prefix = [
-			...(this.parent ? [this.parent.prefix] : []),
-			this.indexInCode,
-		].join(`.`);
+		this.indexInCode = (this.parent?.children?.length || 0) + 1;
+		this.prefix = (
+			this.parent
+			?	(this.parent?.prefix || ``) + `${this.indexInCode}.`
+			: ``
+		);
+	}
+
+	toJSON() { // TODO1: Don't use toJSON, probably
+		return {
+			prefix: this.prefix,
+		};
 	}
 }
 
@@ -75,7 +82,10 @@ class Assertion extends SpecStep {
 	}
 
 	toJSON() {
-		return `${this.prefix} ${this.callback}`;
+		return {
+			...super.toJSON(),
+			textHeader: this.callback.toString(),
+		};
 	}
 }
 
@@ -138,12 +148,11 @@ class Suite extends SpecStep {
 	}
 
 	toJSON() {
-		return this.parent
-			? [
-				`${this.prefix} ${this.message}`,
-				this.children,
-			]
-			: this.children;
+		return {
+			...super.toJSON(),
+			textHeader: this.message,
+			children: this.children,
+		};
 	}
 }
 

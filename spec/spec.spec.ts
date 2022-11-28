@@ -45,25 +45,25 @@ $.testx(`Text`);
 
 export const expected = `
 🔴 1. Math
-	🟢 1.1 (typeof x) === \`number\`
-	⚪ 1.2 addition
-		⚪ 1.2.1 (x + 1) === (y)
-	🟡 1.3 subtraction
-		🟢 1.3.2 (y - 1) === (x)
-		🟡 1.3.2 (x)
+	🟢 1.1. (typeof x) === \`number\`
+	⚪ 1.2. addition
+		⚪ 1.2.1. (x + 1) === (y)
+	🟡 1.3. subtraction
+		🟢 1.3.2. (y - 1) === (x)
+		🟡 1.3.2. (x)
 			Does not return a boolean
-	🟡 1.4 division
-		🟢 1.4.1 (x) === (12 / y)
-		🟡 1.4.2 throw new Error(\`oh no\`);
+	🟡 1.4. division
+		🟢 1.4.1. (x) === (12 / y)
+		🟡 1.4.2. throw new Error(\`oh no\`);
 			Uncaught Error: oh no
-		🟢 1.4.3 thrownBy(throwMe) instanceof (Error)
-		🟢 1.4.4 by zero
-			🟢 1.4.4.1 (3 / 0) === (Infinity)
-	🔴 1.5 multiplication
-		🟢 1.5.1 (x * 4) !== (y)
-		🔴 1.5.2 (x * -1) === (y)
+		🟢 1.4.3. thrownBy(throwMe) instanceof (Error)
+		🟢 1.4.4. by zero
+			🟢 1.4.4.1. (3 / 0) === (Infinity)
+	🔴 1.5. multiplication
+		🟢 1.5.1. (x * 4) !== (y)
+		🔴 1.5.2. (x * -1) === (y)
 			(-3) === (4)
-		🟢 1.5.3 (x * 4) === (y * 3)
+		🟢 1.5.3. (x * 4) === (y * 3)
 ⚪ 2. Text
 
 Total Assertions: 8

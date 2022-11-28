@@ -33,5 +33,5 @@ void (async function() {
 
 	// await $.run();
 	// console.log($.log());
-	console.log(JSON.stringify($._rootSuite, null, `\t`));
+	console.log(JSON.stringify($._rootSuite.children, null, `\t`));
 })();
