@@ -1,34 +1,47 @@
-/* eslint-disable */
+import * as $ from 'js/util';
 
 const resultTypes = [`error`, `fail`, `pass`, `skip`] as const;
 
 // #region SpecLogItem
 
+type SpecLog = Array<string | SpecLog>;
+
 abstract class SpecStep {
+	callback: (...arg: Array<unknown>) => $.Type.PromiseMaybe<unknown>;
 	children?: Array<SpecStep>;
 	indexInCode: number;
 	indexInExecution: number;
+	log: SpecLog;
 	parent: SpecStep;
-	prefix: string;
+	textPrefix: string;
+	textTitle: string;
 
 	constructor(
 		input: Pick<
 			SpecStep,
 			| `parent`
+			| `textTitle`
 		>
 	) {
 		this.parent = input.parent;
-		this.indexInCode = (this.parent?.children?.length || 0) + 1;
-		this.prefix = (
+		this.indexInCode = (this.parent?.children.length || 0) + 1;
+		this.textPrefix = (
 			this.parent
-			?	(this.parent?.prefix || ``) + `${this.indexInCode}.`
-			: ``
+				?	(this.parent?.textPrefix || ``) + `${this.indexInCode}.`
+				: ``
+		);
+		this.textTitle = input.textTitle;
+		this.log = (
+			(this.textPrefix && this.textTitle)
+				? [`${this.textPrefix} ${this.textTitle}`]
+				: []
 		);
 	}
 
 	toJSON() { // TODO1: Don't use toJSON, probably
 		return {
-			prefix: this.prefix,
+			textPrefix: this.textPrefix,
+			textTitle: this.textTitle,
 		};
 	}
 }
@@ -70,21 +83,17 @@ class Assertion extends SpecStep {
 
 	constructor(
 		input:
-			& ConstructorParameters<typeof SpecStep>[0]
+			& Omit<ConstructorParameters<typeof SpecStep>[0], `textTitle`>
 			& Pick<Assertion, `callback` | `options`>
 	) {
-		super(input);
+		super({
+			...input,
+			textTitle: input.callback.toString(),
+		});
 		this.callback = input.callback;
 		this.options = {
 			...assertionOptionsDefaults,
 			...input.options,
-		};
-	}
-
-	toJSON() {
-		return {
-			...super.toJSON(),
-			textHeader: this.callback.toString(),
 		};
 	}
 }
@@ -100,57 +109,52 @@ const suiteOptionsDefaults = {
 
 type SuiteOptions = Partial<typeof suiteOptionsDefaults>;
 
-type SuiteLog = Array<string | SuiteLog>;
-
 class Suite extends SpecStep {
 	callback: (arg: SpecRunner) => void; // TODO2: Make properties alphabetical
 	children: Array<Suite | Assertion> = [];
-	message: string;
 	options: SuiteOptions = suiteOptionsDefaults;
 	result: typeof resultTypes[number];
 
 	constructor(
 		input:
 			& ConstructorParameters<typeof SpecStep>[0]
-			& Pick<Suite, `callback` | `message` | `options`>
+			& Pick<Suite, `callback` | `options`>
 	) {
 		super(input);
 		this.callback = input.callback;
-		this.message = input.message;
 		this.options = {
 			...suiteOptionsDefaults,
 			...input.options,
 		};
 	}
 
-	addAssertion(input: Omit<
-		ConstructorParameters<typeof Assertion>[0],
-		| `parent`
-	>) {
+	addAssertion(
+		input: Omit<ConstructorParameters<typeof Assertion>[0], `parent`>
+	) {
 		const assertion = new Assertion({
 			...input,
 			parent: this,
 		});
 		this.children.push(assertion);
+		this.log.push(assertion.log);
 		return assertion;
 	}
 
-	addSuite(input: Omit<
-		ConstructorParameters<typeof Suite>[0],
-		| `parent`
-	>) {
+	addSuite(
+		input: Omit<ConstructorParameters<typeof Suite>[0], `parent`>
+	) {
 		const suite = new Suite({
 			...input,
 			parent: this,
 		});
 		this.children.push(suite);
+		this.log.push(suite.log);
 		return suite;
 	}
 
 	toJSON() {
 		return {
 			...super.toJSON(),
-			textHeader: this.message,
 			children: this.children,
 		};
 	}
@@ -167,9 +171,9 @@ export class SpecRunner {
 	constructor() {
 		this._rootSuite = new Suite({
 			callback: null,
-			message: null,
 			options: {},
 			parent: null,
+			textTitle: ``,
 		});
 		this._currentSuite = this._rootSuite;
 	}
@@ -184,14 +188,6 @@ export class SpecRunner {
 		});
 	}
 
-	log(): string {
-		return ``;
-	}
-
-	run(): Promise<void> {
-		return new Promise((resolve) => resolve());
-	}
-
 	// TODO1: beforeEach
 
 	test(
@@ -202,8 +198,8 @@ export class SpecRunner {
 		const parent = this._currentSuite;
 		const child = parent.addSuite({
 			callback,
-			message,
 			options,
+			textTitle: message,
 		});
 		this._currentSuite = child;
 		if (child.callback) {
