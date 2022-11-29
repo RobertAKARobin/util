@@ -18,15 +18,15 @@ abstract class SpecStep {
 	log: SpecLog;
 	options: Partial<SpecStepOptions> = {};
 	parent: SpecStep;
-	textPrefix: string;
-	textTitle: string;
+	prefix: string;
+	title: string;
 
 	constructor(
 		input: Pick<
 			SpecStep,
 			| `options` // TODO3: Require these to be alphabetized
 			| `parent`
-			| `textTitle`
+			| `title`
 		>
 	) {
 		this.options = {
@@ -34,25 +34,25 @@ abstract class SpecStep {
 			...input.options,
 		};
 		this.parent = input.parent;
-		this.textTitle = input.textTitle;
+		this.title = input.title;
 
 		this.indexInCode = (this.parent?.children.length || 0) + 1;
-		this.textPrefix = (
+		this.prefix = (
 			this.parent
-				?	(this.parent?.textPrefix || ``) + `${this.indexInCode}.`
+				?	(this.parent?.prefix || ``) + `${this.indexInCode}.`
 				: ``
 		);
 		this.log = (
-			(this.textPrefix && this.textTitle)
-				? [`${this.textPrefix} ${this.textTitle}`]
+			(this.prefix && this.title)
+				? [`${this.prefix} ${this.title}`]
 				: []
 		);
 	}
 
 	toJSON() {
 		return {
-			textPrefix: this.textPrefix,
-			textTitle: this.textTitle,
+			prefix: this.prefix,
+			title: this.title,
 		};
 	}
 }
@@ -90,12 +90,12 @@ class Assertion extends SpecStep {
 
 	constructor(
 		input:
-			& Omit<ConstructorParameters<typeof SpecStep>[0], `textTitle`>
+			& Omit<ConstructorParameters<typeof SpecStep>[0], `title`>
 			& Pick<Assertion, `callback` | `options`>
 	) {
 		super({
 			...input,
-			textTitle: input.callback.toString(),
+			title: input.callback.toString(),
 		});
 		this.callback = input.callback;
 	}
@@ -159,7 +159,7 @@ export class Suite extends SpecStep {
 	// TODO1: beforeEach
 
 	test(
-		message: string,
+		title: string,
 		callback: Suite[`callback`],
 		options: Partial<SuiteOptions> = {}
 	) {
@@ -170,7 +170,7 @@ export class Suite extends SpecStep {
 				...options || {},
 			},
 			parent: this,
-			textTitle: message,
+			title,
 		});
 		this.children.push(suite);
 		this.log.push(suite.log);
@@ -183,8 +183,8 @@ export class Suite extends SpecStep {
 	testx(/* eslint-disable-line @typescript-eslint/require-await */
 		...args: Partial<Parameters<Suite[`test`]>>
 	) {
-		const [message, callback, options] = args;
-		return this.test(message, callback, {
+		const [title, callback, options] = args;
+		return this.test(title, callback, {
 			...options,
 			dry: true,
 		});
