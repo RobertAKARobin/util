@@ -1,59 +1,49 @@
 import * as $ from 'js/util';
 
-const resultTypes = [`error`, `fail`, `pass`, `skip`] as const;
+const resultTypes = [ `pending`, `pass`, `error`, `fail`] as const;
 
-// #region SpecLogItem
+type ResultType = typeof resultTypes[number];
 
-type SpecLog = Array<string | SpecLog>;
+// #region SpecStep
 
 interface SpecStepOptions {
-	dry: boolean;
+	pending: boolean;
+}
+
+interface SpecStepResult {
+	// TODO1: Timestamps
+	// children?: Array<SpecStepResult>;
+	// description: string;
+	// index: number;
+	// prefix: string;
+	result: ResultType;
+	title: string;
+
+	// constructor(input:
+	// 	& Pick<
+	// 		SpecStepResult,
+	// 		| `description`
+	// 		| ``
+	// )
 }
 
 abstract class SpecStep {
 	callback: (...arg: Array<unknown>) => $.Type.PromiseMaybe<unknown>;
-	children?: Array<SpecStep>;
-	indexInCode: number;
-	indexInExecution: number;
-	log: SpecLog;
-	options: Partial<SpecStepOptions> = {};
-	parent: SpecStep;
-	prefix: string;
+	options: Partial<SpecStepOptions>;
 	title: string;
 
-	constructor(
-		input: Pick<
-			SpecStep,
-			| `options` // TODO3: Require these to be alphabetized
-			| `parent`
-			| `title`
-		>
-	) {
+	constructor(input: Pick<
+		SpecStep,
+		| `callback`
+		| `options` // TODO3: Require these to be alphabetized?
+		| `title`
+	>) {
+		this.callback = input.callback;
 		this.options = {
 			...this.options,
 			...input.options,
 		};
-		this.parent = input.parent;
 		this.title = input.title;
-
-		this.indexInCode = (this.parent?.children.length || 0) + 1;
-		this.prefix = (
-			this.parent
-				?	(this.parent?.prefix || ``) + `${this.indexInCode}.`
-				: ``
-		);
-		this.log = (
-			(this.prefix && this.title)
-				? [`${this.prefix} ${this.title}`]
-				: []
-		);
-	}
-
-	toJSON() {
-		return {
-			prefix: this.prefix,
-			title: this.title,
-		};
 	}
 }
 
@@ -62,7 +52,6 @@ abstract class SpecStep {
 // #region Assertions
 
 function valueWrap<Value>(value: Value) {
-	console.log(value);
 	return value;
 }
 
@@ -81,23 +70,64 @@ const assertionHelpers = Object.assign(valueWrap, {
 	thrownBy,
 });
 
-interface AssertionOptions extends SpecStepOptions {}
+// interface AssertionOptions extends SpecStepOptions {}
 
-class Assertion extends SpecStep {
-	callback: (arg: typeof assertionHelpers) => boolean;
-	options: Partial<AssertionOptions> = {};
-	result: typeof resultTypes[number];
+interface AssertionResult extends SpecStepResult {}
 
-	constructor(
-		input:
-			& Omit<ConstructorParameters<typeof SpecStep>[0], `title`>
-			& Pick<Assertion, `callback` | `options`>
+type Assertion = (arg: typeof assertionHelpers) => boolean;
+
+// #endregion
+
+// #region Tests
+
+interface TestOptions extends SpecStepOptions {}
+
+interface TestResult extends SpecStepResult {
+	children: Array<AssertionResult>;
+}
+
+type TestHelpers = Pick<Test, `assert`>;
+
+class Test extends SpecStep {
+	callback: (arg: TestHelpers) => $.Type.PromiseMaybe<void>;
+	children: Array<Assertion> = [];
+	result: TestResult;
+
+	private _helpers: TestHelpers = {
+		assert: this.assert.bind(this),
+	};
+
+	constructor(input: Pick<
+		Test,
+		| `callback`
+		| `options`
+		| `title`
+	>) {
+		super(input);
+	}
+
+	assert(
+		assertion: Assertion, // TODO1: Accept primitives as well as functions
+		// options: Partial<AssertionOptions> = {}
 	) {
-		super({
-			...input,
-			title: input.callback.toString(),
+		const didPass = assertion(assertionHelpers);
+		const result: ResultType = didPass ? `pass` : `fail`;
+		this.result.children.push({
+			result,
+			title: assertion.toString(),
 		});
-		this.callback = input.callback;
+	}
+
+	// TODO1: assertx
+
+	async run(): Promise<TestResult> {
+		this.result = {
+			children: [],
+			result: null,
+			title: this.title,
+		};
+		await this.callback(this._helpers);
+		return this.result;
 	}
 }
 
@@ -109,56 +139,55 @@ interface SuiteOptions extends SpecStepOptions {
 	shuffle: boolean;
 }
 
-type SuiteHelpers = Pick<Suite,
-	| `assert`
-	| `test`
-	| `testx`
->;
+interface SuiteResult extends SpecStepResult {
+	children: Array<TestResult | SuiteResult>;
+}
+
+type SuiteHelpers = Pick<Suite, `suite` | `test`>;
 
 export class Suite extends SpecStep {
-	callback: (arg: SuiteHelpers) => void; // TODO2: Make properties alphabetical
-	children: Array<Suite | Assertion> = [];
-	helpers: SuiteHelpers = {
-		assert: this.assert.bind(this),
+	callback: (arg: SuiteHelpers) => void; // TODO3: Make properties alphabetical
+	children: Array<Suite | Test> = [];
+	options: Partial<SuiteOptions>;
+
+	private _helpers: SuiteHelpers = { // TODO3: Require private variables to begin with _
+		suite: this.suite.bind(this),
 		test: this.test.bind(this),
-		testx: this.testx.bind(this),
 	};
-	options: Partial<SuiteOptions> = {
-		dry: true,
-		shuffle: false,
-	};
-	result: typeof resultTypes[number];
 
-	constructor(
-		input:
-			& ConstructorParameters<typeof SpecStep>[0]
-			& Pick<Suite, `callback` | `options`>
-	) {
+	constructor(input: ConstructorParameters<typeof SpecStep>[0]) {
 		super(input);
-		this.callback = input.callback;
-	}
-
-	assert(
-		callback: Assertion[`callback`],
-		options: Partial<AssertionOptions> = {}
-	) {
-		const assertion = new Assertion({
-			callback,
-			options: {
-				...this.options || {},
-				...options || {},
-			},
-			parent: this,
-		});
-		this.children.push(assertion);
-		this.log.push(assertion.log);
-		// assertion.callback(assertionHelpers);
-		return assertion;
+		if (this.callback) { // Root suite instantiated without a callback
+			this.callback(this._helpers);
+		}
 	}
 
 	// TODO1: beforeEach
 
-	test(
+	async run(): Promise<SuiteResult> {
+		let indexCurrent = -1;
+		const results: Array<SuiteResult | TestResult> = [];
+		const steps = this.children.map((child) => {
+			return async() => {
+				results.push(await child.run());
+				await nextStep();
+			};
+		});
+		await nextStep();
+		return {
+			children: results,
+		} as SuiteResult;
+
+		async function nextStep() {
+			indexCurrent += 1;
+			const step = steps[indexCurrent];
+			if (step) {
+				await step();
+			}
+		}
+	}
+
+	suite(
 		title: string,
 		callback: Suite[`callback`],
 		options: Partial<SuiteOptions> = {}
@@ -169,33 +198,32 @@ export class Suite extends SpecStep {
 				...this.options || {},
 				...options || {},
 			},
-			parent: this,
 			title,
 		});
 		this.children.push(suite);
-		this.log.push(suite.log);
-		if (suite.options.dry && suite.callback) { // Needed for testx
-			suite.callback(suite.helpers);
-		}
 		return suite;
 	}
 
-	testx(/* eslint-disable-line @typescript-eslint/require-await */
-		...args: Partial<Parameters<Suite[`test`]>>
+	// TODO1: suitex
+
+	test(
+		title: string,
+		callback: Test[`callback`],
+		options: Partial<TestOptions> = {}
 	) {
-		const [title, callback, options] = args;
-		return this.test(title, callback, {
-			...options,
-			dry: true,
+		const test = new Test({
+			callback,
+			options: {
+				...this.options || {},
+				...options || {},
+			},
+			title,
 		});
+		this.children.push(test);
+		return test;
 	}
 
-	toJSON() {
-		return {
-			...super.toJSON(),
-			children: this.children,
-		};
-	}
+	// TODO1: testx
 }
 
 // #endregion

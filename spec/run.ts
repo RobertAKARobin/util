@@ -31,7 +31,5 @@ void (async function() {
 		})
 	);
 
-	// $._rootSuite.run();
-	console.log(JSON.stringify($.log, null, `  `));
-	console.log(JSON.stringify($, null, `  `));
+	console.log(JSON.stringify(await $.run(), null, `  `));
 })();
