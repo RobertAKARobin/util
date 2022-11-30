@@ -1,8 +1,13 @@
 import $ from '.';
 
 $.suite(`Math`, $ => {
-	let x = 3;
-	let y = 4;
+	let x: number;
+	let y: number;
+
+	$.beforeEach(() => {
+		x = 3;
+		y = 4;
+	});
 
 	$.test(`types`, $ => {
 		$.assert($ => $(typeof x) === `number`);
@@ -13,8 +18,6 @@ $.suite(`Math`, $ => {
 	});
 
 	$.test(`subtraction`, async $ => {
-		x = 4;
-		y = 3;
 		x = await new Promise((resolve) => {
 			setTimeout(() => resolve(4), 10);
 		});

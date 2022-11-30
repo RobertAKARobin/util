@@ -1,5 +1,23 @@
 import * as $ from 'js/util';
 
+async function chainAsync( // TODO1: Move to js/util
+	steps: Array<(
+		next: () => $.Type.PromiseMaybe<void>
+	) => $.Type.PromiseMaybe<void>>
+): Promise<void> {
+	// TODO3: Add return values
+	let indexCurrent = -1;
+	await next();
+
+	async function next() {
+		indexCurrent += 1;
+		const step = steps[indexCurrent];
+		if (step) {
+			await step(next);
+		}
+	}
+}
+
 const resultTypes = [ `pending`, `pass`, `error`, `fail`] as const;
 
 type ResultType = typeof resultTypes[number];
@@ -143,14 +161,16 @@ interface SuiteResult extends SpecStepResult {
 	children: Array<TestResult | SuiteResult>;
 }
 
-type SuiteHelpers = Pick<Suite, `suite` | `test`>;
+type SuiteHelpers = Pick<Suite, `beforeEach` | `suite` | `test`>;
 
 export class Suite extends SpecStep {
+	beforeEaches: Array<() => $.Type.PromiseMaybe<void>> = [];
 	callback: (arg: SuiteHelpers) => void; // TODO3: Make properties alphabetical
 	children: Array<Suite | Test> = [];
 	options: Partial<SuiteOptions>;
 
 	private _helpers: SuiteHelpers = { // TODO3: Require private variables to begin with _
+		beforeEach: this.beforeEach.bind(this),
 		suite: this.suite.bind(this),
 		test: this.test.bind(this),
 	};
@@ -162,29 +182,37 @@ export class Suite extends SpecStep {
 		}
 	}
 
-	// TODO1: beforeEach
+	beforeEach(
+		callback: () => $.Type.PromiseMaybe<void>
+	): void {
+		this.beforeEaches.push(callback);
+	}
 
 	async run(): Promise<SuiteResult> {
-		let indexCurrent = -1;
-		const results: Array<SuiteResult | TestResult> = [];
-		const steps = this.children.map((child) => {
-			return async() => {
-				results.push(await child.run());
-				await nextStep();
-			};
-		});
-		await nextStep();
-		return {
-			children: results,
-		} as SuiteResult;
-
-		async function nextStep() {
-			indexCurrent += 1;
-			const step = steps[indexCurrent];
-			if (step) {
-				await step();
-			}
-		}
+		const suiteResult: SuiteResult = {
+			children: [],
+			result: null,
+			title: this.title,
+		};
+		const beforeEach = () => chainAsync(
+			this.beforeEaches.map((callback) => {
+				return async(next: () => Promise<void>) => {
+					await callback();
+					await next();
+				};
+			}),
+		);
+		await chainAsync(
+			this.children.map((child) => {
+				return async(next: () => Promise<void>) => {
+					await beforeEach();
+					const result = await child.run();
+					suiteResult.children.push(result);
+					await next();
+				};
+			})
+		);
+		return suiteResult;
 	}
 
 	suite(
