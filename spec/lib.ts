@@ -1,23 +1,5 @@
 import * as $ from 'js/util';
 
-async function chainAsync( // TODO1: Move to js/util
-	steps: Array<(
-		next: () => $.Type.PromiseMaybe<void>
-	) => $.Type.PromiseMaybe<void>>
-): Promise<void> {
-	// TODO3: Add return values
-	let indexCurrent = -1;
-	await next();
-
-	async function next() {
-		indexCurrent += 1;
-		const step = steps[indexCurrent];
-		if (step) {
-			await step(next);
-		}
-	}
-}
-
 const resultTypes = [ `pending`, `pass`, `error`, `fail`] as const;
 
 type ResultType = typeof resultTypes[number];
@@ -92,7 +74,7 @@ const assertionHelpers = Object.assign(valueWrap, {
 
 interface AssertionResult extends SpecStepResult {}
 
-type Assertion = (arg: typeof assertionHelpers) => boolean;
+type Assertion = (arg: typeof assertionHelpers) => boolean; // TODO1: Accept async?
 
 // #endregion
 
@@ -125,8 +107,8 @@ class Test extends SpecStep {
 	}
 
 	assert(
-		assertion: Assertion, // TODO1: Accept primitives as well as functions
-		// options: Partial<AssertionOptions> = {}
+		assertion: Assertion, // TODO1: Accept strings/numbers as well as functions
+		// options: Partial<AssertionOptions> = {} // TODO1: AssertionOptions
 	) {
 		const didPass = assertion(assertionHelpers);
 		const result: ResultType = didPass ? `pass` : `fail`;
@@ -194,24 +176,19 @@ export class Suite extends SpecStep {
 			result: null,
 			title: this.title,
 		};
-		const beforeEach = () => chainAsync(
-			this.beforeEaches.map((callback) => {
-				return async(next: () => Promise<void>) => {
-					await callback();
-					await next();
-				};
-			}),
+
+		const beforeEach = () => this.beforeEaches.reduce(
+			async(next, beforeEach) => next.then(beforeEach),
+			Promise.resolve()
 		);
-		await chainAsync(
-			this.children.map((child) => {
-				return async(next: () => Promise<void>) => {
-					await beforeEach();
-					const result = await child.run();
-					suiteResult.children.push(result);
-					await next();
-				};
-			})
-		);
+
+		await this.children.reduce(async(next, child) => {
+			await next;
+			await beforeEach();
+			const result = await child.run();
+			suiteResult.children.push(result);
+		}, Promise.resolve());
+
 		return suiteResult;
 	}
 
