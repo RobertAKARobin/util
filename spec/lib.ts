@@ -136,6 +136,7 @@ class Test extends SpecStep {
 // #region Suites
 
 interface SuiteOptions extends SpecStepOptions {
+	// TODO2: Run tests concurrently instead of consecutively? Tricky if beforeEach since might overwrite shraed variables
 	shuffle: boolean;
 }
 
