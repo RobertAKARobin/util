@@ -6,52 +6,61 @@ type ResultType = typeof resultTypes[number];
 
 // #region SpecStep
 
-interface SpecStepOptions {
-	pending: boolean;
-}
-
-interface SpecStepResult {
-	// TODO1: Timestamps
-	// children?: Array<SpecStepResult>;
-	// description: string;
-	// index: number;
-	// prefix: string;
-	result: ResultType;
-	title: string;
-
-	// constructor(input:
-	// 	& Pick<
-	// 		SpecStepResult,
-	// 		| `description`
-	// 		| ``
-	// )
-}
-
-abstract class SpecStep {
+abstract class SpecStep<Result extends SpecStepResult = SpecStepResult> {
 	callback: (...arg: Array<unknown>) => $.Type.PromiseMaybe<unknown>;
+	index: number;
 	options: Partial<SpecStepOptions>;
+	parent: SpecStep & {
+		children: Array<SpecStep>;
+	};
 	title: string;
 
 	constructor(input: Pick<
 		SpecStep,
 		| `callback`
 		| `options` // TODO3: Require these to be alphabetized?
+		| `parent`
 		| `title`
 	>) {
 		this.callback = input.callback;
+		this.index = input.parent
+			? input.parent.children.length
+			: null;
 		this.options = {
 			...this.options,
 			...input.options,
 		};
+		this.parent = input.parent;
 		this.title = input.title;
 	}
+
+	toJSON() {
+		return {
+			index: this.index,
+			options: this.options,
+			title: this.title,
+		};
+	}
+
+	abstract run(): Promise<Result>;
+}
+
+interface SpecStepOptions {
+	pending: boolean;
+}
+
+abstract class SpecStepResult {
+	// TODO1: Timestamps
+	description: string;
+	index: number;
+	result: ResultType;
 }
 
 // endregion
 
 // #region Assertions
 
-class Assertion extends SpecStep {  // TODO1: Accept async?
+class Assertion extends SpecStep<AssertionResult> {  // TODO1: Accept async?
 	callback: (arg: AssertionHelpers) => $.Type.PromiseMaybe<boolean>;
 
 	private _helpers: AssertionHelpers = Object.assign(
@@ -65,6 +74,7 @@ class Assertion extends SpecStep {  // TODO1: Accept async?
 		Assertion,
 		| `callback`
 		| `options`
+		| `parent`
 	>) {
 		super({
 			...input,
@@ -98,13 +108,17 @@ type AssertionHelpers = Assertion[`valueWrap`] & Pick<Assertion, `thrownBy`>;
 
 interface AssertionOptions extends SpecStepOptions {}
 
-interface AssertionResult extends SpecStepResult {}
+class AssertionResult extends SpecStepResult {}
 
 // #endregion
 
 // #region Tests
 
-class Test extends SpecStep {
+/**
+ * - Children are defined at runtime
+ * - Children must be run in the order in which they're defined
+ */
+class Test extends SpecStep<TestResult> {
 	callback: (arg: TestHelpers) => $.Type.PromiseMaybe<void>;
 	children: Array<Assertion> = [];
 	result: TestResult;
@@ -117,6 +131,7 @@ class Test extends SpecStep {
 		Test,
 		| `callback`
 		| `options`
+		| `parent`
 		| `title`
 	>) {
 		super(input);
@@ -132,6 +147,7 @@ class Test extends SpecStep {
 				...this.options || {},
 				...options || {},
 			},
+			parent: this,
 		});
 		this.children.push(assertion);
 		return assertion;
@@ -139,14 +155,17 @@ class Test extends SpecStep {
 
 	// TODO1: assertx
 
-	async run(): Promise<TestResult> {
-		this.result = {
-			children: [],
-			result: null,
-			title: this.title,
-		};
+	async run() {
+		this.result = new TestResult();
 		await this.callback(this._helpers);
 		return this.result;
+	}
+
+	toJSON() {
+		return {
+			...super.toJSON(),
+			children: this.children,
+		};
 	}
 }
 
@@ -154,15 +173,19 @@ type TestHelpers = Pick<Test, `assert`>;
 
 interface TestOptions extends SpecStepOptions {}
 
-interface TestResult extends SpecStepResult {
-	children: Array<AssertionResult>;
+class TestResult extends SpecStepResult {
+	children: Array<AssertionResult> = [];
 }
 
 // #endregion
 
 // #region Suites
 
-export class Suite extends SpecStep {
+/**
+ * - Children are defined at compile time
+ * - Children can be run in any order
+ */
+export class Suite extends SpecStep<SuiteResult> {
 	beforeEaches: Array<() => $.Type.PromiseMaybe<void>> = [];
 	callback: (arg: SuiteHelpers) => void; // TODO3: Make properties alphabetical
 	children: Array<Suite | Test> = [];
@@ -187,12 +210,8 @@ export class Suite extends SpecStep {
 		this.beforeEaches.push(callback);
 	}
 
-	async run(): Promise<SuiteResult> {
-		const suiteResult: SuiteResult = {
-			children: [],
-			result: null,
-			title: this.title,
-		};
+	async run() {
+		const suiteResult = new SuiteResult();
 
 		const beforeEach = () => this.beforeEaches.reduce(
 			async(next, beforeEach) => next.then(beforeEach),
@@ -220,6 +239,7 @@ export class Suite extends SpecStep {
 				...this.options || {},
 				...options || {},
 			},
+			parent: this,
 			title,
 		});
 		this.children.push(suite);
@@ -239,10 +259,18 @@ export class Suite extends SpecStep {
 				...this.options || {},
 				...options || {},
 			},
+			parent: this,
 			title,
 		});
 		this.children.push(test);
 		return test;
+	}
+
+	toJSON() {
+		return {
+			...super.toJSON(),
+			children: this.children,
+		};
 	}
 
 	// TODO1: testx
@@ -255,8 +283,8 @@ interface SuiteOptions extends SpecStepOptions {
 	shuffle: boolean;
 }
 
-interface SuiteResult extends SpecStepResult {
-	children: Array<TestResult | SuiteResult>;
+class SuiteResult extends SpecStepResult {
+	children: Array<TestResult | SuiteResult> = [];
 }
 
 // #endregion
