@@ -51,42 +51,58 @@ abstract class SpecStep {
 
 // #region Assertions
 
-function valueWrap<Value>(value: Value) {
-	return value;
-}
+class Assertion extends SpecStep {  // TODO1: Accept async?
+	callback: (arg: AssertionHelpers) => $.Type.PromiseMaybe<boolean>;
 
-function thrownBy(
-	callback: (...args: unknown[]) => void
-): Error | null {
-	try {
-		callback();
-	} catch (error) {
-		return error as Error;
+	private _helpers: AssertionHelpers = Object.assign(
+		this.valueWrap.bind(this),
+		{
+			thrownBy: this.thrownBy.bind(this),
+		}
+	);
+
+	constructor(input: Pick<
+		Assertion,
+		| `callback`
+		| `options`
+	>) {
+		super({
+			...input,
+			title: input.callback.toString(),
+		});
 	}
-	return null;
+
+	async run(): Promise<AssertionResult> {
+		const didPass = await this.callback(this._helpers);
+		const result: ResultType = didPass ? `pass` : `fail`;
+		return { result } as AssertionResult;
+	}
+
+	thrownBy(
+		callback: (...args: unknown[]) => void
+	): Error | null {
+		try {
+			callback();
+		} catch (error) {
+			return error as Error;
+		}
+		return null;
+	}
+
+	valueWrap<Value>(value: Value) {
+		return value;
+	}
 }
 
-const assertionHelpers = Object.assign(valueWrap, {
-	thrownBy,
-});
+type AssertionHelpers = Assertion[`valueWrap`] & Pick<Assertion, `thrownBy`>;
 
-// interface AssertionOptions extends SpecStepOptions {}
+interface AssertionOptions extends SpecStepOptions {}
 
 interface AssertionResult extends SpecStepResult {}
-
-type Assertion = (arg: typeof assertionHelpers) => boolean; // TODO1: Accept async?
 
 // #endregion
 
 // #region Tests
-
-interface TestOptions extends SpecStepOptions {}
-
-interface TestResult extends SpecStepResult {
-	children: Array<AssertionResult>;
-}
-
-type TestHelpers = Pick<Test, `assert`>;
 
 class Test extends SpecStep {
 	callback: (arg: TestHelpers) => $.Type.PromiseMaybe<void>;
@@ -107,15 +123,18 @@ class Test extends SpecStep {
 	}
 
 	assert(
-		assertion: Assertion, // TODO1: Accept strings/numbers as well as functions
-		// options: Partial<AssertionOptions> = {} // TODO1: AssertionOptions
+		callback: Assertion[`callback`],
+		options: Partial<AssertionOptions> = {},
 	) {
-		const didPass = assertion(assertionHelpers);
-		const result: ResultType = didPass ? `pass` : `fail`;
-		this.result.children.push({
-			result,
-			title: assertion.toString(),
+		const assertion = new Assertion({
+			callback,
+			options: {
+				...this.options || {},
+				...options || {},
+			},
 		});
+		this.children.push(assertion);
+		return assertion;
 	}
 
 	// TODO1: assertx
@@ -131,20 +150,17 @@ class Test extends SpecStep {
 	}
 }
 
+type TestHelpers = Pick<Test, `assert`>;
+
+interface TestOptions extends SpecStepOptions {}
+
+interface TestResult extends SpecStepResult {
+	children: Array<AssertionResult>;
+}
+
 // #endregion
 
 // #region Suites
-
-interface SuiteOptions extends SpecStepOptions {
-	// TODO2: Run tests concurrently instead of consecutively? Tricky if beforeEach since might overwrite shraed variables
-	shuffle: boolean;
-}
-
-interface SuiteResult extends SpecStepResult {
-	children: Array<TestResult | SuiteResult>;
-}
-
-type SuiteHelpers = Pick<Suite, `beforeEach` | `suite` | `test`>;
 
 export class Suite extends SpecStep {
 	beforeEaches: Array<() => $.Type.PromiseMaybe<void>> = [];
@@ -230,6 +246,17 @@ export class Suite extends SpecStep {
 	}
 
 	// TODO1: testx
+}
+
+type SuiteHelpers = Pick<Suite, `beforeEach` | `suite` | `test`>;
+
+interface SuiteOptions extends SpecStepOptions {
+	// TODO2: Run tests concurrently instead of consecutively? Tricky if beforeEach since might overwrite shraed variables
+	shuffle: boolean;
+}
+
+interface SuiteResult extends SpecStepResult {
+	children: Array<TestResult | SuiteResult>;
 }
 
 // #endregion
