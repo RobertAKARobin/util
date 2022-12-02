@@ -121,7 +121,6 @@ class AssertionResult extends SpecStepResult {}
 class Test extends SpecStep<TestResult> {
 	callback: (arg: TestHelpers) => $.Type.PromiseMaybe<void>;
 	children: Array<Assertion> = [];
-	result: TestResult;
 
 	private _helpers: TestHelpers = {
 		assert: this.assert.bind(this),
@@ -156,9 +155,16 @@ class Test extends SpecStep<TestResult> {
 	// TODO1: assertx
 
 	async run() {
-		this.result = new TestResult();
+		this.children = [];
 		await this.callback(this._helpers);
-		return this.result;
+
+		const testResult = new TestResult();
+		await this.children.reduce(async(previous, child) => {
+			await previous;
+			const result = await child.run();
+			testResult.children.push(result);
+		}, Promise.resolve());
+		return testResult;
 	}
 
 	toJSON() {
@@ -214,12 +220,12 @@ export class Suite extends SpecStep<SuiteResult> {
 		const suiteResult = new SuiteResult();
 
 		const beforeEach = () => this.beforeEaches.reduce(
-			async(next, beforeEach) => next.then(beforeEach),
+			async(previous, beforeEach) => previous.then(beforeEach),
 			Promise.resolve()
 		);
 
-		await this.children.reduce(async(next, child) => {
-			await next;
+		await this.children.reduce(async(previous, child) => {
+			await previous;
 			await beforeEach();
 			const result = await child.run();
 			suiteResult.children.push(result);
