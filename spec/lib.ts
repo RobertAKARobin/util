@@ -6,7 +6,7 @@ type ResultType = typeof resultTypes[number];
 
 // #region SpecStep
 
-abstract class SpecStep<Result extends SpecStepResult = SpecStepResult> {
+abstract class SpecStep {
 	callback: (...arg: Array<unknown>) => $.Type.PromiseMaybe<unknown>;
 	index: number;
 	options: Partial<SpecStepOptions>;
@@ -42,25 +42,44 @@ abstract class SpecStep<Result extends SpecStepResult = SpecStepResult> {
 		};
 	}
 
-	abstract run(): Promise<Result>;
+	abstract run(): Promise<SpecStepResult>;
 }
 
 interface SpecStepOptions {
 	pending: boolean;
 }
 
+/**
+ * An instance of a SpecStep being run. Note that the SpecStepResult's children are NOT the same as the SpecStep's children: they might be in a different order, and assertions are ephemeral anyway.
+ */
 abstract class SpecStepResult {
 	// TODO1: Timestamps
 	description: string;
 	index: number;
-	result: ResultType;
+	owner: SpecStep;
+	parent: SpecStepResult;
+	resultType: ResultType;
+
+	constructor(input: Pick<
+		SpecStepResult,
+		`owner`
+	>) {
+		this.owner = input.owner;
+	}
+
+	toJSON() {
+		return {
+			resultType: this.resultType,
+			title: this.owner.title,
+		};
+	}
 }
 
 // endregion
 
 // #region Assertions
 
-class Assertion extends SpecStep<AssertionResult> {  // TODO1: Accept async?
+class Assertion extends SpecStep {  // TODO1: Accept async?
 	callback: (arg: AssertionHelpers) => $.Type.PromiseMaybe<boolean>;
 
 	private _helpers: AssertionHelpers = Object.assign(
@@ -83,9 +102,13 @@ class Assertion extends SpecStep<AssertionResult> {  // TODO1: Accept async?
 	}
 
 	async run(): Promise<AssertionResult> {
+		const result = new AssertionResult({
+			owner: this,
+		});
 		const didPass = await this.callback(this._helpers);
-		const result: ResultType = didPass ? `pass` : `fail`;
-		return { result } as AssertionResult;
+		const resultType: ResultType = didPass ? `pass` : `fail`;
+		result.resultType = resultType;
+		return result;
 	}
 
 	thrownBy(
@@ -108,7 +131,10 @@ type AssertionHelpers = Assertion[`valueWrap`] & Pick<Assertion, `thrownBy`>;
 
 interface AssertionOptions extends SpecStepOptions {}
 
-class AssertionResult extends SpecStepResult {}
+class AssertionResult extends SpecStepResult {
+	owner: Assertion;
+	parent: TestResult;
+}
 
 // #endregion
 
@@ -118,7 +144,7 @@ class AssertionResult extends SpecStepResult {}
  * - Children are defined at runtime
  * - Children must be run in the order in which they're defined
  */
-class Test extends SpecStep<TestResult> {
+class Test extends SpecStep {
 	callback: (arg: TestHelpers) => $.Type.PromiseMaybe<void>;
 	children: Array<Assertion> = [];
 
@@ -158,10 +184,13 @@ class Test extends SpecStep<TestResult> {
 		this.children = [];
 		await this.callback(this._helpers);
 
-		const testResult = new TestResult();
+		const testResult = new TestResult({
+			owner: this,
+		});
 		await this.children.reduce(async(previous, child) => {
 			await previous;
 			const result = await child.run();
+			result.parent = testResult;
 			testResult.children.push(result);
 		}, Promise.resolve());
 		return testResult;
@@ -181,6 +210,13 @@ interface TestOptions extends SpecStepOptions {}
 
 class TestResult extends SpecStepResult {
 	children: Array<AssertionResult> = [];
+
+	toJSON() {
+		return {
+			...super.toJSON(),
+			children: this.children,
+		};
+	}
 }
 
 // #endregion
@@ -191,7 +227,7 @@ class TestResult extends SpecStepResult {
  * - Children are defined at compile time
  * - Children can be run in any order
  */
-export class Suite extends SpecStep<SuiteResult> {
+export class Suite extends SpecStep {
 	beforeEaches: Array<() => $.Type.PromiseMaybe<void>> = [];
 	callback: (arg: SuiteHelpers) => void; // TODO3: Make properties alphabetical
 	children: Array<Suite | Test> = [];
@@ -217,7 +253,9 @@ export class Suite extends SpecStep<SuiteResult> {
 	}
 
 	async run() {
-		const suiteResult = new SuiteResult();
+		const suiteResult = new SuiteResult({
+			owner: this,
+		});
 
 		const beforeEach = () => this.beforeEaches.reduce(
 			async(previous, beforeEach) => previous.then(beforeEach),
@@ -228,6 +266,7 @@ export class Suite extends SpecStep<SuiteResult> {
 			await previous;
 			await beforeEach();
 			const result = await child.run();
+			result.parent = suiteResult;
 			suiteResult.children.push(result);
 		}, Promise.resolve());
 
@@ -291,6 +330,13 @@ interface SuiteOptions extends SpecStepOptions {
 
 class SuiteResult extends SpecStepResult {
 	children: Array<TestResult | SuiteResult> = [];
+
+	toJSON() {
+		return {
+			...super.toJSON(),
+			children: this.children,
+		};
+	}
 }
 
 // #endregion
