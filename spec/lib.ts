@@ -42,7 +42,7 @@ abstract class SpecStep {
 		};
 	}
 
-	abstract run(): Promise<SpecStepResult>;
+	abstract run(input: Pick<SpecStepResult, `parent`>): Promise<SpecStepResult>;
 }
 
 interface SpecStepOptions {
@@ -57,18 +57,26 @@ abstract class SpecStepResult {
 	description: string;
 	index: number;
 	owner: SpecStep;
-	parent: SpecStepResult;
+	parent: SpecStepResult & {
+		children: Array<SpecStepResult>;
+	};
 	resultType: ResultType;
 
 	constructor(input: Pick<
 		SpecStepResult,
-		`owner`
+		| `owner`
+		| `parent`
 	>) {
+		this.index = input.parent
+			? input.parent.children.length
+			: null;
 		this.owner = input.owner;
+		this.parent = input.parent;
 	}
 
 	toJSON() {
 		return {
+			index: this.index,
 			resultType: this.resultType,
 			title: this.owner.title,
 		};
@@ -101,9 +109,10 @@ class Assertion extends SpecStep {  // TODO1: Accept async?
 		});
 	}
 
-	async run(): Promise<AssertionResult> {
+	async run(input: Pick<AssertionResult, `parent`>): Promise<AssertionResult> {
 		const result = new AssertionResult({
 			owner: this,
+			parent: input.parent,
 		});
 		const didPass = await this.callback(this._helpers);
 		const resultType: ResultType = didPass ? `pass` : `fail`;
@@ -180,16 +189,19 @@ class Test extends SpecStep {
 
 	// TODO1: assertx
 
-	async run() {
+	async run(input: Pick<TestResult, `parent`>) {
 		this.children = [];
 		await this.callback(this._helpers);
 
 		const testResult = new TestResult({
 			owner: this,
+			parent: input.parent,
 		});
 		await this.children.reduce(async(previous, child) => {
 			await previous;
-			const result = await child.run();
+			const result = await child.run({
+				parent: testResult,
+			});
 			result.parent = testResult;
 			testResult.children.push(result);
 		}, Promise.resolve());
@@ -242,7 +254,7 @@ export class Suite extends SpecStep {
 	constructor(input: ConstructorParameters<typeof SpecStep>[0]) {
 		super(input);
 		if (this.callback) { // Root suite instantiated without a callback
-			this.callback(this._helpers);
+			this.callback(this._helpers); // TODO2: Make this async?
 		}
 	}
 
@@ -252,9 +264,10 @@ export class Suite extends SpecStep {
 		this.beforeEaches.push(callback);
 	}
 
-	async run() {
+	async run(input: Pick<SuiteResult, `parent`>) {
 		const suiteResult = new SuiteResult({
 			owner: this,
+			parent: input.parent,
 		});
 
 		const beforeEach = () => this.beforeEaches.reduce(
@@ -265,7 +278,9 @@ export class Suite extends SpecStep {
 		await this.children.reduce(async(previous, child) => {
 			await previous;
 			await beforeEach();
-			const result = await child.run();
+			const result = await child.run({
+				parent: suiteResult,
+			});
 			result.parent = suiteResult;
 			suiteResult.children.push(result);
 		}, Promise.resolve());
