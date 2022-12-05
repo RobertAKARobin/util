@@ -112,6 +112,25 @@ abstract class SpecStepResult {
 	}
 }
 
+abstract class SpecStepResultParent<Child extends SpecStepResult>
+	extends SpecStepResult {
+	children: Array<Child> = [];
+
+	toJSON() {
+		return {
+			...super.toJSON(),
+			children: this.children,
+		};
+	}
+
+	toString(): string {
+		return [
+			super.toString(),
+			...this.children.map((child) => child.toString()),
+		].join(`\n`);
+	}
+}
+
 // endregion
 
 // #region Assertions
@@ -241,23 +260,7 @@ type TestHelpers = Pick<Test, `assert`>;
 
 interface TestOptions extends SpecStepOptions {}
 
-class TestResult extends SpecStepResult {
-	children: Array<AssertionResult> = [];
-
-	toJSON() {
-		return {
-			...super.toJSON(),
-			children: this.children,
-		};
-	}
-
-	toString() {
-		return [
-			super.toString(),
-			...this.children.map((child) => child.toString()),
-		].join(`\n`);
-	}
-}
+class TestResult extends SpecStepResultParent<AssertionResult> {}
 
 // #endregion
 
@@ -365,22 +368,6 @@ interface SuiteOptions extends SpecStepOptions {
 	shuffle: boolean;
 }
 
-class SuiteResult extends SpecStepResult {
-	children: Array<TestResult | SuiteResult> = [];
-
-	toJSON() {
-		return {
-			...super.toJSON(),
-			children: this.children,
-		};
-	}
-
-	toString(): string {
-		return [
-			super.toString(),
-			...this.children.map((child) => child.toString()),
-		].join(`\n`);
-	}
-}
+class SuiteResult extends SpecStepResultParent<TestResult | SuiteResult> {}
 
 // #endregion
