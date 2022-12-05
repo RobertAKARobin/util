@@ -33,7 +33,7 @@ void (async function() {
 
 	console.log(JSON.stringify($, null, `  `));
 
-	console.log(JSON.stringify(await $.run({
-		parent: null,
-	}), null, `  `));
+	console.log(JSON.stringify(await $.run({ parent: null }), null, `  `));
+
+	console.log((await $.run({ parent: null })).toString());
 })();

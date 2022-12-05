@@ -2,6 +2,13 @@ import * as $ from 'js/util';
 
 const resultTypes = [ `pending`, `pass`, `error`, `fail`] as const;
 
+const resultTypeMarks: Record<ResultType, string> = {
+	'error': `🟡`,
+	'fail': `🔴`,
+	'pass': `🟢`,
+	'pending': `⚪`,
+};
+
 type ResultType = typeof resultTypes[number];
 
 // #region SpecStep
@@ -80,6 +87,17 @@ abstract class SpecStepResult {
 			resultType: this.resultType,
 			title: this.owner.title,
 		};
+	}
+
+	toString() {
+		return [
+			[
+				(resultTypeMarks[this.resultType] || resultTypeMarks.pending),
+				this.index,
+				this.owner.title,
+			].join(` `),
+			this.description,
+		].join(`\n`);
 	}
 }
 
@@ -214,6 +232,13 @@ class Test extends SpecStep {
 			children: this.children,
 		};
 	}
+
+	toString() {
+		return [
+			super.toString(),
+			...this.children.map((child) => child.toString()),
+		].join(`\n`);
+	}
 }
 
 type TestHelpers = Pick<Test, `assert`>;
@@ -228,6 +253,13 @@ class TestResult extends SpecStepResult {
 			...super.toJSON(),
 			children: this.children,
 		};
+	}
+
+	toString() {
+		return [
+			super.toString(),
+			...this.children.map((child) => child.toString()),
+		].join(`\n`);
 	}
 }
 
@@ -351,6 +383,13 @@ class SuiteResult extends SpecStepResult {
 			...super.toJSON(),
 			children: this.children,
 		};
+	}
+
+	toString(): string {
+		return [
+			super.toString(),
+			...this.children.map((child) => child.toString()),
+		].join(`\n`);
 	}
 }
 
