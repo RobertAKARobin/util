@@ -130,3 +130,19 @@ export function toKeys<Key extends string | number | symbol, Fill>(
 	}
 	return output;
 }
+
+export function traverseMap<
+	PropertyName extends string,
+	Target extends Record<PropertyName, Target>
+>(
+	input: Target,
+	propertyName: PropertyName,
+) {
+	const ancestors: Array<Target> = [];
+	let current: Target = input;
+	while (current) {
+		ancestors.push(current);
+		current = current[propertyName];
+	}
+	return ancestors;
+}

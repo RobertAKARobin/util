@@ -16,6 +16,7 @@ type ResultType = typeof resultTypes[number];
 abstract class SpecStep {
 	callback: (...arg: Array<unknown>) => $.Type.PromiseMaybe<unknown>;
 	index: number;
+	indexPath: Array<number>;
 	options: Partial<SpecStepOptions>;
 	parent: SpecStep & {
 		children: Array<SpecStep>;
@@ -33,6 +34,8 @@ abstract class SpecStep {
 		this.index = input.parent
 			? input.parent.children.length
 			: null;
+		this.indexPath = $.traverseMap(this as SpecStep, `parent`)
+			.map((ancestor) => ancestor.index);
 		this.options = {
 			...this.options,
 			...input.options,
@@ -74,6 +77,7 @@ abstract class SpecStepResult {
 	// TODO1: Timestamps
 	description: string;
 	index: number;
+	indexPath: Array<number>;
 	owner: SpecStep;
 	parent: SpecStepResult & {
 		children: Array<SpecStepResult>;
@@ -88,6 +92,8 @@ abstract class SpecStepResult {
 		this.index = input.parent
 			? input.parent.children.length
 			: null;
+		this.indexPath = $.traverseMap(this as SpecStepResult, `parent`)
+			.map((ancestor) => ancestor.index);
 		this.owner = input.owner;
 		this.parent = input.parent;
 	}
@@ -104,7 +110,7 @@ abstract class SpecStepResult {
 		return [
 			[
 				(resultTypeMarks[this.resultType] || resultTypeMarks.pending),
-				this.index,
+				this.indexPath.join(`.`),
 				this.owner.title,
 			].join(` `),
 			this.description,
