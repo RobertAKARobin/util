@@ -52,6 +52,17 @@ abstract class SpecStep {
 	abstract run(input: Pick<SpecStepResult, `parent`>): Promise<SpecStepResult>;
 }
 
+abstract class SpecStepParent<Child extends SpecStep> extends SpecStep {
+	children: Array<Child> = [];
+
+	toJSON() {
+		return {
+			...super.toJSON(),
+			children: this.children,
+		};
+	}
+}
+
 interface SpecStepOptions {
 	pending: boolean;
 }
@@ -171,9 +182,8 @@ class AssertionResult extends SpecStepResult {
  * - Children are defined at runtime
  * - Children must be run in the order in which they're defined
  */
-class Test extends SpecStep {
+class Test extends SpecStepParent<Assertion> {
 	callback: (arg: TestHelpers) => $.Type.PromiseMaybe<void>;
-	children: Array<Assertion> = [];
 
 	private _helpers: TestHelpers = {
 		assert: this.assert.bind(this),
@@ -225,20 +235,6 @@ class Test extends SpecStep {
 		}, Promise.resolve());
 		return testResult;
 	}
-
-	toJSON() {
-		return {
-			...super.toJSON(),
-			children: this.children,
-		};
-	}
-
-	toString() {
-		return [
-			super.toString(),
-			...this.children.map((child) => child.toString()),
-		].join(`\n`);
-	}
 }
 
 type TestHelpers = Pick<Test, `assert`>;
@@ -271,10 +267,9 @@ class TestResult extends SpecStepResult {
  * - Children are defined at compile time
  * - Children can be run in any order
  */
-export class Suite extends SpecStep {
+export class Suite extends SpecStepParent<Suite | Test> {
 	beforeEaches: Array<() => $.Type.PromiseMaybe<void>> = [];
 	callback: (arg: SuiteHelpers) => void; // TODO3: Make properties alphabetical
-	children: Array<Suite | Test> = [];
 	options: Partial<SuiteOptions>;
 
 	private _helpers: SuiteHelpers = { // TODO3: Require private variables to begin with _
@@ -358,13 +353,6 @@ export class Suite extends SpecStep {
 		});
 		this.children.push(test);
 		return test;
-	}
-
-	toJSON() {
-		return {
-			...super.toJSON(),
-			children: this.children,
-		};
 	}
 
 	// TODO1: testx
