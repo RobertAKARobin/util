@@ -296,7 +296,9 @@ export class Suite extends SpecStep {
 		this.beforeEaches.push(callback);
 	}
 
-	async run(input: Pick<SuiteResult, `parent`>) {
+	async run(input: Pick<SuiteResult, `parent`> = {
+		parent: null,
+	}) {
 		const suiteResult = new SuiteResult({
 			owner: this,
 			parent: input.parent,
