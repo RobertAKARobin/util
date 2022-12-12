@@ -1,6 +1,6 @@
 import * as Type from './types.d';
 
-export { Type };
+export type { Type };
 
 export function debounce(
 	callback: () => void,

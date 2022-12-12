@@ -8,6 +8,7 @@
 		"plugin:@typescript-eslint/recommended"
 	],
 	"ignorePatterns": [
+		"dist/**",
 		"!**/.*.json",
 		"**/package-lock.json",
 		"**/node_modules/**"
