@@ -25,5 +25,5 @@
 		"lint": "eslint . --max-warnings=0",
 		"spec": "ts-node spec/run.ts **/*.spec.ts"
 	},
-	"version": "0.0.58"
+	"version": "0.0.59"
 }
