@@ -1,4 +1,4 @@
-import * as Type from './types.d';
+import * as Type from './types';
 
 export type { Type };
 

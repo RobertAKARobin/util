@@ -1,4 +1,4 @@
-import * as $ from '../js/util';
+import * as $ from 'js/util';
 
 const resultTypes = [ `pending`, `pass`, `error`, `fail`] as const;
 
