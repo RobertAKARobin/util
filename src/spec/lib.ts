@@ -1,4 +1,4 @@
-import * as $ from 'js/util';
+import * as $ from '@robertakarobin/util/index'; // TODO3: Is there a way for /index to not be necessary? https://github.com/microsoft/TypeScript/issues/26859
 
 const resultTypes = [ `pending`, `pass`, `error`, `fail`] as const;
 

@@ -1,13 +1,15 @@
 {
 	"compilerOptions": {
 		"allowJs": true,
-		"baseUrl": "src",
+		"baseUrl": ".",
 		"lib": ["ESNext", "DOM"],
-		"outDir": "dist",
+		"paths": {
+			"@robertakarobin/util/*": ["src/js/util/*"]
+		},
 		"resolveJsonModule": true,
 		"strictBindCallApply": true
 	},
-	"files": [
-		"./src/spec/run.ts"
-	]
+	"ts-node": {
+		"require": ["tsconfig-paths/register"]
+	}
 }
