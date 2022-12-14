@@ -22,9 +22,8 @@
 		"url": "https://github.com/RobertAKARobin/util"
 	},
 	"scripts": {
-		"build": "rm -rf dist && tsc",
 		"lint": "eslint . --max-warnings=0",
-		"spec": "ts-node src/spec/run.ts src/**/*.spec.ts"
+		"spec": "ts-node js/spec/run.ts js/**/*.spec.ts"
 	},
-	"version": "0.0.63"
+	"version": "0.0.65"
 }

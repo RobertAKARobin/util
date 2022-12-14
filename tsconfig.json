@@ -3,9 +3,6 @@
 		"allowJs": true,
 		"baseUrl": ".",
 		"lib": ["ESNext", "DOM"],
-		"paths": {
-			"@robertakarobin/util/*": ["src/js/util/*"]
-		},
 		"resolveJsonModule": true,
 		"strictBindCallApply": true
 	},
