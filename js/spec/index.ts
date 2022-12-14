@@ -1,8 +1,10 @@
 import { Suite } from './lib';
 
-export default new Suite({ // TODO2: Only export helpers?
+const rootSuite = new Suite({ // TODO2: Only export helpers?
 	callback: null,
 	options: {},
 	parent: null,
 	title: ``,
 });
+
+export default rootSuite;
