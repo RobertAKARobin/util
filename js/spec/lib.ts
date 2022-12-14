@@ -109,6 +109,7 @@ abstract class SpecStepResult {
 	toString() {
 		return [
 			[
+				this.indexPath.slice(0, -1).map(() => `\t`).join(``),
 				(resultTypeMarks[this.resultType] || resultTypeMarks.pending),
 				this.indexPath.join(`.`),
 				this.owner.title,
