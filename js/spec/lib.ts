@@ -145,13 +145,6 @@ abstract class SpecStepResultParent<Child extends SpecStepResult>
 class Assertion extends SpecStep {  // TODO1: Accept async?
 	callback: (arg: AssertionHelpers) => $.Type.PromiseMaybe<boolean>;
 
-	private _helpers: AssertionHelpers = Object.assign(
-		this.valueWrap.bind(this),
-		{
-			thrownBy: this.thrownBy.bind(this),
-		}
-	);
-
 	constructor(input: Pick<
 		Assertion,
 		| `callback`
@@ -164,18 +157,7 @@ class Assertion extends SpecStep {  // TODO1: Accept async?
 		});
 	}
 
-	async run(input: Pick<AssertionResult, `parent`>): Promise<AssertionResult> {
-		const result = new AssertionResult({
-			owner: this,
-			parent: input.parent,
-		});
-		const didPass = await this.callback(this._helpers);
-		const resultType: ResultType = didPass ? `pass` : `fail`;
-		result.resultType = resultType;
-		return result;
-	}
-
-	thrownBy(
+	static thrownBy(
 		callback: (...args: unknown[]) => void
 	): Error | null {
 		try {
@@ -186,18 +168,42 @@ class Assertion extends SpecStep {  // TODO1: Accept async?
 		return null;
 	}
 
-	valueWrap<Value>(value: Value) {
-		return value;
+	async run(input: Pick<AssertionResult, `parent`>): Promise<AssertionResult> {
+		const result = new AssertionResult({
+			owner: this,
+			parent: input.parent,
+		});
+		const valueWrap = function<Value>(value: Value) {
+			result.values.push(value);
+			return value;
+		};
+		valueWrap.thrownBy = Assertion.thrownBy;
+		const assertionHelpers: AssertionHelpers = Object.assign(
+			valueWrap,
+			{ thrownBy: Assertion.thrownBy },
+		);
+		const didPass = await this.callback(assertionHelpers);
+		const resultType: ResultType = didPass ? `pass` : `fail`;
+		result.resultType = resultType;
+		return result;
 	}
 }
 
-type AssertionHelpers = Assertion[`valueWrap`] & Pick<Assertion, `thrownBy`>;
+type AssertionHelpers =
+	& (<Value>(value: Value) => Value)
+	& Pick<typeof Assertion, `thrownBy`>;
 
 interface AssertionOptions extends SpecStepOptions {}
 
 class AssertionResult extends SpecStepResult {
 	owner: Assertion;
 	parent: TestResult;
+	values: Array<unknown> = [];
+
+	toString() {
+		this.description = this.values.join(`, `);
+		return super.toString();
+	}
 }
 
 // #endregion

@@ -37,6 +37,14 @@
 			"parser": "@typescript-eslint/parser",
 			"parserOptions": {
 				"project": ["./tsconfig.json"]
+			},
+			"rules": {
+				"@typescript-eslint/unbound-method": [
+					"warn",
+					{
+						"ignoreStatic": true
+					}
+				]
 			}
 		}
 	],
