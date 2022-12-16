@@ -1,3 +1,7 @@
+export type Constructor<Type> = {
+	new(...args: Array<unknown>): Type;
+};
+
 export type OneOrMany<Type> = Type | Array<Type>;
 
 export type PromiseMaybe<Type> = Type | Promise<Type>;
