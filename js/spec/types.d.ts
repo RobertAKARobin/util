@@ -9,35 +9,17 @@ export type ResultType = ResultTypesOrder[number];
 export interface SpecStep<
 	Options extends SpecStepOptions = SpecStepOptions,
 > {
-	callback: (...arg: Array<unknown>) => $.PromiseMaybe<unknown>;
-	index: number;
 	options: Partial<Options>;
-	parent: SpecStepParent<this>;
-	title: string;
 }
 
 export interface SpecStepOptions {
 	pending: boolean;
 }
 
-export interface SpecStepParent<
-	Child extends SpecStep,
-	Options extends SpecStepOptions = SpecStepOptions
-> extends SpecStep<Options> {
-	readonly children: Array<Child>;
-}
-
 /**
  * An instance of a SpecStep being run. Note that the SpecStepResult's children are NOT the same as the SpecStep's children: they might be in a different order, and assertions are ephemeral anyway.
  */
-export interface SpecStepResult<
-	Owner extends SpecStep = SpecStep
-> {
-	description: string;
-	index: number;
-	indexPath: Array<number>;
-	owner: Owner;
-	parent: SpecStepResultParent<this>;
+export interface SpecStepResult {
 	resultType: ResultType;
 }
 
@@ -63,7 +45,7 @@ export type AssertionHelpers =
 
 export interface AssertionOptions extends SpecStepOptions {}
 
-export interface AssertionResult extends SpecStepResult<Assertion> {
+export interface AssertionResult extends SpecStepResult {
 	values: Array<unknown>;
 }
 
@@ -71,15 +53,16 @@ export interface AssertionResult extends SpecStepResult<Assertion> {
 
 // #region Test
 
-export interface Test extends SpecStepParent<Assertion, TestOptions> {
+export interface Test extends SpecStep<TestOptions> {
 	callback: (helpers: TestHelpers) => $.PromiseMaybe<void>;
+	title: string;
 }
 
 export type TestHelpers = {
 	assert: (
 		callback: Assertion[`callback`],
 		options?: Partial<AssertionOptions>
-	) => void;
+	) => Promise<void>;
 };
 
 export interface TestOptions extends SpecStepOptions {}
@@ -90,12 +73,11 @@ export interface TestResult extends SpecStepResultParent<AssertionResult> {}
 
 // #region Suite
 
-export interface Suite extends SpecStepParent<
-	Suite | Test,
-	SuiteOptions
-> {
+export interface Suite extends SpecStep<SuiteOptions> {
 	beforeEaches: Array<Parameters<SuiteHelpers[`beforeEach`]>[0]>;
-	callback: (helpers: SuiteHelpers) => $.PromiseMaybe<void>;
+	callback: (helpers: SuiteHelpers) => void;
+	children: Array<Suite | Test>;
+	title: string;
 }
 
 export type SuiteHelpers = {
