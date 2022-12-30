@@ -184,7 +184,7 @@ export class Suite extends SpecStepParent<
 	SuiteOptions,
 	Suite | Test
 > {
-	beforeEaches: Array<() => $.Type.PromiseMaybe<void>> = [];
+	beforeEach: () => $.Type.PromiseMaybe<void>;
 
 	constructor(
 		public title: string,
@@ -197,15 +197,9 @@ export class Suite extends SpecStepParent<
 		}
 	}
 
-	beforeEach(
-		callback: Suite[`beforeEaches`][0]
-	): void {
-		this.beforeEaches.push(callback);
-	}
-
 	helpers() {
 		return {
-			beforeEach: this.beforeEach.bind(this),
+			beforeEach: null as Suite[`beforeEach`],
 			suite: this.suite.bind(this),
 			test: this.test.bind(this),
 		};
@@ -214,14 +208,9 @@ export class Suite extends SpecStepParent<
 	async run(options: Partial<SuiteOptions> = {}) {
 		const suiteResult = {} as SuiteResult;
 
-		const beforeEach = () => this.beforeEaches.reduce(
-			async(previous, beforeEach) => previous.then(beforeEach),
-			Promise.resolve()
-		);
-
 		await this.children.reduce(async(previous, child) => {
 			await previous;
-			await beforeEach();
+			await this.beforeEach();
 			const result = await child.run();
 			// testResult.children.push(result);
 		}, Promise.resolve());

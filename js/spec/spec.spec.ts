@@ -4,13 +4,13 @@ $.suite(`Math`, $ => {
 	let x: number;
 	let y: number;
 
-	$.beforeEach(async() => {
+	$.beforeEach = async() => {
 		await new Promise((resolve) => {
 			x = 3;
 			y = 4;
 			setTimeout(resolve, 10);
 		});
-	});
+	};
 
 	$.test(`types`, $ => {
 		$.assert($ => $(typeof x) === `number`);
