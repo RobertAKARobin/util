@@ -17,8 +17,6 @@ abstract class SpecStep<
 	Result extends SpecStepResult = SpecStepResult,
 	Options extends SpecStepOptions = SpecStepOptions
 > {
-	abstract TypeResult: $.Type.Constructor<Result>;
-
 	constructor(
 		public callback:
 			(...args: Array<unknown>) => $.Type.PromiseMaybe<unknown>,
@@ -60,13 +58,13 @@ abstract class SpecStepParent<
 	}
 }
 
-abstract class SpecStepResult {
+type SpecStepResult = {
 	resultType: ResultType;
-}
+};
 
-abstract class SpecStepResultParent<Child extends SpecStepResult> {
-	children: Array<Child> = [];
-}
+type SpecStepResultParent<Child extends SpecStepResult> = SpecStepResult & {
+	children: Array<Child>;
+};
 
 // #endregion
 
@@ -98,8 +96,6 @@ export class Assertion extends SpecStep<
 	AssertionResult,
 	AssertionOptions
 > {
-	TypeResult = AssertionResult;
-
 	constructor(
 		public callback: (
 			helpers: ReturnType<Assertion[`helpers`]>
@@ -113,29 +109,30 @@ export class Assertion extends SpecStep<
 		return assertionHelpers;
 	}
 
-	async run(options: Partial<AssertionOptions> = {}) {
+	async run(options: Partial<AssertionOptions> = {}): Promise<AssertionResult> {
 		const didPass = await this.callback(this.helpers());
-		return {} as AssertionResult;
+		const resultType: ResultType = didPass ? `pass` : `fail`;
+		return {
+			resultType,
+			values: [],
+		};
 	}
 }
 
 export type AssertionOptions = SpecStepOptions;
 
-export class AssertionResult extends SpecStepResult {
+export type AssertionResult = SpecStepResult & {
 	values: Array<unknown>;
-}
+};
 
 // #endregion
 
 // #region Test
 
-export class Test extends SpecStepParent<
+export class Test extends SpecStep<
 	TestResult,
-	TestOptions,
-	Assertion
+	TestOptions
 > {
-	TypeResult = TestResult;
-
 	constructor(
 		public title: string,
 		public callback: (
@@ -146,27 +143,37 @@ export class Test extends SpecStepParent<
 		super(callback, options);
 	}
 
-	assert(...args: ConstructorParameters<typeof Assertion>) {
-		return this.addChild(Assertion, ...args);
-	}
-
 	helpers() {
 		return {
 			assert: this.assert.bind(this),
 		};
 	}
 
-	async run(options: Partial<TestOptions> = {}) {
+	optionsDefaults(): TestOptions {
+		return {
+			iterations: 1,
+			pending: false,
+		};
+	}
+
+	async run(options: Partial<TestOptions> = {}): Promise<TestResult> {
 		await this.callback(this.helpers());
 		return {} as TestResult;
 	}
+
+	private async assert(...args: ConstructorParameters<typeof Assertion>) {
+		const assertion = new Assertion(...args);
+		return await assertion.run();
+	}
 }
 
-export type TestOptions = SpecStepOptions;
+export type TestOptions = SpecStepOptions & {
+	iterations: number;
+};
 
-export class TestResult extends SpecStepResult {
+export type TestResult = SpecStepResult & {
 	children: Array<AssertionResult>;
-}
+};
 
 // #endregion
 
@@ -178,7 +185,6 @@ export class Suite extends SpecStepParent<
 	Suite | Test
 > {
 	beforeEaches: Array<() => $.Type.PromiseMaybe<void>> = [];
-	TypeResult = SuiteResult;
 
 	constructor(
 		public title: string,
@@ -206,7 +212,7 @@ export class Suite extends SpecStepParent<
 	}
 
 	async run(options: Partial<SuiteOptions> = {}) {
-		const suiteResult = new SuiteResult();
+		const suiteResult = {} as SuiteResult;
 
 		const beforeEach = () => this.beforeEaches.reduce(
 			async(previous, beforeEach) => previous.then(beforeEach),
@@ -234,7 +240,7 @@ export class Suite extends SpecStepParent<
 
 export type SuiteOptions = SpecStepOptions;
 
-export class SuiteResult extends SpecStepResult {
+export interface SuiteResult extends SpecStepResult { // Can't use `type` because this circularly references itself
 	children: Array<TestResult | SuiteResult>;
 }
 

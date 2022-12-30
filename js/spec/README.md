@@ -15,11 +15,23 @@ Each SpecContext has two phases:
 1. Definition
 2. Execution
 
+Specs are made of "SpecSteps":
+
 Component | When run? | # times run? | Children | Shuffleable?
 -|-|-|-|-
 Suite | Definition | 1 per SpecContext | Suites, Tests | Yes
 Test | Execution | Any | Assertions | Yes
 Assertion | Execution | 1 per test | - | No
+
+### Options
+
+Options can be set per SpecStep at definition or execution. They inherit from parents. Inheritance order at execution, from lowest precedence:
+
+1. Self's default options
+1. Parent's options at definition
+1. Parent's options at execution
+1. Self's options at definition
+1. Self's options at execution
 
 ## Notes
 
