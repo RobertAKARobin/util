@@ -20,3 +20,9 @@ Component | When run? | # times run? | Children | Shuffleable?
 Suite | Definition | 1 per SpecContext | Suites, Tests | Yes
 Test | Execution | Any | Assertions | Yes
 Assertion | Execution | 1 per test | - | No
+
+## Notes
+
+- Tried functional approach, but prototypal works better because:
+    - Better for letting users subclass and define their own methods
+    - Lots of adding things to existing objects and sharing of properties between objects
