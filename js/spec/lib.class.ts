@@ -48,7 +48,6 @@ abstract class SpecStepParent<
 	Options extends SpecStepOptions = SpecStepOptions,
 	Child extends SpecStep = SpecStep,
 > extends SpecStep<Result, Options> {
-	beforeEaches: Array<() => $.Type.PromiseMaybe<void>> = [];
 	children: Array<Child> = [];
 
 	addChild<Constructor extends $.Type.Constructor<Child>>(
@@ -58,30 +57,6 @@ abstract class SpecStepParent<
 		const child = new Constructor(...args);
 		this.children.push(child);
 		return child;
-	}
-
-	beforeEach(
-		callback: SpecStepParent[`beforeEaches`][0]
-	): void {
-		this.beforeEaches.push(callback);
-	}
-
-	async run(options: Partial<Options> = {}) {
-		const testResult = new this.TypeResult();
-
-		const beforeEach = () => this.beforeEaches.reduce(
-			async(previous, beforeEach) => previous.then(beforeEach),
-			Promise.resolve()
-		);
-
-		await this.children.reduce(async(previous, child) => {
-			await previous;
-			await beforeEach();
-			const result = await child.run();
-			// testResult.children.push(result);
-		}, Promise.resolve());
-
-		return testResult;
 	}
 }
 
@@ -126,14 +101,15 @@ export class Assertion extends SpecStep<
 	TypeResult = AssertionResult;
 
 	constructor(
-		public callback:
-			(helpers: AssertionHelpers) => $.Type.PromiseMaybe<boolean>,
+		public callback: (
+			helpers: ReturnType<Assertion[`helpers`]>
+		) => $.Type.PromiseMaybe<boolean>,
 		public options: AssertionOptions,
 	) {
 		super(callback, options);
 	}
 
-	helpers(): AssertionHelpers {
+	helpers() {
 		return assertionHelpers;
 	}
 
@@ -142,8 +118,6 @@ export class Assertion extends SpecStep<
 		return {} as AssertionResult;
 	}
 }
-
-export type AssertionHelpers = typeof assertionHelpers;
 
 export type AssertionOptions = SpecStepOptions;
 
@@ -164,7 +138,9 @@ export class Test extends SpecStepParent<
 
 	constructor(
 		public title: string,
-		public callback: () => $.Type.PromiseMaybe<void>,
+		public callback: (
+			helpers: ReturnType<Test[`helpers`]>
+		) => $.Type.PromiseMaybe<void>,
 		public options: TestOptions,
 	) {
 		super(callback, options);
@@ -172,6 +148,17 @@ export class Test extends SpecStepParent<
 
 	assert(...args: ConstructorParameters<typeof Assertion>) {
 		return this.addChild(Assertion, ...args);
+	}
+
+	helpers() {
+		return {
+			assert: this.assert.bind(this),
+		};
+	}
+
+	async run(options: Partial<TestOptions> = {}) {
+		await this.callback(this.helpers());
+		return {} as TestResult;
 	}
 }
 
@@ -190,14 +177,47 @@ export class Suite extends SpecStepParent<
 	SuiteOptions,
 	Suite | Test
 > {
+	beforeEaches: Array<() => $.Type.PromiseMaybe<void>> = [];
 	TypeResult = SuiteResult;
 
 	constructor(
 		public title: string,
-		public callback: () => $.Type.PromiseMaybe<void>,
+		public callback: (helpers: ReturnType<Suite[`helpers`]>) => void,
 		public options: SuiteOptions,
 	) {
 		super(callback, options);
+		this.callback(this.helpers());
+	}
+
+	beforeEach(
+		callback: Suite[`beforeEaches`][0]
+	): void {
+		this.beforeEaches.push(callback);
+	}
+
+	helpers() {
+		return {
+			suite: this.suite.bind(this),
+			test: this.test.bind(this),
+		};
+	}
+
+	async run(options: Partial<SuiteOptions> = {}) {
+		const suiteResult = new SuiteResult();
+
+		const beforeEach = () => this.beforeEaches.reduce(
+			async(previous, beforeEach) => previous.then(beforeEach),
+			Promise.resolve()
+		);
+
+		await this.children.reduce(async(previous, child) => {
+			await previous;
+			await beforeEach();
+			const result = await child.run();
+			// testResult.children.push(result);
+		}, Promise.resolve());
+
+		return suiteResult;
 	}
 
 	suite(...args: ConstructorParameters<typeof Suite>) {
