@@ -3,6 +3,7 @@
 		"allowJs": true,
 		"baseUrl": ".",
 		"lib": ["ESNext", "DOM"],
+		"module": "NodeNext",
 		"moduleResolution": "node",
 		"resolveJsonModule": true,
 		"strictBindCallApply": true,
