@@ -36,9 +36,7 @@ abstract class SpecStep<
 		} as Options;
 	}
 
-	run(options: Partial<Options> = {}) {
-		return new this.TypeResult();
-	}
+	abstract run(options?: Partial<Options>): Promise<Result>;
 }
 
 type SpecStepOptions = {
@@ -50,6 +48,7 @@ abstract class SpecStepParent<
 	Options extends SpecStepOptions = SpecStepOptions,
 	Child extends SpecStep = SpecStep,
 > extends SpecStep<Result, Options> {
+	beforeEaches: Array<() => $.Type.PromiseMaybe<void>> = [];
 	children: Array<Child> = [];
 
 	addChild<Constructor extends $.Type.Constructor<Child>>(
@@ -60,10 +59,38 @@ abstract class SpecStepParent<
 		this.children.push(child);
 		return child;
 	}
+
+	beforeEach(
+		callback: SpecStepParent[`beforeEaches`][0]
+	): void {
+		this.beforeEaches.push(callback);
+	}
+
+	async run(options: Partial<Options> = {}) {
+		const testResult = new this.TypeResult();
+
+		const beforeEach = () => this.beforeEaches.reduce(
+			async(previous, beforeEach) => previous.then(beforeEach),
+			Promise.resolve()
+		);
+
+		await this.children.reduce(async(previous, child) => {
+			await previous;
+			await beforeEach();
+			const result = await child.run();
+			// testResult.children.push(result);
+		}, Promise.resolve());
+
+		return testResult;
+	}
 }
 
 abstract class SpecStepResult {
 	resultType: ResultType;
+}
+
+abstract class SpecStepResultParent<Child extends SpecStepResult> {
+	children: Array<Child> = [];
 }
 
 // #endregion
@@ -108,6 +135,11 @@ export class Assertion extends SpecStep<
 
 	helpers(): AssertionHelpers {
 		return assertionHelpers;
+	}
+
+	async run() {
+		const didPass = await this.callback(this.helpers());
+		return {} as AssertionResult;
 	}
 }
 
@@ -158,7 +190,6 @@ export class Suite extends SpecStepParent<
 	SuiteOptions,
 	Suite | Test
 > {
-	beforeEaches: Array<() => $.Type.PromiseMaybe<void>> = [];
 	TypeResult = SuiteResult;
 
 	constructor(
@@ -167,12 +198,6 @@ export class Suite extends SpecStepParent<
 		public options: SuiteOptions,
 	) {
 		super(callback, options);
-	}
-
-	beforeEach(
-		callback: Suite[`beforeEaches`][0]
-	): void {
-		this.beforeEaches.push(callback);
 	}
 
 	suite(...args: ConstructorParameters<typeof Suite>) {
