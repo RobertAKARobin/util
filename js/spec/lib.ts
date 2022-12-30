@@ -205,6 +205,13 @@ export class Suite extends SpecStepParent<
 		};
 	}
 
+	optionsDefaults() {
+		return {
+			iterations: 1,
+			pending: false,
+		};
+	}
+
 	async run(options: Partial<SuiteOptions> = {}) {
 		const suiteResult = {} as SuiteResult;
 
@@ -227,7 +234,9 @@ export class Suite extends SpecStepParent<
 	}
 }
 
-export type SuiteOptions = SpecStepOptions;
+export type SuiteOptions = SpecStepOptions & {
+	iterations: number;
+};
 
 export interface SuiteResult extends SpecStepResult { // Can't use `type` because this circularly references itself
 	children: Array<TestResult | SuiteResult>;
