@@ -45,6 +45,23 @@ type SpecStepOptions = {
 	pending: boolean;
 };
 
+abstract class SpecStepParent<
+	Result extends SpecStepResult = SpecStepResult,
+	Options extends SpecStepOptions = SpecStepOptions,
+	Child extends SpecStep = SpecStep,
+> extends SpecStep<Result, Options> {
+	children: Array<Child> = [];
+
+	addChild<Constructor extends $.Type.Constructor<Child>>(
+		Constructor: Constructor,
+		...args: ConstructorParameters<Constructor>
+	) {
+		const child = new Constructor(...args);
+		this.children.push(child);
+		return child;
+	}
+}
+
 abstract class SpecStepResult {
 	resultType: ResultType;
 }
@@ -106,9 +123,10 @@ export class AssertionResult extends SpecStepResult {
 
 // #region Test
 
-export class Test extends SpecStep<
+export class Test extends SpecStepParent<
 	TestResult,
-	TestOptions
+	TestOptions,
+	Assertion
 > {
 	TypeResult = TestResult;
 
@@ -120,11 +138,8 @@ export class Test extends SpecStep<
 		super(callback, options);
 	}
 
-	assert(
-		...args: ConstructorParameters<typeof Assertion>
-	) {
-		const assertion = new Assertion(...args);
-		return assertion;
+	assert(...args: ConstructorParameters<typeof Assertion>) {
+		return this.addChild(Assertion, ...args);
 	}
 }
 
@@ -138,9 +153,10 @@ export class TestResult extends SpecStepResult {
 
 // #region Suite
 
-export class Suite extends SpecStep<
+export class Suite extends SpecStepParent<
 	SuiteResult,
-	SuiteOptions
+	SuiteOptions,
+	Suite | Test
 > {
 	beforeEaches: Array<() => $.Type.PromiseMaybe<void>> = [];
 	TypeResult = SuiteResult;
@@ -159,18 +175,12 @@ export class Suite extends SpecStep<
 		this.beforeEaches.push(callback);
 	}
 
-	suite(
-		...args: ConstructorParameters<typeof Suite>
-	) {
-		const suite = new Suite(...args);
-		return suite;
+	suite(...args: ConstructorParameters<typeof Suite>) {
+		return this.addChild(Suite, ...args) as Suite;
 	}
 
-	test(
-		...args: ConstructorParameters<typeof Test>
-	) {
-		const test = new Test(...args);
-		return test;
+	test(...args: ConstructorParameters<typeof Test>) {
+		return this.addChild(Test, ...args) as Test;
 	}
 }
 
