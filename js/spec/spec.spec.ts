@@ -34,7 +34,6 @@ $.suite(`Math`, $ => {
 	});
 
 	$.suite(`division`, $ => {
-		// $.beforeAll = {}
 		$.beforeEach = () => null;
 
 		$.test(``, $ => {
@@ -47,10 +46,6 @@ $.suite(`Math`, $ => {
 		$.test(`by zero`, $ => {
 			$.assert($ => $(3 / 0) === $(Infinity));
 		});
-
-		// $.afterEach = {}
-
-		// $.afterAll = {}
 	});
 
 	$.test(`multiplication`, $ => {

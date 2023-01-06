@@ -121,7 +121,13 @@ export class Test extends SpecStep<TestResult> {
 
 	optionsDefaults() {
 		return {
+			/**
+			 * If set, overrides parent's afterEach
+			 */
 			after: null as () => $.Type.PromiseMaybe<void>,
+			/**
+			 * If set, overrides parent's beforeEach
+			 */
 			before: null as () => $.Type.PromiseMaybe<void>,
 			iterations: 1 as number,
 			pending: false as boolean,
@@ -202,7 +208,13 @@ export class Suite extends SpecStep<SuiteResult> {
 
 	optionsDefaults() {
 		return {
+			/**
+			 * If set, overrides parent's afterEach
+			 */
 			after: null as () => $.Type.PromiseMaybe<void>,
+			/**
+			 * If set, overrides parent's beforeEach
+			 */
 			before: null as () => $.Type.PromiseMaybe<void>,
 			iterations: 1 as number,
 			pending: false as boolean,
@@ -227,8 +239,12 @@ export class Suite extends SpecStep<SuiteResult> {
 		await this.children.reduce(async(previous, child) => {
 			await previous;
 			const result = await child.run({
-				after: this.afterEach,
-				before: this.beforeEach,
+				after: child.options && `after` in child.options
+					? child.options.after
+					: this.afterEach,
+				before: child.options && `before` in child.options
+					? child.options.before
+					: this.beforeEach,
 			});
 			// testResult.children.push(result);
 		}, Promise.resolve());
