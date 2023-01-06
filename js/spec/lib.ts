@@ -41,29 +41,8 @@ type SpecStepOptions = {
 	pending: boolean;
 };
 
-abstract class SpecStepParent<
-	Result extends SpecStepResult = SpecStepResult,
-	Options extends SpecStepOptions = SpecStepOptions,
-	Child extends SpecStep = SpecStep,
-> extends SpecStep<Result, Options> {
-	children: Array<Child> = [];
-
-	addChild<Constructor extends $.Type.Constructor<Child>>(
-		Constructor: Constructor,
-		...args: ConstructorParameters<Constructor>
-	) {
-		const child = new Constructor(...args);
-		this.children.push(child);
-		return child;
-	}
-}
-
 type SpecStepResult = {
 	resultType: ResultType;
-};
-
-type SpecStepResultParent<Child extends SpecStepResult> = SpecStepResult & {
-	children: Array<Child>;
 };
 
 // #endregion
@@ -179,12 +158,12 @@ export type TestResult = SpecStepResult & {
 
 // #region Suite
 
-export class Suite extends SpecStepParent<
+export class Suite extends SpecStep<
 	SuiteResult,
-	SuiteOptions,
-	Suite | Test
+	SuiteOptions
 > {
 	beforeEach: () => $.Type.PromiseMaybe<void>;
+	children: Array<Suite | Test> = [];
 
 	constructor(
 		public title: string,
@@ -195,6 +174,15 @@ export class Suite extends SpecStepParent<
 		if (this.callback) {
 			this.callback(this.helpers());
 		}
+	}
+
+	addChild<Constructor extends $.Type.Constructor<Suite | Test>>(
+		Constructor: Constructor,
+		...args: ConstructorParameters<Constructor>
+	) {
+		const child = new Constructor(...args);
+		this.children.push(child);
+		return child;
 	}
 
 	helpers() {
@@ -226,6 +214,7 @@ export class Suite extends SpecStepParent<
 	}
 
 	suite(...args: ConstructorParameters<typeof Suite>) {
+		// Pass `before` as option
 		return this.addChild(Suite, ...args) as Suite;
 	}
 
