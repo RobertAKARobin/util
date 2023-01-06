@@ -14,13 +14,12 @@ type ResultType = typeof resultTypes[number];
 // #region SpecStep
 
 abstract class SpecStep<
-	Result extends SpecStepResult = SpecStepResult,
-	Options extends SpecStepOptions = SpecStepOptions
+	Result extends SpecStepResult = SpecStepResult
 > {
 	constructor(
 		public callback:
 			(...args: Array<unknown>) => $.Type.PromiseMaybe<unknown>,
-		public options?: Partial<Options>,
+		public options?: Partial<SpecStepOptions>,
 	) {
 		this.options = {
 			...this.optionsDefaults(),
@@ -28,18 +27,16 @@ abstract class SpecStep<
 		};
 	}
 
-	optionsDefaults(): Options {
+	optionsDefaults() {
 		return {
-			pending: false,
-		} as Options;
+			pending: false as boolean,
+		};
 	}
 
-	abstract run(runtimeOptions?: Partial<Options>): Promise<Result>;
+	abstract run(runtimeOptions?: Partial<SpecStepOptions>): Promise<Result>;
 }
 
-type SpecStepOptions = {
-	pending: boolean;
-};
+type SpecStepOptions = ReturnType<SpecStep[`optionsDefaults`]>;
 
 type SpecStepResult = {
 	resultType: ResultType;
@@ -71,10 +68,7 @@ function valueWrap<Value>(value: Value) {
 
 // #region Assertion
 
-export class Assertion extends SpecStep<
-	AssertionResult,
-	AssertionOptions
-> {
+export class Assertion extends SpecStep<AssertionResult> {
 	constructor(
 		public callback: (
 			helpers: ReturnType<Assertion[`helpers`]>
@@ -98,7 +92,7 @@ export class Assertion extends SpecStep<
 	}
 }
 
-export type AssertionOptions = SpecStepOptions;
+export type AssertionOptions = ReturnType<Assertion[`optionsDefaults`]>;
 
 export type AssertionResult = SpecStepResult & {
 	values: Array<unknown>;
@@ -108,10 +102,7 @@ export type AssertionResult = SpecStepResult & {
 
 // #region Test
 
-export class Test extends SpecStep<
-	TestResult,
-	TestOptions
-> {
+export class Test extends SpecStep<TestResult> {
 	constructor(
 		public title: string,
 		public callback: (
@@ -128,12 +119,12 @@ export class Test extends SpecStep<
 		};
 	}
 
-	optionsDefaults(): TestOptions {
+	optionsDefaults() {
 		return {
-			after: null as TestOptions[`after`],
-			before: null as TestOptions[`before`],
-			iterations: 1,
-			pending: false,
+			after: null as () => $.Type.PromiseMaybe<void>,
+			before: null as () => $.Type.PromiseMaybe<void>,
+			iterations: 1 as number,
+			pending: false as boolean,
 		};
 	}
 
@@ -159,11 +150,7 @@ export class Test extends SpecStep<
 	}
 }
 
-export type TestOptions = SpecStepOptions & {
-	after: () => $.Type.PromiseMaybe<void>;
-	before: () => $.Type.PromiseMaybe<void>;
-	iterations: number;
-};
+export type TestOptions = ReturnType<Test[`optionsDefaults`]>;
 
 export type TestResult = SpecStepResult & {
 	children: Array<AssertionResult>;
@@ -173,10 +160,7 @@ export type TestResult = SpecStepResult & {
 
 // #region Suite
 
-export class Suite extends SpecStep<
-	SuiteResult,
-	SuiteOptions
-> {
+export class Suite extends SpecStep<SuiteResult> {
 	afterAll: () => $.Type.PromiseMaybe<void>;
 	afterEach: () => $.Type.PromiseMaybe<void>;
 	beforeAll: () => $.Type.PromiseMaybe<void>;
@@ -218,10 +202,10 @@ export class Suite extends SpecStep<
 
 	optionsDefaults() {
 		return {
-			after: null as SuiteOptions[`after`],
-			before: null as SuiteOptions[`before`],
-			iterations: 1,
-			pending: false,
+			after: null as () => $.Type.PromiseMaybe<void>,
+			before: null as () => $.Type.PromiseMaybe<void>,
+			iterations: 1 as number,
+			pending: false as boolean,
 		};
 	}
 
@@ -260,7 +244,6 @@ export class Suite extends SpecStep<
 	}
 
 	suite(...args: ConstructorParameters<typeof Suite>) {
-		// Pass `before` as option
 		return this.addChild(Suite, ...args) as Suite;
 	}
 
@@ -278,11 +261,7 @@ export type SuiteHelpers = {
 	readonly test: Suite[`test`];
 };
 
-export type SuiteOptions = SpecStepOptions & {
-	after: () => $.Type.PromiseMaybe<void>;
-	before: () => $.Type.PromiseMaybe<void>;
-	iterations: number;
-};
+export type SuiteOptions = ReturnType<Suite[`optionsDefaults`]>;
 
 export interface SuiteResult extends SpecStepResult { // Can't use `type` because this circularly references itself
 	children: Array<TestResult | SuiteResult>;
