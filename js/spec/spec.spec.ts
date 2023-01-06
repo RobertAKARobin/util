@@ -4,6 +4,8 @@ $.suite(`Math`, $ => {
 	let x: number;
 	let y: number;
 
+	// TODO1: Test beforeAll, afterEach, afterAll
+
 	$.beforeEach = async() => {
 		await new Promise((resolve) => {
 			x = 3;
@@ -32,6 +34,9 @@ $.suite(`Math`, $ => {
 	});
 
 	$.suite(`division`, $ => {
+		// $.beforeAll = {}
+		$.beforeEach = () => null;
+
 		$.test(``, $ => {
 			$.assert($ => $(x) === $(12 / y));
 			// $.assert(() => {throw new Error(`oh no`); });
@@ -42,6 +47,10 @@ $.suite(`Math`, $ => {
 		$.test(`by zero`, $ => {
 			$.assert($ => $(3 / 0) === $(Infinity));
 		});
+
+		// $.afterEach = {}
+
+		// $.afterAll = {}
 	});
 
 	$.test(`multiplication`, $ => {

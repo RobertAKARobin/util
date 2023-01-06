@@ -34,7 +34,7 @@ abstract class SpecStep<
 		} as Options;
 	}
 
-	abstract run(options?: Partial<Options>): Promise<Result>;
+	abstract run(runtimeOptions?: Partial<Options>): Promise<Result>;
 }
 
 type SpecStepOptions = {
@@ -130,13 +130,26 @@ export class Test extends SpecStep<
 
 	optionsDefaults(): TestOptions {
 		return {
+			after: null as TestOptions[`after`],
+			before: null as TestOptions[`before`],
 			iterations: 1,
 			pending: false,
 		};
 	}
 
-	async run(options: Partial<TestOptions> = {}): Promise<TestResult> {
+	async run(runtimeOptions: Partial<TestOptions> = {}): Promise<TestResult> {
+		const options = {
+			...this.options,
+			...runtimeOptions,
+		};
+
+		if (options.before) {
+			await options.before();
+		}
 		await this.callback(this.helpers());
+		if (options.after) {
+			await options.after();
+		}
 		return {} as TestResult;
 	}
 
@@ -147,6 +160,8 @@ export class Test extends SpecStep<
 }
 
 export type TestOptions = SpecStepOptions & {
+	after: () => $.Type.PromiseMaybe<void>;
+	before: () => $.Type.PromiseMaybe<void>;
 	iterations: number;
 };
 
@@ -162,6 +177,9 @@ export class Suite extends SpecStep<
 	SuiteResult,
 	SuiteOptions
 > {
+	afterAll: () => $.Type.PromiseMaybe<void>;
+	afterEach: () => $.Type.PromiseMaybe<void>;
+	beforeAll: () => $.Type.PromiseMaybe<void>;
 	beforeEach: () => $.Type.PromiseMaybe<void>;
 	children: Array<Suite | Test> = [];
 
@@ -186,29 +204,57 @@ export class Suite extends SpecStep<
 	}
 
 	helpers() {
-		return {
-			beforeEach: null as Suite[`beforeEach`],
+		const helpers: Pick<SuiteHelpers, `suite` | `test`> = {
 			suite: this.suite.bind(this),
 			test: this.test.bind(this),
 		};
+		return Object.defineProperties(helpers, {
+			afterAll: $.defineSetter(this, `afterAll`),
+			afterEach: $.defineSetter(this, `afterEach`),
+			beforeAll: $.defineSetter(this, `beforeAll`),
+			beforeEach: $.defineSetter(this, `beforeEach`),
+		}) as SuiteHelpers;
 	}
 
 	optionsDefaults() {
 		return {
+			after: null as SuiteOptions[`after`],
+			before: null as SuiteOptions[`before`],
 			iterations: 1,
 			pending: false,
 		};
 	}
 
-	async run(options: Partial<SuiteOptions> = {}) {
+	async run(runtimeOptions: Partial<SuiteOptions> = {}) {
+		const options = {
+			...this.options,
+			...runtimeOptions,
+		};
+
 		const suiteResult = {} as SuiteResult;
+
+		if (options.before) {
+			await options.before();
+		}
+		if (this.beforeAll) {
+			await this.beforeAll();
+		}
 
 		await this.children.reduce(async(previous, child) => {
 			await previous;
-			await this.beforeEach();
-			const result = await child.run();
+			const result = await child.run({
+				after: this.afterEach,
+				before: this.beforeEach,
+			});
 			// testResult.children.push(result);
 		}, Promise.resolve());
+
+		if (this.afterAll) {
+			await this.afterAll();
+		}
+		if (options.after) {
+			await options.after();
+		}
 
 		return suiteResult;
 	}
@@ -223,7 +269,18 @@ export class Suite extends SpecStep<
 	}
 }
 
+export type SuiteHelpers = {
+	afterAll: Suite[`afterAll`];
+	afterEach: Suite[`afterEach`];
+	beforeAll: Suite[`beforeAll`];
+	beforeEach: Suite[`beforeEach`];
+	readonly suite: Suite[`suite`];
+	readonly test: Suite[`test`];
+};
+
 export type SuiteOptions = SpecStepOptions & {
+	after: () => $.Type.PromiseMaybe<void>;
+	before: () => $.Type.PromiseMaybe<void>;
 	iterations: number;
 };
 

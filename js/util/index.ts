@@ -16,6 +16,17 @@ export function debounce(
 	};
 }
 
+export function defineSetter<Target, PropertyName extends keyof Target>(
+	target: Target,
+	propertyName: PropertyName,
+) {
+	return {
+		set: (value: Target[PropertyName]) => {
+			target[propertyName] = value;
+		},
+	};
+}
+
 export function delay(
 	callback: () => unknown,
 	time: number,

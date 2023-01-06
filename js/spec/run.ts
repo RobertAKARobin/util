@@ -15,5 +15,5 @@ void (async function() {
 
 	console.log(JSON.stringify(await $.run(), null, `  `));
 
-	console.log((await $.run()).toString());
+	// console.log((await $.run()).toString());
 })();
