@@ -221,13 +221,40 @@ export class Suite extends SpecStep<SuiteResult> {
 		};
 	}
 
-	async run(runtimeOptions: Partial<SuiteOptions> = {}) {
+	async run(...[runtimeOptions]: Parameters<Suite[`runOnce`]>) {
 		const options = {
 			...this.options,
 			...runtimeOptions,
 		};
 
-		const suiteResult = {} as SuiteResult;
+		const suiteResult: SuiteResult = {
+			iterations: [],
+			resultType: null,
+			title: this.title,
+		};
+
+		const iterations = Array.from(Array(options.iterations));
+		await iterations.reduce(async(previous) => {
+			await previous;
+			const iterationResult = await this.runOnce(options);
+			suiteResult.iterations.push(iterationResult);
+		}, Promise.resolve());
+
+		return suiteResult;
+	}
+
+	async runOnce(runtimeOptions: Partial<SuiteOptions> = {}) {
+		const options = {
+			...this.options,
+			...runtimeOptions,
+		};
+
+		const suiteIterationResult: SuiteIterationResult = {
+			children: [],
+			resultType: null,
+			timeEnd: null,
+			timeStart: performance.now(),
+		};
 
 		if (options.before) {
 			await options.before();
@@ -236,6 +263,7 @@ export class Suite extends SpecStep<SuiteResult> {
 			await this.beforeAll();
 		}
 
+		// TODO2: Don't define a function in a loop
 		await this.children.reduce(async(previous, child) => {
 			await previous;
 			const result = await child.run({
@@ -246,7 +274,7 @@ export class Suite extends SpecStep<SuiteResult> {
 					? child.options.before
 					: this.beforeEach,
 			});
-			// testResult.children.push(result);
+			suiteIterationResult.children.push(result);
 		}, Promise.resolve());
 
 		if (this.afterAll) {
@@ -256,7 +284,9 @@ export class Suite extends SpecStep<SuiteResult> {
 			await options.after();
 		}
 
-		return suiteResult;
+		suiteIterationResult.timeEnd = performance.now();
+
+		return suiteIterationResult;
 	}
 
 	suite(...args: ConstructorParameters<typeof Suite>) {
@@ -279,8 +309,15 @@ export type SuiteHelpers = {
 
 export type SuiteOptions = ReturnType<Suite[`optionsDefaults`]>;
 
-export interface SuiteResult extends SpecStepResult { // Can't use `type` because this circularly references itself
+export type SuiteResult = SpecStepResult & { // Can't use `type` because this circularly references itself
+	iterations: Array<SuiteIterationResult>;
+	title: string;
+};
+
+export interface SuiteIterationResult extends SpecStepResult {
 	children: Array<TestResult | SuiteResult>;
+	timeEnd: number;
+	timeStart: number;
 }
 
 // #endregion
