@@ -13,9 +13,7 @@ type ResultType = typeof resultTypes[number];
 
 // #region SpecStep
 
-abstract class SpecStep<
-	Result extends SpecStepResult = SpecStepResult
-> {
+abstract class SpecStep<Result = Record<string, unknown>> {
 	constructor(
 		public callback:
 			(...args: Array<unknown>) => $.Type.PromiseMaybe<unknown>,
@@ -40,6 +38,49 @@ type SpecStepOptions = ReturnType<SpecStep[`optionsDefaults`]>;
 
 type SpecStepResult = {
 	resultType: ResultType;
+};
+
+abstract class SpecStepIterable<
+	Result extends SpecStepIterableResult = SpecStepIterableResult,
+> extends SpecStep<Result> {
+	optionsDefaults() {
+		return {
+			...super.optionsDefaults(),
+			iterations: 1 as number,
+		};
+	}
+
+	async run(...[runtimeOptions]: Parameters<Suite[`runOnce`]>) {
+		const options = {
+			...this.options,
+			...runtimeOptions,
+		};
+
+		const iterableResult = {
+			iterations: [],
+		} as Result;
+
+		const iterations = Array.from(Array(options.iterations));
+		await iterations.reduce(async(previous) => {
+			await previous;
+			const iterationResult = await this.runOnce(options);
+			iterableResult.iterations.push(iterationResult);
+		}, Promise.resolve());
+
+		return iterableResult;
+	}
+
+	abstract runOnce(runtimeOptions?: Partial<SpecStepOptions>): Promise<
+		Result[`iterations`][0]
+	>;
+}
+
+type SpecStepIterableOptions = ReturnType<SpecStepIterable[`optionsDefaults`]>;
+
+type SpecStepIterableResult<
+	IterationResult extends SpecStepResult = SpecStepResult
+> = {
+	iterations: Array<IterationResult>;
 };
 
 // #endregion
@@ -166,7 +207,7 @@ export type TestResult = SpecStepResult & {
 
 // #region Suite
 
-export class Suite extends SpecStep<SuiteResult> {
+export class Suite extends SpecStepIterable<SuiteResult> {
 	afterAll: () => $.Type.PromiseMaybe<void>;
 	afterEach: () => $.Type.PromiseMaybe<void>;
 	beforeAll: () => $.Type.PromiseMaybe<void>;
@@ -208,6 +249,7 @@ export class Suite extends SpecStep<SuiteResult> {
 
 	optionsDefaults() {
 		return {
+			...super.optionsDefaults(),
 			/**
 			 * If set, overrides parent's afterEach
 			 */
@@ -216,31 +258,7 @@ export class Suite extends SpecStep<SuiteResult> {
 			 * If set, overrides parent's beforeEach
 			 */
 			before: null as () => $.Type.PromiseMaybe<void>,
-			iterations: 1 as number,
-			pending: false as boolean,
 		};
-	}
-
-	async run(...[runtimeOptions]: Parameters<Suite[`runOnce`]>) {
-		const options = {
-			...this.options,
-			...runtimeOptions,
-		};
-
-		const suiteResult: SuiteResult = {
-			iterations: [],
-			resultType: null,
-			title: this.title,
-		};
-
-		const iterations = Array.from(Array(options.iterations));
-		await iterations.reduce(async(previous) => {
-			await previous;
-			const iterationResult = await this.runOnce(options);
-			suiteResult.iterations.push(iterationResult);
-		}, Promise.resolve());
-
-		return suiteResult;
 	}
 
 	async runOnce(runtimeOptions: Partial<SuiteOptions> = {}) {
@@ -309,15 +327,15 @@ export type SuiteHelpers = {
 
 export type SuiteOptions = ReturnType<Suite[`optionsDefaults`]>;
 
-export type SuiteResult = SpecStepResult & { // Can't use `type` because this circularly references itself
+export type SuiteResult = SpecStepResult & {
 	iterations: Array<SuiteIterationResult>;
 	title: string;
 };
 
-export interface SuiteIterationResult extends SpecStepResult {
+export type SuiteIterationResult = SpecStepResult & {
 	children: Array<TestResult | SuiteResult>;
 	timeEnd: number;
 	timeStart: number;
-}
+};
 
 // #endregion
