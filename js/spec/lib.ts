@@ -174,10 +174,16 @@ export class Test extends SpecStepIterable<TestOptions, TestResult> {
 
 	optionsDefaults(): TestOptions {
 		return {
+			...super.optionsDefaults(),
 			after: null,
 			before: null,
-			iterations: 1,
-			pending: false,
+		};
+	}
+
+	async run(...[runtimeOptions]: Parameters<Test[`runOnce`]>) {
+		return {
+			...await super.run(runtimeOptions),
+			title: this.title,
 		};
 	}
 
@@ -187,6 +193,13 @@ export class Test extends SpecStepIterable<TestOptions, TestResult> {
 			...runtimeOptions,
 		};
 
+		const testIterationResult: TestIterationResult = {
+			children: [],
+			resultType: null,
+			timeEnd: null,
+			timeStart: performance.now(),
+		};
+
 		if (options.before) {
 			await options.before();
 		}
@@ -194,7 +207,9 @@ export class Test extends SpecStepIterable<TestOptions, TestResult> {
 		if (options.after) {
 			await options.after();
 		}
-		return {} as TestIterationResult;
+
+		testIterationResult.timeEnd = performance.now();
+		return testIterationResult;
 	}
 
 	private async assert(...args: ConstructorParameters<typeof Assertion>) {
@@ -263,20 +278,15 @@ export class Suite extends SpecStepIterable<SuiteOptions, SuiteResult> {
 	optionsDefaults() {
 		return {
 			...super.optionsDefaults(),
-			/**
-			 * If set, overrides parent's afterEach
-			 */
-			after: null as () => $.Type.PromiseMaybe<void>,
-			/**
-			 * If set, overrides parent's beforeEach
-			 */
-			before: null as () => $.Type.PromiseMaybe<void>,
+			after: null,
+			before: null,
 		};
 	}
 
 	async run(...[runtimeOptions]: Parameters<Suite[`runOnce`]>) {
 		return {
 			...await super.run(runtimeOptions),
+			title: this.title,
 		};
 	}
 
