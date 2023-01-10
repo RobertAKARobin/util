@@ -13,11 +13,14 @@ type ResultType = typeof resultTypes[number];
 
 // #region SpecStep
 
-abstract class SpecStep<Result = Record<string, unknown>> {
+abstract class SpecStep<
+	Options extends SpecStepOptions = SpecStepOptions,
+	Result = Record<string, unknown>
+> {
 	constructor(
 		public callback:
 			(...args: Array<unknown>) => $.Type.PromiseMaybe<unknown>,
-		public options?: Partial<SpecStepOptions>,
+		public options?: Partial<Options>,
 	) {
 		this.options = {
 			...this.optionsDefaults(),
@@ -25,24 +28,28 @@ abstract class SpecStep<Result = Record<string, unknown>> {
 		};
 	}
 
-	optionsDefaults() {
+	optionsDefaults(): Options {
 		return {
-			pending: false as boolean,
-		};
+			pending: false,
+		} as Options;
 	}
 
-	abstract run(runtimeOptions?: Partial<SpecStepOptions>): Promise<Result>;
+	abstract run(runtimeOptions?: Partial<Options>): Promise<Result>;
 }
 
-type SpecStepOptions = ReturnType<SpecStep[`optionsDefaults`]>;
+type SpecStepOptions = {
+	pending: boolean;
+};
 
 type SpecStepResult = {
 	resultType: ResultType;
 };
 
 abstract class SpecStepIterable<
+	Options extends SpecStepIterableOptions = SpecStepIterableOptions,
 	Result extends SpecStepIterableResult = SpecStepIterableResult,
-> extends SpecStep<Result> {
+> extends SpecStep<Options, Result> {
+
 	optionsDefaults() {
 		return {
 			...super.optionsDefaults(),
@@ -50,7 +57,7 @@ abstract class SpecStepIterable<
 		};
 	}
 
-	async run(...[runtimeOptions]: Parameters<Suite[`runOnce`]>) {
+	async run(...[runtimeOptions]: Parameters<this[`runOnce`]>) {
 		const options = {
 			...this.options,
 			...runtimeOptions,
@@ -70,12 +77,14 @@ abstract class SpecStepIterable<
 		return iterableResult;
 	}
 
-	abstract runOnce(runtimeOptions?: Partial<SpecStepOptions>): Promise<
+	abstract runOnce(runtimeOptions?: Partial<Options>): Promise<
 		Result[`iterations`][0]
 	>;
 }
 
-type SpecStepIterableOptions = ReturnType<SpecStepIterable[`optionsDefaults`]>;
+type SpecStepIterableOptions = SpecStepOptions & {
+	iterations: number;
+};
 
 type SpecStepIterableResult<
 	IterationResult extends SpecStepResult = SpecStepResult
@@ -109,7 +118,10 @@ function valueWrap<Value>(value: Value) {
 
 // #region Assertion
 
-export class Assertion extends SpecStep<AssertionResult> {
+export class Assertion extends SpecStep<
+	AssertionOptions,
+	AssertionResult
+> {
 	constructor(
 		public callback: (
 			helpers: ReturnType<Assertion[`helpers`]>
@@ -133,7 +145,7 @@ export class Assertion extends SpecStep<AssertionResult> {
 	}
 }
 
-export type AssertionOptions = ReturnType<Assertion[`optionsDefaults`]>;
+export type AssertionOptions = SpecStepOptions;
 
 export type AssertionResult = SpecStepResult & {
 	values: Array<unknown>;
@@ -143,7 +155,7 @@ export type AssertionResult = SpecStepResult & {
 
 // #region Test
 
-export class Test extends SpecStep<TestResult> {
+export class Test extends SpecStep<TestOptions, TestResult> {
 	constructor(
 		public title: string,
 		public callback: (
@@ -160,18 +172,11 @@ export class Test extends SpecStep<TestResult> {
 		};
 	}
 
-	optionsDefaults() {
+	optionsDefaults(): TestOptions {
 		return {
-			/**
-			 * If set, overrides parent's afterEach
-			 */
-			after: null as () => $.Type.PromiseMaybe<void>,
-			/**
-			 * If set, overrides parent's beforeEach
-			 */
-			before: null as () => $.Type.PromiseMaybe<void>,
-			iterations: 1 as number,
-			pending: false as boolean,
+			after: null,
+			before: null,
+			pending: false,
 		};
 	}
 
@@ -197,7 +202,10 @@ export class Test extends SpecStep<TestResult> {
 	}
 }
 
-export type TestOptions = ReturnType<Test[`optionsDefaults`]>;
+export type TestOptions = SpecStepOptions & {
+	after: () => $.Type.PromiseMaybe<void>;
+	before: () => $.Type.PromiseMaybe<void>;
+};
 
 export type TestResult = SpecStepResult & {
 	children: Array<AssertionResult>;
@@ -207,7 +215,7 @@ export type TestResult = SpecStepResult & {
 
 // #region Suite
 
-export class Suite extends SpecStepIterable<SuiteResult> {
+export class Suite extends SpecStepIterable<SuiteOptions, SuiteResult> {
 	afterAll: () => $.Type.PromiseMaybe<void>;
 	afterEach: () => $.Type.PromiseMaybe<void>;
 	beforeAll: () => $.Type.PromiseMaybe<void>;
@@ -325,7 +333,10 @@ export type SuiteHelpers = {
 	readonly test: Suite[`test`];
 };
 
-export type SuiteOptions = ReturnType<Suite[`optionsDefaults`]>;
+export type SuiteOptions = SpecStepIterableOptions & {
+	after: () => $.Type.PromiseMaybe<void>;
+	before: () => $.Type.PromiseMaybe<void>;
+};
 
 export type SuiteResult = SpecStepResult & {
 	iterations: Array<SuiteIterationResult>;
