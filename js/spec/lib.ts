@@ -57,7 +57,7 @@ abstract class SpecStepIterable<
 		};
 	}
 
-	async run(...[runtimeOptions]: Parameters<this[`runOnce`]>) {
+	async run(...[runtimeOptions]: Parameters<SpecStepIterable[`runOnce`]>) {
 		const options = {
 			...this.options,
 			...runtimeOptions,
@@ -155,7 +155,7 @@ export type AssertionResult = SpecStepResult & {
 
 // #region Test
 
-export class Test extends SpecStep<TestOptions, TestResult> {
+export class Test extends SpecStepIterable<TestOptions, TestResult> {
 	constructor(
 		public title: string,
 		public callback: (
@@ -176,11 +176,12 @@ export class Test extends SpecStep<TestOptions, TestResult> {
 		return {
 			after: null,
 			before: null,
+			iterations: 1,
 			pending: false,
 		};
 	}
 
-	async run(runtimeOptions: Partial<TestOptions> = {}): Promise<TestResult> {
+	async runOnce(runtimeOptions: Partial<TestOptions> = {}) {
 		const options = {
 			...this.options,
 			...runtimeOptions,
@@ -193,7 +194,7 @@ export class Test extends SpecStep<TestOptions, TestResult> {
 		if (options.after) {
 			await options.after();
 		}
-		return {} as TestResult;
+		return {} as TestIterationResult;
 	}
 
 	private async assert(...args: ConstructorParameters<typeof Assertion>) {
@@ -202,13 +203,17 @@ export class Test extends SpecStep<TestOptions, TestResult> {
 	}
 }
 
-export type TestOptions = SpecStepOptions & {
+export type TestOptions = SpecStepIterableOptions & {
 	after: () => $.Type.PromiseMaybe<void>;
 	before: () => $.Type.PromiseMaybe<void>;
 };
 
-export type TestResult = SpecStepResult & {
+export type TestResult = SpecStepIterableResult<TestIterationResult>;
+
+export type TestIterationResult = SpecStepResult & {
 	children: Array<AssertionResult>;
+	timeEnd: number;
+	timeStart: number;
 };
 
 // #endregion
@@ -266,6 +271,12 @@ export class Suite extends SpecStepIterable<SuiteOptions, SuiteResult> {
 			 * If set, overrides parent's beforeEach
 			 */
 			before: null as () => $.Type.PromiseMaybe<void>,
+		};
+	}
+
+	async run(...[runtimeOptions]: Parameters<Suite[`runOnce`]>) {
+		return {
+			...await super.run(runtimeOptions),
 		};
 	}
 
@@ -338,8 +349,7 @@ export type SuiteOptions = SpecStepIterableOptions & {
 	before: () => $.Type.PromiseMaybe<void>;
 };
 
-export type SuiteResult = SpecStepResult & {
-	iterations: Array<SuiteIterationResult>;
+export type SuiteResult = SpecStepIterableResult<SuiteIterationResult> & {
 	title: string;
 };
 
