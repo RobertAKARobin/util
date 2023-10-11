@@ -1,8 +1,15 @@
 {
 	"compilerOptions": {
+		"allowImportingTsExtensions": true,
 		"allowJs": true,
 		"baseUrl": ".",
 		"lib": ["ESNext", "DOM"],
-		"resolveJsonModule": true
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"noEmit": true,
+		"outDir": "dist",
+		"resolveJsonModule": true,
+		"strict": true,
+		"target": "ESNext"
 	}
 }

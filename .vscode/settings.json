@@ -1,4 +1,5 @@
 {
+	"deno.enable": false,
 	"eslint.options": {
 		"extensions": [".js", ".json", ".ts"]
 	},
@@ -7,5 +8,7 @@
 		"javascript",
 		"json",
 		"typescript"
-	]
+	],
+	"typescript.tsdk": "node_modules/typescript/lib",
+	"typescript.enablePromptUseWorkspaceTsdk": true
 }

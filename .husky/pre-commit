@@ -1,6 +1,8 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-npm run lint
-npm version patch
-git add package.json package-lock.json
+if [[ -z $git_force ]]; then
+  npm run lint
+  npm version patch
+  git add package.json package-lock.json
+fi

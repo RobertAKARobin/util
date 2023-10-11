@@ -1,6 +1,8 @@
 // Not using Prettier because too much of a PITA, especially when supporting .astro files and VSCode
 // TODO3: Stylelistic rules are deprecated. Migrate to Prettier when it's less of a PITA: https://typescript-eslint.io/rules/comma-dangle/
 // TODO3: Rule for requiring parens around ternaries
+// TODO2: Disallow interfaces and enums: https://www.reddit.com/r/typescript/comments/zvpvxz/should_i_use_type_or_interface_whats_the/
+// TODO1: Async functions should warn if not awaited
 {
 	"extends": [
 		"eslint:recommended",
@@ -8,6 +10,7 @@
 		"plugin:@typescript-eslint/recommended"
 	],
 	"ignorePatterns": [
+		"dist/**",
 		"!**/.*.json",
 		"**/package-lock.json",
 		"**/node_modules/**"
@@ -36,6 +39,14 @@
 			"parser": "@typescript-eslint/parser",
 			"parserOptions": {
 				"project": ["./tsconfig.json"]
+			},
+			"rules": {
+				"@typescript-eslint/unbound-method": [
+					"warn",
+					{
+						"ignoreStatic": true
+					}
+				]
 			}
 		}
 	],
@@ -52,6 +63,7 @@
 			}
 		],
 		"@typescript-eslint/member-ordering": "warn",
+		"@typescript-eslint/no-empty-interface": "off",
 		"@typescript-eslint/semi": ["warn", "always"],
 		"@typescript-eslint/space-before-function-paren": ["warn", "never"],
 		"comma-dangle": ["warn", "always-multiline"],
