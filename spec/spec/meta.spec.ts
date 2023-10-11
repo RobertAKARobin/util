@@ -3,13 +3,13 @@ import colors from 'colors/safe';
 
 import { print, render, suite, test } from '../src/index';
 
-import * as mathTests from '../example/math.spec.ts';
 import * as dbTests from '../example/db.spec.ts';
+import * as mathTests from '../example/math.spec.ts';
 
 const metaSpec = suite(`SpecRunner`, {},
 	suite(`math`,
 		{
-			args: async () => {
+			args: async() => {
 				const expected = mathTests.expected.trim();
 				const results = await mathTests.specs({});
 				const rendered = render(results, { showTiming: false }).trim();
@@ -27,7 +27,7 @@ const metaSpec = suite(`SpecRunner`, {},
 
 	suite(`db`,
 		{
-			args: async () => {
+			args: async() => {
 				const expected = dbTests.expected.trim();
 				const results = await dbTests.specs({});
 				const rendered = render(results, { showTiming: false }).trim();

@@ -5,15 +5,15 @@ import type { specStepStatuses, specStepTiming, specStepTypes } from './runner.t
 
 //#region SpecStep
 export type SpecLog = SpecResult & {
-	message: string,
-	time: number,
-	type: Extract<SpecStepTypeName, `log`>,
+	message: string;
+	time: number;
+	type: Extract<SpecStepTypeName, `log`>;
 };
 
 export function SpecLogDefinition(message: string): void;
 
 export type SpecResult = {
-	type: SpecStepTypeName,
+	type: SpecStepTypeName;
 };
 
 export type SpecStepCount = Record<
@@ -28,7 +28,7 @@ export type SpecStepIterationResult<Child extends SpecResult> = SpecStepResult &
 
 export type SpecStepResult = SpecResult & {
 	count: SpecStepCount;
-	indexAtDefinition: number,
+	indexAtDefinition: number;
 	status: SpecStepStatusName;
 	timeBegin: number;
 	timeEnd: number;
@@ -100,7 +100,7 @@ export function TestDefinition<Args>(input: {
 
 export type TestIterationResult = SpecStepIterationResult<AssertionResult | SpecLog> & {
 	type: Extract<SpecStepTypeName, `testIteration`>;
-}
+};
 
 export type TestOptions = {
 	iterations: number;

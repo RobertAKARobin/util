@@ -1,16 +1,16 @@
 {
-  "name": "@robertakarobin/spec",
-  "type": "module",
-  "scripts": {
-    "spec": "tsx spec/meta.spec.ts",
-    "start": "npm run spec"
-  },
-  "dependencies": {
-    "@robertakarobin/util": "file:.."
-  },
-  "devDependencies": {
-    "@types/diff": "^5.0.5",
-    "diff": "^5.1.0",
-    "tsx": "^3.12.10"
-  }
+	"dependencies": {
+		"@robertakarobin/util": "file:.."
+	},
+	"devDependencies": {
+		"@types/diff": "^5.0.5",
+		"diff": "^5.1.0",
+		"tsx": "^3.12.10"
+	},
+	"name": "@robertakarobin/spec",
+	"scripts": {
+		"spec": "tsx spec/meta.spec.ts",
+		"start": "npm run spec"
+	},
+	"type": "module"
 }

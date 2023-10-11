@@ -78,7 +78,7 @@ export class SpecRunner {
 			return result;
 		};
 
-		let assertionValue = assertion(assertionValueWrap);
+		const assertionValue = assertion(assertionValueWrap);
 
 		if (assertionValue instanceof Promise) {
 			return assertionValue.then(setResult);
@@ -190,10 +190,10 @@ export class SpecRunner {
 
 		result.children = (input.timing === `consecutive`
 			? await $.promiseConsecutive(
-					input.children.map(child => async(_nil, index) => child(await input.args(), index))
+				input.children.map(child => async(_nil, index) => child(await input.args(), index))
 			)
 			: await Promise.all(
-					input.children.map(async(child, index) => child(await input.args(), index))
+				input.children.map(async(child, index) => child(await input.args(), index))
 			)
 		);
 

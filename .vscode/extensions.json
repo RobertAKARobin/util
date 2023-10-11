@@ -1,5 +1,8 @@
 {
 	"unwantedRecommendations": [
 		"denoland.vscode-deno"
+	],
+	"recommendations": [
+		"dbaeumer.vscode-eslint"
 	]
 }

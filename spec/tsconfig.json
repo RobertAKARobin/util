@@ -2,6 +2,6 @@
 	"extends": "@robertakarobin/util/tsconfig.json",
 	"files": [
 		"spec/meta.spec.ts",
-		"example/index.ts",
+		"example/index.ts"
 	]
 }

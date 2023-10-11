@@ -1,19 +1,19 @@
 import * as $ from '@robertakarobin/util/index.ts';
 
-import { specStepStatuses } from './runner.ts';
 import type * as Type from './types.d.ts';
+import { specStepStatuses } from './runner.ts';
 
 // export type SpecRenderOptions = ReturnType<typeof renderOptionsDefaults>;
 
 const match = {
 	fatArrowParam: /^(?:\(([\w$]*).*?\)|([\w$]*))\s*=>\s*/,
 	functionParam: /^function\s*(?:[\w$]*)\s*\(\s*([\w$]*).*?\)\s*(?=\{)/,
-	valueWrapper: /\s*\((.*?)\)(?=[^\)]*(?:\(|$))/.toString().slice(1, -1),
+	valueWrapper: /\s*\((.*?)\)(?=[^)]*(?:\(|$))/.toString().slice(1, -1),
 };
 
 export class SpecRenderer<
 	RenderOptions extends {
-		showTiming: boolean
+		showTiming: boolean;
 	}
 > {
 	readonly renderOptions = <RenderOptions>{
@@ -33,7 +33,7 @@ export class SpecRenderer<
 		suite: `s`,
 		suiteIteration: `x`,
 		test: `t`,
-		testIteration: `x`
+		testIteration: `x`,
 	};
 
 	constructor(
@@ -98,12 +98,12 @@ export class SpecRenderer<
 		let valueWrapperName: string | undefined;
 
 		if (title.startsWith(`function`)) {
-			title = title.replace(match.functionParam, (_, param) => {
+			title = title.replace(match.functionParam, (_, param: string) => {
 				valueWrapperName = param?.trim();
 				return ``;
 			},);
 		} else {
-			title = title.replace(match.fatArrowParam, (_, ifBraces, ifNoBraces) => {
+			title = title.replace(match.fatArrowParam, (_, ifBraces: string, ifNoBraces: string) => {
 				valueWrapperName = (ifBraces || ifNoBraces)?.trim();
 				return ``;
 			});
@@ -118,15 +118,15 @@ export class SpecRenderer<
 
 		if (valueWrapperName) {
 			const valueWrapperPrefix = valueWrapperName.startsWith(`$`)
-			? `\\$${valueWrapperName.substring(1)}`
-			: `\\b${valueWrapperName}`; // JS variables can start with `$` which is a special character in RegEx that doesn't play nice with `\b`
+				? `\\$${valueWrapperName.substring(1)}`
+				: `\\b${valueWrapperName}`; // JS variables can start with `$` which is a special character in RegEx that doesn't play nice with `\b`
 			valueWrapperMatcher = new RegExp(`${valueWrapperPrefix}${match.valueWrapper}`, `g`);
 
 			title = title.replace(valueWrapperMatcher, (_, value) => `(${value})`);
 		}
 
 		const out: $.Type.Nested<string> = [
-			`${prefix} ${title}`
+			`${prefix} ${title}`,
 		];
 
 		if (result.status !== `fail`) {
@@ -173,10 +173,10 @@ export class SpecRenderer<
 			`  ${prefix} ${indicator} ${result.title}${options.showTiming ? ` <${$.roundTo(result.timeEnd - result.timeBegin, 2)}ms>` : ``}`,
 			result.iterations.length > 1
 				? result.iterations.map(iteration =>
-						this.renderSuiteOrTestIteration(iteration, prefix, options)
+					this.renderSuiteOrTestIteration(iteration, prefix, options)
 				) : result.iterations[0].children.map(child =>
-						this.renderSuiteOrTestIterationChild(child, prefix, options)
-				)
+					this.renderSuiteOrTestIterationChild(child, prefix, options)
+				),
 		];
 	}
 
@@ -196,7 +196,7 @@ export class SpecRenderer<
 			`  ${prefix} ${indicator}${options.showTiming ? ` <${$.roundTo(result.timeEnd - result.timeBegin, 2)}ms>` : ``}`,
 			result.children.map(child =>
 				this.renderSuiteOrTestIterationChild(child, prefix, options)
-			)
+			),
 		];
 	}
 
@@ -215,7 +215,7 @@ export class SpecRenderer<
 		};
 		switch(result.type) {
 			case `assertion`:
-				return this.renderAssertion(result as Type.AssertionResult, parentPrefix, options);
+				return this.renderAssertion(result, parentPrefix, options);
 			case `suite`:
 				return this.renderSuiteOrTest(result as Type.SuiteResult, parentPrefix, options);
 			case `test`:

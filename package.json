@@ -22,7 +22,7 @@
 		"url": "https://github.com/RobertAKARobin/util"
 	},
 	"scripts": {
-		"lint": "eslint . --max-warnings=0",
+		"lint": "eslint .",
 		"spec": "cd spec && npm run spec"
 	},
 	"type": "module",

@@ -5,8 +5,6 @@
 // TODO1: Async functions should warn if not awaited
 {
 	"extends": [
-		"eslint:recommended",
-		"plugin:@typescript-eslint/eslint-recommended",
 		"plugin:@typescript-eslint/recommended"
 	],
 	"ignorePatterns": [
@@ -20,8 +18,8 @@
 			"files": "**/*.json",
 			"rules": {
 				"@typescript-eslint/semi": "off",
-				"comma-dangle": ["warn", "never"],
-				"quotes": ["warn", "double"]
+				"comma-dangle": ["error", "never"],
+				"quotes": ["error", "double"]
 			}
 		},
 		{
@@ -31,22 +29,36 @@
 			}
 		},
 		{
-			"excludedFiles": ["*.test.ts", "*.spec.ts"],
 			"extends": [
-				"plugin:@typescript-eslint/recommended-requiring-type-checking"
+				"plugin:@typescript-eslint/recommended-type-checked"
 			],
 			"files": ["*.ts", "*.tsx"],
 			"parser": "@typescript-eslint/parser",
 			"parserOptions": {
-				"project": ["./tsconfig.json"]
+				"project": true
 			},
 			"rules": {
+				"@typescript-eslint/member-delimiter-style": ["error",
+					{
+						"singleline": {
+							"requireLast": true
+						}
+					}
+				],
+				"@typescript-eslint/member-ordering": "error",
+				"@typescript-eslint/no-empty-interface": "off",
+				"@typescript-eslint/no-unnecessary-type-assertion": "warn",
+				"@typescript-eslint/no-unused-vars": "warn",
+				"@typescript-eslint/semi": ["error", "always"],
+				"@typescript-eslint/space-before-function-paren": ["error", "never"],
 				"@typescript-eslint/unbound-method": [
 					"warn",
 					{
 						"ignoreStatic": true
 					}
-				]
+				],
+				"typescript-sort-keys/interface": "error",
+				"typescript-sort-keys/string-enum": "error"
 			}
 		}
 	],
@@ -55,48 +67,36 @@
 		"typescript-sort-keys"
 	],
 	"rules": {
-		"@typescript-eslint/member-delimiter-style": ["warn",
-			{
-				"singleline": {
-					"requireLast": true
-				}
-			}
-		],
-		"@typescript-eslint/member-ordering": "warn",
-		"@typescript-eslint/no-empty-interface": "off",
-		"@typescript-eslint/semi": ["warn", "always"],
-		"@typescript-eslint/space-before-function-paren": ["warn", "never"],
-		"comma-dangle": ["warn", "always-multiline"],
-		"curly": ["warn", "all"],
-		"indent": ["warn", "tab", {
+		"comma-dangle": ["error", "always-multiline"],
+		"curly": ["error", "all"],
+		"indent": ["error", "tab", {
 			"SwitchCase": 1
 		}],
 		"key-spacing": [
-			"warn",
+			"error",
 			{
 				"afterColon": true,
 				"beforeColon": false,
 				"mode": "strict"
 			}
 		],
-		"object-curly-spacing": ["warn", "always"],
-		"quote-props": ["warn", "consistent"],
-		"quotes": ["warn", "backtick"],
+		"no-unused-vars": "warn",
+		"object-curly-spacing": ["error", "always"],
+		"quote-props": ["error", "consistent"],
+		"quotes": ["error", "backtick"],
 		"semi": "off",
-		"sort-imports": ["warn", {
+		"sort-imports": ["error", {
 			"allowSeparatedGroups": true
 		}],
 		"sort-keys": [
-			"warn",
+			"error",
 			"asc",
 			{
 				"allowLineSeparatedGroups": true
 			}
 		],
-		"space-before-blocks": ["warn", "always"],
-		"space-in-parens": ["warn"],
-		"space-infix-ops": ["warn"],
-		"typescript-sort-keys/interface": "warn",
-		"typescript-sort-keys/string-enum": "warn"
+		"space-before-blocks": ["error", "always"],
+		"space-in-parens": ["error"],
+		"space-infix-ops": ["error"]
 	}
 }
