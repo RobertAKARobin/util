@@ -80,7 +80,7 @@ export class SpecRenderer<
 	renderAssertion(
 		result: Type.AssertionResult,
 		parentPrefix: string,
-		inputOptions: Partial<RenderOptions> = {},
+		_inputOptions: Partial<RenderOptions> = {},
 	): $.Type.Nested<string> {
 		const indicator = this.statusIndicators[result.status];
 		const prefix = `${indicator} ${parentPrefix}${this.typeIndicators.assertion}${result.indexAtDefinition + 1} ${indicator}`;
@@ -229,7 +229,7 @@ export class SpecRenderer<
 	renderSuiteOrTestLog(
 		result: Type.SpecLog,
 		parentPrefix: string,
-		inputOptions: Partial<RenderOptions> = {}
+		_inputOptions: Partial<RenderOptions> = {}
 	): string {
 		return `${this.statusIndicators.log} ${parentPrefix}${this.typeIndicators.log} ${result.message}`;
 	}

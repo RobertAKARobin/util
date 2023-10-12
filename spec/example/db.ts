@@ -12,22 +12,12 @@ type DBRecordInput = Omit<DBRecord, `id`>;
  * Represents an instance of a connection to a database.
  */
 export class DB {
-	private static connections: Set<DB> = new Set();
-	private static data = new Map<number, DBRecord>();
-	private static _id = 0;
-	private _isConnected = false;
-
-	constructor() {
-		this._isConnected = true;
-		DB.connections.add(this);
-	}
-
-	get isConnected() {
-		return this._isConnected;
-	}
+	private static readonly connections: Set<DB> = new Set();
+	private static readonly data = new Map<number, DBRecord>();
+	private static id = 0;
 
 	static disconnect(db: DB) {
-		db._isConnected = false;
+		db.isConnected_ = false;
 		DB.connections.delete(db);
 	}
 
@@ -38,8 +28,20 @@ export class DB {
 		return $.sleep(10 * Math.random());
 	}
 
+	get isConnected() {
+		return this.isConnected_;
+	}
+
+	private isConnected_ = false;
+
+
+	constructor() {
+		this.isConnected_ = true;
+		DB.connections.add(this);
+	}
+
 	async assertConnection() {
-		if (!this.isConnected) {
+		if (!this.isConnected_) {
 			throw new Error(`Database is not connected`);
 		}
 		await DB.latency();
@@ -50,7 +52,7 @@ export class DB {
 
 		const record: DBRecord = {
 			...recordInput,
-			id: DB._id++,
+			id: DB.id++,
 		};
 		DB.data.set(record.id, record);
 		return record;
@@ -79,7 +81,7 @@ export class DB {
 	}
 
 	disconnect() {
-		if (!this.isConnected) {
+		if (!this.isConnected_) {
 			throw new Error(`This connection is already disconnected.`);
 		}
 		return DB.disconnect(this);

@@ -87,6 +87,10 @@ export class SpecRunner {
 		}
 	}
 
+	getTime(): number {
+		return performance.now();
+	}
+
 	log(log: string): Type.SpecLog {
 		return {
 			message: log,
@@ -317,9 +321,5 @@ export class SpecRunner {
 		result.timeEnd = this.getTime();
 
 		return result;
-	}
-
-	getTime(): number {
-		return performance.now();
 	}
 }

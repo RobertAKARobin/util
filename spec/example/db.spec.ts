@@ -18,7 +18,7 @@ export const specs = suite(`DB`, {},
 		test(`#disconnect`, ({ args, assert }) => {
 			args.db.disconnect();
 			assert(x => x(args.db.isConnected) === false);
-			assert(x => x($.tryCatch(args.db.disconnect)) instanceof Error);
+			assert(x => x($.tryCatch(args.db.disconnect)) instanceof Error); // eslint-disable-line @typescript-eslint/unbound-method
 		}),
 
 		test(`create and delete`, async({ args, assert, log }) => {
