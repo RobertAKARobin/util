@@ -2,7 +2,6 @@
 // TODO3: Stylelistic rules are deprecated. Migrate to Prettier when it's less of a PITA: https://typescript-eslint.io/rules/comma-dangle/
 // TODO3: Rule for requiring parens around ternaries
 // TODO2: Disallow interfaces and enums: https://www.reddit.com/r/typescript/comments/zvpvxz/should_i_use_type_or_interface_whats_the/
-// TODO1: Async functions should warn if not awaited
 {
 	"extends": [
 		"plugin:@typescript-eslint/recommended"
@@ -20,7 +19,8 @@
 			"rules": {
 				"@typescript-eslint/semi": "off",
 				"comma-dangle": ["error", "never"],
-				"quotes": ["error", "double"]
+				"quotes": ["error", "double"],
+				"semi": "off"
 			}
 		},
 		{
@@ -85,7 +85,7 @@
 		"object-curly-spacing": ["error", "always"],
 		"quote-props": ["error", "consistent"],
 		"quotes": ["error", "backtick"],
-		"semi": "off",
+		"semi": ["error", "always"],
 		"sort-imports": ["error", {
 			"allowSeparatedGroups": true
 		}],
