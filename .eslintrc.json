@@ -15,10 +15,12 @@
 	],
 	"overrides": [
 		{
-			"files": "**/*.json",
+			"files": "*.json",
 			"rules": {
-				"@typescript-eslint/semi": "off",
 				"comma-dangle": ["error", "never"],
+				"indent": ["error", "tab", {
+					"SwitchCase": 1
+				}],
 				"quotes": ["error", "double"],
 				"semi": "off"
 			}
