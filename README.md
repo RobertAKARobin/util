@@ -17,7 +17,6 @@ npx husky install
 ```
 cd my_project
 npm i -S https://github.com/robertakarobin/util.git
-npm i -D eslint @typescript-eslint/eslint-plugin @typescript-eslint/parser stylelint
 ```
 
 Then add:
@@ -37,6 +36,8 @@ Then add:
 }
 ```
 
+This isn't configured to be an ESLint config package (e.g. by naming it `eslint-config-*`). So, you'll need to extend its .eslintrc.json by using the actual file path:
+
 ```
 // .eslintrc.json
 {
@@ -46,6 +47,8 @@ Then add:
 }
 ```
 
+Note that `stylelint.extends` appears to work fine regardless of whether you specify `./node_modules`.
+
 ```
 // .stylelintrc.json
 {
@@ -54,20 +57,6 @@ Then add:
 	]
 }
 ```
-
-#### Extending lint rules
-
-This isn't configured to be an ESLint config package (e.g. by naming it `eslint-config-*`). So, you'll need to extend its .eslintrc.json by using the actual file path:
-
-```
-{
-	"extends": [
-		"./node_modules/@robertakarobin/util/.eslintrc.json"
-	]
-}
-```
-
-Note that `stylelint.extends` appears to work fine regardless of whether you specify `./node_modules`.
 
 # Style guide
 
