@@ -15,3 +15,4 @@ export const renderer = new SpecRenderer();
 
 export const print = renderer.print;
 export const render = renderer.render;
+export const run = renderer.run;

@@ -1,5 +1,4 @@
 import type * as $ from '@robertakarobin/util/types.d.ts';
-import type { tryCatch } from '@robertakarobin/util/index.ts';
 
 import type { specStepStatuses, specStepTiming, specStepTypes } from './runner.ts';
 

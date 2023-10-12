@@ -1,7 +1,7 @@
 import * as Diff from 'diff';
 import colors from 'colors/safe';
 
-import { print, render, suite, test } from '../src/index';
+import { print, render, run, suite, test } from '../src/index';
 
 import * as dbTests from '../example/db.spec.ts';
 import * as mathTests from '../example/math.spec.ts';
@@ -44,7 +44,7 @@ const metaSpec = suite(`SpecRunner`, {},
 	),
 );
 
-print(await metaSpec({}));
+run(await metaSpec({}));
 
 function showDiff(expected: string, actual: string): string {
 	const diff = Diff.diffLines(expected, actual);

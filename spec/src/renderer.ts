@@ -45,6 +45,7 @@ export class SpecRenderer<
 		};
 		this.print = this.print.bind(this);
 		this.render = this.render.bind(this);
+		this.run = this.run.bind(this);
 	}
 
 	print(...[rootSuiteResult, inputOptions]: Parameters<typeof this.render>): void {
@@ -231,5 +232,14 @@ export class SpecRenderer<
 		inputOptions: Partial<RenderOptions> = {}
 	): string {
 		return `${this.statusIndicators.log} ${parentPrefix}${this.typeIndicators.log} ${result.message}`;
+	}
+
+	run(results: Type.SuiteResult) {
+		if (results.count.fail > 0) {
+			this.print(results);
+			process.exit(1);
+		} else {
+			process.exit(0);
+		}
 	}
 }
