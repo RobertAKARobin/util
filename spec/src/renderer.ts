@@ -104,8 +104,8 @@ export class SpecRenderer<
 				return ``;
 			},);
 		} else {
-			title = title.replace(match.fatArrowParam, (_, ifBraces: string, ifNoBraces: string) => {
-				valueWrapperName = (ifBraces || ifNoBraces)?.trim();
+			title = title.replace(match.fatArrowParam, (_, braces: string, noBraces: string) => {
+				valueWrapperName = (braces || noBraces)?.trim();
 				return ``;
 			});
 		}

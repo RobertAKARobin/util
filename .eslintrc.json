@@ -75,14 +75,18 @@
 		"indent": ["error", "tab", {
 			"SwitchCase": 1
 		}],
-		"key-spacing": [
-			"error",
-			{
-				"afterColon": true,
-				"beforeColon": false,
-				"mode": "strict"
-			}
-		],
+		"key-spacing": ["error", {
+			"afterColon": true,
+			"beforeColon": false,
+			"mode": "strict"
+		}],
+		"max-len": ["warn", {
+			"code": 100,
+			"ignoreComments": true,
+			"ignoreRegExpLiterals": false,
+			"ignoreStrings": false,
+			"ignoreTemplateLiterals": true
+		}],
 		"no-unused-vars": "warn",
 		"object-curly-spacing": ["error", "always"],
 		"quote-props": ["error", "consistent"],
