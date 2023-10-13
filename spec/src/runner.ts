@@ -1,4 +1,4 @@
-import * as $ from '@robertakarobin/util/index.ts';
+import * as $ from '@robertakarobin/util';
 
 import type * as Type from './types.d.ts';
 

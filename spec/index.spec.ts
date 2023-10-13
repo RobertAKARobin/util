@@ -1,7 +1,7 @@
 import * as Diff from 'diff';
 import colors from 'colors/safe';
 
-import { render, suite, test } from '@robertakarobin/spec/index.ts';
+import { render, suite, test } from '@robertakarobin/spec';
 
 import * as dbTests from './example/db.spec.ts';
 import * as mathTests from './example/math.spec.ts';

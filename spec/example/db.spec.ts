@@ -1,5 +1,5 @@
-import * as $ from '@robertakarobin/util/index.ts';
-import { suite, test } from '@robertakarobin/spec/index.ts';
+import * as $ from '@robertakarobin/util';
+import { suite, test } from '@robertakarobin/spec';
 
 import { DB } from './db.ts';
 
