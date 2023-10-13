@@ -1,6 +1,6 @@
 import * as $ from '../../index.ts';
 
-import { suite, test } from './index.ts';
+import { suite, test } from '../index.ts';
 
 import { DB } from './db.ts';
 

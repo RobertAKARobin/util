@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/unbound-method */
-import { SpecRenderer } from './renderer.ts';
-import { SpecRunner } from './runner.ts';
+import { SpecRenderer } from './src/renderer.ts';
+import { SpecRunner } from './src/runner.ts';
 
 export {
 	SpecRenderer,

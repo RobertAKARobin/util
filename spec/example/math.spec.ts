@@ -1,6 +1,6 @@
 import * as $ from '../../index.ts';
 
-import { suite, test } from '../src/index.ts';
+import { suite, test } from '../index.ts';
 
 /**
  * Stub out async functions, with less boilerplate
