@@ -231,15 +231,22 @@ export class SpecRenderer<
 		parentPrefix: string,
 		_inputOptions: Partial<RenderOptions> = {}
 	): string {
-		return `${this.statusIndicators.log} ${parentPrefix}${this.typeIndicators.log} ${result.message}`;
+		return `${this.statusIndicators.log} ${parentPrefix}${this.typeIndicators.log}  ${result.message}`;
 	}
 
-	run(results: Type.SuiteResult) {
+	run(
+		results: Type.SuiteResult,
+		options: Partial<RenderOptions & {
+			verbose: boolean;
+		}> = {}
+	) {
 		if (results.count.fail > 0) {
-			this.print(results);
+			this.print(results, options);
 			process.exit(1);
 		} else {
-			console.log(`Total assertions: ${results.count.totalAssertions}`);
+			if (options.verbose) {
+				this.print(results, options);
+			}
 			process.exit(0);
 		}
 	}

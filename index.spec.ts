@@ -8,4 +8,4 @@ export const spec = suite(`@robertakarobin/util`, {},
 	Emit.spec,
 );
 
-run(await spec({}));
+run(await spec({}), { verbose: true });

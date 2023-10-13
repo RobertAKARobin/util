@@ -58,7 +58,7 @@ export const expected = `
 • s1s2t2a1 • (record.name)===\`alice\`
 • s1s2t2a2 • (await (args.db.getIds())).includes((record.id))
 • s1s2t2a3 • args.db.has(record.id)
-# s1s2t2# can only delete once
+# s1s2t2#  can only delete once
 • s1s2t2a4 • typeof (await doDelete())===\`undefined\`
 • s1s2t2a5 • (await doDelete())instanceof Error
 • s1s2t2a6 • (await hasRecord2())===false
