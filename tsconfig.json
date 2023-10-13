@@ -1,15 +1,9 @@
 {
 	"compilerOptions": {
-		"allowImportingTsExtensions": true,
-		"allowJs": true,
-		"baseUrl": ".",
-		"lib": ["ESNext", "DOM"],
-		"module": "ESNext",
-		"moduleResolution": "bundler",
-		"noEmit": true,
-		"outDir": "dist",
-		"resolveJsonModule": true,
-		"strict": true,
-		"target": "ESNext"
-	}
+		"paths": {
+			"@robertakarobin/spec": ["./spec"],
+			"@robertakarobin/spec/*": ["./spec/*"]
+		}
+	},
+	"extends": "./tsconfig.dist.json"
 }

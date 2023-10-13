@@ -81,7 +81,7 @@
 				"@typescript-eslint/no-unsafe-assignment": "warn",
 				"@typescript-eslint/no-unsafe-call": "warn",
 				"@typescript-eslint/no-unsafe-member-access": "warn",
-				"@typescript-eslint/no-unused-vars": ["error", {
+				"@typescript-eslint/no-unused-vars": ["warn", {
 					"argsIgnorePattern": "^_"
 				}],
 				"@typescript-eslint/semi": ["error", "always"],
@@ -119,7 +119,7 @@
 			"ignoreStrings": false,
 			"ignoreTemplateLiterals": true
 		}],
-		"no-unused-vars": ["error", {
+		"no-unused-vars": ["warn", {
 			"argsIgnorePattern": "^_"
 		}],
 		"object-curly-spacing": ["error", "always"],

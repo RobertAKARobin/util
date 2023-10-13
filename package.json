@@ -14,7 +14,8 @@
 	},
 	"devDependencies": {
 		"colors": "^1.4.0",
-		"husky": "^8.0.3"
+		"husky": "^8.0.3",
+		"tsx": "^3.13.0"
 	},
 	"name": "@robertakarobin/util",
 	"repository": {
@@ -23,8 +24,8 @@
 	},
 	"scripts": {
 		"lint": "eslint .",
-		"spec": "cd spec && npm run spec"
+		"spec": "tsx index.spec.ts"
 	},
 	"type": "module",
-	"version": "0.0.165"
+	"version": "0.0.166"
 }

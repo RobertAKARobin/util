@@ -239,6 +239,7 @@ export class SpecRenderer<
 			this.print(results);
 			process.exit(1);
 		} else {
+			console.log(`Total assertions: ${results.count.totalAssertions}`);
 			process.exit(0);
 		}
 	}

@@ -1,12 +1,12 @@
 import * as Diff from 'diff';
 import colors from 'colors/safe';
 
-import { render, run, suite, test } from '../index.ts';
+import { render, suite, test } from '@robertakarobin/spec/index.ts';
 
-import * as dbTests from '../example/db.spec.ts';
-import * as mathTests from '../example/math.spec.ts';
+import * as dbTests from './example/db.spec.ts';
+import * as mathTests from './example/math.spec.ts';
 
-const metaSpec = suite(`SpecRunner`, {},
+export const spec = suite(`SpecRunner`, {},
 	suite(`math`,
 		{
 			args: async() => {
@@ -43,8 +43,6 @@ const metaSpec = suite(`SpecRunner`, {},
 		}),
 	),
 );
-
-run(await metaSpec({}));
 
 function showDiff(expected: string, actual: string): string {
 	const diff = Diff.diffLines(expected, actual);

@@ -2,43 +2,46 @@
 
 Common configurations and helpers for Robin's projects.
 
-## Installation
+## Contribute
 
-### For development
-
-```
+```sh
 cd util
 npm i
 npx husky install
 ```
 
-### For usage
+## Install
 
-```
+```sh
 cd my_project
 npm i -S https://github.com/robertakarobin/util.git
 ```
 
-Then add:
+### VSCode
 
-```
-// .vscode/settings.json
-// @see ./vscode/settings.json
-// TODO3: Extend settings instead, when/if https://github.com/microsoft/vscode/issues/15909 is done
+```sh
+cp -R ./node_modules/@robertakarobin/util/.vscode .vscode
 ```
 
-```
-// package.json
+(When/if https://github.com/microsoft/vscode/issues/15909 is done, extend the settings intead.)
+
+### Typescript
+
+When prompted whether you want VSCode to use the locally-installed Typescript, select 'Yes'.
+
+```jsonc
+// tsconfig.json
 {
-	"scripts": {
-		"lint": "eslint --ext .js,.json,.ts ."
-	}
+	"extends": "@robertakarobin/util/tsconfig.dist.json"
 }
+
 ```
+
+### Linting
 
 This isn't configured to be an ESLint config package (e.g. by naming it `eslint-config-*`). So, you'll need to extend its .eslintrc.json by using the actual file path:
 
-```
+```jsonc
 // .eslintrc.json
 {
 	"extends": [
@@ -47,13 +50,24 @@ This isn't configured to be an ESLint config package (e.g. by naming it `eslint-
 }
 ```
 
+Then add:
+
+```jsonc
+// package.json
+{
+	"scripts": {
+		"lint": "eslint ."
+	}
+}
+```
+
 Note that `stylelint.extends` appears to work fine regardless of whether you specify `./node_modules`.
 
-```
+```jsonc
 // .stylelintrc.json
 {
 	"extends": [
-		"./node_modules/@robertakarobin/util/.stylelintrc.json"
+		"@robertakarobin/util/.stylelintrc.json"
 	]
 }
 ```

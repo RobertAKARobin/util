@@ -1,7 +1,13 @@
 {
-	"extends": "@robertakarobin/util/tsconfig.json",
+	"compilerOptions": {
+		"paths": {
+			"@robertakarobin/spec": ["./spec"],
+			"@robertakarobin/spec/*": ["./spec/*"]
+		}
+	},
+	"extends": "@robertakarobin/util/tsconfig.dist.json",
 	"files": [
-		"spec/meta.spec.ts",
+		"index.spec.ts",
 		"example/index.ts"
 	]
 }
