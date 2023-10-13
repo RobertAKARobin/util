@@ -7,10 +7,12 @@
 		"diff": "^5.1.0",
 		"tsx": "^3.12.10"
 	},
+	"main": "index.ts",
 	"name": "@robertakarobin/spec",
 	"scripts": {
 		"spec": "tsx spec/meta.spec.ts",
 		"start": "npm run spec"
 	},
-	"type": "module"
+	"type": "module",
+	"version": "0.0.1"
 }

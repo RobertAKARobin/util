@@ -7,7 +7,6 @@
 	},
 	"extends": "@robertakarobin/util/tsconfig.dist.json",
 	"files": [
-		"index.spec.ts",
-		"example/index.ts"
+		"index.spec.ts"
 	]
 }

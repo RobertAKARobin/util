@@ -1,0 +1,10 @@
+{
+	"dependencies": {
+		"@robertakarobin/spec": "file:../spec",
+		"@robertakarobin/util": "file:.."
+	},
+	"main": "index.ts",
+	"name": "@robertakarobin/emit",
+	"type": "module",
+	"version": "0.0.1"
+}
