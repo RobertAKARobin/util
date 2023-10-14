@@ -9,7 +9,13 @@ export type SpecLog = SpecResult & {
 	type: Extract<SpecStepTypeName, `log`>;
 };
 
-export function SpecLogDefinition(message: string): void;
+export type SpecLogMessage =
+| (() => unknown)
+|	(() => Promise<unknown>)
+| string;
+
+
+export function SpecLogFactory(message: SpecLogMessage): void;
 
 export type SpecResult = {
 	type: SpecStepTypeName;
@@ -94,7 +100,7 @@ export function Test<Args>(
 export function TestDefinition<Args>(input: {
 	args: Args;
 	assert: typeof AssertionFactory;
-	log: typeof SpecLogDefinition;
+	log: typeof SpecLogFactory;
 }): void | Promise<void>;
 
 export type TestIterationResult = SpecStepIterationResult<AssertionResult | SpecLog> & {

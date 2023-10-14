@@ -91,12 +91,25 @@ export class SpecRunner {
 		return performance.now();
 	}
 
-	log(log: string): Type.SpecLog {
-		return {
-			message: log,
+	log(message: () => unknown): Type.SpecLog;
+	log(message: () => Promise<unknown>): Promise<Type.SpecLog>;
+	log(message: string): Type.SpecLog;
+	log(
+		message: string | (() => $.Type.PromiseMaybe<unknown>)
+	): $.Type.PromiseMaybe<Type.SpecLog> {
+		const logResult = () => ({
+			message: (typeof message === `string` ? message : message.toString()),
 			time: this.getTime(),
 			type: `log`,
-		};
+		} as Type.SpecLog);
+
+		if (message instanceof Function) {
+			const output = message();
+			if (output instanceof Promise) {
+				return output.then(logResult);
+			}
+		}
+		return logResult();
 	}
 
 	suite<InheritedArgs, Args>(
@@ -307,8 +320,8 @@ export class SpecRunner {
 			}
 		};
 
-		const log: typeof Type.SpecLogDefinition = (message) => {
-			result.children.push(this.log(message));
+		const log: typeof Type.SpecLogFactory = message => {
+			result.children.push(this.log(message as Parameters<typeof this.log>[0]));
 			result.count.log += 1;
 		};
 

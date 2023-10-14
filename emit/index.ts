@@ -12,12 +12,11 @@ export class Emitter<Type> {
 		this.cache = new EmitterCache<Type>(options.cache ?? {});
 	}
 
-	next(value: Type): Emitter<Type> {
+	next(value: Type): void {
 		this.cache.add(value);
 		for (const subscription of this.subscriptions) {
 			subscription.onEmit?.(value);
 		}
-		return this;
 	}
 
 	subscribe(onEvent?: Subscription<Type>[`onEmit`]): Subscription<Type> {
