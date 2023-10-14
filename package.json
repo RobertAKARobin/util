@@ -29,5 +29,5 @@
 		"test": "npm run lint && npm run spec"
 	},
 	"type": "module",
-	"version": "0.0.168"
+	"version": "0.0.169"
 }
