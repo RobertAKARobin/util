@@ -5,7 +5,6 @@ Common configurations and helpers for Robin's projects.
 ## Contribute
 
 ```sh
-cd util
 npm i
 npx husky install
 ```
@@ -39,6 +38,8 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ### Linting
 
+#### TS/JS
+
 This isn't configured to be an ESLint config package (e.g. by naming it `eslint-config-*`). So, you'll need to extend its .eslintrc.json by using the actual file path:
 
 ```jsonc
@@ -61,13 +62,15 @@ Then add:
 }
 ```
 
+#### CSS
+
 Note that `stylelint.extends` appears to work fine regardless of whether you specify `./node_modules`.
 
 ```jsonc
 // .stylelintrc.json
 {
 	"extends": [
-		"@robertakarobin/util/.stylelintrc.json"
+		"@robertakarobin/util/csslint/.stylelintrc.json"
 	]
 }
 ```

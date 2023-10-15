@@ -5,15 +5,9 @@
 		"@typescript-eslint/parser": "^6.7.5",
 		"eslint": "^8.51.0",
 		"eslint-plugin-typescript-sort-keys": "^3.0.0",
-		"postcss-html": "^1.5.0",
-		"stylelint": "^15.10.3",
-		"stylelint-config-standard": "^34.0.0",
-		"stylelint-config-standard-scss": "^11.0.0",
-		"stylelint-order": "^6.0.3",
 		"typescript": "^5.2.2"
 	},
 	"devDependencies": {
-		"colors": "^1.4.0",
 		"husky": "^8.0.3",
 		"tsx": "^3.13.0"
 	},
@@ -29,5 +23,5 @@
 		"test": "npm run lint && npm run spec"
 	},
 	"type": "module",
-	"version": "0.0.173"
+	"version": "0.0.174"
 }

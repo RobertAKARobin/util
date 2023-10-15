@@ -1,5 +1,5 @@
 {
-	"extends": "stylelint-config-standard-scss",
+	"extends": "stylelint-config-standard",
 	"ignoreFiles": [
 		"node_modules/**"
 	],
@@ -7,7 +7,6 @@
 		{
 			"customSyntax": "postcss-html",
 			"files": [
-				"src/**/*.astro",
 				"src/**/*.md"
 			]
 		}
@@ -28,10 +27,6 @@
 		"number-leading-zero": "never",
 		"order/properties-alphabetical-order": true,
 		"property-no-vendor-prefix": null,
-		"scss/at-mixin-pattern": null,
-		"scss/dollar-variable-empty-line-before": null,
-		"scss/dollar-variable-pattern": null,
-		"scss/double-slash-comment-empty-line-before": null,
 		"selector-class-pattern": null,
 		"selector-pseudo-class-no-unknown": null,
 		"string-quotes": "single"
