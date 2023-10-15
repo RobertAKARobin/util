@@ -10,7 +10,7 @@
 	"main": "index.ts",
 	"name": "@robertakarobin/spec",
 	"scripts": {
-		"spec": "tsx spec/meta.spec.ts",
+		"spec": "tsx index.spec.ts",
 		"start": "npm run spec"
 	},
 	"type": "module",

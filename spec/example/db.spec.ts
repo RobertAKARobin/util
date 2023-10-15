@@ -71,5 +71,7 @@ Total completed assertions: 12
    0 deferred
 • 12 pass
 X  0 fail
+
+RESULT: PASS
 ———
 `;

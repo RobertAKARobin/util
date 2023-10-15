@@ -3,8 +3,6 @@ import * as $ from '@robertakarobin/util';
 import type * as Type from './types.d.ts';
 import { specStepStatuses } from './runner.ts';
 
-// export type SpecRenderOptions = ReturnType<typeof renderOptionsDefaults>;
-
 const match = {
 	fatArrowParam: /^(?:\(([\w$]*).*?\)|([\w$]*))\s*=>\s*/,
 	functionParam: /^function\s*(?:[\w$]*)\s*\(\s*([\w$]*).*?\)\s*(?=\{)/,
@@ -49,7 +47,11 @@ export class SpecRenderer<
 	}
 
 	print(...[rootSuiteResult, inputOptions]: Parameters<typeof this.render>): void {
-		return console.log(this.render(rootSuiteResult, inputOptions));
+		const failMatcher = new RegExp(`^${this.statusIndicators.fail} ${this.typeIndicators.suite}.*$`, `mg`);
+		return console.log(
+			this.render(rootSuiteResult, inputOptions)
+				.replace(failMatcher, line => `\x1b[31m${line}\x1b[0m`),
+		);
 	}
 
 	render(
@@ -73,6 +75,8 @@ export class SpecRenderer<
 				const countPadding = ` `.repeat(maxCountPlaces - count.toString().length); // For right-aligning numbers
 				return `${this.statusIndicators[statusName]} ${countPadding}${count} ${statusName}`;
 			}),
+			``,
+			`RESULT: ${rootSuiteResult.status.toUpperCase()}`,
 			`———`,
 		].join(`\n`);
 	}
