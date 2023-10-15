@@ -21,7 +21,6 @@ export class SpecRenderer<
 	readonly statusIndicators: Record<Type.SpecStepStatusName, string> = {
 		deferred: ` `,
 		fail: `X`,
-		log: `#`,
 		pass: `•`,
 	};
 
@@ -235,7 +234,7 @@ export class SpecRenderer<
 		parentPrefix: string,
 		_inputOptions: Partial<RenderOptions> = {}
 	): string {
-		return `${this.statusIndicators.log} ${parentPrefix}${this.typeIndicators.log}  ${result.message}`;
+		return `  ${parentPrefix}${this.typeIndicators.log}  ${result.message}`;
 	}
 
 	run(

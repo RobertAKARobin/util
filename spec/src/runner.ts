@@ -5,13 +5,11 @@ import type * as Type from './types.d.ts';
 const specStepCountDefault: Type.SpecStepCount = {
 	deferred: 0,
 	fail: 0,
-	log: 0,
 	pass: 0,
 	totalAssertions: 0,
 };
 
 export const specStepStatuses = [
-	`log`,
 	`deferred`,
 	`pass`,
 	`fail`,
@@ -322,7 +320,6 @@ export class SpecRunner {
 
 		const log: typeof Type.SpecLogFactory = message => {
 			result.children.push(this.log(message as Parameters<typeof this.log>[0]));
-			result.count.log += 1;
 		};
 
 		await input.testDefinition({

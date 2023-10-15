@@ -58,7 +58,7 @@ export const expected = `
 • s1s2t2a1 • (record.name)===\`alice\`
 • s1s2t2a2 • (await (args.db.getIds())).includes((record.id))
 • s1s2t2a3 • args.db.has(record.id)
-# s1s2t2#  can only delete once
+  s1s2t2#  can only delete once
 • s1s2t2a4 • typeof (await doDelete())===\`undefined\`
 • s1s2t2a5 • (await doDelete())instanceof Error
 • s1s2t2a6 • (await hasRecord2())===false
@@ -67,7 +67,6 @@ export const expected = `
 • s1s2t2a9 • (record.id)!==(record2.id)
 
 Total completed assertions: 12
-#  1 log
    0 deferred
 • 12 pass
 X  0 fail
