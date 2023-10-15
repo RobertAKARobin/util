@@ -1,4 +1,4 @@
-import * as $ from '@robertakarobin/util';
+import * as $ from '@robertakarobin/jsutil';
 
 import type * as Type from './types.d.ts';
 import { specStepStatuses } from './runner.ts';

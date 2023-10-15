@@ -1,4 +1,4 @@
-import * as $ from '@robertakarobin/util';
+import * as $ from '@robertakarobin/jsutil';
 import { suite, test } from '@robertakarobin/spec';
 
 import { DB } from './db.ts';

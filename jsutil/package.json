@@ -1,0 +1,6 @@
+{
+	"main": "index.ts",
+	"name": "@robertakarobin/jsutil",
+	"type": "module",
+	"version": "0.0.1"
+}

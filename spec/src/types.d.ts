@@ -1,4 +1,4 @@
-import type * as $ from '@robertakarobin/util/types.d.ts';
+import type * as $ from '@robertakarobin/jsutil/types.d.ts';
 
 import type { specStepStatuses, specStepTiming, specStepTypes } from './runner.ts';
 

@@ -1,5 +1,5 @@
 {
-	"dependencies": {
+	"devDependencies": {
 		"@robertakarobin/spec": "file:../spec",
 		"@robertakarobin/util": "file:.."
 	},
