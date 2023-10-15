@@ -1,6 +1,6 @@
 import * as Diff from 'diff';
 
-import { render, suite, test } from '@robertakarobin/spec';
+import { render, suite, test } from './index.ts';
 
 import * as dbTests from './example/db.spec.ts';
 import * as mathTests from './example/math.spec.ts';

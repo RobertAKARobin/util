@@ -1,5 +1,6 @@
 import * as $ from '@robertakarobin/jsutil';
-import { suite, test } from '@robertakarobin/spec';
+
+import { suite, test } from '../index.ts';
 
 /**
  * Stub out async functions, with less boilerplate

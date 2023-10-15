@@ -31,7 +31,7 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 ```jsonc
 // tsconfig.json
 {
-	"extends": "@robertakarobin/util/tsconfig.dist.json"
+	"extends": "@robertakarobin/util/tsconfig.json"
 }
 
 ```

@@ -1,6 +1,6 @@
 import * as $ from '@robertakarobin/jsutil';
-import { suite, test } from '@robertakarobin/spec';
 
+import { suite, test } from '../index.ts';
 import { DB } from './db.ts';
 
 export const specs = suite(`DB`, {},

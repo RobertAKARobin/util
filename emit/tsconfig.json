@@ -1,7 +1,0 @@
-{
-	"extends": "@robertakarobin/util/tsconfig.dist.json",
-	"files": [
-		"index.ts",
-		"index.spec.ts"
-	]
-}

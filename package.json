@@ -4,14 +4,11 @@
 		"@typescript-eslint/eslint-plugin": "^6.7.5",
 		"@typescript-eslint/parser": "^6.7.5",
 		"eslint": "^8.51.0",
-		"eslint-plugin-typescript-sort-keys": "^3.0.0",
-		"typescript": "^5.2.2"
+		"eslint-plugin-typescript-sort-keys": "^3.0.0"
 	},
 	"devDependencies": {
-		"husky": "^8.0.3",
-		"tsx": "^3.13.0"
+		"husky": "^8.0.3"
 	},
-	"main": "index.ts",
 	"name": "@robertakarobin/util",
 	"repository": {
 		"type": "git",
@@ -19,9 +16,9 @@
 	},
 	"scripts": {
 		"lint": "eslint .",
-		"spec": "tsx index.spec.ts",
+		"spec": "cd _spec && npm run spec",
 		"test": "npm run lint && npm run spec"
 	},
 	"type": "module",
-	"version": "0.0.175"
+	"version": "0.0.177"
 }
