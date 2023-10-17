@@ -40,23 +40,20 @@ export class SpecRenderer<
 			...this.renderOptions,
 			...inputOptions,
 		};
-		this.print = this.print.bind(this);
-		this.render = this.render.bind(this);
-		this.run = this.run.bind(this);
 	}
 
-	print(...[rootSuiteResult, inputOptions]: Parameters<typeof this.render>): void {
+	print = (...[rootSuiteResult, inputOptions]: Parameters<typeof this.render>) => {
 		const failMatcher = new RegExp(`^${this.statusIndicators.fail} ${this.typeIndicators.suite}.*$`, `mg`);
 		return console.log(
 			this.render(rootSuiteResult, inputOptions)
 				.replace(failMatcher, line => `\x1b[31m${line}\x1b[0m`),
 		);
-	}
+	};
 
-	render(
+	render = (
 		rootSuiteResult: Type.SuiteResult,
 		inputOptions: Partial<RenderOptions> = {},
-	): string {
+	): string => {
 		const maxCount = Math.max(...Object.values(rootSuiteResult.count));
 		const maxCountPlaces = maxCount.toString().length;
 		const options = {
@@ -78,7 +75,7 @@ export class SpecRenderer<
 			`RESULT: ${rootSuiteResult.status.toUpperCase()}`,
 			`———`,
 		].join(`\n`);
-	}
+	};
 
 	renderAssertion(
 		result: Type.AssertionResult,
@@ -237,12 +234,12 @@ export class SpecRenderer<
 		return `  ${parentPrefix}${this.typeIndicators.log}  ${result.message}`;
 	}
 
-	run(
+	run = (
 		results: Type.SuiteResult,
 		options: Partial<RenderOptions & {
 			verbose: boolean;
 		}> = {}
-	) {
+	) => {
 		if (results.count.fail > 0) {
 			this.print(results, options);
 			process.exit(1);
@@ -252,5 +249,5 @@ export class SpecRenderer<
 			}
 			process.exit(0);
 		}
-	}
+	};
 }

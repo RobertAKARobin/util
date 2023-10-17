@@ -33,9 +33,8 @@ export const specStepTypes = [
 
 export class SpecRunner {
 	constructor() {
-		this.log = this.log.bind(this);
+		this.log = this.log.bind(this); // Typescript doesn't yet support overloads for arrow functions https://github.com/microsoft/TypeScript/issues/47669
 		this.suite = this.suite.bind(this);
-		this.test = this.test.bind(this);
 	}
 
 	assert(
@@ -108,7 +107,7 @@ export class SpecRunner {
 			}
 		}
 		return logResult();
-	}
+	};
 
 	suite<InheritedArgs, Args>(
 		title: string,
@@ -228,11 +227,11 @@ export class SpecRunner {
 		return result;
 	}
 
-	test<Args>( // TODO: Error on suites or tests inside of tests
+	test = <Args>( // TODO: Error on suites or tests inside of tests
 		title: string,
 		testDefinition: typeof Type.TestDefinition<Args>,
 		options: Partial<Type.TestOptions> = {}
-	): typeof Type.Test<Args> {
+	): typeof Type.Test<Args> => {
 		return async(args, index) => {
 			const result: Type.TestResult = {
 				count: { ...specStepCountDefault },
@@ -275,7 +274,7 @@ export class SpecRunner {
 
 			return result;
 		};
-	}
+	};
 
 	async testIteration<Args>(input: {
 		args: Args;
