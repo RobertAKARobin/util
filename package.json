@@ -1,5 +1,6 @@
 {
 	"dependencies": {
+		"@robertakarobin/component": "file:./component",
 		"@robertakarobin/emit": "file:./emit",
 		"@robertakarobin/eslint-config-ts": "file:./eslint-config-ts",
 		"@robertakarobin/spec": "file:./spec"
