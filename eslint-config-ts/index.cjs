@@ -1,30 +1,10 @@
-// Not using Prettier because too much of a PITA, especially when supporting .astro files and VSCode
-// TODO3: Stylelistic rules are deprecated. Migrate to Prettier when it's less of a PITA: https://typescript-eslint.io/rules/comma-dangle/
-// TODO3: Rule for requiring parens around ternaries
 // TODO2: Disallow interfaces and enums: https://www.reddit.com/r/typescript/comments/zvpvxz/should_i_use_type_or_interface_whats_the/
 module.exports = {
 	extends: [
 		`plugin:@typescript-eslint/recommended`,
-	],
-	ignorePatterns: [
-		`dist/**`,
-		`!**/.*.json`,
-		`**/package-lock.json`,
-		`**/node_modules/**`,
+		`@robertakarobin/eslint-config`,
 	],
 	overrides: [
-		{
-			files: `*.json`,
-			rules: {
-				"comma-dangle": [`error`, `never`],
-				"indent": [`error`, `tab`, {
-					SwitchCase: 1,
-				}],
-				"quote-props": [`error`, `consistent`],
-				"quotes": [`error`, `double`],
-				"semi": `off`,
-			},
-		},
 		{
 			files: `*.js`,
 			rules: {
@@ -101,42 +81,4 @@ module.exports = {
 		`@typescript-eslint`,
 		`typescript-sort-keys`,
 	],
-	rules: {
-		"comma-dangle": [`error`, `always-multiline`],
-		"curly": [`error`, `all`],
-		"indent": [`error`, `tab`, {
-			SwitchCase: 1,
-		}],
-		"key-spacing": [`error`, {
-			afterColon: true,
-			beforeColon: false,
-			mode: `strict`,
-		}],
-		"max-len": [`warn`, {
-			code: 100,
-			ignoreComments: true,
-			ignoreRegExpLiterals: false,
-			ignoreStrings: false,
-			ignoreTemplateLiterals: true,
-		}],
-		"no-unused-vars": [`warn`, {
-			argsIgnorePattern: `^_`,
-		}],
-		"object-curly-spacing": [`error`, `always`],
-		"object-property-newline": [`error`, {
-			allowAllPropertiesOnSameLine: true,
-		}],
-		"quote-props": [`error`, `consistent-as-needed`],
-		"quotes": [`error`, `backtick`],
-		"semi": [`error`, `always`],
-		"sort-imports": [`error`, {
-			allowSeparatedGroups: true,
-		}],
-		"sort-keys": [`error`, `asc`, {
-			allowLineSeparatedGroups: true,
-		}],
-		"space-before-blocks": [`error`, `always`],
-		"space-in-parens": [`error`],
-		"space-infix-ops": [`error`],
-	},
 };
