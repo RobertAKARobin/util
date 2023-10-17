@@ -1,17 +1,20 @@
 {
 	"dependencies": {
 		"@robertakarobin/emit": "file:./emit",
-		"@robertakarobin/spec": "file:./spec",
-		"@types/node": "^20.8.4",
-		"@typescript-eslint/eslint-plugin": "^6.7.5",
-		"@typescript-eslint/parser": "^6.7.5",
-		"eslint": "^8.51.0",
-		"eslint-plugin-typescript-sort-keys": "^3.0.0"
+		"@robertakarobin/eslint-config-ts": "file:./eslint-config-ts",
+		"@robertakarobin/spec": "file:./spec"
 	},
 	"devDependencies": {
 		"husky": "^8.0.3",
 		"tsx": "^3.13.0"
 	},
+	"files": [
+		".gitignore",
+		".nvmrc",
+		"index.spec.ts",
+		"README.md",
+		"tsconfig.json"
+	],
 	"name": "@robertakarobin/util",
 	"repository": {
 		"type": "git",
@@ -23,5 +26,5 @@
 		"test": "npm run lint && npm run spec"
 	},
 	"type": "module",
-	"version": "0.0.179"
+	"version": "0.0.180"
 }
