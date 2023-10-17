@@ -1,0 +1,8 @@
+{
+	"dependencies": {
+		"@robertakarobin/jsutil": "file:../jsutil"
+	},
+	"main": "index.ts",
+	"name": "@robertakarobin/component",
+	"type": "module"
+}

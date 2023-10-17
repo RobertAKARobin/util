@@ -5,7 +5,7 @@ function clean {
 	npm i
 }
 
-repos=(jsutil eslint-config eslint-config-ts spec emit)
+repos=(jsutil eslint-config eslint-config-ts spec emit component)
 for repo in ${repos[@]}; do
 	clean $repo
 	cd ..
