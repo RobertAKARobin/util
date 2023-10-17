@@ -22,9 +22,13 @@ module.exports = {
 			},
 		},
 	],
+	plugins: [
+		`eslint-plugin-import-quotes`,
+	],
 	rules: {
 		"comma-dangle": [`error`, `always-multiline`],
 		"curly": [`error`, `all`],
+		"import-quotes/import-quotes": [`error`, `single`],
 		"indent": [`error`, `tab`, {
 			SwitchCase: 1,
 		}],
