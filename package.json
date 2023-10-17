@@ -1,5 +1,7 @@
 {
 	"dependencies": {
+		"@robertakarobin/emit": "file:./emit",
+		"@robertakarobin/spec": "file:./spec",
 		"@types/node": "^20.8.4",
 		"@typescript-eslint/eslint-plugin": "^6.7.5",
 		"@typescript-eslint/parser": "^6.7.5",
@@ -7,7 +9,8 @@
 		"eslint-plugin-typescript-sort-keys": "^3.0.0"
 	},
 	"devDependencies": {
-		"husky": "^8.0.3"
+		"husky": "^8.0.3",
+		"tsx": "^3.13.0"
 	},
 	"name": "@robertakarobin/util",
 	"repository": {
@@ -16,9 +19,9 @@
 	},
 	"scripts": {
 		"lint": "eslint .",
-		"spec": "cd _spec && npm run spec",
+		"spec": "tsx index.spec.ts",
 		"test": "npm run lint && npm run spec"
 	},
 	"type": "module",
-	"version": "0.0.177"
+	"version": "0.0.178"
 }
