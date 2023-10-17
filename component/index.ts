@@ -8,11 +8,9 @@ export class FunctionCache {
 
 	constructor(
 		readonly cachePropertyName: string,
-	) {
-		this.call = this.call.bind(this);
-	}
+	) {}
 
-	call<InputFunction extends (
+	call = <InputFunction extends (
 		(
 			this: HTMLElement,
 			event: UIEvent,
@@ -21,13 +19,13 @@ export class FunctionCache {
 	)>(
 		inputFunction: InputFunction,
 		...args: $.Type.OmitParam1<InputFunction>
-	): string {
+	): string => {
 		const key = `f${this.cacheIndex}`;
 		this.cacheIndex += 1;
 		this.cache[key] = (event: UIEvent, thisArg: HTMLElement) =>
 			inputFunction.call(thisArg, event, ...args);
 		return `${this.cachePropertyName}['${key}'](event, this)`;
-	}
+	};
 }
 
 // export class Component {
