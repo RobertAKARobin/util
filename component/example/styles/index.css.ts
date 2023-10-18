@@ -1,4 +1,4 @@
-import { constants, vars } from './lib';
+import { constants, vars } from './lib/index.css';
 
 export const base = () => `
 * {

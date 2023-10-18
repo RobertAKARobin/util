@@ -1,7 +1,7 @@
 import { FunctionCache } from '../../src/function-cache.ts';
 
 import * as Button from '../src/button.ts';
-import * as Styles from '../styles';
+import * as Styles from '../styles/index.css.ts';
 
 declare global {
 	interface Window {
