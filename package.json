@@ -23,7 +23,7 @@
 		"url": "https://github.com/RobertAKARobin/util"
 	},
 	"scripts": {
-		"dev": "esbuild component/example/index.ts --outdir=component/example/dist --bundle --watch --servedir=component/example",
+		"dev": "esbuild component/example/async/index.ts --outdir=component/example/async/dist --bundle --watch --servedir=component/example/async",
 		"lint": "eslint .",
 		"spec": "tsx index.spec.ts",
 		"test": "npm run lint && npm run spec"
