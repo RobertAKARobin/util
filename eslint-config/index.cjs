@@ -3,7 +3,7 @@
 // TODO3: Rule for requiring parens around ternaries
 module.exports = {
 	ignorePatterns: [
-		`dist/**`,
+		`**/dist/*`,
 		`!**/.*.json`,
 		`**/package-lock.json`,
 		`**/node_modules/**`,
@@ -16,6 +16,7 @@ module.exports = {
 				"indent": [`error`, `tab`, {
 					SwitchCase: 1,
 				}],
+				"max-len": `off`,
 				"quote-props": [`error`, `consistent`],
 				"quotes": [`error`, `double`],
 				"semi": `off`,

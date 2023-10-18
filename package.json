@@ -6,6 +6,7 @@
 		"@robertakarobin/spec": "file:./spec"
 	},
 	"devDependencies": {
+		"esbuild": "^0.19.5",
 		"husky": "^8.0.3",
 		"tsx": "^3.13.0"
 	},
@@ -22,6 +23,7 @@
 		"url": "https://github.com/RobertAKARobin/util"
 	},
 	"scripts": {
+		"dev": "esbuild component/example/index.ts --outdir=component/example/dist --bundle --watch --servedir=component/example",
 		"lint": "eslint .",
 		"spec": "tsx index.spec.ts",
 		"test": "npm run lint && npm run spec"
