@@ -1,6 +1,7 @@
 import { FunctionCache } from '../src/function-cache.ts';
 
 import * as Button from './src/button.ts';
+import * as Styles from './styles';
 
 declare global {
 	interface Window {
@@ -12,3 +13,7 @@ const cache = new FunctionCache(`fn`, { binding: window });
 
 const $output = document.getElementById(`output`)!;
 $output.innerHTML = Button.template(cache);
+
+const $style = document.createElement(`style`);
+$style.textContent = Styles.base();
+document.head.appendChild($style);

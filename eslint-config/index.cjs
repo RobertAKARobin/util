@@ -1,6 +1,7 @@
 // Not using Prettier because too much of a PITA, especially when supporting .astro files and VSCode
 // TODO3: Stylelistic rules are deprecated. Migrate to Prettier when it's less of a PITA: https://typescript-eslint.io/rules/comma-dangle/
 // TODO3: Rule for requiring parens around ternaries
+// TODO3: Enforce single (double?) quotes on object properties
 module.exports = {
 	ignorePatterns: [
 		`**/dist/*`,
