@@ -12,8 +12,13 @@ export type RequireOnly<_Object, _RequiredKeys extends keyof _Object> = Partial<
 	& Pick<_Object, _RequiredKeys>;
 
 export type OmitParam1<InputFunction> =
-	InputFunction extends (arg0: any, ...rest: infer Rest) => any // eslint-disable-line @typescript-eslint/no-explicit-any
+	InputFunction extends (param1: any, ...rest: infer Rest) => any // eslint-disable-line @typescript-eslint/no-explicit-any
 		? Rest
+		: never;
+
+export type Param1<InputFunction> =
+	InputFunction extends (param1: infer Param, ...rest: any) => any // eslint-disable-line @typescript-eslint/no-explicit-any
+		? Param
 		: never;
 
 export type Timer = ReturnType<typeof setTimeout>;
