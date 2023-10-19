@@ -26,7 +26,7 @@ export class FunctionCache<
 		}
 	}
 
-	call = <Input extends InputFunction>(
+	bind = <Input extends InputFunction>(
 		inputFunction: Input, // TODO3: Enforce that the `event` in callback must subclass Event
 		...args: $.Type.OmitParam1<Input>
 	): string => {

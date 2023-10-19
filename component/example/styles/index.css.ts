@@ -1,6 +1,6 @@
 import { constants, vars } from './lib/index.css';
 
-export const base = () => `
+export default `
 * {
 	background: transparent;
 	border: 0;
