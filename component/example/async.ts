@@ -21,4 +21,7 @@ const context = await esbuild.context({
 	outfile: path.join(distDir, `index.js`),
 });
 
-await context.watch();
+void context.watch();
+void context.serve({
+	servedir: baseDir,
+});
