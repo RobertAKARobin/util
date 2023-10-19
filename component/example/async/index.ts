@@ -1,6 +1,6 @@
 import { FunctionCache } from '../../src/function-cache.ts';
 
-import * as Button from '../src/button.ts';
+import * as Button from '../components/button/index.ts';
 import * as Styles from '../styles/index.css.ts';
 
 declare global {

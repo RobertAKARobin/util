@@ -1,4 +1,4 @@
-import { type FunctionCache } from '../../src/function-cache.ts';
+import { type FunctionCache } from '../../../src/function-cache.ts';
 
 export const template = ({ call }: FunctionCache) => `
 <div>
