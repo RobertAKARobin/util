@@ -1,3 +1,5 @@
+source "$(dirname "$0")/_repos.sh"
+
 function clean {
 	local repo=$1
 	cd $repo
@@ -5,7 +7,6 @@ function clean {
 	npm i
 }
 
-repos=(jsutil eslint-config eslint-config-ts spec emit component)
 for repo in ${repos[@]}; do
 	clean $repo
 	cd ..

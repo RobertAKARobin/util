@@ -6,7 +6,8 @@
 		"@robertakarobin/spec": "file:./spec",
 		"esbuild": "^0.19.5",
 		"husky": "^8.0.3",
-		"tsx": "^3.13.0"
+		"npm-check-updates": "^16.14.6",
+		"tsx": "^3.14.0"
 	},
 	"files": [
 		".gitignore",
