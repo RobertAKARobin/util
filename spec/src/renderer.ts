@@ -66,7 +66,7 @@ export class SpecRenderer<
 			...this.renderSuiteOrTest(rootSuiteResult, ``, options).flat(Infinity as 1), // https://github.com/microsoft/TypeScript/issues/49280
 			``,
 			`Total completed assertions: ${rootSuiteResult.count.totalAssertions}`,
-			...specStepStatuses.map((statusName) => {
+			...specStepStatuses.map(statusName => {
 				const count = rootSuiteResult.count[statusName];
 				const countPadding = ` `.repeat(maxCountPlaces - count.toString().length); // For right-aligning numbers
 				return `${this.statusIndicators[statusName]} ${countPadding}${count} ${statusName}`;

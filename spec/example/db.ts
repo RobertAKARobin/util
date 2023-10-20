@@ -76,7 +76,7 @@ export class DB {
 
 	async deleteMany(ids: Array<Parameters<DB[`delete`]>[0]>) {
 		await Promise.all(
-			ids.map((id) => this.delete(id))
+			ids.map(id => this.delete(id))
 		);
 	}
 
@@ -101,7 +101,7 @@ export class DB {
 
 	async getMany(ids: Array<Parameters<DB[`get`]>>[0]) {
 		return Promise.all(
-			ids.map((id) => this.get(id))
+			ids.map(id => this.get(id))
 		);
 	}
 

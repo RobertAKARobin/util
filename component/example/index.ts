@@ -7,7 +7,7 @@ import * as Error from './src/error/index.ts';
 import { SplashPage } from './src/splash/index.ts';
 
 const renderer = new AsyncRenderer(document.getElementById(`output`)!);
-const router = new Router((path) => {
+const router = new Router(path => {
 	if (path.match(routes.splash)) {
 		return new SplashPage();
 	}

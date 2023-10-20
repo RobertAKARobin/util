@@ -43,7 +43,7 @@ export function delay(
 	callback: () => unknown,
 	time: number,
 ) {
-	return new Promise((resolve) => {
+	return new Promise(resolve => {
 		setTimeout(() => resolve(callback()), time);
 	});
 }
@@ -68,7 +68,7 @@ export function fromKeys<Value>(
 		}
 	}
 
-	return keys.map((key) => {
+	return keys.map(key => {
 		if (!input[key]) {
 			throw new Error(`'${key}' is not a valid key.`);
 		} else {

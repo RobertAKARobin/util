@@ -28,6 +28,7 @@ module.exports = {
 		`eslint-plugin-import-quotes`,
 	],
 	rules: {
+		"arrow-parens": [`error`, `as-needed`],
 		"comma-dangle": [`error`, `always-multiline`],
 		"curly": [`error`, `all`],
 		"import-quotes/import-quotes": [`error`, `single`],

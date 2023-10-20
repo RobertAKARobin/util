@@ -53,7 +53,7 @@ export const specs = suite(`Math`,
 
 	suite(`division`,
 		{
-			args: (args) => ({
+			args: args => ({
 				...args,
 				a: 3,
 			}),
