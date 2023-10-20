@@ -1,11 +1,9 @@
 {
-	"dependencies": {
+	"devDependencies": {
 		"@robertakarobin/component": "file:./component",
 		"@robertakarobin/emit": "file:./emit",
 		"@robertakarobin/eslint-config-ts": "file:./eslint-config-ts",
-		"@robertakarobin/spec": "file:./spec"
-	},
-	"devDependencies": {
+		"@robertakarobin/spec": "file:./spec",
 		"esbuild": "^0.19.5",
 		"husky": "^8.0.3",
 		"tsx": "^3.13.0"

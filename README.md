@@ -28,53 +28,6 @@ cp -R ./node_modules/@robertakarobin/util/.vscode .vscode
 
 When prompted whether you want VSCode to use the locally-installed Typescript, select 'Yes'.
 
-```jsonc
-// tsconfig.json
-{
-	"extends": "@robertakarobin/util/tsconfig.json"
-}
-
-```
-
-### Linting
-
-#### TS/JS
-
-This isn't configured to be an ESLint config package (e.g. by naming it `eslint-config-*`). So, you'll need to extend its .eslintrc.json by using the actual file path:
-
-```jsonc
-// .eslintrc.json
-{
-	"extends": [
-		"./node_modules/@robertakarobin/util/.eslintrc.json"
-	]
-}
-```
-
-Then add:
-
-```jsonc
-// package.json
-{
-	"scripts": {
-		"lint": "eslint ."
-	}
-}
-```
-
-#### CSS
-
-Note that `stylelint.extends` appears to work fine regardless of whether you specify `./node_modules`.
-
-```jsonc
-// .stylelintrc.json
-{
-	"extends": [
-		"@robertakarobin/util/csslint/.stylelintrc.json"
-	]
-}
-```
-
 # Style guide
 
 ## JS

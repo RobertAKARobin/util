@@ -3,7 +3,6 @@
 		"@robertakarobin/jsutil": "file:../jsutil"
 	},
 	"devDependencies": {
-		"@robertakarobin/util": "file:..",
 		"@types/diff": "^5.0.5",
 		"diff": "^5.1.0",
 		"tsx": "^3.12.10"
