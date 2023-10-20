@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import { fileURLToPath } from 'url';
 import path from 'path';
 
-import baseStyles from './styles/index.css.ts';
+import { baseStyles } from './styles/index.css.ts';
 
 const baseDir = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.join(baseDir, `/dist`);

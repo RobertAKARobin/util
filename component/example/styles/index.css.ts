@@ -1,6 +1,6 @@
 import { constants, vars } from './lib/index.css';
 
-export default `
+export const baseStyles = `
 * {
 	background: transparent;
 	border: 0;
@@ -22,7 +22,15 @@ export default `
 		--${constant}: ${value};
 	`).join(``)}
 
+	background-color: #000000;
 	font-family: ${vars(`font--base__family`)};
 	font-size: calc(${vars(`font--base__size`)} * 1px);
+}
+
+.view {
+	aspect-ratio: ${vars(`aspect`)};
+	background-color: #FFFFFF;
+	height: 100vh;
+	margin: 0 auto;
 }
 `;
