@@ -1,0 +1,7 @@
+{
+	"extends": "@robertakarobin/csslint/.stylelintrc.json",
+	"ignoreFiles": [
+		"**/dist/*",
+		"**/node_modules/*"
+	]
+}
