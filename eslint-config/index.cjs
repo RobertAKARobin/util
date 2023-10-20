@@ -29,6 +29,7 @@ module.exports = {
 	],
 	rules: {
 		"arrow-parens": [`error`, `as-needed`],
+		"arrow-spacing": `error`,
 		"comma-dangle": [`error`, `always-multiline`],
 		"curly": [`error`, `all`],
 		"import-quotes/import-quotes": [`error`, `single`],
