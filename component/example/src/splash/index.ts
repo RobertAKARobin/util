@@ -1,4 +1,9 @@
 import { Component } from 'component/src/component';
+import { bind } from '../../util';
+
+function greet(event: MouseEvent, name: string) {
+	console.log(`Hello ${name}`);
+}
 
 export class SplashPage extends Component {
 	style = `
@@ -11,7 +16,7 @@ h1 {
 <div>
 	<h1>Hello world</h1>
 
-	<p><button>Click me</button></p>
+	<p><button onclick="${bind(greet, `Steve`)}">Click me</button></p>
 </div>
 	`;
 }
