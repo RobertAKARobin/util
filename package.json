@@ -26,7 +26,7 @@
 		"dev:async": "tsx watch component/example/async.ts",
 		"lint": "eslint . && stylelint",
 		"spec": "tsx index.spec.ts",
-		"stylelint": "stylelint **/*.css --quietDeprecationWarnings",
+		"stylelint": "stylelint **/*.css **/*.css.ts --quietDeprecationWarnings",
 		"test": "npm run lint && npm run spec"
 	},
 	"type": "module",

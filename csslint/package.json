@@ -6,6 +6,7 @@
 		"stylelint-order": "^6.0.3",
 		"stylelint-stylistic": "^0.4.3"
 	},
+	"main": "index.js",
 	"name": "@robertakarobin/csslint",
 	"version": "0.0.1"
 }

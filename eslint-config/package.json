@@ -3,7 +3,6 @@
 		"eslint": "^8.51.0",
 		"eslint-plugin-import-quotes": "^0.0.1"
 	},
-	"main": "index.cjs",
-	"name": "@robertakarobin/eslint-config",
-	"type": "module"
+	"main": "index.js",
+	"name": "@robertakarobin/eslint-config"
 }

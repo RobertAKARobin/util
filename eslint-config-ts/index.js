@@ -6,7 +6,7 @@ module.exports = {
 	],
 	overrides: [
 		{
-			files: `*.js`,
+			files: [`*.js`, `*.cjs`],
 			rules: {
 				"@typescript-eslint/explicit-member-accessibility": `off`,
 				"@typescript-eslint/no-var-requires": `off`,
