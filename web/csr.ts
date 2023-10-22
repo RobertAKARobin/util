@@ -1,6 +1,8 @@
-import { Component } from 'component/src/component.ts';
+import { Emitter } from '@robertakarobin/emit/index.ts';
 
-export class AsyncRenderer {
+import { Component } from './component.ts';
+
+export class Renderer {
 	constructor(
 		private readonly $container: HTMLElement
 	) {}
@@ -10,12 +12,21 @@ export class AsyncRenderer {
 			this.$container.innerHTML = page.template();
 		}
 
-		if (page.style) {
+		if (page.style && page.styleId) {
 			if (!document.getElementById(page.styleId)) {
 				const $style = document.createElement(`style`);
+				$style.setAttribute(`id`, page.styleId);
 				$style.textContent = page.style;
 				document.head.appendChild($style);
 			}
 		}
 	};
+}
+
+export class Router extends Emitter<Component> {
+	constructor(
+		readonly route: (path: string) => Component
+	) {
+		super();
+	}
 }

@@ -1,4 +1,4 @@
-import { Component } from 'component/src/component';
+import { Component } from '@robertakarobin/web/component.ts';
 
 export class Error404 extends Component {
 	template = () => `

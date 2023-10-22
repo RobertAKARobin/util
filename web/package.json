@@ -3,6 +3,6 @@
 		"@robertakarobin/jsutil": "file:../jsutil"
 	},
 	"main": "index.ts",
-	"name": "@robertakarobin/component",
+	"name": "@robertakarobin/web",
 	"type": "module"
 }

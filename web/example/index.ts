@@ -1,12 +1,11 @@
-import { AsyncRenderer } from 'component/src/renderer.ts';
-import { Router } from 'component/src/router.ts';
+import { Renderer, Router } from '@robertakarobin/web/csr.ts';
 
 import { routes } from './routes.ts';
 
 import * as Error from './src/error/index.ts';
 import { SplashPage } from './src/splash/index.ts';
 
-const renderer = new AsyncRenderer(document.getElementById(`output`)!);
+const renderer = new Renderer(document.getElementById(`output`)!);
 const router = new Router(path => {
 	if (path.match(routes.splash)) {
 		return new SplashPage();

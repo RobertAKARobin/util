@@ -1,5 +1,6 @@
-import { Component } from 'component/src/component';
-import { bind } from '../../util';
+import { Component } from '@robertakarobin/web/component.ts';
+
+import { bind } from '../../cache';
 
 function greet(this: HTMLElement, event: MouseEvent, name: string) {
 	console.log(this);

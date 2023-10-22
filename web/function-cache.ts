@@ -9,10 +9,10 @@ export type FunctionCache = Record<BindingName, Map<CacheKey, CachedFunction>>;
 export function createCache(
 	bindingName: BindingName,
 	options: Partial<{
-		binding: Record<BindingName, Map<CacheKey, CachedFunction>>;
+		binding: FunctionCache;
 	}> = {}
 ) {
-	const functionsByKey = new Map<CacheKey, CachedFunction>();
+	const functionsByKey = new Map<CacheKey, CachedFunction>(); // TODO1: Use caching that allows garbage collection
 	const keysByFunction = new Map<CachedFunction, CacheKey>();
 	let cacheIndex = 0;
 

@@ -1,4 +1,4 @@
-import { FunctionCache, createCache } from 'component/src/function-cache.ts';
+import { FunctionCache, createCache } from 'web/function-cache';
 
 declare let window: FunctionCache;
 
