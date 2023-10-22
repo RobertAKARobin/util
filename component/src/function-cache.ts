@@ -1,40 +1,45 @@
-import * as $ from '@robertakarobin/jsutil';
+export type CachedFunction = (...args: Array<string>) => void;
 
-export type FunctionCache = Record<string, Record<string, CachedFunction>>;
+type BindingName = string;
 
-export type CachedFunction = (event: Event, thisArg: HTMLElement) => void;
+type CacheKey = string;
 
-type InputFunction = (...args: Array<any>) => void; // eslint-disable-line @typescript-eslint/no-explicit-any
-
-type GetEvent<InputFunction> =
-	InputFunction extends (event: infer DispatchedEvent extends Event) => void
-		? DispatchedEvent
-		: never;
+export type FunctionCache = Record<BindingName, Map<CacheKey, CachedFunction>>;
 
 export function createCache(
-	bindingName: string,
+	bindingName: BindingName,
 	options: Partial<{
-		binding: FunctionCache;
+		binding: Record<BindingName, Map<CacheKey, CachedFunction>>;
 	}> = {}
 ) {
-	const cache: Record<string, CachedFunction> = {};
+	const functionsByKey = new Map<CacheKey, CachedFunction>();
+	const keysByFunction = new Map<CachedFunction, CacheKey>();
 	let cacheIndex = 0;
 
 	if (options.binding) {
-		options.binding[bindingName] = cache;
+		options.binding[bindingName] = functionsByKey;
 	}
 
-	return function bind<Input extends InputFunction>(
-		inputFunction: Input, // TODO3: Enforce that the `event` in callback must subclass Event
-		...args: $.Type.OmitParam1<Input>
+	return function bind<
+		DispatchedEvent extends Event,
+		Args extends Array<string>
+	>(
+		inputFunction: (
+			this: HTMLElement,
+			event: DispatchedEvent,
+			...args: Args
+		) => void,
+		...args: Args
 	): string {
-		const key = `f${cacheIndex}`;
-		cacheIndex += 1;
-
-		const cachedFunction = (event: GetEvent<Input>, thisArg: HTMLElement) =>
-			inputFunction.call(thisArg, event as $.Type.Param1<Input>, ...args);
-		cache[key] = cachedFunction as CachedFunction;
-		return `${String(bindingName)}['${key}'](event, this)`;
+		let cacheKey = keysByFunction.get(inputFunction as CachedFunction);
+		if (typeof cacheKey === `undefined`) {
+			cacheKey = `f${cacheIndex}`;
+			cacheIndex += 1;
+			functionsByKey.set(cacheKey, inputFunction as CachedFunction);
+			keysByFunction.set(inputFunction as CachedFunction, cacheKey);
+		}
+		const argsString = args.map(arg => `'${arg}'`).join(``);
+		return `${String(bindingName)}.get('${cacheKey}').call(this, event, ${argsString})`;
 	};
 }
 

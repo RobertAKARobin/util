@@ -1,7 +1,9 @@
 import { Component } from 'component/src/component';
 import { bind } from '../../util';
 
-function greet(event: MouseEvent, name: string) {
+function greet(this: HTMLElement, event: MouseEvent, name: string) {
+	console.log(this);
+	console.log(event);
 	console.log(`Hello ${name}`);
 }
 
@@ -16,7 +18,9 @@ h1 {
 <div>
 	<h1>Hello world</h1>
 
-	<p><button onclick="${bind(greet, `Steve`)}">Click me</button></p>
+	<button onclick="${bind(greet, `aaa`)}">AAA</button>
+	<button onclick="${bind(greet, `bbb`)}">BBB</button>
+	<button onclick="${bind(greet, `ccc`)}">CCC</button>
 </div>
 	`;
 }

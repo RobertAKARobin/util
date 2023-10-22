@@ -24,9 +24,9 @@
 	},
 	"scripts": {
 		"dev:async": "tsx watch component/example/async.ts",
-		"lint": "eslint . && stylelint",
+		"lint": "eslint . && npm run stylelint",
 		"spec": "tsx index.spec.ts",
-		"stylelint": "stylelint **/*.css **/*.css.ts --quietDeprecationWarnings",
+		"stylelint": "stylelint **/*.css --quietDeprecationWarnings",
 		"test": "npm run lint && npm run spec"
 	},
 	"type": "module",
