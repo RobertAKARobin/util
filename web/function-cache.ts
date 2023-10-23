@@ -1,6 +1,14 @@
-export type CachedFunction = (...args: Array<string>) => void;
 
 type BindingName = string;
+
+export type CachedFunction<
+	DispatchedEvent extends Event = Event,
+	Args extends Array<string> = Array<string>
+> = (
+	this: HTMLElement,
+	event: DispatchedEvent,
+	...args: Args
+) => void;
 
 type CacheKey = string;
 
@@ -24,11 +32,7 @@ export function createCache(
 		DispatchedEvent extends Event,
 		Args extends Array<string>
 	>(
-		inputFunction: (
-			this: HTMLElement,
-			event: DispatchedEvent,
-			...args: Args
-		) => void,
+		inputFunction: CachedFunction<DispatchedEvent, Args>,
 		...args: Args
 	): string {
 		let cacheKey = keysByFunction.get(inputFunction as CachedFunction);
