@@ -1,6 +1,9 @@
 import { Component } from '@robertakarobin/web/component.ts';
+import { Image } from '@robertakarobin/web/components/image.ts';
+import { Route } from '@robertakarobin/web/components/route.ts';
 
-import { bind } from '../../cache';
+import { bind } from '../../cache.ts';
+import { routes } from '../../routes.ts';
 
 function greet(this: HTMLElement, event: MouseEvent, name: string) {
 	console.log(this);
@@ -17,11 +20,18 @@ h1 {
 
 	template = () => `
 <div>
-	<h1>Hello world</h1>
+	<nav>
+		${Route({ to: routes.splash }, `
+			Home
+		`)}
+	</nav>
 
-	<button onclick=${bind(greet, `aaa`)}>AAA</button>
-	<button onclick=${bind(greet, `bbb`)}>BBB</button>
-	<button onclick=${bind(greet, `ccc`)}>CCC</button>
+	${Image({
+		alt: `ayy`,
+		src: `http://http.cat/200`,
+	})}
+
+	<button onclick=${bind(greet, `Steve`)}>Greet</button>
 </div>
 	`;
 }
