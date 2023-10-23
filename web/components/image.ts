@@ -1,4 +1,6 @@
-export const Image = (input: {
+import { component } from '../component.ts';
+
+const template = (input: {
 	alt: string;
 	src: string;
 }) => `
@@ -7,3 +9,5 @@ export const Image = (input: {
 		src="${input.src}"
 		/>
 `;
+
+export const image = component({ template });

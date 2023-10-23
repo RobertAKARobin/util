@@ -62,6 +62,7 @@ module.exports = {
 		"semi": [`error`, `always`],
 		"sort-imports": [`error`, {
 			allowSeparatedGroups: true,
+			ignoreCase: true,
 		}],
 		"sort-keys": [`error`, `asc`, {
 			allowLineSeparatedGroups: true,

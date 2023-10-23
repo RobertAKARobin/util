@@ -3,14 +3,14 @@ import { Renderer, Router } from '@robertakarobin/web/csr.ts';
 import { routes } from './routes.ts';
 
 import * as Error from './src/error/index.ts';
-import { SplashPage } from './src/splash/index.ts';
+import { splashPage } from './src/splash/index.ts';
 
 const renderer = new Renderer(document.getElementById(`output`)!);
 const router = new Router(path => {
 	if (path.match(routes.splash)) {
-		return new SplashPage();
+		return splashPage();
 	}
-	return new Error.Error404();
+	return Error.error404();
 });
 
 router.subscribe(renderer.render);

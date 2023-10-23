@@ -1,6 +1,6 @@
-import { Component } from '@robertakarobin/web/component.ts';
-import { Image } from '@robertakarobin/web/components/image.ts';
-import { Route } from '@robertakarobin/web/components/route.ts';
+import { component } from '@robertakarobin/web/component.ts';
+import { image } from '@robertakarobin/web/components/image.ts';
+import { route } from '@robertakarobin/web/components/route.ts';
 
 import { bind } from '../../cache.ts';
 import { routes } from '../../routes.ts';
@@ -11,27 +11,29 @@ function greet(this: HTMLElement, event: MouseEvent, name: string) {
 	console.log(`Hello ${name}`);
 }
 
-export class SplashPage extends Component {
-	style = `
-h1 {
+const style = `
+nav {
 	color: red;
 }
-	`;
+`;
 
-	template = () => `
+const template = () => `
 <div>
 	<nav>
-		${Route({ to: routes.splash }, `
-			Home
-		`)}
+		${route({ to: routes.splash }, `Home`)}
+		${route({ to: routes.tenants }, `Tenants`)}
 	</nav>
 
-	${Image({
+	${image({
 		alt: `ayy`,
 		src: `http://http.cat/200`,
 	})}
 
 	<button onclick=${bind(greet, `Steve`)}>Greet</button>
 </div>
-	`;
-}
+`;
+
+export const splashPage = component({
+	style,
+	template,
+});

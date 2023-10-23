@@ -1,4 +1,6 @@
-export const Route = (
+import { component } from '../component.ts';
+
+const template = (
 	options: {
 		to: string;
 	},
@@ -11,3 +13,5 @@ export const Route = (
 		${content}
 	</a>
 `;
+
+export const route = component({ template });
