@@ -1,4 +1,10 @@
-import { component } from '../index.ts';
+import { bind, component, router } from '../index.ts';
+
+export const routeTo = (event: Event, path: string) => {
+	event.preventDefault();
+	window.history.pushState({}, ``, path);
+	router.next(path);
+};
 
 const template = (
 	options: {
@@ -8,7 +14,7 @@ const template = (
 ) => `
 	<a
 		href="${options.to}"
-		onclick=""
+		onclick=${bind(routeTo, options.to)}
 		>
 		${content}
 	</a>

@@ -6,7 +6,7 @@ import { routes } from '../../routes.ts';
 const template = () => `
 <h1>Tenants</h1>
 
-${route({ to: routes.home }, `Home`)}
+${route({ to: routes.splash }, `Home`)}
 `;
 
-export const error404 = component({ template });
+export const tenantsPage = component({ template });
