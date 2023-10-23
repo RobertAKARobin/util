@@ -19,9 +19,9 @@ h1 {
 <div>
 	<h1>Hello world</h1>
 
-	<button onclick="${bind(greet, `aaa`)}">AAA</button>
-	<button onclick="${bind(greet, `bbb`)}">BBB</button>
-	<button onclick="${bind(greet, `ccc`)}">CCC</button>
+	<button onclick=${bind(greet, `aaa`)}>AAA</button>
+	<button onclick=${bind(greet, `bbb`)}>BBB</button>
+	<button onclick=${bind(greet, `ccc`)}>CCC</button>
 </div>
 	`;
 }

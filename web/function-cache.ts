@@ -43,7 +43,7 @@ export function createCache(
 			keysByFunction.set(inputFunction as CachedFunction, cacheKey);
 		}
 		const argsString = args.map(arg => `'${arg}'`).join(``);
-		return `${String(bindingName)}.get('${cacheKey}').call(this, event, ${argsString})`;
+		return `"${String(bindingName)}.get('${cacheKey}').call(this, event, ${argsString})"`;
 	};
 }
 
