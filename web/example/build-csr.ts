@@ -21,7 +21,10 @@ const context = await esbuild.context({
 	outfile: path.join(distDir, `index.js`),
 });
 
-void context.watch();
-void context.serve({
-	servedir: baseDir,
-});
+if (process.env.env !== `PROD`) {
+	void context.watch();
+	void context.serve({
+		servedir: baseDir,
+	});
+	console.log(`Serving...`);
+}
