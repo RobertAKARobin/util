@@ -25,6 +25,7 @@ module.exports = {
 		},
 	],
 	plugins: [
+		`eslint-plugin-import`,
 		`eslint-plugin-import-quotes`,
 	],
 	rules: {
@@ -33,6 +34,7 @@ module.exports = {
 		"comma-dangle": [`error`, `always-multiline`],
 		"curly": [`error`, `all`],
 		"import-quotes/import-quotes": [`error`, `single`],
+		"import/extensions": [`error`, `ignorePackages`],
 		"indent": [`error`, `tab`, {
 			SwitchCase: 1,
 		}],

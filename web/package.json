@@ -2,6 +2,9 @@
 	"dependencies": {
 		"@robertakarobin/jsutil": "file:../jsutil"
 	},
+	"devDependencies": {
+		"@robertakarobin/spec": "file:../spec"
+	},
 	"main": "index.ts",
 	"name": "@robertakarobin/web",
 	"type": "module"
