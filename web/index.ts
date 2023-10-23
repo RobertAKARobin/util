@@ -102,11 +102,9 @@ export class Router extends Emitter<string> {
 
 export const router = new Router();
 
-export type Routes = Record<
-	string,
-	| string
-	| ((...args: Array<any>) => string) // eslint-disable-line @typescript-eslint/no-explicit-any
->;
+export type Routes = Record<string, string | RouteFunction>;
+
+export type RouteFunction = (params: any) => string; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 export type Template<
 	TemplateArgs extends Args = Args

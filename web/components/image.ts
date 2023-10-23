@@ -1,6 +1,4 @@
-import { component } from '../index.ts';
-
-const template = (input: {
+export const image = (input: {
 	alt: string;
 	src: string;
 }) => `
@@ -9,5 +7,3 @@ const template = (input: {
 		src="${input.src}"
 		/>
 `;
-
-export const image = component({ template });
