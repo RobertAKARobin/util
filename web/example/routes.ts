@@ -7,3 +7,4 @@ export const routes = {
 	tenant: (id: string) => `/tenants/${id}`,
 	tenants: `/tenants`,
 } as const satisfies Routes;
+
