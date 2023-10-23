@@ -1,22 +1,32 @@
 import { bind, RouteFunction, router, Routes } from '../index.ts';
 
-const routeTo = (event: Event, path: string) => {
+const routeTo = (event: MouseEvent, path: string) => {
+	if (event.metaKey || event.ctrlKey) { // Allow opening in new tab
+		return;
+	}
+
 	event.preventDefault();
 	window.history.pushState({}, ``, path);
 	router.next(path);
 };
 
+const absoluteUrl = /^\w+\:\/\//;
+
 export const link = (
 	href: string,
 	content?: string
-) => `
-	<a
-		href="${href}"
-		onclick=${bind(routeTo, href)}
-		>
-		${content || ``}
-	</a>
-`;
+) => {
+	const isAbsolute = absoluteUrl.test(href);
+	return `
+		<a
+			href="${href}"
+			onclick=${isAbsolute ? `""` : bind(routeTo, href)}
+			target="${isAbsolute ? `_blank` : `_self`}"
+			>
+			${content || ``}
+		</a>
+	`;
+};
 
 /**
  * Given a dictionary of routes, returns a component function that accepts just the route name and returns a link/anchor to that route
