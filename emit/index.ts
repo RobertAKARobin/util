@@ -5,6 +5,10 @@ export class Emitter<Type> {
 	/** @see {@link EmitterCache} */
 	readonly cache: EmitterCache<Type>;
 
+	get last() {
+		return this.cache?.list?.[0];
+	}
+
 	/** A collection of all active subcriptions to this Emitter. */
 	readonly subscriptions = new Set<Subscription<Type>>();
 

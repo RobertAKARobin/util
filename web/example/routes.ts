@@ -1,4 +1,4 @@
-import { Routes } from '@robertakarobin/web/routes.ts';
+import { Routes } from '@robertakarobin/web/index.ts';
 
 export const routes = {
 	error404: `/404`,

@@ -1,8 +1,19 @@
-import { Renderer } from '@robertakarobin/web/csr.ts';
+import { router } from '@robertakarobin/web/index.ts';
 
-import { router } from './router.ts';
 import { routes } from './routes.ts';
 
-const renderer = new Renderer(document.getElementById(`output`)!);
-router.subscribe(renderer.render);
-router.next(router.route(routes.splash));
+import * as Error from './src/error/index.ts';
+import { splashPage } from './src/splash/index.ts';
+
+const $output = document.getElementById(`output`)!;
+
+const resolve = (path: string) => {
+	if (path.match(routes.splash)) {
+		return splashPage();
+	}
+	return Error.error404();
+};
+
+router.subscribe(path => {
+	$output.innerHTML = resolve(path);
+});

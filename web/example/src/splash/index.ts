@@ -1,8 +1,7 @@
-import { component } from '@robertakarobin/web/component.ts';
+import { bind, component } from '@robertakarobin/web/index.ts';
 import { image } from '@robertakarobin/web/components/image.ts';
 import { route } from '@robertakarobin/web/components/route.ts';
 
-import { bind } from '../../cache.ts';
 import { routes } from '../../routes.ts';
 
 function greet(this: HTMLElement, event: MouseEvent, name: string) {

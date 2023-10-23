@@ -1,4 +1,4 @@
-import { component } from '../component.ts';
+import { component } from '../index.ts';
 
 const template = (input: {
 	alt: string;
