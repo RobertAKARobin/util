@@ -1,7 +1,7 @@
 import { bind, component } from '@robertakarobin/web/index.ts';
 import { image } from '@robertakarobin/web/components/image.ts';
 
-import { route } from '../../routes.ts';
+import { route } from '../routes.ts';
 
 function greet(this: HTMLElement, event: MouseEvent, name: string) {
 	console.log(this);
@@ -24,7 +24,7 @@ const template = () => `
 
 	${image({
 		alt: `ayy`,
-		src: `http://http.cat/200`,
+		src: `/assets/200.jpg`,
 	})}
 
 	<button onclick=${bind(greet, `Steve`)}>Greet</button>

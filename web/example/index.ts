@@ -2,9 +2,9 @@ import { router } from '@robertakarobin/web/index.ts';
 
 import { routes } from './routes.ts';
 
-import * as Error from './src/error/index.ts';
-import { splashPage } from './src/splash/index.ts';
-import { tenantsPage } from './src/tenants/index.ts';
+import * as Error from './pages/error.ts';
+import { splashPage } from './pages/splash.ts';
+import { tenantsPage } from './pages/tenants.ts';
 
 const $output = document.getElementById(`output`)!;
 
