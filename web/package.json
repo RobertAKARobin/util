@@ -1,5 +1,6 @@
 {
 	"dependencies": {
+		"@robertakarobin/emit": "file:../emit",
 		"@robertakarobin/jsutil": "file:../jsutil"
 	},
 	"devDependencies": {
