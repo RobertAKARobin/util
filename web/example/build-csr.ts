@@ -24,6 +24,7 @@ const context = await esbuild.context({
 if (process.env.env !== `PROD`) {
 	void context.watch();
 	void context.serve({
+		fallback: path.join(baseDir, `./index.html`),
 		servedir: baseDir,
 	});
 	console.log(`Serving...`);
