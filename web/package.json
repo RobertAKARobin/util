@@ -8,5 +8,6 @@
 	},
 	"main": "index.ts",
 	"name": "@robertakarobin/web",
-	"type": "module"
+	"type": "module",
+	"version": "0.0.1"
 }
