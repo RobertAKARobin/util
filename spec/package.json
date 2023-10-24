@@ -1,6 +1,6 @@
 {
 	"dependencies": {
-		"@robertakarobin/jsutil": "file:../jsutil"
+		"@robertakarobin/jsutil": "^0.0.1"
 	},
 	"devDependencies": {
 		"@types/diff": "^5.0.7",
@@ -9,10 +9,6 @@
 	},
 	"main": "index.ts",
 	"name": "@robertakarobin/spec",
-	"scripts": {
-		"spec": "tsx index.spec.ts",
-		"start": "npm run spec"
-	},
 	"type": "module",
 	"version": "0.0.1"
 }
