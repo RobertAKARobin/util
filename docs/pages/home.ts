@@ -1,7 +1,7 @@
 import { bind, component } from '@robertakarobin/web/index.ts';
 import { image } from '@robertakarobin/web/components/image.ts';
 
-import { route } from '../routes.ts';
+import { link, routes } from '../routes.ts';
 
 function greet(this: HTMLElement, event: MouseEvent, name: string) {
 	console.log(this);
@@ -18,8 +18,7 @@ nav {
 const template = () => `
 <div>
 	<nav>
-		${route(`splash`, `Home`)}
-		${route(`tenants`, `Tenants`)}
+		${link({ content: `Home`, href: routes.home })}
 	</nav>
 
 	${image({
@@ -31,7 +30,7 @@ const template = () => `
 </div>
 `;
 
-export const splashPage = component({
+export const homePage = component({
 	style,
 	template,
 });

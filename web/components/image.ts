@@ -1,9 +1,16 @@
-export const image = (input: {
+import { toAttributes } from '@robertakarobin/web/index.ts';
+
+export const image = ({
+	alt,
+	src,
+	...rest
+}: {
 	alt: string;
 	src: string;
 }) => `
 	<img
-		alt="${input.alt}"
-		src="${input.src}"
+		alt="${alt}"
+		src="${src}"
+		${toAttributes(rest)}
 		/>
 `;
