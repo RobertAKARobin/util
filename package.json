@@ -1,12 +1,19 @@
 {
-	"devDependencies": {
+	"dependencies": {
 		"@robertakarobin/csslint": "^0.0.1",
 		"@robertakarobin/emit": "^0.0.1",
 		"@robertakarobin/eslint-config-ts": "^0.0.1",
 		"@robertakarobin/spec": "^0.0.1",
 		"@robertakarobin/web": "^0.0.1",
 		"diff": "^5.1.0",
-		"esbuild": "^0.19.5",
+		"esbuild": "^0.19.5"
+	},
+	"devDependencies": {
+		"@robertakarobin/csslint": "file:./csslint",
+		"@robertakarobin/emit": "file:./emit",
+		"@robertakarobin/eslint-config-ts": "file:./eslint-config-ts",
+		"@robertakarobin/spec": "file:./spec",
+		"@robertakarobin/web": "file:./web",
 		"husky": "^8.0.3",
 		"npm-check-updates": "^16.14.6",
 		"tsx": "^3.14.0"
@@ -24,7 +31,7 @@
 		"url": "https://github.com/RobertAKARobin/util"
 	},
 	"scripts": {
-		"dev:csr": "tsx watch web/example/build-csr.ts",
+		"dev:csr": "tsx watch docs/build-csr.ts",
 		"lint": "eslint . && npm run stylelint",
 		"spec": "tsx index.spec.ts",
 		"stylelint": "stylelint **/*.css --quietDeprecationWarnings",

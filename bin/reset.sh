@@ -1,6 +1,6 @@
 source "$(dirname "$0")/_repos.sh"
 
-function clean {
+function dowhat {
 	local repo=$1
 	cd $repo
 	rm -rf package-lock.json node_modules
@@ -8,9 +8,9 @@ function clean {
 }
 
 for repo in ${repos[@]}; do
-	clean $repo
+	dowhat $repo
 	cd ..
 done
 
-clean .
+dowhat .
 npx husky install
