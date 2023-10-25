@@ -25,6 +25,9 @@ module.exports = {
 				"@typescript-eslint/array-type": [`error`, {
 					default: `generic`,
 				}],
+				"@typescript-eslint/consistent-type-imports": [`error`, {
+					prefer: `type-imports`,
+				}],
 				"@typescript-eslint/explicit-member-accessibility": [`error`, {
 					accessibility: `no-public`,
 				}],
