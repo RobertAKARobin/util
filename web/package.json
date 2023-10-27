@@ -1,7 +1,9 @@
 {
 	"dependencies": {
 		"@robertakarobin/emit": "^0.0.1",
-		"@robertakarobin/jsutil": "^0.0.1"
+		"@robertakarobin/jsutil": "^0.0.1",
+		"esbuild": "^0.19.5",
+		"glob": "^10.3.10"
 	},
 	"devDependencies": {
 		"@robertakarobin/spec": "^0.0.1"

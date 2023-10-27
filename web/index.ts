@@ -4,39 +4,43 @@ import { type FunctionCache, functionCache } from './lib/function-cache.ts';
 
 import type * as Type from './types.d.ts';
 
-export const environments = [
+export const routerContexts = [
 	`client`,
 	`static`,
 ] as const;
 
-export const environment: Type.Environment = typeof window !== `undefined`
+export const routerTypes = [
+	`build`,
+	`serve`,
+] as const;
+
+export const routerContext: Type.RouterContext = typeof window !== `undefined`
 	? `client`
 	: `static`;
 
-const cacheKey = `fn` as const;
-
 declare let window: Window & FunctionCache<typeof cacheKey>;
-
-export const bind = environment === `client`
+const cacheKey = `fn` as const;
+export const bind = routerContext === `client`
 	? functionCache(cacheKey, { binding: window })
 	: functionCache(cacheKey);
 
+const componentStyleCache = new WeakMap<Type.Component, HTMLStyleElement>();
 export const component = <
 	TemplateArgs extends Type.Args
 >(input: Type.Component<TemplateArgs>) => {
-	if (input.style && !componentStyleCache.has(input as Type.Component)) { // TODO1: Handle when not CSR
-		const $style = document.createElement(`style`); // TODO1: Scoped styles?
-		$style.textContent = input.style;
-		document.head.appendChild($style);
-		componentStyleCache.set(input as Type.Component, $style);
+	if (routerContext === `client`) {
+		if (input.style && !componentStyleCache.has(input as Type.Component)) { // TODO1: Handle when not CSR
+			const $style = document.createElement(`style`); // TODO1: Scoped styles?
+			$style.textContent = input.style;
+			document.head.appendChild($style);
+			componentStyleCache.set(input as Type.Component, $style);
+		}
 	}
 
 	return (...args: TemplateArgs) => {
 		return input.template(...args);
 	};
 };
-
-const componentStyleCache = new WeakMap<Type.Component, HTMLStyleElement>();
 
 class Router__Client extends Emitter<string> {
 	constructor() {
@@ -59,7 +63,7 @@ class Router__Client extends Emitter<string> {
 
 class Router__Static extends Emitter<string> {}
 
-export const router = environment === `client`
+export const router = routerContext === `client`
 	? new Router__Client()
 	: new Router__Static();
 

@@ -1,6 +1,6 @@
-import { constants, vars } from './lib/index.css';
+import { constants, vars } from './styles/lib/index.css';
 
-export const baseStyles = `
+export default `
 * {
 	background: transparent;
 	border: 0;
