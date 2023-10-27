@@ -1,4 +1,4 @@
-import { bind, router, toAttributes } from '../index.ts';
+import { bind, router, routerContext, toAttributes } from '../index.ts';
 
 const routeTo = (event: MouseEvent, path: string) => {
 	if (event.metaKey || event.ctrlKey) { // Allow opening in new tab
@@ -24,7 +24,7 @@ export const link = ({
 	return `
 		<a
 			href="${href}"
-			onclick=${isAbsolute ? `""` : bind(routeTo, href)}
+			${isAbsolute || routerContext === `client` ? `onclick="${bind(routeTo, href)}"` : ``}
 			target="${isAbsolute ? `_blank` : `_self`}"
 			${toAttributes(rest)}
 			>

@@ -11,7 +11,6 @@ build(routes, resolve, {
 	baseDir,
 	distDir,
 	statics: [
-		[(await import(`./index.html.ts`)).template(), `index.html`],
 		[(await import(`./styles.css.ts`)).default, `styles.css`],
 		`script.ts`,
 		`assets/**`,

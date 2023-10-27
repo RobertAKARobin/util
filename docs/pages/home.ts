@@ -27,6 +27,8 @@ const template = () => `
 	})}
 
 	<button onclick=${bind(greet, `Steve`)}>Greet</button>
+
+	<p>${link({ content: `Go to test`, href: routes.test })}</p>
 </div>
 `;
 

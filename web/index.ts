@@ -9,11 +9,6 @@ export const routerContexts = [
 	`static`,
 ] as const;
 
-export const routerTypes = [
-	`build`,
-	`serve`,
-] as const;
-
 export const routerContext: Type.RouterContext = typeof window !== `undefined`
 	? `client`
 	: `static`;
@@ -29,8 +24,8 @@ export const component = <
 	TemplateArgs extends Type.Args
 >(input: Type.Component<TemplateArgs>) => {
 	if (routerContext === `client`) {
-		if (input.style && !componentStyleCache.has(input as Type.Component)) { // TODO1: Handle when not CSR
-			const $style = document.createElement(`style`); // TODO1: Scoped styles?
+		if (input.style && !componentStyleCache.has(input as Type.Component)) {
+			const $style = document.createElement(`style`); // TODO2: Scoped styles?
 			$style.textContent = input.style;
 			document.head.appendChild($style);
 			componentStyleCache.set(input as Type.Component, $style);

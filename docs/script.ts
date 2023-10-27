@@ -7,6 +7,5 @@ router.subscribe(path => {
 	$output.innerHTML = resolve({
 		path,
 		routerContext: `client`,
-		routerType: `serve`,
 	});
 });

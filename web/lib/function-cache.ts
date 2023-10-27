@@ -24,7 +24,7 @@ export function functionCache<
 		binding: FunctionCache<BindingName>;
 	}> = {}
 ) {
-	const functionsByKey = new Map<FunctionCacheKey, FunctionCacheEntry>(); // TODO1: Use caching that allows garbage collection
+	const functionsByKey = new Map<FunctionCacheKey, FunctionCacheEntry>(); // TODO2: Use caching that allows garbage collection
 	const keysByFunction = new Map<FunctionCacheEntry, FunctionCacheKey>();
 	let cacheIndex = 0;
 

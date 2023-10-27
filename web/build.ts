@@ -101,13 +101,12 @@ export function build(
 		const templateString = resolver({
 			path: routePath,
 			routerContext,
-			routerType: `build`,
 		});
 		const outName = routePath === `/` ? `index` : routePath;
 		const outDir = path.join(options.distDir, path.dirname(routePath));
 		const outPath = path.join(outDir, `${outName}.html`);
 		fs.mkdirSync(outDir, { recursive: true });
-		fs.writeFileSync(outPath, templateString); // TODO1: Have routes render with layout when static
+		fs.writeFileSync(outPath, templateString);
 		log(`path`, routePath, outPath);
 	}
 }
