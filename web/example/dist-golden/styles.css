@@ -1,0 +1,29 @@
+
+* {
+	
+		background: transparent;
+		border: 0;
+		border-collapse: collapse;
+		border-spacing: 0;
+		color: inherit;
+		font-family: inherit;
+		font-size: inherit;
+		font-style: inherit;
+		font-weight: inherit;
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		text-decoration: inherit;
+	
+}
+
+:root {
+	
+			--fontBase_family: Georgia, serif;
+		
+			--fontBase_size: 16;
+		
+
+	font-family: var(--fontBase_family);
+	font-size: calc(var(--fontBase_size) * 1px);
+}

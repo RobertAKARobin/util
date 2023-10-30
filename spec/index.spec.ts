@@ -1,6 +1,5 @@
-import * as Diff from 'diff';
-
 import { render, suite, test } from './index.ts';
+import { diff } from './diff.ts';
 
 import * as dbTests from './example/db.spec.ts';
 import * as mathTests from './example/math.spec.ts';
@@ -20,7 +19,7 @@ export const spec = suite(`SpecRunner`, {},
 		},
 
 		test(`rendered results match expected`, ({ args, assert }) => {
-			assert(x => x(showDiff(args.expected, args.actual)) === ``);
+			assert(x => x(diff(args.expected, args.actual)) === ``);
 		}),
 	),
 
@@ -38,26 +37,7 @@ export const spec = suite(`SpecRunner`, {},
 		},
 
 		test(`rendered results match expected`, ({ args, assert }) => {
-			assert(x => x(showDiff(args.expected, args.rendered)) === ``);
+			assert(x => x(diff(args.expected, args.rendered)) === ``);
 		}),
 	),
 );
-
-function showDiff(expected: string, actual: string): string {
-	const diff = Diff.diffLines(expected, actual);
-	if (diff.length === 1) {
-		return ``;
-	}
-
-	return diff.map(line => {
-		const result = line.value;
-
-		if (!line.added && !line.removed) {
-			return result;
-		}
-
-		return line.added
-			? `\x1b[36m${result}\x1b[0m`
-			: `\x1b[35m${result}\x1b[0m`;
-	}).join(``);
-}

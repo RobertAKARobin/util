@@ -2,6 +2,7 @@
 	"extends": "@robertakarobin/csslint",
 	"ignoreFiles": [
 		"**/dist/*",
+		"**/dist-golden/*",
 		"**/node_modules/*"
 	]
 }

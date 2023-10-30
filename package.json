@@ -31,7 +31,7 @@
 		"url": "https://github.com/RobertAKARobin/util"
 	},
 	"scripts": {
-		"dev": "tsx docs/build.ts",
+		"dev": "tsx web/example/build.ts",
 		"lint": "eslint . && npm run stylelint",
 		"spec": "tsx index.spec.ts",
 		"stylelint": "stylelint **/*.css --quietDeprecationWarnings",

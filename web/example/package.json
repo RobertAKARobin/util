@@ -1,0 +1,6 @@
+{
+	"dependencies": {
+		"@robertakarobin/web": "file:.."
+	},
+	"type": "module"
+}
