@@ -10,6 +10,9 @@
 	},
 	"main": "index.ts",
 	"name": "@robertakarobin/web",
+	"scripts": {
+		"test": "tsx ./spec/run.ts"
+	},
 	"type": "module",
 	"version": "0.0.1"
 }
