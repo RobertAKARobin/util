@@ -6,27 +6,50 @@ import { routerContext } from './router.ts';
 declare let window: Window & FunctionCache<typeof cacheKey>;
 
 const cacheKey = `fn` as const;
+
 export const bind = routerContext === `client`
 	? functionCache(cacheKey, { binding: window })
 	: functionCache(cacheKey);
 
-const componentStyleCache = new WeakMap<Type.Component, HTMLStyleElement>();
-export const component = <
-	TemplateArgs extends Type.Args
->(input: Type.Component<TemplateArgs>) => {
-	if (routerContext === `client`) {
-		if (input.style && !componentStyleCache.has(input as Type.Component)) {
-			const $style = document.createElement(`style`); // TODO2: Scoped styles?
-			$style.textContent = input.style;
-			document.head.appendChild($style);
-			componentStyleCache.set(input as Type.Component, $style);
-		}
+export class Component<
+	TemplateArgs extends (Type.Args | []) = []
+> {
+	static styleCache = new WeakMap<Component<any>, HTMLStyleElement>(); // eslint-disable-line @typescript-eslint/no-explicit-any
+
+	constructor(
+		readonly template: (...args: TemplateArgs) => string,
+		readonly style?: string,
+	) {}
+
+	render(...args: TemplateArgs) {
+		this.renderStyle();
+		return this.renderTemplate(...args);
 	}
 
-	return (...args: TemplateArgs) => {
-		return input.template(...args);
-	};
-};
+	renderStyle() {
+		if (routerContext !== `client`) {
+			return;
+		}
+
+		if (!this.style) {
+			return;
+		}
+
+		const existingStyle = Component.styleCache.get(this);
+		if (existingStyle) {
+			return;
+		}
+
+		const $style = document.createElement(`style`); // TODO2: Scoped styles?
+		$style.textContent = this.style;
+		document.head.appendChild($style);
+		Component.styleCache.set(this, $style);
+	}
+
+	renderTemplate(...args: TemplateArgs) {
+		return this.template(...args);
+	}
+}
 
 export const toAttributes = (input: Record<string, string>) =>
 	Object.entries(input)

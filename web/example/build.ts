@@ -12,5 +12,6 @@ build(routes, resolve, {
 	distDir,
 	statics: [
 		[(await import(`./styles.css.ts`)).default, `styles.css`],
+		`script.ts`,
 	],
 });
