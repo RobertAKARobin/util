@@ -4,8 +4,7 @@ import { resolve } from './routes.ts';
 
 const $output = document.getElementById(`output`)!;
 router.subscribe(path => {
-	$output.innerHTML = resolve({
-		path,
-		routerContext: `client`,
-	});
+	const [title, page] = resolve(path);
+	document.title = title;
+	$output.innerHTML = page;
 });

@@ -1,14 +1,12 @@
-import { Component, toAttributes } from '@robertakarobin/web/index.ts';
+import { toAttributes } from './toAttributes.ts';
 
-export const image = new Component(
-	({ alt, src, ...rest }: {
-		alt: string;
-		src: string;
-	}) => `
-		<img
-			alt="${alt}"
-			src="${src}"
-			${toAttributes(rest)}
-			/>
-	`
-);
+export const template = ({ alt, src, ...rest }: {
+	alt: string;
+	src: string;
+}) => `
+<img
+	alt="${alt}"
+	src="${src}"
+	${toAttributes(rest)}
+	/>
+`;

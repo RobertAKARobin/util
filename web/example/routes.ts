@@ -1,19 +1,18 @@
-export { link } from '@robertakarobin/web/components/link.ts';
-import type { Resolver, Routes } from '@robertakarobin/web/types.d.ts';
+export { template as link } from '@robertakarobin/web/components/link.ts';
+import type * as Type from '@robertakarobin/web/types.d.ts';
 
 import { errorPage } from './pages/error.ts';
 import { indexPage } from './pages/index.ts';
-import { layout } from './pages/_layout.ts';
 
 export const routes = {
 	home: `/`,
-} as const satisfies Routes;
+} as const satisfies Type.Routes;
 
-export const resolve: Resolver = input => {
-	switch (input.path) {
+export const resolve: Type.Resolver = path => {
+	switch (path) {
 		case routes.home:
-			return layout.render(`Home page`, indexPage.render());
+			return [`Home page`, indexPage()];
 		default:
-			return layout.render(`Error 404`, errorPage.render());
+			return [`Error 404`, errorPage()];
 	}
 };

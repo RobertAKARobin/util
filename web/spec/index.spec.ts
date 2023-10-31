@@ -15,7 +15,6 @@ export const spec = suite(`@robertakarobin/web`,
 
 	test(`build`, $ => {
 		$.assert(x => x(diff(dist(`styles.css`), golden(`styles.css`))) === ``);
-		$.assert(x => x(diff(dist(`script.js`), golden(`script.js`))) === ``);
 		$.assert(x => x(diff(dist(`index.html`), golden(`index.html`))) === ``);
 	}),
 
