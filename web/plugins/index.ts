@@ -1,3 +1,3 @@
 export * from './bind.ts';
-export * from './setTitle.ts';
+export * from './page.ts';
 export * from './withStyle.ts';

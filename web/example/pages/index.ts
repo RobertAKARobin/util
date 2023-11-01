@@ -1,5 +1,4 @@
-import { page } from '@robertakarobin/web/plugins/page.ts';
-import { withStyle } from '@robertakarobin/web/plugins/withStyle.ts';
+import { page, withStyle } from '@robertakarobin/web/plugins/index.ts';
 
 import { staticLayout } from './_staticLayout.ts';
 
