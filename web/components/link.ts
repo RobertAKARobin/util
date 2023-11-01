@@ -1,6 +1,6 @@
 import { router, routerContext } from '../index.ts';
+import { bind } from '../plugins/bind.ts';
 
-import { bind } from './bind.ts';
 import { toAttributes } from './toAttributes.ts';
 
 const routeTo = (event: MouseEvent, path: string) => {

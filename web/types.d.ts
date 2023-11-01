@@ -1,13 +1,13 @@
 import type { buildOptionsDefaults } from './build.ts';
 import type { routerContexts } from './index.ts';
 
-export type Args = Array<any> | []; // eslint-disable-line @typescript-eslint/no-explicit-any
+export type Args = Array<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 export type BuildOptions = typeof buildOptionsDefaults;
 
 export type PageLayout = (title: string, contents: string) => string;
 
-export type Resolver = (path: RoutePath) => [string, string];
+export type Resolver = (path: RoutePath) => string | Promise<string>;
 
 export type Routes = Record<string, RoutePath>;
 

@@ -1,4 +1,4 @@
-export const layout = (
+export const staticLayout = (
 	title: string,
 	contents: string,
 ) => `

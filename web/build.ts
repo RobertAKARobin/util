@@ -7,13 +7,9 @@ import type * as Type from './types.d.ts';
 
 type TemplateStringWithFilename = [string, string];
 
-const defaultLayout: Type.PageLayout = (title, contents) => `
-<!DOCTYPE html><head><title>${title}</title></head><body>${contents}</body>`;
-
 export const buildOptionsDefaults = {
 	baseDir: process.cwd(),
 	distDir: `dist`,
-	layout: defaultLayout,
 	statics: [] as Array<
 		| TemplateStringWithFilename
 		| esbuild.BuildOptions
@@ -100,13 +96,12 @@ export function build(
 		if (typeof routePath !== `string`) {
 			continue;
 		}
-		const [title, template] = resolver(routePath);
+		const template = resolver(routePath);
 		const outName = routePath === `/` ? `index` : routePath;
 		const outDir = path.join(options.distDir, path.dirname(routePath));
 		const outPath = path.join(outDir, `${outName}.html`);
-		const outFile = options.layout(title, template);
 		fs.mkdirSync(outDir, { recursive: true });
-		fs.writeFileSync(outPath, outFile);
+		fs.writeFileSync(outPath, template);
 		log(`path`, routePath, outPath);
 	}
 }

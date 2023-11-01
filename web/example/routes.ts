@@ -1,5 +1,5 @@
-export { template as link } from '@robertakarobin/web/components/link.ts';
 import type * as Type from '@robertakarobin/web/types.d.ts';
+export { template as link } from '@robertakarobin/web/components/link.ts';
 
 import { errorPage } from './pages/error.ts';
 import { indexPage } from './pages/index.ts';
@@ -11,8 +11,8 @@ export const routes = {
 export const resolve: Type.Resolver = path => {
 	switch (path) {
 		case routes.home:
-			return [`Home page`, indexPage()];
+			return indexPage();
 		default:
-			return [`Error 404`, errorPage()];
+			return errorPage();
 	}
 };
