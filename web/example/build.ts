@@ -52,3 +52,16 @@ for (const routeName in routes) {
 	fs.mkdirSync(outDir, { recursive: true });
 	fs.writeFileSync(outPath, compiled);
 }
+
+const port = 3000;
+void retryPort();
+async function retryPort() {
+	(await esbuild.context({})).serve({
+		port,
+		servedir: distDir,
+	}).then(() => {
+		console.log(`Serving at http://localhost:${port}`);
+	}).catch(() => {
+		void retryPort();
+	});
+}
