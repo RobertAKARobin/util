@@ -1,5 +1,7 @@
 import CleanCSS from 'clean-css';
+import pretty from 'pretty';
 
+import type * as Type from '@robertakarobin/web/types.d.ts';
 import { build } from '@robertakarobin/web/build.ts';
 import { fileURLToPath } from 'url';
 import path from 'path';
@@ -12,7 +14,12 @@ const distDir = path.join(baseDir, `dist`);
 const cleanCss = new CleanCSS({ format: `beautify` });
 const styles = cleanCss.minify((await import(`./styles.css.ts`)).default).styles;
 
-build(routes, resolve, {
+const staticResolver: Type.Resolver = path => {
+	const compiled = resolve(path);
+	return pretty(compiled, { ocd: true });
+};
+
+build(routes, staticResolver, {
 	baseDir,
 	distDir,
 	statics: [

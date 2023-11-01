@@ -7,7 +7,7 @@ export type BuildOptions = typeof buildOptionsDefaults;
 
 export type PageLayout = (title: string, contents: string) => string;
 
-export type Resolver = (path: RoutePath) => string | Promise<string>;
+export type Resolver = (path: RoutePath) => string;
 
 export type Routes = Record<string, RoutePath>;
 

@@ -1,9 +1,7 @@
-import pretty from 'pretty';
-
 export const staticLayout = (
 	title: string,
 	contents: string,
-) => pretty(`
+) => `
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -18,4 +16,4 @@ export const staticLayout = (
 		>${contents}</div>
 	</body>
 </html>
-`, { ocd: true });
+`;
