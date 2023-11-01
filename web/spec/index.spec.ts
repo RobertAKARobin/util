@@ -6,6 +6,10 @@ import { diff } from '@robertakarobin/spec/diff.ts';
 const dist = (path: string) => fs.readFileSync(`web/example/dist/${path}`, { encoding: `utf8` });
 const golden = (path: string) => fs.readFileSync(`web/example/dist-golden/${path}`, { encoding: `utf8` });
 
+const distMatchesGolden = (path: string) => {
+	return (diff(dist(path), golden(path)) === ``);
+};
+
 export const spec = suite(`@robertakarobin/web`,
 	{
 		args: async() => {
@@ -14,8 +18,9 @@ export const spec = suite(`@robertakarobin/web`,
 	},
 
 	test(`build`, $ => {
-		$.assert(x => x(diff(dist(`styles.css`), golden(`styles.css`))) === ``);
-		$.assert(x => x(diff(dist(`index.html`), golden(`index.html`))) === ``);
+		$.assert(x => x(distMatchesGolden(`styles.css`)));
+		$.assert(x => x(distMatchesGolden(`index.html`)));
+		$.assert(x => x(distMatchesGolden(`404.html`)));
 	}),
 
 	// test(`all`, $ => {
