@@ -6,8 +6,8 @@ export const page = <Template extends Type.Template>(
 	layout: Type.PageLayout, // TODO2: Exclude this from client-side bundle
 	template: Template,
 ) => {
-	return (...args: Parameters<Template>) => {
-		const compiled = template(...args);
+	return async(...args: Parameters<Template>) => {
+		const compiled = await template(...args);
 
 		if (routerContext === `client`) {
 			document.title = title;
