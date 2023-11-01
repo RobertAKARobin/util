@@ -14,8 +14,10 @@
 		"@robertakarobin/eslint-config-ts": "file:./eslint-config-ts",
 		"@robertakarobin/spec": "file:./spec",
 		"@robertakarobin/web": "file:./web",
+		"@types/pretty": "^2.0.2",
 		"husky": "^8.0.3",
 		"npm-check-updates": "^16.14.6",
+		"pretty": "^2.0.0",
 		"tsx": "^3.14.0"
 	},
 	"files": [
