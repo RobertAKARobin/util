@@ -1,6 +1,6 @@
-import { page } from '@robertakarobin/web/plugins/page.ts';
+import { link, page } from '@robertakarobin/web';
 
-import { link, routes } from '../routes.ts';
+import { routes } from '../routes.ts';
 
 import { staticLayout } from './_staticLayout.ts';
 

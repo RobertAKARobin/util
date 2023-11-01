@@ -1,4 +1,4 @@
-import { router } from '@robertakarobin/web/index.ts';
+import { router } from '@robertakarobin/web';
 
 import { resolve } from './routes.ts';
 

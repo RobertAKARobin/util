@@ -1,6 +1,6 @@
 import { toAttributes } from './toAttributes.ts';
 
-export const template = ({ alt, src, ...rest }: {
+export const image = ({ alt, src, ...rest }: {
 	alt: string;
 	src: string;
 }) => `

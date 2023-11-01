@@ -1,9 +1,6 @@
-import type { buildOptionsDefaults } from './build.ts';
 import type { routerContexts } from './index.ts';
 
 export type Args = Array<unknown>; // eslint-disable-line @typescript-eslint/no-explicit-any
-
-export type BuildOptions = typeof buildOptionsDefaults;
 
 export type Function = (...args: Args) => unknown; // eslint-disable-line @typescript-eslint/no-explicit-any
 

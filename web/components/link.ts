@@ -15,7 +15,7 @@ const routeTo = (event: MouseEvent, path: string) => {
 
 const absoluteUrl = /^\w+\:\/\//;
 
-export const template = ({ href, content, ...rest }: {
+export const link = ({ href, content, ...rest }: {
 	content: string;
 	href: string;
 }) => {

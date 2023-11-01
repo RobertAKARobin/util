@@ -7,7 +7,7 @@ const dist = (path: string) => fs.readFileSync(`web/example/dist/${path}`, { enc
 const golden = (path: string) => fs.readFileSync(`web/example/dist-golden/${path}`, { encoding: `utf8` });
 
 const distMatchesGolden = (path: string) => {
-	return (diff(dist(path), golden(path)) === ``);
+	return diff(dist(path), golden(path));
 };
 
 export const spec = suite(`@robertakarobin/web`,
@@ -18,9 +18,9 @@ export const spec = suite(`@robertakarobin/web`,
 	},
 
 	test(`build`, $ => {
-		$.assert(x => x(distMatchesGolden(`styles.css`)));
-		$.assert(x => x(distMatchesGolden(`index.html`)));
-		$.assert(x => x(distMatchesGolden(`404.html`)));
+		$.assert(x => x(distMatchesGolden(`styles.css`)) === ``);
+		$.assert(x => x(distMatchesGolden(`index.html`)) === ``);
+		$.assert(x => x(distMatchesGolden(`404.html`)) === ``);
 	}),
 
 	// test(`all`, $ => {
