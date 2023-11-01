@@ -36,7 +36,7 @@ const log = (
  * @param inputOptions.distDir All output paths are relative to this directory
  * @param inputOptions.statics Paths of files that should be built and that won't be reached by the resolver
  */
-export function build(
+export async function build(
 	routes: Type.Routes,
 	resolver: Type.Resolver,
 	inputOptions: Partial<Type.BuildOptions> = {}
@@ -83,23 +83,24 @@ export function build(
 		}
 	}
 
-	for (const routeName in routes) {
+	await Promise.all(Object.keys(routes).map(async routeName => {
 		const routePath = routes[routeName];
 		if (typeof routePath !== `string`) {
-			continue;
+			return;
 		}
-		const template = resolver(routePath);
+		const template = await resolver(routePath);
 		const outName = routePath === `/` ? `index` : routePath;
 		const outDir = path.join(options.distDir, path.dirname(routePath));
 		const outPath = path.join(outDir, `${outName}.html`);
 		fs.mkdirSync(outDir, { recursive: true });
 		fs.writeFileSync(outPath, template);
 		log(`path`, routePath, outPath);
-	}
+	}));
 
 	esbuild.buildSync({
 		bundle: true,
 		entryPoints,
 		outdir: options.distDir,
+		tsconfig: `tsconfig.json`,
 	});
 }

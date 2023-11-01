@@ -8,6 +8,7 @@
 		"module": "ESNext",
 		"moduleResolution": "bundler",
 		"noEmit": true,
+		"noEmitOnError": true,
 		"outDir": "dist",
 		"resolveJsonModule": true,
 		"strict": true,

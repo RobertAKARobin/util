@@ -14,12 +14,12 @@ const distDir = path.join(baseDir, `dist`);
 const cleanCss = new CleanCSS({ format: `beautify` });
 const styles = cleanCss.minify((await import(`./styles.css.ts`)).default).styles;
 
-const staticResolver: Type.Resolver = path => {
-	const compiled = resolve(path);
+const staticResolver: Type.Resolver = async path => {
+	const compiled = await resolve(path);
 	return pretty(compiled, { ocd: true });
 };
 
-build(routes, staticResolver, {
+await build(routes, staticResolver, {
 	baseDir,
 	distDir,
 	statics: [
