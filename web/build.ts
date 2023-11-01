@@ -12,7 +12,6 @@ export const buildOptionsDefaults = {
 	distDir: `dist`,
 	statics: [] as Array<
 		| TemplateStringWithFilename
-		| esbuild.BuildOptions
 		| string
 	>,
 };
@@ -42,7 +41,7 @@ export function build(
 	resolver: Type.Resolver,
 	inputOptions: Partial<Type.BuildOptions> = {}
 ) {
-	// TODO2: Use esbuild for CSS?
+	const entryPoints: Array<string> = [];
 	const options: Type.BuildOptions = {
 		...buildOptionsDefaults,
 		...inputOptions,
@@ -51,7 +50,14 @@ export function build(
 	fs.mkdirSync(options.distDir);
 
 	for (const staticInput of options.statics) {
-		if (typeof staticInput === `string`) {
+		if (Array.isArray(staticInput)) {
+			const [templateString, filePath] = staticInput;
+			const outPath = path.join(options.distDir, filePath);
+			fs.mkdirSync(path.dirname(outPath), { recursive: true });
+			fs.writeFileSync(outPath, templateString);
+			const templatePreview = templateString.substring(0, 50).replace(/\s+/g, ` `);
+			log(`string`, `${templatePreview}...`, outPath);
+		} else {
 			const fileGlob = staticInput;
 			const filePaths = globSync(
 				path.join(options.baseDir, fileGlob),
@@ -68,26 +74,12 @@ export function build(
 						parsed.dir,
 						parsed.name,
 					) + `.js`;
-					esbuild.buildSync({
-						bundle: true,
-						entryPoints: [filePath],
-						outfile: outPath,
-					});
+					entryPoints.push(filePath);
 				} else {
 					fs.cpSync(filePath, outPath);
 				}
 				log(`file`, filePath, outPath);
 			}
-		} else if (Array.isArray(staticInput)) {
-			const [templateString, filePath] = staticInput;
-			const outPath = path.join(options.distDir, filePath);
-			fs.mkdirSync(path.dirname(outPath), { recursive: true });
-			fs.writeFileSync(outPath, templateString);
-			const templatePreview = templateString.substring(0, 50).replace(/\s+/g, ` `);
-			log(`string`, `${templatePreview}...`, outPath);
-		} else {
-			const buildOptions = staticInput;
-			esbuild.buildSync(buildOptions);
 		}
 	}
 
@@ -104,4 +96,10 @@ export function build(
 		fs.writeFileSync(outPath, template);
 		log(`path`, routePath, outPath);
 	}
+
+	esbuild.buildSync({
+		bundle: true,
+		entryPoints,
+		outdir: options.distDir,
+	});
 }
