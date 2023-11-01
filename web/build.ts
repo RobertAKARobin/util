@@ -97,10 +97,9 @@ export async function build(
 		log(`path`, routePath, outPath);
 	}));
 
-	esbuild.buildSync({
+	return await esbuild.context({
 		bundle: true,
 		entryPoints,
 		outdir: options.distDir,
-		tsconfig: `tsconfig.json`,
 	});
 }

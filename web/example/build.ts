@@ -19,7 +19,7 @@ const staticResolver: Type.Resolver = async path => {
 	return pretty(compiled, { ocd: true });
 };
 
-await build(routes, staticResolver, {
+const context = await build(routes, staticResolver, {
 	baseDir,
 	distDir,
 	statics: [
@@ -27,3 +27,14 @@ await build(routes, staticResolver, {
 		`script.ts`,
 	],
 });
+
+if (process.env.env !== `PROD`) {
+	void context.watch();
+
+	const port = 3000;
+	void context.serve({
+		port,
+		servedir: distDir,
+	});
+	console.log(`Serving at http://localhost:${port}...`);
+}
