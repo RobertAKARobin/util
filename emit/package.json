@@ -1,6 +1,6 @@
 {
 	"devDependencies": {
-		"@robertakarobin/spec": "^0.0.1"
+		"@robertakarobin/spec": "^0.0.2"
 	},
 	"main": "index.ts",
 	"name": "@robertakarobin/emit",

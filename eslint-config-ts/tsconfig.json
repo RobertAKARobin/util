@@ -3,6 +3,7 @@
 		"allowImportingTsExtensions": true,
 		"allowJs": true,
 		"baseUrl": ".",
+		"experimentalDecorators": true,
 		"lib": ["ESNext", "DOM"],
 		"module": "ESNext",
 		"moduleResolution": "bundler",

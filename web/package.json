@@ -6,7 +6,7 @@
 		"glob": "^10.3.10"
 	},
 	"devDependencies": {
-		"@robertakarobin/spec": "^0.0.1"
+		"@robertakarobin/spec": "^0.0.2"
 	},
 	"main": "index.ts",
 	"name": "@robertakarobin/web",
