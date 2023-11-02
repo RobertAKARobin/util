@@ -2,7 +2,7 @@ import { routerContext } from '../router.ts';
 
 const cacheKey = `fn` as const;
 type WindowWithCache = Window & FunctionCache<typeof cacheKey>;
-export const bind = routerContext === `client`
+export const bind = routerContext === `browser`
 	? functionCache(cacheKey, { binding: window as unknown as WindowWithCache })
 	: functionCache(cacheKey);
 

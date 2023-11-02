@@ -1,6 +1,4 @@
-import { page, withStyle } from '@robertakarobin/web';
-
-import { staticLayout } from './_staticLayout.ts';
+import { withStyle } from '@robertakarobin/web';
 
 export const style = `
 h1 {
@@ -12,4 +10,4 @@ export const template = () => `
 <h1>Hello world!</h1>
 `;
 
-export const indexPage = page(`Home page`, staticLayout, withStyle(style, template));
+export default withStyle(style, template);

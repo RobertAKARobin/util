@@ -1,11 +1,10 @@
-export const staticLayout = (
-	title: string,
-	contents: string,
-) => `
+import type * as Type from '@robertakarobin/web';
+
+const baseLayout: Type.PageLayout = input => `
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>${title}</title>
+		<title>${input.title}</title>
 		<script src="/web.js" type="module"></script>
 		<script src="/script.js" type="module"></script>
 		<link rel="stylesheet" href="/styles.css" />
@@ -14,7 +13,9 @@ export const staticLayout = (
 		<div
 			class="view"
 			id="output"
-		>${contents}</div>
+		>${input.contents}</div>
 	</body>
 </html>
 `;
+
+export default baseLayout;

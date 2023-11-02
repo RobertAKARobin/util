@@ -1,12 +1,14 @@
 import type { routerContexts } from './index.ts';
 
-export type Args = Array<unknown>; // eslint-disable-line @typescript-eslint/no-explicit-any
+export type Args = Array<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-export type Function = (...args: Args) => unknown; // eslint-disable-line @typescript-eslint/no-explicit-any
+export type Function = (...args: Args) => any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-export type PageLayout = (title: string, contents: string) => string;
-
-export type Resolver = (path: RoutePath) => string | Promise<string>;
+export type PageLayout = Template<[input: {
+	contents: string;
+	routePath: RoutePath;
+	title: string;
+}]>;
 
 export type Routes = Record<string, RoutePath>;
 
@@ -16,5 +18,7 @@ export type RoutePathFunction = (params: any) => string; // eslint-disable-line 
 
 export type RouterContext = typeof routerContexts[number];
 
-export type Template = (...args: Args) => string | Promise<string>;
+export type Template<
+	TemplateArgs extends Args = Args
+> = (...args: TemplateArgs) => string | Promise<string>;
 

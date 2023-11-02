@@ -3,15 +3,15 @@ import { Emitter } from '@robertakarobin/emit/index.ts';
 import type * as Type from './types.d.ts';
 
 export const routerContexts = [
-	`client`,
-	`static`,
+	`browser`,
+	`build`,
 ] as const;
 
 export const routerContext: Type.RouterContext = typeof window !== `undefined`
-	? `client`
-	: `static`;
+	? `browser`
+	: `build`;
 
-class Router__Client extends Emitter<string> {
+class Router__Browser extends Emitter<string> { // Naming it this way in case we need different types of routers later on
 	constructor() {
 		super({
 			cache: {
@@ -19,7 +19,9 @@ class Router__Client extends Emitter<string> {
 			},
 		});
 
-		window.onpopstate = window.onload = this.onChange.bind(this);
+		if (routerContext === `browser`) {
+			window.onpopstate = window.onload = this.onChange.bind(this);
+		}
 	}
 
 	onChange() {
@@ -30,8 +32,8 @@ class Router__Client extends Emitter<string> {
 	}
 }
 
-class Router__Static extends Emitter<string> {}
+export const router = new Router__Browser();
 
-export const router = routerContext === `client`
-	? new Router__Client()
-	: new Router__Static();
+export const layout = new Emitter<Type.PageLayout>();
+
+export const title = new Emitter<string>();

@@ -1,12 +1,12 @@
 import CleanCSS from 'clean-css';
 import esbuild from 'esbuild';
-import fs from 'fs';
-import pretty from 'pretty';
-
-// import type * as Type from '@robertakarobin/web/types.d.ts';
-// import { build } from '@robertakarobin/web/build.ts';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 import path from 'path';
+import pretty from 'pretty';
+import { promiseConsecutive } from '@robertakarobin/jsutil';
+
+import { layout, title } from '@robertakarobin/web';
 
 import { resolve, routes } from './routes.ts';
 
@@ -20,38 +20,47 @@ const cleanCss = new CleanCSS({ format: `beautify` });
 const styles = cleanCss.minify((await import(`./styles.css.ts`)).default).styles;
 fs.writeFileSync(path.join(distDir, `styles.css`), styles);
 
+const vendorFile = `/web.js`;
 esbuild.buildSync({
 	bundle: true,
 	entryPoints: [`@robertakarobin/web/index.ts`],
 	format: `esm`,
-	outfile: path.join(distDir, `web.js`),
+	outfile: path.join(distDir, vendorFile),
 });
 
 esbuild.buildSync({
+	absWorkingDir: distDir,
 	alias: {
-		"@robertakarobin/web": path.join(distDir, `/web.js`),
+		"@robertakarobin/web": vendorFile,
 	},
 	bundle: true,
 	entryPoints: [
 		path.join(baseDir, `./script.ts`),
 	],
 	external: [
-		`@robertakarobin/web`,
+		vendorFile,
 	],
 	format: `iife`,
 	outfile: path.join(distDir, `script.js`),
 });
 
-for (const routeName in routes) {
-	const routePath = routes[routeName as keyof typeof routes];
-	const template = await resolve(routePath);
-	const compiled = pretty(template, { ocd: true });
-	const outName = routePath === `/` ? `index` : routePath;
-	const outDir = path.join(distDir, path.dirname(routePath));
-	const outPath = path.join(outDir, `${outName}.html`);
-	fs.mkdirSync(outDir, { recursive: true });
-	fs.writeFileSync(outPath, compiled);
-}
+await promiseConsecutive(
+	Object.keys(routes).map(routeName => async() => {
+		const routePath = routes[routeName as keyof typeof routes];
+		const contents = await resolve(routePath);
+		const template = await layout.last({
+			contents,
+			routePath,
+			title: title.last,
+		});
+		const compiled = pretty(template, { ocd: true });
+		const outName = routePath === `/` ? `index` : routePath;
+		const outDir = path.join(distDir, path.dirname(routePath));
+		const outPath = path.join(outDir, `${outName}.html`);
+		fs.mkdirSync(outDir, { recursive: true });
+		fs.writeFileSync(outPath, compiled);
+	})
+);
 
 const port = 3000;
 void retryPort();

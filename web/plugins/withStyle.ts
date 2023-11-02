@@ -7,7 +7,7 @@ export const withStyle = <Template extends Type.Template>(css: string, template:
 	return (...args: Parameters<Template>) => {
 		const compiled = template(...args);
 
-		if (routerContext !== `client`) {
+		if (routerContext !== `browser`) {
 			return compiled;
 		}
 
