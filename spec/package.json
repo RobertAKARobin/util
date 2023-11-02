@@ -9,6 +9,9 @@
 	},
 	"main": "index.ts",
 	"name": "@robertakarobin/spec",
+	"scripts": {
+		"test": "tsx ./run.ts"
+	},
 	"type": "module",
 	"version": "0.0.2"
 }
