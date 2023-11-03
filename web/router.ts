@@ -33,3 +33,9 @@ export const router = new Router__Browser();
 export const layout = new Emitter<Type.PageLayout>();
 
 export const title = new Emitter<string>();
+
+if (routerContext === `browser`) {
+	title.subscribe(title => {
+		document.title = title;
+	});
+}

@@ -10,7 +10,7 @@ export const page = <Template extends Type.Template>(
 	input: Type.PageArgs<Template>
 ) => {
 	pageStatic.next(input.importMetaUrl!);
-	title.next(input.title);
+	title.next(input.title!);
 
 	return component(input);
 };
