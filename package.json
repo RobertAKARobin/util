@@ -35,6 +35,7 @@
 	},
 	"scripts": {
 		"dev": "tsx web/example/build.ts",
+		"dev:serve": "npm run dev:watch -- --serve",
 		"dev:watch": "tsx --watch web/example/build.ts",
 		"lint": "eslint . && npm run stylelint",
 		"spec": "tsx index.spec.ts",
