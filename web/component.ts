@@ -12,7 +12,7 @@ export const component = <Template extends Type.Template>(
 			&& input.style
 			&& !StyleCache.has(input.template)
 		) {
-			const $style = document.createElement(`style`); // TODO2: Scoped styles?
+			const $style = document.createElement(`style`); // TODO1: Scoped styles!
 			$style.textContent = input.style;
 			document.head.appendChild($style);
 			StyleCache.set(input.template, $style);

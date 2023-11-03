@@ -60,13 +60,13 @@ await promiseConsecutive(
 	Object.keys(routes).map(routeName => async() => {
 		const routePath = routes[routeName as keyof typeof routes];
 		const hasExtension = matchExtension.test(routePath);
-		const outName = hasExtension
+		const outPath = hasExtension
 			? routePath
 			: routePath.endsWith(`/`)
 				? `${routePath}index.html`
 				: `${routePath}/index.html`;
-		const outDir = path.join(distDir, path.dirname(outName));
-		const outPath = path.join(outDir, outName);
+		const outDir = path.join(distDir, path.dirname(outPath));
+		const outPathAbsolute = path.join(outDir, path.basename(outPath));
 
 		const contents = await resolve(routePath);
 		const template = await layout.last({
@@ -79,7 +79,7 @@ await promiseConsecutive(
 			indent_with_tabs: true,
 		});
 		fs.mkdirSync(outDir, { recursive: true });
-		fs.writeFileSync(outPath, compiled);
+		fs.writeFileSync(outPathAbsolute, compiled);
 
 		const sourcePath = pageStatic.last;
 		if (!sourcePath) {
@@ -89,7 +89,7 @@ await promiseConsecutive(
 		const filePath = fileURLToPath(sourcePath);
 		(buildOptions.entryPoints! as Array<{ in: string; out: string; }>).push({
 			in: filePath,
-			out: path.join(distDir, outName),
+			out: outPathAbsolute,
 		});
 		dynamicResolvers.push(args => {
 			const importPath = path.join(baseDir, args.path);
@@ -97,9 +97,9 @@ await promiseConsecutive(
 			if (!pathDifference) {
 				return {
 					external: true,
-					path: outName.startsWith(`/`)
-						? `${outName}.js`
-						: `/${outName}.js`,
+					path: outPath.startsWith(`/`)
+						? `${outPath}.js`
+						: `/${outPath}.js`,
 				};
 			}
 			return;
