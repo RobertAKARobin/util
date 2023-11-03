@@ -8,6 +8,7 @@ export const template = () => `
 `;
 
 export default page({
+	importMetaUrl: import.meta.url,
 	template,
 	title: `Error 404`,
 });
