@@ -13,11 +13,7 @@ export const routerContext: Type.RouterContext = typeof window !== `undefined`
 
 class Router__Browser extends Emitter<string> { // Naming it this way in case we need different types of routers later on
 	constructor() {
-		super({
-			cache: {
-				limit: 1,
-			},
-		});
+		super();
 
 		if (routerContext === `browser`) {
 			window.onpopstate = window.onload = this.onChange.bind(this);

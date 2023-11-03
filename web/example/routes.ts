@@ -1,23 +1,7 @@
 import type * as Type from '@robertakarobin/web/types.d.ts';
-import {
-	layout,
-	lazy,
-	link,
-	routerContext,
-	title,
-} from '@robertakarobin/web';
-
-import type * as Layout from './pages/_layout.ts';
-
-import type * as ErrorPage from './pages/error.ts';
-import type * as IndexPage from './pages/index.ts';
+import { layout, link, routerContext, title } from '@robertakarobin/web';
 
 export { link }; // So we can import link along with routes, since they're usually used together
-
-const layoutTemplate = lazy<typeof Layout>(`./pages/layout.ts`);
-
-const indexPage = lazy<typeof IndexPage>(`./pages/index.ts`);
-const errorPage = lazy<typeof ErrorPage>(`./pages/error.ts`);
 
 export const routes = {
 	error404: `/404`,
@@ -26,15 +10,15 @@ export const routes = {
 
 export const resolve = async(path: Type.RoutePath): Promise<string> => {
 	if (routerContext === `build`) {
-		layout.next(await layoutTemplate(`default`));
+		layout.next((await import(`./pages/_layout.ts`)).default);
 	}
 
 	switch (path) {
 		case routes.home:
-			title.next(`Home`);
-			return await indexPage(`default`, []);
+			title.next(`Home page`);
+			return (await import(`./pages/index.ts`)).default();
 		default:
 			title.next(`Error 404`);
-			return await errorPage(`default`, []);
+			return (await import(`./pages/error.ts`)).default();
 	}
 };

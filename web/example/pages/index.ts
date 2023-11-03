@@ -1,4 +1,4 @@
-import { withStyle } from '@robertakarobin/web';
+import { page } from '@robertakarobin/web';
 
 export const style = `
 h1 {
@@ -10,4 +10,8 @@ export const template = () => `
 <h1>Hello world!</h1>
 `;
 
-export default withStyle(style, template);
+export default page({
+	static: import.meta.url,
+	style,
+	template,
+});

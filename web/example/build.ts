@@ -6,7 +6,7 @@ import path from 'path';
 import pretty from 'pretty';
 import { promiseConsecutive } from '@robertakarobin/jsutil';
 
-import { layout, title } from '@robertakarobin/web';
+import { layout, pageStatic, title } from '@robertakarobin/web';
 
 import { resolve, routes } from './routes.ts';
 
@@ -28,7 +28,65 @@ esbuild.buildSync({
 	outfile: path.join(distDir, vendorFile),
 });
 
-esbuild.buildSync({
+type DynamicResolver = (
+	args: esbuild.OnResolveArgs
+) => void | Partial<esbuild.ResolveResult>;
+const dynamicResolvers: Array<DynamicResolver> = [];
+
+await promiseConsecutive(
+	Object.keys(routes).map(routeName => async() => {
+		const routePath = routes[routeName as keyof typeof routes];
+		const outName = routePath === `/` ? `index` : routePath;
+		const outDir = path.join(distDir, path.dirname(routePath));
+		const outHtml = path.join(outDir, `${outName}.html`);
+
+		const contents = await resolve(routePath);
+		const template = await layout.last({
+			contents,
+			routePath,
+			title: title.last,
+		});
+		const compiled = pretty(template, { ocd: true });
+		fs.mkdirSync(outDir, { recursive: true });
+		fs.writeFileSync(outHtml, compiled);
+
+		const sourcePath = pageStatic.last;
+		if (!sourcePath) {
+			return;
+		}
+
+		const filePath = fileURLToPath(sourcePath);
+		dynamicResolvers.push(args => {
+			const importPath = path.join(baseDir, args.path);
+			const pathDifference = path.relative(filePath, importPath);
+			if (!pathDifference) {
+				return {
+					external: true,
+					path: `/${outName}.js`,
+				};
+			}
+		});
+	})
+);
+
+const pageResolver: esbuild.Plugin = {
+	name: `Page dynamic import resolver`,
+	setup(build) {
+		build.onResolve({ filter: /^\.\.?\/.*/ }, args => {
+			if (args.kind !== `dynamic-import`) {
+				return null;
+			}
+			for (const dynamicResolver of dynamicResolvers) {
+				const match = dynamicResolver(args);
+				if (match) {
+					return match;
+				}
+			}
+		 });
+	},
+};
+
+await esbuild.build({
 	absWorkingDir: distDir,
 	alias: {
 		"@robertakarobin/web": vendorFile,
@@ -40,27 +98,10 @@ esbuild.buildSync({
 	external: [
 		vendorFile,
 	],
-	format: `iife`,
+	format: `esm`,
 	outfile: path.join(distDir, `script.js`),
+	plugins: [pageResolver],
 });
-
-await promiseConsecutive(
-	Object.keys(routes).map(routeName => async() => {
-		const routePath = routes[routeName as keyof typeof routes];
-		const contents = await resolve(routePath);
-		const template = await layout.last({
-			contents,
-			routePath,
-			title: title.last,
-		});
-		const compiled = pretty(template, { ocd: true });
-		const outName = routePath === `/` ? `index` : routePath;
-		const outDir = path.join(distDir, path.dirname(routePath));
-		const outPath = path.join(outDir, `${outName}.html`);
-		fs.mkdirSync(outDir, { recursive: true });
-		fs.writeFileSync(outPath, compiled);
-	})
-);
 
 const port = 3000;
 void retryPort();
