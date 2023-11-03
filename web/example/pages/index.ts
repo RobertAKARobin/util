@@ -15,7 +15,8 @@ export const template = () => `
 `;
 
 export default page({
-	static: import.meta.url,
+	importMetaUrl: import.meta.url,
 	style,
 	template,
+	title: `Home page`,
 });

@@ -1,5 +1,5 @@
 import type * as Type from '@robertakarobin/web/types.d.ts';
-import { layout, link, routerContext, title } from '@robertakarobin/web';
+import { layout, link, routerContext } from '@robertakarobin/web';
 
 export { link }; // So we can import link along with routes, since they're usually used together
 
@@ -15,10 +15,8 @@ export const resolve = async(path: Type.RoutePath): Promise<string> => {
 
 	switch (path) {
 		case routes.home:
-			title.next(`Home page`);
 			return (await import(`./pages/index.ts`)).default();
 		default:
-			title.next(`Error 404`);
 			return (await import(`./pages/error.ts`)).default();
 	}
 };

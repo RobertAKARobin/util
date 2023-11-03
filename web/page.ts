@@ -1,13 +1,16 @@
+import { Emitter } from '@robertakarobin/emit';
+
 import type * as Type from './types.d.ts';
-import { Emitter } from '@robertakarobin/emit/index.ts';
+import { component } from './component.ts';
+import { title } from './router.ts';
 
 export const pageStatic = new Emitter<string>();
 
-export const page = (input: {
-	static?: string;
-	style: string;
-	template: Type.Template;
-}) => {
-	pageStatic.next(input.static!);
-	return input.template;
+export const page = <Template extends Type.Template>(
+	input: Type.PageArgs<Template>
+) => {
+	pageStatic.next(input.importMetaUrl!);
+	title.next(input.title);
+
+	return component(input);
 };
