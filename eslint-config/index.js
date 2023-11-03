@@ -42,6 +42,7 @@ module.exports = {
 		"import/extensions": [`error`, `ignorePackages`],
 		"indent": [`error`, `tab`, {
 			SwitchCase: 1,
+			ignoredNodes: [`TemplateLiteral *`],
 		}],
 		"key-spacing": [`error`, {
 			afterColon: true,
