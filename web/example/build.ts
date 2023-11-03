@@ -28,6 +28,22 @@ esbuild.buildSync({
 	outfile: path.join(distDir, vendorFile),
 });
 
+const buildOptions: esbuild.BuildOptions = {
+	absWorkingDir: distDir,
+	alias: {
+		"@robertakarobin/web": vendorFile,
+	},
+	bundle: true,
+	entryPoints: [
+		{ in: path.join(baseDir, `./script.ts`), out: `script` },
+	],
+	external: [
+		vendorFile,
+	],
+	format: `esm`,
+	outdir: distDir,
+};
+
 type DynamicResolver = (
 	args: esbuild.OnResolveArgs
 ) => void | Partial<esbuild.ResolveResult>;
@@ -56,15 +72,21 @@ await promiseConsecutive(
 		}
 
 		const filePath = fileURLToPath(sourcePath);
+		const outJs = `${outName}`;
+		(buildOptions.entryPoints! as Array<{ in: string; out: string; }>).push({
+			in: filePath,
+			out: path.join(distDir, outJs),
+		});
 		dynamicResolvers.push(args => {
 			const importPath = path.join(baseDir, args.path);
 			const pathDifference = path.relative(filePath, importPath);
 			if (!pathDifference) {
 				return {
 					external: true,
-					path: `/${outName}.js`,
+					path: `./${outName}.js`,
 				};
 			}
+			return;
 		});
 	})
 );
@@ -86,22 +108,8 @@ const pageResolver: esbuild.Plugin = {
 	},
 };
 
-await esbuild.build({
-	absWorkingDir: distDir,
-	alias: {
-		"@robertakarobin/web": vendorFile,
-	},
-	bundle: true,
-	entryPoints: [
-		path.join(baseDir, `./script.ts`),
-	],
-	external: [
-		vendorFile,
-	],
-	format: `esm`,
-	outfile: path.join(distDir, `script.js`),
-	plugins: [pageResolver],
-});
+buildOptions.plugins = [pageResolver];
+await esbuild.build(buildOptions);
 
 const port = 3000;
 void retryPort();
