@@ -32,6 +32,7 @@ module.exports = {
 	rules: {
 		"arrow-parens": [`error`, `as-needed`],
 		"arrow-spacing": `error`,
+		"brace-style": [`error`, `1tbs`],
 		"comma-dangle": [`error`, `always-multiline`],
 		"curly": [`error`, `all`],
 		"import-newlines/enforce": [`error`, {
