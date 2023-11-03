@@ -60,7 +60,11 @@ await promiseConsecutive(
 	Object.keys(routes).map(routeName => async() => {
 		const routePath = routes[routeName as keyof typeof routes];
 		const hasExtension = matchExtension.test(routePath);
-		const outName = hasExtension ? routePath : `${routePath}/index`;
+		const outName = hasExtension
+			? routePath
+			: routePath.endsWith(`/`)
+				? `${routePath}index`
+				: `${routePath}/index`;
 		const outDir = path.join(distDir, path.dirname(outName));
 		const outHtml = path.join(outDir, hasExtension ? outName : `${outName}.html`);
 
@@ -94,7 +98,9 @@ await promiseConsecutive(
 			if (!pathDifference) {
 				return {
 					external: true,
-					path: `./${outName}.js`,
+					path: outName.startsWith(`/`)
+						? `${outName}.js`
+						: `/${outName}.js`,
 				};
 			}
 			return;
