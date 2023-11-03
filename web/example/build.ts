@@ -1,14 +1,16 @@
-import CleanCSS from 'clean-css';
 import esbuild from 'esbuild';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import jsBeautify from 'js-beautify';
 import path from 'path';
-import pretty from 'pretty';
 import { promiseConsecutive } from '@robertakarobin/jsutil';
 
 import { layout, pageStatic, title } from '@robertakarobin/web';
 
 import { resolve, routes } from './routes.ts';
+
+const matchExtension = /\.\w+$/;
+const trimFile = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
 
 const baseDir = path.join(path.dirname(fileURLToPath(import.meta.url)));
 const distDir = path.join(baseDir, `dist`);
@@ -16,8 +18,13 @@ const distDir = path.join(baseDir, `dist`);
 fs.rmSync(distDir, { force: true, recursive: true });
 fs.mkdirSync(distDir);
 
-const cleanCss = new CleanCSS({ format: `beautify` });
-const styles = cleanCss.minify((await import(`./styles.css.ts`)).default).styles;
+const styles = jsBeautify.css(
+	trimFile((await import(`./styles.css.ts`)).default),
+	{
+		end_with_newline: true, // TODO2: Once we're using editorconfig, use the `--editorconfig` option
+		indent_with_tabs: true,
+	}
+);
 fs.writeFileSync(path.join(distDir, `styles.css`), styles);
 
 const vendorFile = `/web.js`;
@@ -52,9 +59,10 @@ const dynamicResolvers: Array<DynamicResolver> = [];
 await promiseConsecutive(
 	Object.keys(routes).map(routeName => async() => {
 		const routePath = routes[routeName as keyof typeof routes];
-		const outName = routePath === `/` ? `index` : routePath;
-		const outDir = path.join(distDir, path.dirname(routePath));
-		const outHtml = path.join(outDir, `${outName}.html`);
+		const hasExtension = matchExtension.test(routePath);
+		const outName = hasExtension ? routePath : `${routePath}/index`;
+		const outDir = path.join(distDir, path.dirname(outName));
+		const outHtml = path.join(outDir, hasExtension ? outName : `${outName}.html`);
 
 		const contents = await resolve(routePath);
 		const template = await layout.last({
@@ -62,7 +70,10 @@ await promiseConsecutive(
 			routePath,
 			title: title.last,
 		});
-		const compiled = pretty(template, { ocd: true });
+		const compiled = jsBeautify.html(trimFile(template), {
+			end_with_newline: true, // TODO2: Once we're using editorconfig, use the `--editorconfig` option
+			indent_with_tabs: true,
+		});
 		fs.mkdirSync(outDir, { recursive: true });
 		fs.writeFileSync(outHtml, compiled);
 
@@ -111,15 +122,17 @@ const pageResolver: esbuild.Plugin = {
 buildOptions.plugins = [pageResolver];
 await esbuild.build(buildOptions);
 
-const port = 3000;
-void retryPort();
-async function retryPort() {
-	(await esbuild.context({})).serve({
-		port,
-		servedir: distDir,
-	}).then(() => {
-		console.log(`Serving at http://localhost:${port}`);
-	}).catch(() => {
-		void retryPort();
-	});
+if (process.argv.includes(`--serve`)) {
+	const port = 3000;
+	void retryPort();
+	async function retryPort() {
+		(await esbuild.context({})).serve({
+			port,
+			servedir: distDir,
+		}).then(() => {
+			console.log(`Serving at http://localhost:${port}`);
+		}).catch(() => {
+			void retryPort();
+		});
+	}
 }

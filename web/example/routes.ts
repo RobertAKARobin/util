@@ -4,7 +4,7 @@ import { layout, link, routerContext, title } from '@robertakarobin/web';
 export { link }; // So we can import link along with routes, since they're usually used together
 
 export const routes = {
-	error404: `/404`,
+	error404: `/404.html`,
 	home: `/`,
 } as const satisfies Type.Routes;
 

@@ -23,7 +23,7 @@ export const link = ({ href, content, ...rest }: {
 	return `
 		<a
 			href="${href}"
-			${isAbsolute || routerContext === `browser` ? `onclick="${bind(routeTo, href)}"` : ``}
+			${isAbsolute || routerContext === `browser` ? `onclick=${bind(routeTo, href)}` : ``}
 			target="${isAbsolute ? `_blank` : `_self`}"
 			${toAttributes(rest)}
 			>

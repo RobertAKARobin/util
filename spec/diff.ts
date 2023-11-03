@@ -18,7 +18,7 @@ export const diff = (
 
 		// Using cyan and magenta for added/removed so that it doesn't conflict with the typical passed/failed colors
 		return line.added
-			? `\x1b[46m${result}\x1b[0m`
-			: `\x1b[45m${result}\x1b[0m`;
+			? `\x1b[45m${result}\x1b[0m`
+			: `\x1b[46m${result}\x1b[0m`;
 	}).join(``);
 };
