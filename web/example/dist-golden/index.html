@@ -3,6 +3,7 @@
 
 <head>
 	<title>Home page</title>
+	<base href="/" />
 	<script src="/web.js" type="module"></script>
 	<script src="/script.js" type="module"></script>
 	<link rel="stylesheet" href="/styles.css" />
@@ -11,8 +12,17 @@
 <body>
 	<div class="view" id="output">
 		<h1>Hello world!</h1>
-		<p> <a href="/404.html" target="_self"> Oh no </a> </p>
 	</div>
+	<nav>
+		<ul>
+			<li> <a href="/404.html" target="_self"> Go /404.html </a> </li>
+			<li> <a href="/" target="_self"> Go / </a> </li>
+			<li> <a href="test/t0/bundle/fallback" target="_self"> Go test/t0/bundle/fallback </a> </li>
+			<li> <a href="test/t1/bundle" target="_self"> Go test/t1/bundle </a> </li>
+			<li> <a href="test/t2/dynamic/fallback" target="_self"> Go test/t2/dynamic/fallback </a> </li>
+			<li> <a href="test/t3/dynamic" target="_self"> Go test/t3/dynamic </a> </li>
+		</ul>
+	</nav>
 </body>
 
 </html>

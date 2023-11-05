@@ -5,9 +5,10 @@ import jsBeautify from 'js-beautify';
 import path from 'path';
 import { promiseConsecutive } from '@robertakarobin/jsutil';
 
-import { layout, pageStatic, title } from '@robertakarobin/web';
+import { pageStatic } from '@robertakarobin/web';
 
-import { resolve, routes } from './routes.ts';
+import resolve from './routes-static.ts';
+import { routes } from './routes.ts';
 
 const matchExtension = /\.\w+$/;
 const trimFile = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
@@ -58,7 +59,7 @@ const dynamicResolvers: Array<DynamicResolver> = [];
 
 await promiseConsecutive(
 	Object.keys(routes).map(routeName => async() => {
-		const routePath = routes[routeName as keyof typeof routes];
+		const routePath = routes[routeName];
 		const hasExtension = matchExtension.test(routePath);
 		const outPath = hasExtension
 			? routePath
@@ -68,12 +69,7 @@ await promiseConsecutive(
 		const outDir = path.join(distDir, path.dirname(outPath));
 		const outPathAbsolute = path.join(outDir, path.basename(outPath));
 
-		const contents = await resolve(routePath);
-		const template = await layout.last({
-			contents,
-			routePath,
-			title: title.last,
-		});
+		const template = await resolve(routePath);
 		const compiled = jsBeautify.html(trimFile(template), {
 			end_with_newline: true, // TODO2: Once we're using editorconfig, use the `--editorconfig` option
 			indent_with_tabs: true,

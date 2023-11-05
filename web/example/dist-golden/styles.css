@@ -15,8 +15,8 @@
 }
 
 :root {
-	--fontBase_family: Georgia, serif;
-	--fontBase_size: 16;
+	--fontBase_family: monospace;
+	--fontBase_size: 24;
 	font-family: var(--fontBase_family);
 	font-size: calc(var(--fontBase_size) * 1px);
 }

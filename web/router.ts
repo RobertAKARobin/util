@@ -16,7 +16,7 @@ class Router__Browser extends Emitter<string> { // Naming it this way in case we
 		super();
 
 		if (routerContext === `browser`) {
-			window.onpopstate = window.onload = this.onChange.bind(this);
+			window.onpopstate = this.onChange.bind(this);
 		}
 	}
 
@@ -30,12 +30,4 @@ class Router__Browser extends Emitter<string> { // Naming it this way in case we
 
 export const router = new Router__Browser();
 
-export const layout = new Emitter<Type.PageLayout>();
-
 export const title = new Emitter<string>();
-
-if (routerContext === `browser`) {
-	title.subscribe(title => {
-		document.title = title;
-	});
-}

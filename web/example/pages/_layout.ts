@@ -1,10 +1,13 @@
-import type * as Type from '@robertakarobin/web';
+import { link } from '@robertakarobin/web';
 
-const baseLayout: Type.PageLayout = input => `
+import { routes } from '../routes.ts';
+
+export default (title: string, contents: string) => `
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>${input.title}</title>
+		<title>${title}</title>
+		<base href="/" />
 		<script src="/web.js" type="module"></script>
 		<script src="/script.js" type="module"></script>
 		<link rel="stylesheet" href="/styles.css" />
@@ -13,9 +16,20 @@ const baseLayout: Type.PageLayout = input => `
 		<div
 			class="view"
 			id="output"
-		>${input.contents}</div>
+		>${contents}</div>
+
+		<nav>
+			<ul>
+			${Object.keys(routes).map(route =>
+				`<li>
+					${link({
+						content: `Go ${routes[route]}`,
+						href: routes[route],
+					})}
+				</li>`
+			).join(``)}
+			</ul>
+		</nav>
 	</body>
 </html>
 `;
-
-export default baseLayout;

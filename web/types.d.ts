@@ -16,13 +16,7 @@ export type PageArgs<
 	title?: string;
 };
 
-export type PageLayout = Template<[input: {
-	contents: string;
-	routePath: RoutePath;
-	title: string;
-}]>;
-
-export type Routes = Record<string, RoutePath>;
+export type Routes = Record<string, string>;
 
 export type RoutePath = string | RoutePathFunction;
 
