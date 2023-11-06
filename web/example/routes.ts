@@ -1,18 +1,17 @@
-import type * as Type from '@robertakarobin/web/types.d.ts';
-import { link } from '@robertakarobin/web';
+import { link, normalizeRoutes } from '@robertakarobin/web';
 
 export { link }; // So we can import link along with routes, since they're usually used together
 
-export const routes = {
+export const routes = normalizeRoutes({
 	bundled: `/bundled`,
 	bundledFallback: `/bundled-fallback`,
 	error404: `/404.html`,
 	home: `/`,
 	split: `/split`,
 	splitFallback: `/split-fallback`,
-} as const satisfies Type.Routes;
+});
 
-export const resolve = async(path: Type.RoutePath) => {
+export const resolve = async(path: string) => {
 	switch (path) {
 		case routes.bundled:
 			return (await import(`./pages/bundled.ts`)).default();

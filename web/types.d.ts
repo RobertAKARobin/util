@@ -17,7 +17,9 @@ export type PageArgs<
 	title?: string;
 };
 
-export type Routes = Record<string, string>;
+export interface Routes {
+	[key: string]: string | Routes;
+}
 
 export type RoutePath = string | RoutePathFunction;
 

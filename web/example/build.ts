@@ -5,12 +5,11 @@ import jsBeautify from 'js-beautify';
 import path from 'path';
 import { promiseConsecutive } from '@robertakarobin/jsutil';
 
-import { pageTemplatePath } from '@robertakarobin/web';
+import { matchExtension, pageTemplatePath } from '@robertakarobin/web';
 
-import resolve from './routes-static.ts';
+import { resolveStatic } from './routes-static.ts';
 import { routes } from './routes.ts';
 
-const matchExtension = /\.\w+$/;
 const trimFile = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
 
 const baseDir = path.join(path.dirname(fileURLToPath(import.meta.url)));
@@ -65,13 +64,16 @@ await promiseConsecutive(
 		const outDir = path.join(distDir, path.dirname(outPath));
 		const outPathAbsolute = path.join(outDir, path.basename(outPath));
 
-		const template = await resolve(routePath);
-		const compiled = jsBeautify.html(trimFile(template), {
-			end_with_newline: true, // TODO2: Once we're using editorconfig, use the `--editorconfig` option
-			indent_with_tabs: true,
-		});
-		fs.mkdirSync(outDir, { recursive: true });
-		fs.writeFileSync(outPathAbsolute, compiled);
+		const fallbackTemplate = await resolveStatic(routePath);
+		const doFallback = !!(fallbackTemplate);
+		if (doFallback) {
+			const compiled = jsBeautify.html(trimFile(fallbackTemplate), {
+				end_with_newline: true, // TODO2: Once we're using editorconfig, use the `--editorconfig` option
+				indent_with_tabs: true,
+			});
+			fs.mkdirSync(outDir, { recursive: true });
+			fs.writeFileSync(outPathAbsolute, compiled);
+		}
 
 		const templatePath = pageTemplatePath.last;
 		const doSplitPage = !!(templatePath);
