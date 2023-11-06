@@ -14,7 +14,7 @@ export const component = <Template extends Type.Template>(
 			&& input.style
 			&& !StyleCache.has(template)
 		) {
-			const $style = document.createElement(`style`); // TODO1: Scoped styles!
+			const $style = document.createElement(`style`);
 			$style.textContent = input.style;
 			document.head.appendChild($style);
 			StyleCache.set(template, $style);
