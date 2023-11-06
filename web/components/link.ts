@@ -1,5 +1,4 @@
-import { router, routerContext } from '../index.ts';
-import { bind } from '../plugins/bind.ts';
+import { bind, router } from '../index.ts';
 
 import { toAttributes } from './toAttributes.ts';
 
@@ -24,7 +23,7 @@ export const link = ({ href, content, ...rest }: {
 	return `
 		<a
 			href="${href}"
-			${(routerContext === `browser` && !isAbsolute) ? `onclick=${bind(routeTo, href)}` : ``}
+			onclick=${bind(routeTo, href)}
 			target="${isAbsolute ? `_blank` : `_self`}"
 			${toAttributes(rest)}
 			>
