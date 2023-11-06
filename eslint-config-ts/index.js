@@ -70,6 +70,7 @@ module.exports = {
 				"@typescript-eslint/no-unused-vars": [`warn`, {
 					argsIgnorePattern: `^_`,
 				}],
+				"@typescript-eslint/object-curly-spacing": [`error`, `always`],
 				"@typescript-eslint/semi": [`error`, `always`],
 				"@typescript-eslint/space-before-function-paren": [`error`, `never`],
 				"@typescript-eslint/unbound-method": [`warn`, {

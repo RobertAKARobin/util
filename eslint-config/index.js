@@ -2,6 +2,7 @@
 // TODO3: Stylelistic rules are deprecated. Migrate to Prettier when it's less of a PITA: https://typescript-eslint.io/rules/comma-dangle/
 // TODO3: Rule for requiring parens around ternaries
 // TODO3: Enforce single (double?) quotes on object properties
+// TODO2: Move to eslint-stylistic: https://eslint.style/guide/migration#when-should-i-migrate
 module.exports = {
 	ignorePatterns: [
 		`**/dist/*`,
