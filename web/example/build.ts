@@ -5,7 +5,7 @@ import jsBeautify from 'js-beautify';
 import path from 'path';
 import { promiseConsecutive } from '@robertakarobin/jsutil';
 
-import { pageStatic } from '@robertakarobin/web';
+import { pageTemplatePath } from '@robertakarobin/web';
 
 import resolve from './routes-static.ts';
 import { routes } from './routes.ts';
@@ -52,20 +52,16 @@ const buildOptions: esbuild.BuildOptions = {
 	outdir: distDir,
 };
 
-type DynamicResolver = (
-	args: esbuild.OnResolveArgs
-) => void | Partial<esbuild.ResolveResult>;
-const dynamicResolvers: Array<DynamicResolver> = [];
+const splitPageRoutesByFilePaths: Record<string, string> = {};
 
 await promiseConsecutive(
 	Object.keys(routes).map(routeName => async() => {
-		const routePath = routes[routeName];
+		const routePath = routes[routeName as keyof typeof routes];
 		const hasExtension = matchExtension.test(routePath);
-		const outPath = hasExtension
-			? routePath
-			: routePath.endsWith(`/`)
-				? `${routePath}index.html`
-				: `${routePath}/index.html`;
+		let outPath = path.join(`/`, routePath);
+		if (!hasExtension) {
+			outPath = path.join(outPath, `index.html`);
+		}
 		const outDir = path.join(distDir, path.dirname(outPath));
 		const outPathAbsolute = path.join(outDir, path.basename(outPath));
 
@@ -77,29 +73,16 @@ await promiseConsecutive(
 		fs.mkdirSync(outDir, { recursive: true });
 		fs.writeFileSync(outPathAbsolute, compiled);
 
-		const sourcePath = pageStatic.last;
-		if (!sourcePath) {
-			return;
+		const templatePath = pageTemplatePath.last;
+		const doSplitPage = !!(templatePath);
+		if (doSplitPage) {
+			const filePath = fileURLToPath(templatePath);
+			(buildOptions.entryPoints! as Array<{ in: string; out: string; }>).push({
+				in: filePath,
+				out: outPathAbsolute,
+			});
+			splitPageRoutesByFilePaths[filePath] = outPath;
 		}
-
-		const filePath = fileURLToPath(sourcePath);
-		(buildOptions.entryPoints! as Array<{ in: string; out: string; }>).push({
-			in: filePath,
-			out: outPathAbsolute,
-		});
-		dynamicResolvers.push(args => {
-			const importPath = path.join(baseDir, args.path);
-			const pathDifference = path.relative(filePath, importPath);
-			if (!pathDifference) {
-				return {
-					external: true,
-					path: outPath.startsWith(`/`)
-						? `${outPath}.js`
-						: `/${outPath}.js`,
-				};
-			}
-			return;
-		});
 	})
 );
 
@@ -110,13 +93,18 @@ const pageResolver: esbuild.Plugin = {
 			if (args.kind !== `dynamic-import`) {
 				return null;
 			}
-			for (const dynamicResolver of dynamicResolvers) {
-				const match = dynamicResolver(args);
-				if (match) {
-					return match;
-				}
+			const importPath = path.join(baseDir, args.path);
+			const splitPageRoute = splitPageRoutesByFilePaths[importPath];
+			const doSplitPage = !!(splitPageRoute);
+			if (doSplitPage) {
+				return {
+					external: true,
+					path: splitPageRoute.startsWith(`/`)
+						? `${splitPageRoute}.js`
+						: `/${splitPageRoute}.js`,
+				};
 			}
-		 });
+		});
 	},
 };
 

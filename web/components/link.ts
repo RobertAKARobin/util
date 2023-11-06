@@ -15,6 +15,7 @@ const routeTo = (event: MouseEvent, path: string) => {
 
 const absoluteUrl = /^\w+\:\/\//;
 
+// I thought about making `link` accept just the route's name, but that starts getting complicated if the route is a function with parameters
 export const link = ({ href, content, ...rest }: {
 	content: string;
 	href: string;

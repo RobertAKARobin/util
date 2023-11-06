@@ -12,6 +12,7 @@ export type Function = (...args: Args) => any; // eslint-disable-line @typescrip
 export type PageArgs<
 	TemplateFunction extends Template
 > = ComponentArgs<TemplateFunction> & {
+	/** By default, ESBuild bundles all code into one file, including dynamic imports. If this parameter is specified, and this page is loaded by dynamic import, ESBuild will "split" the page's code from the rest of the bundle into a file named `{pathName}.html.js` and update the dynamic import to point to that file. */
 	importMetaUrl?: string;
 	title?: string;
 };

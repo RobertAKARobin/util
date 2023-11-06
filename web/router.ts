@@ -28,6 +28,8 @@ class Router__Browser extends Emitter<string> { // Naming it this way in case we
 	}
 }
 
+// TODO1: Add resolver
+
 export const router = new Router__Browser();
 
 export const title = new Emitter<string>();

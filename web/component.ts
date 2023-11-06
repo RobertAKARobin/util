@@ -5,10 +5,10 @@ const StyleCache = new WeakMap<Type.Template, HTMLStyleElement>();
 
 export const component = <Template extends Type.Template>(
 	input: Type.ComponentArgs<Template>
-) => {
+): Template => {
 	const template = (input.template || (() => ``));
 
-	return (...args: Parameters<Template>) => {
+	return ((...args: Parameters<Template>) => {
 		if (
 			routerContext === `browser`
 			&& input.style
@@ -21,5 +21,5 @@ export const component = <Template extends Type.Template>(
 		}
 
 		return template(...args);
-	};
+	}) as Template;
 };

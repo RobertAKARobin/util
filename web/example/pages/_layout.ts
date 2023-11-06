@@ -1,6 +1,4 @@
-import { link } from '@robertakarobin/web';
-
-import { routes } from '../routes.ts';
+import nav from '../components/nav.ts';
 
 export default (title: string, contents: string) => `
 <!DOCTYPE html>
@@ -19,16 +17,7 @@ export default (title: string, contents: string) => `
 		>${contents}</div>
 
 		<nav>
-			<ul>
-			${Object.keys(routes).map(route =>
-				`<li>
-					${link({
-						content: `Go ${routes[route]}`,
-						href: routes[route],
-					})}
-				</li>`
-			).join(``)}
-			</ul>
+			${nav()}
 		</nav>
 	</body>
 </html>
