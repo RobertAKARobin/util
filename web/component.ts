@@ -16,7 +16,7 @@ if (routerContext === `browser`) {
 	(window as unknown as WindowWithCache)[windowCacheProperty] = functionsByKey;
 }
 
-let cacheSize = 1;
+let cacheSize = 0;
 export const bind = <
 	DispatchedEvent extends Event,
 	Args extends Array<string> = Array<string>
@@ -27,8 +27,8 @@ export const bind = <
 
 	let cachedFunctionKey = keysByFunction.get(input);
 	if (!cachedFunctionKey) {
-		cachedFunctionKey = `f${cacheSize}`;
 		cacheSize += 1;
+		cachedFunctionKey = `f${cacheSize}`;
 		functionsByKey.set(cachedFunctionKey, input);
 		keysByFunction.set(input, cachedFunctionKey);
 	}
@@ -38,10 +38,37 @@ export const bind = <
 };
 
 const styleCache = new Map<Type.Template, HTMLStyleElement>(); // This is a Map instead of a WeakMap because we don't want <style> elements to be garbage collected; once a style is applied to a page it is permanent
+
+let componentsSize = 0;
+const componentAttribute = `data-component`;
+
+const onload = (event: Event) => {
+	const $anchor = event.target as HTMLElement;
+	const componentId = $anchor.getAttribute(componentAttribute);
+	const $parent = $anchor.nextElementSibling;
+	$parent!.setAttribute(componentAttribute, componentId!);
+	$anchor.remove();
+};
+
+const componentWrapper = (contents: string) => {
+	const componentId = componentsSize;
+	componentsSize += 1;
+	return `
+	<img
+		aria-hidden="true"
+		${componentAttribute}="${componentId}"
+		style="display:none"
+		src=""
+		onerror=${bind(onload)}
+		/>
+	${contents}
+	`;
+};
+
 export const component = <Template extends Type.Template>(
 	input: Type.ComponentArgs<Template>
 ): Template => {
-	const template = (input.template || (() => ``));
+	const template = input.template;
 
 	return ((...args: Parameters<Template>) => {
 		if (
@@ -55,6 +82,15 @@ export const component = <Template extends Type.Template>(
 			styleCache.set(template, $style);
 		}
 
-		return template(...args);
+		const rendered = template(...args);
+		if (routerContext !== `browser`) {
+			return rendered;
+		}
+
+		if (rendered instanceof Promise) {
+			return rendered.then(html => componentWrapper(html));
+		}
+		return componentWrapper(rendered);
+
 	}) as Template;
 };

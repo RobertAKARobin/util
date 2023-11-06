@@ -4,7 +4,7 @@ export type Args = Array<any>; // eslint-disable-line @typescript-eslint/no-expl
 
 export type ComponentArgs<TemplateFunction extends Template> = {
 	style?: string;
-	template?: TemplateFunction;
+	template: TemplateFunction;
 };
 
 export type Function = (...args: Args) => any; // eslint-disable-line @typescript-eslint/no-explicit-any
