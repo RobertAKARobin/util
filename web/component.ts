@@ -8,12 +8,15 @@ type CachedFunction<
 
 type FunctionCache = WeakMap<HTMLElement, CachedFunction<any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-const cacheKey = `fn` as const;
+const windowCacheProperty = `fn` as const;
 const functionCache: FunctionCache = new WeakMap();
 if (routerContext === `browser`) {
-	type WindowWithCache = Window & { [key in typeof cacheKey]: FunctionCache; };
-	(window as unknown as WindowWithCache)[cacheKey] = functionCache;
+	type WindowWithCache = Window & {
+		[key in typeof windowCacheProperty]: FunctionCache;
+	};
+	(window as unknown as WindowWithCache)[windowCacheProperty] = functionCache;
 }
+
 export const bind = <
 	DispatchedEvent extends Event,
 	Args extends Array<string>
@@ -23,10 +26,10 @@ export const bind = <
 	}
 
 	const argsString = args.map(arg => `'${arg}'`).join(``);
-	return `"${cacheKey}.get(this).call(this, event, ${argsString})"`;
+	return `"${windowCacheProperty}.get(this).call(this, event, ${argsString})"`;
 };
 
-const styleCache = new WeakMap<Type.Template, HTMLStyleElement>();
+const styleCache = new Map<Type.Template, HTMLStyleElement>(); // This is a Map instead of a WeakMap because we don't want <style> elements to be garbage collected; once a style is applied to a page it is permanent
 export const component = <Template extends Type.Template>(
 	input: Type.ComponentArgs<Template>
 ): Template => {
