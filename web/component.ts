@@ -3,30 +3,38 @@ import { routerContext } from './router.ts';
 
 type CachedFunction<
 	DispatchedEvent extends Event = Event,
-	Args extends Array<string> = Array<string>
+	Args extends Array<string> = any // eslint-disable-line @typescript-eslint/no-explicit-any
 > = (event: DispatchedEvent, ...args: Args) => void;
 
-type FunctionCache = WeakMap<HTMLElement, CachedFunction<any>>; // eslint-disable-line @typescript-eslint/no-explicit-any
-
 const windowCacheProperty = `fn` as const;
-const functionCache: FunctionCache = new WeakMap();
+const functionsByKey = new Map<string, CachedFunction<any>>(); // eslint-disable-line @typescript-eslint/no-explicit-any
+const keysByFunction = new Map<CachedFunction<any>, string>(); // eslint-disable-line @typescript-eslint/no-explicit-any
 if (routerContext === `browser`) {
 	type WindowWithCache = Window & {
-		[key in typeof windowCacheProperty]: FunctionCache;
+		[key in typeof windowCacheProperty]: typeof functionsByKey;
 	};
-	(window as unknown as WindowWithCache)[windowCacheProperty] = functionCache;
+	(window as unknown as WindowWithCache)[windowCacheProperty] = functionsByKey;
 }
 
+let cacheSize = 1;
 export const bind = <
 	DispatchedEvent extends Event,
-	Args extends Array<string>
+	Args extends Array<string> = Array<string>
 >(input: CachedFunction<DispatchedEvent, Args>, ...args: Args): string => {
 	if (routerContext !== `browser`) {
 		return `""`;
 	}
 
+	let cachedFunctionKey = keysByFunction.get(input);
+	if (!cachedFunctionKey) {
+		cachedFunctionKey = `f${cacheSize}`;
+		cacheSize += 1;
+		functionsByKey.set(cachedFunctionKey, input);
+		keysByFunction.set(input, cachedFunctionKey);
+	}
+
 	const argsString = args.map(arg => `'${arg}'`).join(``);
-	return `"${windowCacheProperty}.get(this).call(this, event, ${argsString})"`;
+	return `"${windowCacheProperty}.get('${cachedFunctionKey}').call(this, event, ${argsString})"`;
 };
 
 const styleCache = new Map<Type.Template, HTMLStyleElement>(); // This is a Map instead of a WeakMap because we don't want <style> elements to be garbage collected; once a style is applied to a page it is permanent
