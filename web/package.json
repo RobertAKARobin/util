@@ -8,7 +8,7 @@
 	"devDependencies": {
 		"@robertakarobin/spec": "^0.0.2"
 	},
-	"main": "./dist/index.ts",
+	"main": "./dist/index.js",
 	"name": "@robertakarobin/web",
 	"scripts": {
 		"build": "tsx ./bin/build.ts",
@@ -16,6 +16,5 @@
 		"test": "tsx ./spec/run.ts"
 	},
 	"type": "module",
-	"types": "types.d.ts",
-	"version": "0.0.2"
+	"version": "0.0.3"
 }
