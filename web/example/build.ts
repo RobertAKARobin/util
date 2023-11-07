@@ -4,7 +4,7 @@ import fs from 'fs';
 import jsBeautify from 'js-beautify';
 import path from 'path';
 
-import { Page, type RoutePath } from '@robertakarobin/web/index.ts';
+import { Page, resolver } from '@robertakarobin/web/index.ts';
 import { getBuildOptions } from '@robertakarobin/web/build.ts';
 
 import { resolve, routes } from './routes.ts';
@@ -40,16 +40,16 @@ const formatHtml = (contents: string) => jsBeautify.html(trimFile(contents), {
 	indent_with_tabs: true,
 });
 
-const resolveStatic = async(path: RoutePath) => {
-	const contents = await resolve(path as string);
+const resolveStatic = resolver(routes, async path => {
+	const contents = await resolve(path);
 	if (!contents) {
-		throw new Error(`Template not found for path ${path as string}`);
+		throw new Error(`Template not found for path ${path}`);
 	}
 	if (path === routes.bundled || path === routes.split) {
 		return;
 	}
 	return layout(Page.title.last, contents);
-};
+});
 
 const buildOptions = await getBuildOptions({
 	baseDir,

@@ -2,6 +2,11 @@ import type * as $ from '@robertakarobin/jsutil';
 
 import { routerContext } from './router.ts';
 
+export const toAttributes = (input: Record<string, string>) =>
+	Object.entries(input)
+		.map(([key, value]) => `${key}="${value}"`)
+		.join(` `);
+
 type CachedFunction = (event: Event, ...args: Array<string>) => void;
 
 export abstract class Component {
@@ -114,19 +119,7 @@ export abstract class Component {
 		return Component.wrap(this, rendered) as ReturnType<this[`template`]>;
 	}
 
-	async rerender(
-		...args: Parameters<this[`template`]>
-	): Promise<void> {
-		const $temp = document.createElement(`template`);
-		$temp.innerHTML = await this.template(...args);
-		const $newRoot = $temp.content.firstElementChild as HTMLElement;
-
-		Component.instanceCache.delete(this.$root!);
-		this.$root!.replaceWith($newRoot);
-		this.$root = $newRoot;
-		this.$root.setAttribute(Component.htmlAttribute, this.uid);
-		Component.instanceCache.set($newRoot, this);
-	}
+	// TODO2: rerender
 
 	abstract template(...args: Array<any> | []): string | Promise<string>; // eslint-disable-line @typescript-eslint/no-explicit-any
 }

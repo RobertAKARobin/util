@@ -1,8 +1,6 @@
-import { link, normalizeRoutes } from '@robertakarobin/web/index.ts';
+import { resolver, routeMap } from '@robertakarobin/web/index.ts';
 
-export { link }; // So we can import link along with routes, since they're usually used together
-
-export const routes = normalizeRoutes({
+export const routes = routeMap({
 	bundled: `/bundled`,
 	bundledFallback: `/bundled-fallback`,
 	error404: `/404.html`,
@@ -11,7 +9,7 @@ export const routes = normalizeRoutes({
 	splitFallback: `/split-fallback`,
 });
 
-export const resolve = async(path: string) => {
+export const resolve = resolver(routes, async path => {
 	switch (path) {
 		case routes.bundled:
 			return (await import(`./pages/bundled.ts`)).default();
@@ -26,4 +24,4 @@ export const resolve = async(path: string) => {
 		case routes.splitFallback:
 			return (await import(`./pages/split-fallback.ts`)).default();
 	}
-};
+});

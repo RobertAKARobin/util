@@ -1,13 +1,13 @@
-import { link, routes } from '../routes.ts';
+import route from './route.ts';
+import { routes } from '../routes.ts';
+
+const routeNames = Object.keys(routes) as Array<keyof typeof routes>;
 
 export default () => `
 	<ul>
-	${Object.keys(routes).map(route =>
+	${routeNames.map(routeName =>
 		`<li>
-			${link({
-				content: `Go ${routes[route as keyof typeof routes]}`,
-				href: routes[route as keyof typeof routes],
-			})}
+			${route(routeName, `Go ${routes[routeName]}`)}
 		</li>`
 	).join(``)}
 	</ul>

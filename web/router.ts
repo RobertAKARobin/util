@@ -1,17 +1,17 @@
 import { Emitter } from '@robertakarobin/emit/index.ts';
 
-import type * as Type from './types.d.ts';
-
 export const routerContexts = [
 	`browser`,
 	`build`,
 ] as const;
 
-export const routerContext: Type.RouterContext = typeof window !== `undefined`
+export type RouterContext = typeof routerContexts[number];
+
+export const routerContext: RouterContext = typeof window !== `undefined`
 	? `browser`
 	: `build`;
 
-class Router__Browser extends Emitter<string> { // Naming it this way in case we need different types of routers later on
+export class Router extends Emitter<string> {
 	constructor() {
 		super();
 
@@ -28,15 +28,19 @@ class Router__Browser extends Emitter<string> { // Naming it this way in case we
 	}
 }
 
+export const router = new Router();
+
+export type RouteMap = Record<string, string>;
+
 export const matchExtension = /\.\w+$/;
-export const normalizeRoutes = <
-	Routes extends Type.Routes = Type.Routes
+export const routeMap = <
+	Routes extends RouteMap = RouteMap
 >(input: Routes): Routes => {
-	const output = {} as Type.Routes;
+	const output = {} as RouteMap;
 	for (const key in input) {
 		const route = input[key];
 		if (typeof route === `object`) {
-			output[key] = normalizeRoutes(route);
+			output[key] = routeMap(route);
 		} else if (typeof route === `string`) {
 			let path: string = route;
 			if (!path.endsWith(`/`) && !matchExtension.test(path)) {
@@ -48,4 +52,13 @@ export const normalizeRoutes = <
 	return output as Routes;
 };
 
-export const router = new Router__Browser();
+export type Resolver<
+	Routes extends RouteMap = RouteMap
+> = (path: Routes[keyof Routes]) => string | undefined | Promise<string | undefined>;
+
+export const resolver = <Routes extends RouteMap>(
+	routes: Routes,
+	onRoute: Resolver<Routes>
+) => {
+	return onRoute;
+};

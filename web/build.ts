@@ -4,23 +4,24 @@ import fs from 'fs';
 import path from 'path';
 import { promiseConsecutive } from '@robertakarobin/jsutil';
 
-import type * as Type from './types.d.ts';
-import { matchExtension, Page } from './index.ts';
+import { matchExtension, Page, type Resolver, type RouteMap } from './index.ts';
 
-export async function getBuildOptions(options: {
+export async function getBuildOptions<Routes extends RouteMap>(options: {
 	baseDir: string;
 	distDir: string;
 	formatHtml?: (input: string) => string;
-	resolve: Type.Resolver;
-	routes: Type.Routes;
+	resolve: Resolver<Routes>;
+	routes: Routes;
 }) {
 	const entryPoints: Array<{ in: string; out: string; }> = [];
 
 	const splitPageRoutesByFilePaths: Record<string, string> = {};
 
+	const routeNames = Object.keys(options.routes) as Array<keyof Routes>;
+
 	await promiseConsecutive(
-		Object.keys(options.routes).map(routeName => async() => {
-			const routePath = options.routes[routeName as keyof typeof options.routes] as string;
+		routeNames.map(routeName => async() => {
+			const routePath = options.routes[routeName];
 			const hasExtension = matchExtension.test(routePath);
 			let outPath = path.join(`/`, routePath);
 			if (!hasExtension) {
