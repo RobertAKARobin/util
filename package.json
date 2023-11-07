@@ -15,9 +15,9 @@
 		"@robertakarobin/spec": "file:./spec",
 		"@robertakarobin/web": "file:./web",
 		"@types/clean-css": "^4.2.9",
-		"@types/js-beautify": "^1.14.2",
+		"@types/js-beautify": "^1.14.3",
 		"husky": "^8.0.3",
-		"js-beautify": "^1.14.9",
+		"js-beautify": "^1.14.11",
 		"npm-check-updates": "^16.14.6",
 		"tsx": "^3.14.0"
 	},

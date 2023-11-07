@@ -1,11 +1,11 @@
 {
 	"dependencies": {
-		"eslint": "^8.52.0",
+		"eslint": "^8.53.0",
 		"eslint-plugin-import": "^2.29.0",
 		"eslint-plugin-import-newlines": "^1.3.4",
 		"eslint-plugin-import-quotes": "^0.0.1"
 	},
 	"main": "index.js",
 	"name": "@robertakarobin/eslint-config",
-	"version": "0.0.2"
+	"version": "0.0.3"
 }

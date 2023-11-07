@@ -113,16 +113,14 @@ export function nTimes<Value>(
 	}
 }
 
-export async function promiseConsecutive<Input, Value>(
-	inputs: Array<Input>,
-	callback: (input: Input, index: number, soFar: Array<Value>) => Promise<Value>
+export async function promiseConsecutive<Value>(
+	inputs: Array<(soFar: Array<Value>, index: number) => Promise<Value>>
 ): Promise<Array<Value>> {
 	const out: Array<Value> = [];
+	// TODO3: Use `for await..of` instead?
 	await inputs.reduce(async(previous, input, index) => {
 		await previous;
-		const soFar = [...out];
-		const result = await callback(input, index, soFar);
-		out.push(result);
+		out.push(await input(out, index));
 	}, Promise.resolve());
 	return out;
 }

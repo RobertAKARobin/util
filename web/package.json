@@ -1,12 +1,12 @@
 {
 	"dependencies": {
-		"@robertakarobin/emit": "^0.0.1",
-		"@robertakarobin/jsutil": "^0.0.1",
+		"@robertakarobin/emit": "^0.0.3",
+		"@robertakarobin/jsutil": "^0.0.3",
 		"esbuild": "^0.19.5",
 		"glob": "^10.3.10"
 	},
 	"devDependencies": {
-		"@robertakarobin/spec": "^0.0.2"
+		"@robertakarobin/spec": "^0.0.4"
 	},
 	"main": "./dist/index.js",
 	"name": "@robertakarobin/web",
@@ -16,5 +16,5 @@
 		"test": "tsx ./spec/run.ts"
 	},
 	"type": "module",
-	"version": "0.0.3"
+	"version": "0.0.7"
 }

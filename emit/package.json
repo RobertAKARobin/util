@@ -1,9 +1,9 @@
 {
 	"devDependencies": {
-		"@robertakarobin/spec": "^0.0.2"
+		"@robertakarobin/spec": "^0.0.4"
 	},
 	"main": "index.ts",
 	"name": "@robertakarobin/emit",
 	"type": "module",
-	"version": "0.0.1"
+	"version": "0.0.3"
 }
