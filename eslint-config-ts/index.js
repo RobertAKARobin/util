@@ -62,6 +62,7 @@ module.exports = {
 				}],
 				"@typescript-eslint/no-empty-interface": `off`,
 				"@typescript-eslint/no-explicit-any": `error`,
+				"@typescript-eslint/no-this-alias": `off`,
 				"@typescript-eslint/no-unnecessary-type-assertion": `warn`,
 				"@typescript-eslint/no-unsafe-argument": `warn`,
 				"@typescript-eslint/no-unsafe-assignment": `warn`,
