@@ -1,4 +1,4 @@
-import { Page, router } from '@robertakarobin/web';
+import { Page, router } from '@robertakarobin/web/index.ts';
 
 import error from './pages/error.ts';
 import nav from './components/nav.ts';

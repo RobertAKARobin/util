@@ -1,4 +1,4 @@
-import { Page } from '@robertakarobin/web';
+import { Page } from '@robertakarobin/web/index.ts';
 
 export class BundledPage extends Page {
 	title = `Bundled`;

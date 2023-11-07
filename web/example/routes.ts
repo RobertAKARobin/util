@@ -1,4 +1,4 @@
-import { link, normalizeRoutes } from '@robertakarobin/web';
+import { link, normalizeRoutes } from '@robertakarobin/web/index.ts';
 
 export { link }; // So we can import link along with routes, since they're usually used together
 

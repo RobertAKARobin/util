@@ -1,4 +1,4 @@
-import { Page } from '@robertakarobin/web';
+import { Page } from '@robertakarobin/web/index.ts';
 
 export class BundledFallbackPage extends Page {
 	title = `Bundled fallback`;

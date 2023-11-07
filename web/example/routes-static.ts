@@ -1,4 +1,4 @@
-import { Page } from '@robertakarobin/web';
+import { Page } from '@robertakarobin/web/index.ts';
 
 import { resolve, routes } from './routes.ts';
 import layout from './pages/_layout.ts';

@@ -5,7 +5,7 @@ import jsBeautify from 'js-beautify';
 import path from 'path';
 import { promiseConsecutive } from '@robertakarobin/jsutil';
 
-import { matchExtension, Page } from '@robertakarobin/web';
+import { matchExtension, Page } from '@robertakarobin/web/index.ts';
 
 import { resolveStatic } from './routes-static.ts';
 import { routes } from './routes.ts';
@@ -38,7 +38,7 @@ esbuild.buildSync({
 const buildOptions: esbuild.BuildOptions = {
 	absWorkingDir: distDir,
 	alias: {
-		"@robertakarobin/web": vendorFile,
+		"@robertakarobin/web/index.ts": vendorFile,
 	},
 	bundle: true,
 	entryPoints: [

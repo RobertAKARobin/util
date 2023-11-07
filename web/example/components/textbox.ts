@@ -1,4 +1,4 @@
-import { Component } from '@robertakarobin/web';
+import { Component } from '@robertakarobin/web/index.ts';
 
 export class Textbox extends Component {
 	max = 10;
