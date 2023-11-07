@@ -1,25 +1,32 @@
 import { Component } from '@robertakarobin/web';
 
-const value = ``;
-const max = 10;
-
 export class Textbox extends Component {
-	handleInput(event: Event, name: string) {
-		// value = (event.target as HTMLInputElement).value;
-		console.log(event.target);
+	max = 10;
+	value = ``;
+
+	handleInput(event: Event) {
+		this.value = (event.currentTarget as HTMLInputElement).value;
+		this.$root!.querySelector(`span`)!.innerHTML = this.remaining(); // TODO2: Better rerender
+	}
+
+	remaining() {
+		return `
+		${this.max - this.value.length} / ${this.max} Remaining
+		`;
 	}
 
 	template() {
 		return `
 		<div>
 			<input
-				oninput=${this.bind(`handleInput`, `steve`)}
-				max="${max}"
+				oninput=${this.bind(`handleInput`)}
+				maxlength="${this.max}"
 				placeholder="Type here"
 				type="text"
+				value="${this.value}"
 				/>
 
-			<span>${value.length} / ${max} Remaining</span>
+			<span>${this.remaining()}</span>
 		</div>
 		`;
 	}

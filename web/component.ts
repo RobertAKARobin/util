@@ -1,6 +1,5 @@
 import type * as $ from '@robertakarobin/jsutil';
 
-import type * as Type from './types.d.ts';
 import { routerContext } from './router.ts';
 
 type CachedFunction = (event: Event, ...args: Array<string>) => void;
@@ -50,16 +49,14 @@ export abstract class Component {
 
 	protected static wrap(component: Component, contents: string) {
 		function onload(this: HTMLElement) {
-			const $anchor = this;
-			const componentId = $anchor.getAttribute(Component.htmlAttribute);
-			const $root = $anchor.nextElementSibling as HTMLElement & {
-				component: Component;
-			};
-			$root.setAttribute(Component.htmlAttribute, componentId!);
-			$root.component = component;
-			component.$root = $root;
-			$anchor.remove();
 			Component.onloadCache.delete(component.uid);
+
+			const $anchor = this;
+			const $root = $anchor.nextElementSibling as HTMLElement;
+			$anchor.remove();
+
+			component.$root = $root;
+			$root.setAttribute(Component.htmlAttribute, component.uid);
 			Component.instanceCache.set($root, component);
 		};
 
@@ -117,5 +114,19 @@ export abstract class Component {
 		return Component.wrap(this, rendered) as ReturnType<this[`template`]>;
 	}
 
-	abstract template(...args: Type.Args): string | Promise<string>;
+	async rerender(
+		...args: Parameters<this[`template`]>
+	): Promise<void> {
+		const $temp = document.createElement(`template`);
+		$temp.innerHTML = await this.template(...args);
+		const $newRoot = $temp.content.firstElementChild as HTMLElement;
+
+		Component.instanceCache.delete(this.$root!);
+		this.$root!.replaceWith($newRoot);
+		this.$root = $newRoot;
+		this.$root.setAttribute(Component.htmlAttribute, this.uid);
+		Component.instanceCache.set($newRoot, this);
+	}
+
+	abstract template(...args: Array<any> | []): string | Promise<string>; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
