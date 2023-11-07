@@ -7,9 +7,9 @@ type CachedFunction = (event: Event, ...args: Array<string>) => void;
 
 export abstract class Component {
 	private static componentsSize = 0;
+	private static readonly findRootKey = `$component`;
 	private static readonly htmlAttribute = `data-component`;
 	private static readonly instanceCache = new WeakMap<HTMLElement, Component>();
-	private static readonly instanceCacheKey = `$fn`;
 	private static readonly onloadCache = new Map<string, CachedFunction>();
 	private static readonly onloadCacheKey = `$onload`;
 	/**
@@ -23,10 +23,20 @@ export abstract class Component {
 	static {
 		if (routerContext === `browser`) {
 			Object.assign(window, {
-				[this.instanceCacheKey]: Component.instanceCache,
+				[this.findRootKey]: Component.findRoot,
 				[this.onloadCacheKey]: Component.onloadCache,
 			});
 		}
+	}
+
+	private static findRoot(uid: string, $descendant: HTMLElement) {
+		const $root = $descendant.getAttribute(Component.htmlAttribute) === uid
+			? $descendant
+			: $descendant.closest(`[${Component.htmlAttribute}="${uid}"]`);
+		if (!$root) {
+			return;
+		}
+		return Component.instanceCache.get($root as HTMLElement);
 	}
 
 	static toFunction<
@@ -83,7 +93,7 @@ export abstract class Component {
 			return `""`;
 		}
 		const argsString = args.map(arg => `'${arg}'`).join(``);
-		return `"${Component.instanceCacheKey}.get(this).${methodName as string}(event, ${argsString})"`;
+		return `"${Component.findRootKey}('${this.uid}', this).${methodName as string}(event, ${argsString})"`;
 	}
 
 	render(

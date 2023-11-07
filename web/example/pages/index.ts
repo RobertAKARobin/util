@@ -1,6 +1,6 @@
 import { Page } from '@robertakarobin/web';
 
-// import textbox from '../components/textbox.ts';
+import textbox from '../components/textbox.ts';
 
 export class IndexPage extends Page {
 	importMetaUrl = import.meta.url;
@@ -16,6 +16,10 @@ export class IndexPage extends Page {
 	template() {
 		return `
 		<h1>Hello world!</h1>
+
+		${textbox()}
+
+		${textbox()}
 		`;
 	}
 }

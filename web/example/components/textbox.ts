@@ -11,7 +11,7 @@ export class Textbox extends Component {
 
 	template() {
 		return `
-		<label>
+		<div>
 			<input
 				oninput=${this.bind(`handleInput`, `steve`)}
 				max="${max}"
@@ -20,7 +20,7 @@ export class Textbox extends Component {
 				/>
 
 			<span>${value.length} / ${max} Remaining</span>
-		</label>
+		</div>
 		`;
 	}
 }
