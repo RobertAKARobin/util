@@ -17,6 +17,8 @@ export type PageArgs<
 	title?: string;
 };
 
+export type Resolver = (input: RoutePath) => string | undefined | Promise<string | undefined>;
+
 export interface Routes {
 	[key: string]: string | Routes;
 }

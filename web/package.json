@@ -11,7 +11,7 @@
 	"main": "./dist/index.ts",
 	"name": "@robertakarobin/web",
 	"scripts": {
-		"build": "tsx ./build.ts",
+		"build": "tsx ./bin/build.ts",
 		"prepublishOnly": "npm run build",
 		"test": "tsx ./spec/run.ts"
 	},

@@ -3,12 +3,12 @@ import { fileURLToPath } from 'url';
 import fs from 'fs';
 import jsBeautify from 'js-beautify';
 import path from 'path';
-import { promiseConsecutive } from '@robertakarobin/jsutil';
 
-import { matchExtension, Page } from '@robertakarobin/web/index.ts';
+import { Page, type RoutePath } from '@robertakarobin/web/index.ts';
+import { getBuildOptions } from '@robertakarobin/web/build.ts';
 
-import { resolveStatic } from './routes-static.ts';
-import { routes } from './routes.ts';
+import { resolve, routes } from './routes.ts';
+import layout from './pages/_layout.ts';
 
 const trimFile = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
 
@@ -35,7 +35,31 @@ esbuild.buildSync({
 	outfile: path.join(distDir, vendorFile),
 });
 
-const buildOptions: esbuild.BuildOptions = {
+const formatHtml = (contents: string) => jsBeautify.html(trimFile(contents), {
+	end_with_newline: true, // TODO2: Once we're using editorconfig, use the `--editorconfig` option
+	indent_with_tabs: true,
+});
+
+const resolveStatic = async(path: RoutePath) => {
+	const contents = await resolve(path as string);
+	if (!contents) {
+		throw new Error(`Template not found for path ${path as string}`);
+	}
+	if (path === routes.bundled || path === routes.split) {
+		return;
+	}
+	return layout(Page.title.last, contents);
+};
+
+const buildOptions = await getBuildOptions({
+	baseDir,
+	distDir,
+	formatHtml,
+	resolve: resolveStatic,
+	routes,
+});
+
+await esbuild.build({
 	absWorkingDir: distDir,
 	alias: {
 		"@robertakarobin/web/index.ts": vendorFile,
@@ -43,75 +67,17 @@ const buildOptions: esbuild.BuildOptions = {
 	bundle: true,
 	entryPoints: [
 		{ in: path.join(baseDir, `./script.ts`), out: `script` },
+		...buildOptions.entryPoints,
 	],
 	external: [
 		vendorFile,
 	],
 	format: `esm`,
 	outdir: distDir,
-};
-
-const splitPageRoutesByFilePaths: Record<string, string> = {};
-
-await promiseConsecutive(
-	Object.keys(routes).map(routeName => async() => {
-		const routePath = routes[routeName as keyof typeof routes];
-		const hasExtension = matchExtension.test(routePath);
-		let outPath = path.join(`/`, routePath);
-		if (!hasExtension) {
-			outPath = path.join(outPath, `index.html`);
-		}
-		const outDir = path.join(distDir, path.dirname(outPath));
-		const outPathAbsolute = path.join(outDir, path.basename(outPath));
-
-		const fallbackTemplate = await resolveStatic(routePath);
-		const doFallback = !!(fallbackTemplate);
-		if (doFallback) {
-			const compiled = jsBeautify.html(trimFile(fallbackTemplate), {
-				end_with_newline: true, // TODO2: Once we're using editorconfig, use the `--editorconfig` option
-				indent_with_tabs: true,
-			});
-			fs.mkdirSync(outDir, { recursive: true });
-			fs.writeFileSync(outPathAbsolute, compiled);
-		}
-
-		const templatePath = Page.templatePath.last;
-		const doSplitPage = !!(templatePath);
-		if (doSplitPage) {
-			const filePath = fileURLToPath(templatePath);
-			(buildOptions.entryPoints! as Array<{ in: string; out: string; }>).push({
-				in: filePath,
-				out: outPathAbsolute,
-			});
-			splitPageRoutesByFilePaths[filePath] = outPath;
-		}
-	})
-);
-
-const pageResolver: esbuild.Plugin = {
-	name: `Page dynamic import resolver`,
-	setup(build) {
-		build.onResolve({ filter: /^\.\.?\/.*/ }, args => {
-			if (args.kind !== `dynamic-import`) {
-				return null;
-			}
-			const importPath = path.join(baseDir, args.path);
-			const splitPageRoute = splitPageRoutesByFilePaths[importPath];
-			const doSplitPage = !!(splitPageRoute);
-			if (doSplitPage) {
-				return {
-					external: true,
-					path: splitPageRoute.startsWith(`/`)
-						? `${splitPageRoute}.js`
-						: `/${splitPageRoute}.js`,
-				};
-			}
-		});
-	},
-};
-
-buildOptions.plugins = [pageResolver];
-await esbuild.build(buildOptions);
+	plugins: [
+		...buildOptions.plugins,
+	],
+});
 
 if (process.argv.includes(`--serve`)) {
 	const port = 3000;

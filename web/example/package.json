@@ -1,6 +1,6 @@
 {
 	"devDependencies": {
-		"@robertakarobin/web": "^0.0.2"
+		"@robertakarobin/web": "file:../"
 	},
 	"type": "module"
 }
