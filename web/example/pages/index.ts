@@ -1,24 +1,23 @@
-import { page } from '@robertakarobin/web';
+import { Page } from '@robertakarobin/web';
 
-import textbox from '../components/textbox.ts';
+// import textbox from '../components/textbox.ts';
 
-export const style = `
-h1 {
-	color: red;
+export class IndexPage extends Page {
+	importMetaUrl = import.meta.url;
+
+	style = `
+	h1 {
+		color: red;
+	}
+	`;
+
+	title = `Home page`;
+
+	template() {
+		return `
+		<h1>Hello world!</h1>
+		`;
+	}
 }
-`;
 
-export const template = () => `
-<h1>Hello world!</h1>
-
-${textbox()}
-
-${textbox()}
-`;
-
-export default page({
-	importMetaUrl: import.meta.url,
-	style,
-	template,
-	title: `Home page`,
-});
+export default Page.toFunction(IndexPage);

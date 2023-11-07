@@ -5,7 +5,7 @@ import jsBeautify from 'js-beautify';
 import path from 'path';
 import { promiseConsecutive } from '@robertakarobin/jsutil';
 
-import { matchExtension, pageTemplatePath } from '@robertakarobin/web';
+import { matchExtension, Page } from '@robertakarobin/web';
 
 import { resolveStatic } from './routes-static.ts';
 import { routes } from './routes.ts';
@@ -75,7 +75,7 @@ await promiseConsecutive(
 			fs.writeFileSync(outPathAbsolute, compiled);
 		}
 
-		const templatePath = pageTemplatePath.last;
+		const templatePath = Page.templatePath.last;
 		const doSplitPage = !!(templatePath);
 		if (doSplitPage) {
 			const filePath = fileURLToPath(templatePath);

@@ -1,25 +1,28 @@
-import { bind, component } from '@robertakarobin/web';
+import { Component } from '@robertakarobin/web';
 
-let value = ``;
+const value = ``;
 const max = 10;
-const handleInput = (event: InputEvent) => {
-	value = (event.target as HTMLInputElement).value;
-	console.log(value);
-};
 
-const template = () => `
-<label>
-	<input
-		oninput=${bind(handleInput)}
-		max="${max}"
-		placeholder="Type here"
-		type="text"
-		/>
+export class Textbox extends Component {
+	handleInput(event: Event, name: string) {
+		// value = (event.target as HTMLInputElement).value;
+		console.log(event.target);
+	}
 
-	<span>${value.length} / ${max} Remaining</span>
-</label>
-`;
+	template() {
+		return `
+		<label>
+			<input
+				oninput=${this.bind(`handleInput`, `steve`)}
+				max="${max}"
+				placeholder="Type here"
+				type="text"
+				/>
 
-export default component({
-	template,
-});
+			<span>${value.length} / ${max} Remaining</span>
+		</label>
+		`;
+	}
+}
+
+export default Component.toFunction(Textbox);

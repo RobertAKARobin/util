@@ -1,7 +1,10 @@
-import { page } from '@robertakarobin/web';
+import { Page } from '@robertakarobin/web';
 
-export default page({
-	template: () => `<h1>Bundled fallback</h1>`,
-	title: `Bundled fallback`,
-});
+export class BundledFallbackPage extends Page {
+	title = `Bundled fallback`;
+	template() {
+		return `<h1>Bundled fallback</h1>`;
+	}
+}
 
+export default Page.toFunction(BundledFallbackPage);

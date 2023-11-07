@@ -1,16 +1,17 @@
 import { Emitter } from '@robertakarobin/emit';
 
-import type * as Type from './types.d.ts';
-import { component } from './component.ts';
-import { title } from './router.ts';
+import { Component } from './component.ts';
 
-export const pageTemplatePath = new Emitter<string>();
+export abstract class Page extends Component {
+	static templatePath = new Emitter<string>();
+	static title = new Emitter<string>();
 
-export const page = <Template extends Type.Template>(
-	input: Type.PageArgs<Template>
-): Template => {
-	pageTemplatePath.next(input.importMetaUrl!);
-	title.next(input.title!);
+	readonly importMetaUrl?: string;
+	abstract title: string;
 
-	return component(input);
-};
+	render(...args: Parameters<this[`template`]>) {
+		Page.title.next(this.title);
+		Page.templatePath.next(this.importMetaUrl!);
+		return super.render(...args);
+	}
+}

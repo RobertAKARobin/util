@@ -1,4 +1,4 @@
-import { title } from '@robertakarobin/web';
+import { Page } from '@robertakarobin/web';
 
 import { resolve, routes } from './routes.ts';
 import layout from './pages/_layout.ts';
@@ -12,5 +12,5 @@ export const resolveStatic = async(path: string) => {
 	if (path === routes.bundled || path === routes.split) {
 		return;
 	}
-	return layout(title.last, contents);
+	return layout(Page.title.last, contents);
 };

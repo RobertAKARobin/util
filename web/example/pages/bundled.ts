@@ -1,7 +1,10 @@
-import { page } from '@robertakarobin/web';
+import { Page } from '@robertakarobin/web';
 
-export default page({
-	template: () => `<h1>Bundled</h1>`,
-	title: `Bundled`,
-});
+export class BundledPage extends Page {
+	title = `Bundled`;
+	template() {
+		return `<h1>Bundled</h1>`;
+	}
+}
 
+export default Page.toFunction(BundledPage);

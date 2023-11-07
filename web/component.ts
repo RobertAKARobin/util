@@ -1,96 +1,111 @@
+import type * as $ from '@robertakarobin/jsutil';
+
 import type * as Type from './types.d.ts';
 import { routerContext } from './router.ts';
 
-type CachedFunction<
-	DispatchedEvent extends Event = Event,
-	Args extends Array<string> = any // eslint-disable-line @typescript-eslint/no-explicit-any
-> = (event: DispatchedEvent, ...args: Args) => void;
+type CachedFunction = (event: Event, ...args: Array<string>) => void;
 
-const windowCacheProperty = `fn` as const;
-const functionsByKey = new Map<string, CachedFunction<any>>(); // eslint-disable-line @typescript-eslint/no-explicit-any
-const keysByFunction = new Map<CachedFunction<any>, string>(); // eslint-disable-line @typescript-eslint/no-explicit-any
-if (routerContext === `browser`) {
-	type WindowWithCache = Window & {
-		[key in typeof windowCacheProperty]: typeof functionsByKey;
-	};
-	(window as unknown as WindowWithCache)[windowCacheProperty] = functionsByKey;
-}
+export abstract class Component {
+	private static componentsSize = 0;
+	private static readonly htmlAttribute = `data-component`;
+	private static readonly instanceCache = new WeakMap<HTMLElement, Component>();
+	private static readonly instanceCacheKey = `$fn`;
+	private static readonly onloadCache = new Map<string, CachedFunction>();
+	private static readonly onloadCacheKey = `$onload`;
+	/**
+	 * This is a Map instead of a WeakMap because we don't want <style> elements to be garbage collected; once a style is applied to a page it is permanent
+	 */
+	private static styleCache = new Map<
+		typeof Component.constructor,
+		HTMLStyleElement
+	>();
 
-let cacheSize = 0;
-export const bind = <
-	DispatchedEvent extends Event,
-	Args extends Array<string> = Array<string>
->(input: CachedFunction<DispatchedEvent, Args>, ...args: Args): string => {
-	if (routerContext !== `browser`) {
-		return `""`;
-	}
-
-	let cachedFunctionKey = keysByFunction.get(input);
-	if (!cachedFunctionKey) {
-		cacheSize += 1;
-		cachedFunctionKey = `f${cacheSize}`;
-		functionsByKey.set(cachedFunctionKey, input);
-		keysByFunction.set(input, cachedFunctionKey);
-	}
-
-	const argsString = args.map(arg => `'${arg}'`).join(``);
-	return `"${windowCacheProperty}.get('${cachedFunctionKey}').call(this, event, ${argsString})"`;
-};
-
-const styleCache = new Map<Type.Template, HTMLStyleElement>(); // This is a Map instead of a WeakMap because we don't want <style> elements to be garbage collected; once a style is applied to a page it is permanent
-
-let componentsSize = 0;
-const componentAttribute = `data-component`;
-
-const onload = (event: Event) => {
-	const $anchor = event.target as HTMLElement;
-	const componentId = $anchor.getAttribute(componentAttribute);
-	const $parent = $anchor.nextElementSibling;
-	$parent!.setAttribute(componentAttribute, componentId!);
-	$anchor.remove();
-};
-
-const componentWrapper = (contents: string) => {
-	const componentId = componentsSize;
-	componentsSize += 1;
-	return `
-	<img
-		aria-hidden="true"
-		${componentAttribute}="${componentId}"
-		style="display:none"
-		src=""
-		onerror=${bind(onload)}
-		/>
-	${contents}
-	`;
-};
-
-export const component = <Template extends Type.Template>(
-	input: Type.ComponentArgs<Template>
-): Template => {
-	const template = input.template;
-
-	return ((...args: Parameters<Template>) => {
-		if (
-			routerContext === `browser`
-			&& input.style
-			&& !styleCache.has(template)
-		) {
-			const $style = document.createElement(`style`);
-			$style.textContent = input.style;
-			document.head.appendChild($style);
-			styleCache.set(template, $style);
+	static {
+		if (routerContext === `browser`) {
+			Object.assign(window, {
+				[this.instanceCacheKey]: Component.instanceCache,
+				[this.onloadCacheKey]: Component.onloadCache,
+			});
 		}
+	}
 
-		const rendered = template(...args);
+	static toFunction<
+		Subclass extends Component
+	>(Constructor: $.Type.Constructor<Subclass>) {
+		return (...args: Parameters<Subclass[`render`]>) => {
+			const instance = new Constructor();
+			return instance.render(...args);
+		};
+	}
+
+	protected static wrap(component: Component, contents: string) {
+		function onload(this: HTMLElement) {
+			const $anchor = this;
+			const componentId = $anchor.getAttribute(Component.htmlAttribute);
+			const $root = $anchor.nextElementSibling as HTMLElement & {
+				component: Component;
+			};
+			$root.setAttribute(Component.htmlAttribute, componentId!);
+			$root.component = component;
+			component.$root = $root;
+			$anchor.remove();
+			Component.onloadCache.delete(component.uid);
+			Component.instanceCache.set($root, component);
+		};
+
+		Component.onloadCache.set(component.uid, onload);
+
+		return `
+		<img
+			aria-hidden="true"
+			${Component.htmlAttribute}="${component.uid}"
+			onerror="${Component.onloadCacheKey}.get('${component.uid}').call(this)"
+			src=""
+			style="display:none"
+			/>
+		${contents}
+		`;
+	}
+
+	protected $root?: HTMLElement;
+	readonly style?: string;
+	readonly uid: string;
+
+	constructor() {
+		this.uid = `c${Component.componentsSize++}`;
+	}
+
+	bind( // TODO2: Stronger typing on this
+		methodName: keyof this,
+		...args: Array<string> | []
+	): string {
+		if (routerContext !== `browser`) {
+			return `""`;
+		}
+		const argsString = args.map(arg => `'${arg}'`).join(``);
+		return `"${Component.instanceCacheKey}.get(this).${methodName as string}(event, ${argsString})"`;
+	}
+
+	render(
+		...args: Parameters<this[`template`]>
+	): ReturnType<this[`template`]> {
+		const rendered = this.template(...args) as ReturnType<this[`template`]>;
 		if (routerContext !== `browser`) {
 			return rendered;
 		}
 
-		if (rendered instanceof Promise) {
-			return rendered.then(html => componentWrapper(html));
+		if (this.style && !Component.styleCache.has(this.constructor)) {
+			const $style = document.createElement(`style`);
+			$style.textContent = this.style;
+			document.head.appendChild($style);
+			Component.styleCache.set(this.constructor, $style);
 		}
-		return componentWrapper(rendered);
 
-	}) as Template;
-};
+		if (rendered instanceof Promise) {
+			return rendered.then(html => Component.wrap(this, html)) as ReturnType<this[`template`]>;
+		}
+		return Component.wrap(this, rendered) as ReturnType<this[`template`]>;
+	}
+
+	abstract template(...args: Type.Args): string | Promise<string>;
+}

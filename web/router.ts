@@ -49,5 +49,3 @@ export const normalizeRoutes = <
 };
 
 export const router = new Router__Browser();
-
-export const title = new Emitter<string>();

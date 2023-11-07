@@ -1,8 +1,11 @@
-import { page } from '@robertakarobin/web';
+import { Page } from '@robertakarobin/web';
 
-export default page({
-	importMetaUrl: import.meta.url,
-	template: () => `<h1>Split fallback</h1>`,
-	title: `Split`,
-});
+export class SplitFallbackPage extends Page {
+	importMetaUrl = import.meta.url;
+	title = `Split fallback`;
+	template() {
+		return `<h1>Split fallback</h1>`;
+	}
+}
 
+export default Page.toFunction(SplitFallbackPage);

@@ -1,10 +1,10 @@
-import { router, title } from '@robertakarobin/web';
+import { Page, router } from '@robertakarobin/web';
 
 import error from './pages/error.ts';
 import nav from './components/nav.ts';
 import { resolve } from './routes.ts';
 
-title.subscribe(title => document.title = title);
+Page.title.subscribe(title => document.title = title);
 
 const $output = document.getElementById(`output`)!;
 router.subscribe(async path => {
