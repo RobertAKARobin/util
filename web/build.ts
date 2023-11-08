@@ -23,7 +23,7 @@ export async function getBuildOptions<Routes extends RouteMap>(options: {
 		routeNames.map(routeName => async() => {
 			const routePath = options.routes[routeName];
 			const hasExtension = matchExtension.test(routePath);
-			let outPath = path.join(`/`, routePath);
+			let outPath = path.join(`/`, routePath).replace(/#.*$/, ``);
 			if (!hasExtension) {
 				outPath = path.join(outPath, `index.html`);
 			}
