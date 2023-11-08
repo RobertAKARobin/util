@@ -1,10 +1,12 @@
+import { Page } from '@robertakarobin/web/index.ts';
+
 import nav from '../components/nav.ts';
 
-export default (title: string, contents: string) => `
+export default (contents: string) => `
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>${title}</title>
+		<title>${Page.title.last}</title>
 		<base href="/" />
 		<script src="/web.js" type="module"></script>
 		<script src="/script.js" type="module"></script>
