@@ -13,6 +13,7 @@ const buildOptionsDefaults = <Routes extends RouteMap>() => ({
 	formatCss: (input: string) => input,
 	formatHtml: (input: string) => input,
 	layout: defaultLayout,
+	port: 3000,
 	resolve: null as unknown as Resolver<Routes>,
 	routes: {} as Routes,
 	servedir: `./dist`,
@@ -131,6 +132,7 @@ export async function build<Routes extends RouteMap>(
 		fs.cpSync(
 			path.join(basedir, assetsdir),
 			path.join(basedir, servedir, assetsdir),
+			{ recursive: true }
 		);
 	}
 
@@ -172,13 +174,27 @@ export async function build<Routes extends RouteMap>(
 	});
 }
 
-export function serve(options: esbuild.ServeOptions = {}) {
-	const port = options.port || 3000;
+export function serve<Routes extends RouteMap>(
+	options: BuildOptions<Routes>
+) {
+	const {
+		basedir,
+		port,
+		servedir,
+	} = {
+		...buildOptionsDefaults<Routes>(),
+		...options,
+	};
+
 	void retryPort();
 	async function retryPort() {
-		(await esbuild.context({})).serve().then(() => {
-			console.log(`Serving at http://localhost:${port}`);
-		}).catch(() => {
+		(await esbuild.context({})).serve({
+			port,
+			servedir: path.join(basedir, servedir),
+		}).then(() => {
+			console.log(`Serving from ${path.join(basedir, servedir)} on http://localhost:${port}`);
+		}).catch(error => {
+			console.warn(error);
 			void retryPort();
 		});
 	}
@@ -201,6 +217,6 @@ export function watchAndServe<Routes extends RouteMap>(
 		() => void build(options),
 	);
 
-	serve();
+	serve(options);
 	void build(options);
 }
