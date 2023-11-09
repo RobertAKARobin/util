@@ -11,11 +11,9 @@ type CachedFunction = (event: Event, ...args: Array<string>) => void;
 
 export abstract class Component {
 	private static componentsSize = 0;
-	private static readonly findRootKey = `$component`;
 	private static readonly htmlAttribute = `data-component`;
 	private static readonly instanceCache = new WeakMap<HTMLElement, Component>();
-	private static readonly onloadCache = new Map<string, CachedFunction>();
-	private static readonly onloadCacheKey = `$onload`;
+	static readonly onload = new Map<string, CachedFunction>();
 	/**
 	 * This is a Map instead of a WeakMap because we don't want <style> elements to be garbage collected; once a style is applied to a page it is permanent
 	 */
@@ -26,14 +24,11 @@ export abstract class Component {
 
 	static {
 		if (routerContext === `browser`) {
-			Object.assign(window, {
-				[this.findRootKey]: Component.findRoot,
-				[this.onloadCacheKey]: Component.onloadCache,
-			});
+			Object.assign(window, { Component });
 		}
 	}
 
-	private static findRoot(uid: string, $descendant: HTMLElement) {
+	static cached(uid: string, $descendant: HTMLElement) {
 		const $root = $descendant.getAttribute(Component.htmlAttribute) === uid
 			? $descendant
 			: $descendant.closest(`[${Component.htmlAttribute}="${uid}"]`);
@@ -54,7 +49,7 @@ export abstract class Component {
 
 	protected static wrap(component: Component, contents: string) {
 		function onload(this: HTMLElement) {
-			Component.onloadCache.delete(component.uid);
+			Component.onload.delete(component.uid);
 
 			const $anchor = this;
 			const $root = $anchor.nextElementSibling as HTMLElement;
@@ -65,13 +60,13 @@ export abstract class Component {
 			Component.instanceCache.set($root, component);
 		};
 
-		Component.onloadCache.set(component.uid, onload);
+		Component.onload.set(component.uid, onload);
 
 		return `
 		<img
 			aria-hidden="true"
 			${Component.htmlAttribute}="${component.uid}"
-			onerror="${Component.onloadCacheKey}.get('${component.uid}').call(this)"
+			onerror="Component.onload.get('${component.uid}').call(this)"
 			src=""
 			style="display:none"
 			/>
@@ -95,7 +90,7 @@ export abstract class Component {
 			return `""`;
 		}
 		const argsString = args.map(arg => `'${arg}'`).join(``);
-		return `"${Component.findRootKey}('${this.uid}', this).${methodName as string}(event, ${argsString})"`;
+		return `"Component.cached('${this.uid}', this).${methodName as string}(event, ${argsString})"`;
 	}
 
 	render(
