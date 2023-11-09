@@ -14,10 +14,7 @@ export abstract class Component {
 	private static readonly htmlAttribute = `data-component`;
 	private static readonly instanceCache = new WeakMap<HTMLElement, Component>();
 	static readonly onload = new Map<string, CachedFunction>();
-	/**
-	 * This is a Map instead of a WeakMap because we don't want <style> elements to be garbage collected; once a style is applied to a page it is permanent
-	 */
-	private static styleCache = new Map<
+	private static styleCache = new Map< // This is a Map instead of a WeakMap because we don't want <style> elements to be garbage collected; once a style is applied to a page it is permanent
 		typeof Component.constructor,
 		HTMLStyleElement
 	>();
