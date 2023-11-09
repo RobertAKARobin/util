@@ -18,7 +18,7 @@ export const resolve = resolver(routes, async path => {
 		case routes.error404:
 			return (await import(`./pages/error.ts`)).default();
 		case routes.home:
-			return (await import(`./pages/index.ts`)).default();
+			return (await import(`./pages/index.ts`)).default(`This is a variable`);
 		case routes.split:
 			return (await import(`./pages/split.ts`)).default();
 		case routes.splitFallback:
