@@ -7,6 +7,10 @@ import { promiseConsecutive } from '@robertakarobin/jsutil';
 import { matchExtension, Page, type Resolver, type RouteMap } from './index.ts';
 import defaultLayout from './layout.ts';
 
+function log(from: string, to: string) {
+	console.log(`From: ${path.relative(process.cwd(), from)}\nTo:   ${path.relative(process.cwd(), to)}\n`);
+}
+
 const buildOptionsDefaults = <Routes extends RouteMap>() => ({
 	assetsdir: `./assets`,
 	basedir: process.cwd(),
@@ -94,11 +98,13 @@ export async function getBuildOptions<Routes extends RouteMap>(
 				const splitPageRoute = splitPageRoutesByFilePaths[importPath];
 				const doSplitPage = !!(splitPageRoute);
 				if (doSplitPage) {
+					const splitTo = splitPageRoute.startsWith(`/`)
+						? `${splitPageRoute}.js`
+						: `/${splitPageRoute}.js`;
+					log(importPath, path.join(basedir, servedir, splitTo));
 					return {
 						external: true,
-						path: splitPageRoute.startsWith(`/`)
-							? `${splitPageRoute}.js`
-							: `/${splitPageRoute}.js`,
+						path: splitTo,
 					};
 				}
 			});
@@ -128,25 +134,29 @@ export async function build<Routes extends RouteMap>(
 	fs.rmSync(path.join(basedir, servedir), { force: true, recursive: true });
 	fs.mkdirSync(path.join(basedir, servedir));
 
-	if (fs.existsSync(path.join(basedir, assetsdir))) {
-		fs.cpSync(
-			path.join(basedir, assetsdir),
-			path.join(basedir, servedir, assetsdir),
-			{ recursive: true }
-		);
+	const assetsSrc = path.join(basedir, assetsdir);
+	if (fs.existsSync(assetsSrc)) {
+		const assetsDist = path.join(basedir, servedir, assetsdir);
+		log(assetsSrc, assetsDist);
+		fs.cpSync(assetsSrc, assetsDist, { recursive: true });
 	}
 
-	const stylesSrcPath = path.join(basedir, srcdir, `./styles.css.ts`);
-	let styles = (await import(stylesSrcPath)).default as string; // eslint-disable-line @typescript-eslint/no-unsafe-member-access
+	const stylesSrc = path.join(basedir, srcdir, `./styles.css.ts`);
+	const stylesDist = path.join(basedir, servedir, `styles.css`);
+	let styles = (await import(stylesSrc)).default as string; // eslint-disable-line @typescript-eslint/no-unsafe-member-access
 	styles = formatCss(styles);
-	fs.writeFileSync(path.join(basedir, servedir, `styles.css`), styles);
+	log(stylesSrc, stylesDist);
+	fs.writeFileSync(stylesDist, styles);
 
+	const vendorSrc = `@robertakarobin/web/index.ts`;
 	const vendorFile = `/web.js`;
+	const vendorDist = path.join(basedir, servedir, vendorFile);
+	log(vendorSrc, vendorDist);
 	esbuild.buildSync({
 		bundle: true,
-		entryPoints: [`@robertakarobin/web/index.ts`],
+		entryPoints: [vendorSrc],
 		format: `esm`,
-		outfile: path.join(basedir, servedir, vendorFile),
+		outfile: vendorDist,
 	});
 
 	const { entryPoints, plugins } = await getBuildOptions(options);
@@ -167,6 +177,7 @@ export async function build<Routes extends RouteMap>(
 			vendorFile,
 		],
 		format: `esm`,
+		metafile: true,
 		outdir: path.join(basedir, servedir),
 		plugins: [
 			...plugins,
@@ -192,7 +203,7 @@ export function serve<Routes extends RouteMap>(
 			port,
 			servedir: path.join(basedir, servedir),
 		}).then(() => {
-			console.log(`Serving from ${path.join(basedir, servedir)} on http://localhost:${port}`);
+			console.log(`From: ${servedir}\nOn:   http://localhost:${port}\n`);
 		}).catch(error => {
 			console.warn(error);
 			void retryPort();
@@ -200,7 +211,7 @@ export function serve<Routes extends RouteMap>(
 	}
 }
 
-export function watchAndServe<Routes extends RouteMap>(
+export async function watchAndServe<Routes extends RouteMap>(
 	options: BuildOptions<Routes>
 ) {
 	const {
@@ -214,9 +225,12 @@ export function watchAndServe<Routes extends RouteMap>(
 	fs.watch(
 		path.join(basedir, srcdir),
 		{ recursive: true },
-		() => void build(options),
+		(event, path) => {
+			console.log(`Watched: ${event} ${path}`);
+			void build(options);
+		}
 	);
 
+	await build(options);
 	serve(options);
-	void build(options);
 }
