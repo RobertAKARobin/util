@@ -36,21 +36,17 @@ export const hasExtension = /\.\w+$/;
 export const hasHash = /#.*$/;
 export const isRelativePath = /^\.\.?\/.*/;
 
-export const routeMap = <
+export const routeMap = < // TODO2: Nested routes? Kinda prefer flat routes
 	Routes extends RouteMap = RouteMap
 >(input: Routes): Routes => {
 	const output = {} as RouteMap;
 	for (const key in input) {
 		const route = input[key];
-		if (typeof route === `object`) {
-			output[key] = routeMap(route);
-		} else if (typeof route === `string`) {
-			let path: string = route;
-			if (!path.endsWith(`/`) && !hasExtension.test(path)) {
-				path = `${path}/`;
-			}
-			output[key] = path;
+		let path: string = route;
+		if (!path.endsWith(`/`) && !hasExtension.test(path)) {
+			path = `${path}/`;
 		}
+		output[key] = path;
 	}
 	return output as Routes;
 };
