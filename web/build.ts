@@ -14,14 +14,13 @@ import {
 } from './index.ts';
 import defaultLayout from './layout.ts';
 
+function header(input: string) {
+	console.log(`...${input}...\n`);
+}
+
 function log(...args: Array<string>) {
 	console.log(args.join(`\n`) + `\n`);
 }
-
-export type RoutesModule<Routes extends RouteMap> = {
-	resolve: Resolver<Routes>;
-	routes: Routes;
-};
 
 export class Builder<Routes extends RouteMap> {
 	readonly assetsSrcDirRel: string;
@@ -68,17 +67,24 @@ export class Builder<Routes extends RouteMap> {
 	}
 
 	buildAssets() {
+		header(`Building assets`);
 		const assetsSrcDirAbs = path.join(this.baseDirAbs, this.assetsSrcDirRel);
 		if (fs.existsSync(assetsSrcDirAbs)) {
 			const assetsServeDirAbs = path.join(this.serveDirAbs, this.assetsSrcDirRel);
-			log(assetsSrcDirAbs, assetsServeDirAbs);
+			log(
+				path.relative(process.cwd(), assetsSrcDirAbs),
+				path.relative(process.cwd(), assetsServeDirAbs),
+			);
 			fs.cpSync(assetsSrcDirAbs, assetsServeDirAbs, { recursive: true });
 		}
 	}
 
 	async buildJs() {
 		const routesSrcFileAbs = path.join(this.srcDirAbs, this.routesSrcFileRel);
-		const { routes, resolve } = (await import(routesSrcFileAbs)) as RoutesModule<Routes>;
+		const { routes, resolve } = (await import(routesSrcFileAbs)) as {
+			resolve: Resolver<Routes>;
+			routes: Routes;
+		};
 
 		const entryPoints: Array<{ in: string; out: string; }> = [];
 
@@ -86,6 +92,7 @@ export class Builder<Routes extends RouteMap> {
 
 		const routeNames = Object.keys(routes) as Array<keyof Routes>;
 
+		header(`Building fallback page templates`);
 		await $.promiseConsecutive(
 			routeNames.map(routeName => async() => {
 				const routePath = routes[routeName];
@@ -106,16 +113,22 @@ export class Builder<Routes extends RouteMap> {
 					path.basename(routeServeFileRel),
 				);
 
+				// Create fallback HTML template
 				let routeServeContents = await resolve(routePath);
 				if (routeServeContents) {
 					routeServeContents = this.formatHtml(routeServeContents);
-					log(`Route: ${routeName as string}`, routePath, routeServeFileAbs);
+					log(
+						`Route: ${routeName as string}`,
+						routePath,
+						path.relative(process.cwd(), routeServeFileAbs),
+					);
 					fs.mkdirSync(routeServeDirAbs, { recursive: true });
 					fs.writeFileSync(routeServeFileAbs, routeServeContents);
 				} else {
 					log(`${routeName as string} does not resolve to a template.`);
 				}
 
+				// Create split/dynamically-loaded JS template
 				let routeSrcFileAbs = Page.importMetaUrl.last;
 				if (routeSrcFileAbs) {
 					routeSrcFileAbs = fileURLToPath(routeSrcFileAbs);
@@ -139,7 +152,13 @@ export class Builder<Routes extends RouteMap> {
 				routeServeFileRel = routeServeFileRel.startsWith(`/`)
 					? `${routeServeFileRel}.js`
 					: `/${routeServeFileRel}.js`;
-				log(routeSrcFileRel, routeServeFileRel);
+				log(
+					path.relative(process.cwd(), routeSrcFileAbs),
+					path.join(
+						path.relative(process.cwd(), this.serveDirAbs),
+						routeServeFileRel,
+					),
+				);
 				return {
 					external: true,
 					path: routeServeFileRel,
@@ -154,6 +173,14 @@ export class Builder<Routes extends RouteMap> {
 			},
 		};
 
+		header(`Bundling JS and building dynamically-imported page templates`);
+		const scriptSrcFileAbs = path.join(this.srcDirAbs, this.scriptSrcFileRel);
+		const scriptServeFileName = path.parse(this.scriptSrcFileRel).name;
+		const scriptServeFileRel = path.join(this.serveDirAbs, this.scriptSrcFileRel);
+		log(
+			path.relative(process.cwd(), scriptSrcFileAbs),
+			path.relative(process.cwd(), scriptServeFileRel.replace(/\.ts$/, `.js`))
+		);
 		await esbuild.build({
 			absWorkingDir: this.serveDirAbs,
 			alias: {
@@ -162,8 +189,8 @@ export class Builder<Routes extends RouteMap> {
 			bundle: true,
 			entryPoints: [
 				{
-					in: path.join(this.srcDirAbs, this.scriptSrcFileRel),
-					out: `script`,
+					in: scriptSrcFileAbs,
+					out: scriptServeFileName,
 				},
 				...entryPoints,
 			],
@@ -176,17 +203,25 @@ export class Builder<Routes extends RouteMap> {
 	}
 
 	async buildStyles() {
+		header(`Building styles`);
 		const stylesSrcFileAbs = path.join(this.srcDirAbs, `${this.styleServeFileRel}.ts`);
 		const stylesServeFileAbs = path.join(this.serveDirAbs, this.styleServeFileRel);
 		let styles = (await import(stylesSrcFileAbs)).default as string; // eslint-disable-line @typescript-eslint/no-unsafe-member-access
 		styles = this.formatCss(styles);
-		log(stylesSrcFileAbs, stylesServeFileAbs);
+		log(
+			path.relative(process.cwd(), stylesSrcFileAbs),
+			path.relative(process.cwd(), stylesServeFileAbs),
+		);
 		fs.writeFileSync(stylesServeFileAbs, styles);
 	}
 
 	buildVendor() {
+		header(`Building vendor JS`);
 		const vendorServeFileAbs = path.join(this.serveDirAbs, this.vendorServeFileName);
-		log(this.vendorSrcFileAbs, vendorServeFileAbs);
+		log(
+			this.vendorSrcFileAbs,
+			path.relative(process.cwd(), vendorServeFileAbs)
+		);
 		return esbuild.build({
 			bundle: true,
 			entryPoints: [this.vendorSrcFileAbs],
@@ -210,7 +245,10 @@ export class Builder<Routes extends RouteMap> {
 				port,
 				servedir: this.serveDirAbs,
 			}).then(() => {
-				log(this.serveDirAbs, `http://localhost:${port}`);
+				log(
+					path.relative(process.cwd(), this.serveDirAbs),
+					`http://localhost:${port}`,
+				);
 			}).catch(error => {
 				console.warn(error);
 				void retryPort();
