@@ -1,43 +1,44 @@
-import { fileURLToPath } from 'url';
 import jsBeautify from 'js-beautify';
+import { marked } from 'marked';
 import path from 'path';
 
-import { build, type BuildOptions, watchAndServe } from '@robertakarobin/web/build.ts';
+import { Builder } from '@robertakarobin/web/build.ts';
 
-import { resolve, routes } from './src/routes.ts';
 import layout from './src/pages/_layout.ts';
+import { type routes } from './src/routes.ts';
 
-const basedir = path.dirname(fileURLToPath(import.meta.url));
+const trimNewlines = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
 
-const trimFile = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
-
-const formatCss = (contents: string) => jsBeautify.css(
-	trimFile(contents),
-	{
-		end_with_newline: true, // TODO2: Once we're using editorconfig, use the `--editorconfig` option
-		indent_with_tabs: true,
+class CustomBuilder extends Builder<typeof routes> {
+	formatCss(contents: string) {
+		let css = trimNewlines(contents);
+		css = jsBeautify.css(css, {
+			end_with_newline: true, // TODO2: Once we're using editorconfig, use the `--editorconfig` option
+			indent_with_tabs: true,
+		});
+		return css;
 	}
-);
 
-const formatHtml = (contents: string) => jsBeautify.html(
-	trimFile(contents),
-	{
-		end_with_newline: true, // TODO2: Once we're using editorconfig, use the `--editorconfig` option
-		indent_with_tabs: true,
+	formatHtml(contents: string) {
+		let html = contents;
+		html = html.replace(/<markdown>(.*?)<\/markdown>/gs, (nil, match: string) => {
+			return marked(match.trim());
+		});
+		html = layout(html);
+		html = trimNewlines(html);
+		html = jsBeautify.html(html, {
+			end_with_newline: true, // TODO2: Once we're using editorconfig, use the `--editorconfig` option
+			indent_with_tabs: true,
+		});
+		return html;
 	}
-);
+}
 
-const options: BuildOptions<typeof routes> = {
-	basedir,
-	formatCss,
-	formatHtml,
-	layout,
-	resolve,
-	routes,
-};
-
-if (process.argv.includes(`--watch`)) {
-	watchAndServe(options);
+const builder = new CustomBuilder({
+	baseDirAbs: path.join(process.cwd(), `./web/example`),
+});
+if (process.argv.includes(`--serve`)) {
+	await builder.serve({ watch: true });
 } else {
-	await build(options);
+	await builder.build();
 }

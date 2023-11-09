@@ -2,7 +2,8 @@
 	"devDependencies": {
 		"@robertakarobin/web": "file:../",
 		"@types/js-beautify": "^1.14.3",
-		"js-beautify": "^1.14.11"
+		"js-beautify": "^1.14.11",
+		"marked": "^9.1.5"
 	},
 	"type": "module"
 }

@@ -32,7 +32,10 @@ export const router = new Router();
 
 export type RouteMap = Record<string, string>;
 
-export const matchExtension = /\.\w+$/;
+export const hasExtension = /\.\w+$/;
+export const hasHash = /#.*$/;
+export const isRelativePath = /^\.\.?\/.*/;
+
 export const routeMap = <
 	Routes extends RouteMap = RouteMap
 >(input: Routes): Routes => {
@@ -43,7 +46,7 @@ export const routeMap = <
 			output[key] = routeMap(route);
 		} else if (typeof route === `string`) {
 			let path: string = route;
-			if (!path.endsWith(`/`) && !matchExtension.test(path)) {
+			if (!path.endsWith(`/`) && !hasExtension.test(path)) {
 				path = `${path}/`;
 			}
 			output[key] = path;
