@@ -165,7 +165,8 @@ export class Builder<Routes extends RouteMap> {
 			})
 		);
 
-		const buildDynamicPage = (args: esbuild.OnResolveArgs) => {
+		// ESBuild plugin to replace each dynamic import path to a `.ts` file with the path to the corresponding `.js` file, because browsers can't load `.ts` files
+		const replaceDynamicImportPaths = ((args: esbuild.OnResolveArgs) => {
 			if (args.kind !== `dynamic-import`) {
 				return null;
 			}
@@ -185,12 +186,15 @@ export class Builder<Routes extends RouteMap> {
 					path: routeServeFileRel,
 				};
 			}
-		};
+		}).bind(this);
 
 		const pageResolver: esbuild.Plugin = {
 			name: `Page dynamic import resolver`,
 			setup(build) {
-				build.onResolve({ filter: isRelativePath }, buildDynamicPage.bind(this));
+				build.onResolve(
+					{ filter: isRelativePath },
+					replaceDynamicImportPaths,
+				);
 			},
 		};
 
