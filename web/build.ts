@@ -2,6 +2,7 @@ import * as $ from '@robertakarobin/jsutil';
 import esbuild from 'esbuild';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
+import { marked } from 'marked';
 import path from 'path';
 
 import {
@@ -13,6 +14,9 @@ import {
 	type RouteMap,
 } from './index.ts';
 import defaultLayout from './layout.ts';
+
+const hasMarkdown = /<markdown>(.*?)<\/markdown>/gs;
+const hasJsTemplate = /\$\{.*?\}/gs;
 
 function header(input: string) {
 	console.log(`...${input}...\n`);
@@ -181,7 +185,7 @@ export class Builder<Routes extends RouteMap> {
 			path.relative(process.cwd(), scriptSrcFileAbs),
 			path.relative(process.cwd(), scriptServeFileRel.replace(/\.ts$/, `.js`))
 		);
-		await esbuild.build({
+		const results = await esbuild.build({
 			absWorkingDir: this.serveDirAbs,
 			alias: {
 				[this.vendorSrcFileAbs]: this.vendorServeFileName,
@@ -200,6 +204,17 @@ export class Builder<Routes extends RouteMap> {
 			outdir: this.serveDirAbs,
 			plugins: [pageResolver],
 		});
+
+		header(`Converting Markdown to HTML`);
+		for (const jsServeFileRel in results.metafile.outputs) {
+			const jsServeFileAbs = path.join(this.serveDirAbs, jsServeFileRel);
+			let html = fs.readFileSync(jsServeFileAbs, { encoding: `utf8` });
+			if (hasMarkdown.test(html)) {
+				log(path.relative(process.cwd(), jsServeFileAbs));
+				html = this.formatMarkdown(html);
+				fs.writeFileSync(jsServeFileAbs, html);
+			}
+		}
 	}
 
 	async buildStyles() {
@@ -235,7 +250,24 @@ export class Builder<Routes extends RouteMap> {
 	}
 
 	formatHtml(input: string) {
-		return defaultLayout(input);
+		return this.formatMarkdown(defaultLayout(input));
+	}
+
+	formatMarkdown(input: string) {
+		let output = input;
+		const jsPlaceholder = `/%%/`;
+		output = output.replace(hasMarkdown, (nil, markdown: string) => {
+			const jsTemplates: Array<string> = [];
+			let html = markdown;
+			html = html.replace(hasJsTemplate, (js: string) => {
+				jsTemplates.push(js);
+				return jsPlaceholder;
+			});
+			html = marked(html.trim());
+			html = html.replaceAll(jsPlaceholder, () => jsTemplates.shift() || ``);
+			return html;
+		});
+		return output;
 	}
 
 	async serve(options: (esbuild.ServeOptions & { watch?: boolean; }) = {}) {

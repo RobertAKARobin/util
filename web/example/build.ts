@@ -1,5 +1,4 @@
 import jsBeautify from 'js-beautify';
-import { marked } from 'marked';
 import path from 'path';
 
 import { Builder } from '@robertakarobin/web/build.ts';
@@ -21,9 +20,6 @@ class CustomBuilder extends Builder<typeof routes> {
 
 	formatHtml(contents: string) {
 		let html = contents;
-		html = html.replace(/<markdown>(.*?)<\/markdown>/gs, (nil, match: string) => {
-			return marked(match.trim());
-		});
 		html = layout(html);
 		html = trimNewlines(html);
 		html = jsBeautify.html(html, {
@@ -37,6 +33,7 @@ class CustomBuilder extends Builder<typeof routes> {
 const builder = new CustomBuilder({
 	baseDirAbs: path.join(process.cwd(), `./web/example`),
 });
+
 if (process.argv.includes(`--serve`)) {
 	await builder.serve({ watch: true });
 } else {
