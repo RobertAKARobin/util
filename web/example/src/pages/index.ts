@@ -21,7 +21,7 @@ ${textbox()}
 ${textbox()}`;
 
 export class IndexPage extends Page {
-	splitImportMetaUrl = import.meta.url;
+	importMetaUrl = import.meta.url;
 	style = style;
 	template = template;
 	title = `Home page`;

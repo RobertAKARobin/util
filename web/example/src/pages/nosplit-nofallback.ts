@@ -2,10 +2,11 @@ import { Page } from '@robertakarobin/web/index.ts';
 
 export class BundledFallbackPage extends Page {
 	doFallback = false;
-	splitImportMetaUrl = null;
-	title = `Bundled fallback`;
+	doSplit = false;
+	importMetaUrl = import.meta.url;
+	title = `Nosplit fallback`;
 	template() {
-		return `<h1>Bundled fallback</h1>`;
+		return `<h1>Nosplit fallback</h1>`;
 	}
 }
 

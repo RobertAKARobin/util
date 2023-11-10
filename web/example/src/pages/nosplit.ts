@@ -1,10 +1,11 @@
 import { Page } from '@robertakarobin/web/index.ts';
 
 export class BundledPage extends Page {
-	splitImportMetaUrl = null;
-	title = `Bundled`;
+	doSplit = false;
+	importMetaUrl = import.meta.url;
+	title = `Nosplit`;
 	template() {
-		return `<h1>Bundled</h1>`;
+		return `<h1>Nosplit</h1>`;
 	}
 }
 

@@ -1,7 +1,7 @@
 // ../src/pages/error.ts
 import { Page } from "/web.js";
 var ErrorPage = class extends Page {
-  splitImportMetaUrl = import.meta.url;
+  importMetaUrl = import.meta.url;
   title = `Error 404`;
   template() {
     return `

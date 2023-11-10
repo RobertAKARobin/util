@@ -51,7 +51,7 @@ ${textbox_default()}
 
 ${textbox_default()}`;
 var IndexPage = class extends Page {
-  splitImportMetaUrl = import.meta.url;
+  importMetaUrl = import.meta.url;
   style = style;
   template = template;
   title = `Home page`;

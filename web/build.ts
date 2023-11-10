@@ -1,4 +1,3 @@
-import * as $ from '@robertakarobin/jsutil';
 import esbuild from 'esbuild';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
@@ -110,62 +109,54 @@ export class Builder<Routes extends RouteMap> {
 			routes: Routes;
 		};
 
-		const entryPoints: Array<{ in: string; out: string; }> = [];
-
+		const routeSrcFileAbsToSplit = new Set<string>();
 		const routeServeFileRelBySrcFileAbs: Record<string, string> = {};
 
 		const routeNames = Object.keys(routes) as Array<keyof Routes>;
 
 		header(`Building fallback page templates`);
-		await $.promiseConsecutive(
-			routeNames.map(routeName => async() => {
-				const routePath = routes[routeName];
+		for (const routeName of routeNames) {
+			const routePath = routes[routeName];
+			let routeServeContents = await resolve(routePath); // All `Page.whatever.last` has to come after `resolve`
+			if (!routeServeContents) {
+				log(`${routeName as string} does not resolve to a template.`);
+				continue;
+			}
 
-				let routeServeFileRel = routePath as string;
-				if (!routeServeFileRel.startsWith(`/`)) {
-					routeServeFileRel = `/${routeServeFileRel}`;
-				}
-				routeServeFileRel = routeServeFileRel.replace(hasHash, ``);
-				if (!hasExtension.test(routeServeFileRel)) {
-					routeServeFileRel = path.join(routeServeFileRel, `index.html`);
-				}
+			const routeSrcFileAbs = fileURLToPath(Page.importMetaUrl.last);
 
-				const routeServeDirRel = path.dirname(routeServeFileRel);
-				const routeServeDirAbs = path.join(this.serveDirAbs, routeServeDirRel);
-				const routeServeFileAbs = path.join(
-					routeServeDirAbs,
-					path.basename(routeServeFileRel),
+			let routeServeFileRel = routePath as string;
+			routeServeFileRel = routeServeFileRel
+				.replace(/^\//, ``)
+				.replace(hasHash, ``);
+			if (!hasExtension.test(routeServeFileRel)) {
+				routeServeFileRel = path.join(routeServeFileRel, `index.html`);
+			}
+
+			routeServeFileRelBySrcFileAbs[routeSrcFileAbs] = routeServeFileRel;
+
+			const routeServeDirRel = path.dirname(routeServeFileRel);
+			const routeServeDirAbs = path.join(this.serveDirAbs, routeServeDirRel);
+			const routeServeFileAbs = path.join(
+				routeServeDirAbs,
+				path.basename(routeServeFileRel),
+			);
+
+			if (Page.shouldFallback.last) {
+				routeServeContents = this.formatHtml(routeServeContents);
+				log(
+					`Route: ${routeName as string}`,
+					routePath,
+					local(routeServeFileAbs),
 				);
+				fs.mkdirSync(routeServeDirAbs, { recursive: true });
+				fs.writeFileSync(routeServeFileAbs, routeServeContents);
+			}
 
-				// Create fallback HTML template
-				let routeServeContents = await resolve(routePath);
-				if (routeServeContents) {
-					if (Page.shouldFallback.last) {
-						routeServeContents = this.formatHtml(routeServeContents);
-						log(
-							`Route: ${routeName as string}`,
-							routePath,
-							local(routeServeFileAbs),
-						);
-						fs.mkdirSync(routeServeDirAbs, { recursive: true });
-						fs.writeFileSync(routeServeFileAbs, routeServeContents);
-					}
-				} else {
-					log(`${routeName as string} does not resolve to a template.`);
-				}
-
-				// Create split/dynamically-loaded JS template
-				let routeSrcFileAbs = Page.splitImportMetaUrl.last;
-				if (routeSrcFileAbs) {
-					routeSrcFileAbs = fileURLToPath(routeSrcFileAbs);
-					entryPoints.push({
-						in: routeSrcFileAbs,
-						out: routeServeFileAbs,
-					});
-					routeServeFileRelBySrcFileAbs[routeSrcFileAbs] = routeServeFileRel;
-				}
-			})
-		);
+			if (Page.shouldSplit.last) {
+				routeSrcFileAbsToSplit.add(routeSrcFileAbs);
+			}
+		}
 
 		// ESBuild plugin to replace each dynamic import path to a `.ts` file with the path to the corresponding `.js` file, because browsers can't load `.ts` files
 		const replaceDynamicImportPaths = ((args: esbuild.OnResolveArgs) => {
@@ -174,18 +165,16 @@ export class Builder<Routes extends RouteMap> {
 			}
 			const routeSrcFileRel = args.path;
 			const routeSrcFileAbs = path.join(this.srcDirAbs, routeSrcFileRel);
-			let routeServeFileRel = routeServeFileRelBySrcFileAbs[routeSrcFileAbs];
-			if (routeServeFileRel) {
-				routeServeFileRel = routeServeFileRel.startsWith(`/`)
-					? `${routeServeFileRel}.js`
-					: `/${routeServeFileRel}.js`;
+			if (routeSrcFileAbsToSplit.has(routeSrcFileAbs)) {
+				let routeServeFileRel = routeServeFileRelBySrcFileAbs[routeSrcFileAbs];
+				routeServeFileRel = `${routeServeFileRel}.js`;
 				log(
 					local(routeSrcFileAbs),
 					path.join(local(this.serveDirAbs), routeServeFileRel),
 				);
 				return {
 					external: true,
-					path: routeServeFileRel,
+					path: `/${routeServeFileRel}`,
 				};
 			}
 		}).bind(this);
@@ -199,6 +188,11 @@ export class Builder<Routes extends RouteMap> {
 				);
 			},
 		};
+
+		const entryPoints = Array.from(routeSrcFileAbsToSplit.values()).map(routeSrcFileAbs => ({
+			in: routeSrcFileAbs,
+			out: routeServeFileRelBySrcFileAbs[routeSrcFileAbs],
+		}));
 
 		header(`Bundling JS and building dynamically-imported page templates`);
 		log(

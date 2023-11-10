@@ -1,7 +1,7 @@
 import { Page } from '@robertakarobin/web/index.ts';
 
 export class SplitPage extends Page {
-	splitImportMetaUrl = import.meta.url;
+	importMetaUrl = import.meta.url;
 	title = `Split`;
 	template() {
 		return `<h1>Split</h1>`;
