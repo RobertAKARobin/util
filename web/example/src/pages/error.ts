@@ -1,7 +1,7 @@
 import { Page } from '@robertakarobin/web/index.ts';
 
 export class ErrorPage extends Page {
-	importMetaUrl = import.meta.url;
+	splitImportMetaUrl = import.meta.url;
 	title = `Error 404`;
 	template() {
 		return `

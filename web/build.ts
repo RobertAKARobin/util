@@ -140,20 +140,22 @@ export class Builder<Routes extends RouteMap> {
 				// Create fallback HTML template
 				let routeServeContents = await resolve(routePath);
 				if (routeServeContents) {
-					routeServeContents = this.formatHtml(routeServeContents);
-					log(
-						`Route: ${routeName as string}`,
-						routePath,
-						local(routeServeFileAbs),
-					);
-					fs.mkdirSync(routeServeDirAbs, { recursive: true });
-					fs.writeFileSync(routeServeFileAbs, routeServeContents);
+					if (Page.shouldFallback.last) {
+						routeServeContents = this.formatHtml(routeServeContents);
+						log(
+							`Route: ${routeName as string}`,
+							routePath,
+							local(routeServeFileAbs),
+						);
+						fs.mkdirSync(routeServeDirAbs, { recursive: true });
+						fs.writeFileSync(routeServeFileAbs, routeServeContents);
+					}
 				} else {
 					log(`${routeName as string} does not resolve to a template.`);
 				}
 
 				// Create split/dynamically-loaded JS template
-				let routeSrcFileAbs = Page.importMetaUrl.last;
+				let routeSrcFileAbs = Page.splitImportMetaUrl.last;
 				if (routeSrcFileAbs) {
 					routeSrcFileAbs = fileURLToPath(routeSrcFileAbs);
 					entryPoints.push({
