@@ -50,11 +50,16 @@ export abstract class Component {
 
 			const $anchor = this;
 			const $root = $anchor.nextElementSibling as HTMLElement;
-			$anchor.remove();
-
 			component.$root = $root;
-			$root.setAttribute(Component.htmlAttribute, component.uid);
-			Component.instanceCache.set($root, component);
+			try {
+				$root.setAttribute(Component.htmlAttribute, component.uid);
+				Component.instanceCache.set($root, component);
+			} catch (error) {
+				console.log(error);
+				console.error(`Couldn't bind listeners for ${component.constructor.name} ${component.uid}. Make sure the component's template is valid for its surrounding HTML tags, e.g. don't put an <input> in a <p>.`);
+			} finally {
+				$anchor.remove();
+			}
 		};
 
 		Component.onload.set(component.uid, onload);
