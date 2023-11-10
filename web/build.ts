@@ -27,13 +27,22 @@ function log(...args: Array<string>) {
 }
 
 export class Builder<Routes extends RouteMap> {
+	readonly assetsServeDirAbs: string;
+	readonly assetsSrcDirAbs: string;
 	readonly assetsSrcDirRel: string;
 	readonly baseDirAbs: string;
+	readonly routesSrcFileAbs: string;
 	readonly routesSrcFileRel: string;
+	readonly scriptServeFileName: string;
+	readonly scriptServeFileRel: string;
+	readonly scriptSrcFileAbs: string;
 	readonly scriptSrcFileRel: string;
 	readonly serveDirAbs: string;
 	readonly srcDirAbs: string;
 	readonly styleServeFileRel: string;
+	readonly stylesServeFileAbs: string;
+	readonly stylesSrcFileAbs: string;
+	readonly vendorServeFileAbs: string;
 	readonly vendorServeFileName: string;
 	readonly vendorSrcFileAbs: string;
 
@@ -53,11 +62,24 @@ export class Builder<Routes extends RouteMap> {
 		this.serveDirAbs = path.join(this.baseDirAbs, input.serveDirRel || `./dist`);
 
 		this.assetsSrcDirRel = input.assetsSrcDirRel || `./assets`;
+		this.assetsSrcDirAbs = path.join(this.baseDirAbs, this.assetsSrcDirRel);
+		this.assetsServeDirAbs = path.join(this.serveDirAbs, this.assetsSrcDirRel);
+
 		this.routesSrcFileRel = input.routesSrcFileRel || `./routes.ts`;
+		this.routesSrcFileAbs = path.join(this.srcDirAbs, this.routesSrcFileRel);
+
 		this.scriptSrcFileRel = input.scriptSrcFileRel || `./script.ts`;
+		this.scriptSrcFileAbs = path.join(this.srcDirAbs, this.scriptSrcFileRel);
+		this.scriptServeFileName = path.parse(this.scriptSrcFileRel).name;
+		this.scriptServeFileRel = path.join(this.serveDirAbs, this.scriptSrcFileRel);
+
 		this.styleServeFileRel = input.styleServeFileRel || `./styles.css`;
-		this.vendorServeFileName = input.vendorServeFileName || `/web.js`;
+		this.stylesSrcFileAbs = path.join(this.srcDirAbs, `${this.styleServeFileRel}.ts`);
+		this.stylesServeFileAbs = path.join(this.serveDirAbs, this.styleServeFileRel);
+
 		this.vendorSrcFileAbs = input.vendorSrcFileAbs || `@robertakarobin/web/index.ts`;
+		this.vendorServeFileName = input.vendorServeFileName || `/web.js`;
+		this.vendorServeFileAbs = path.join(this.serveDirAbs, this.vendorServeFileName);
 	}
 
 	async build() {
@@ -72,20 +94,17 @@ export class Builder<Routes extends RouteMap> {
 
 	buildAssets() {
 		header(`Building assets`);
-		const assetsSrcDirAbs = path.join(this.baseDirAbs, this.assetsSrcDirRel);
-		if (fs.existsSync(assetsSrcDirAbs)) {
-			const assetsServeDirAbs = path.join(this.serveDirAbs, this.assetsSrcDirRel);
+		if (fs.existsSync(this.assetsSrcDirAbs)) {
 			log(
-				path.relative(process.cwd(), assetsSrcDirAbs),
-				path.relative(process.cwd(), assetsServeDirAbs),
+				path.relative(process.cwd(), this.assetsSrcDirAbs),
+				path.relative(process.cwd(), this.assetsServeDirAbs),
 			);
-			fs.cpSync(assetsSrcDirAbs, assetsServeDirAbs, { recursive: true });
+			fs.cpSync(this.assetsSrcDirAbs, this.assetsServeDirAbs, { recursive: true });
 		}
 	}
 
 	async buildJs() {
-		const routesSrcFileAbs = path.join(this.srcDirAbs, this.routesSrcFileRel);
-		const { routes, resolve } = (await import(routesSrcFileAbs)) as {
+		const { routes, resolve } = (await import(this.routesSrcFileAbs)) as {
 			resolve: Resolver<Routes>;
 			routes: Routes;
 		};
@@ -178,12 +197,9 @@ export class Builder<Routes extends RouteMap> {
 		};
 
 		header(`Bundling JS and building dynamically-imported page templates`);
-		const scriptSrcFileAbs = path.join(this.srcDirAbs, this.scriptSrcFileRel);
-		const scriptServeFileName = path.parse(this.scriptSrcFileRel).name;
-		const scriptServeFileRel = path.join(this.serveDirAbs, this.scriptSrcFileRel);
 		log(
-			path.relative(process.cwd(), scriptSrcFileAbs),
-			path.relative(process.cwd(), scriptServeFileRel.replace(/\.ts$/, `.js`))
+			path.relative(process.cwd(), this.scriptSrcFileAbs),
+			path.relative(process.cwd(), this.scriptServeFileRel.replace(/\.ts$/, `.js`))
 		);
 		const results = await esbuild.build({
 			absWorkingDir: this.serveDirAbs,
@@ -193,8 +209,8 @@ export class Builder<Routes extends RouteMap> {
 			bundle: true,
 			entryPoints: [
 				{
-					in: scriptSrcFileAbs,
-					out: scriptServeFileName,
+					in: this.scriptSrcFileAbs,
+					out: this.scriptServeFileName,
 				},
 				...entryPoints,
 			],
@@ -219,29 +235,27 @@ export class Builder<Routes extends RouteMap> {
 
 	async buildStyles() {
 		header(`Building styles`);
-		const stylesSrcFileAbs = path.join(this.srcDirAbs, `${this.styleServeFileRel}.ts`);
-		const stylesServeFileAbs = path.join(this.serveDirAbs, this.styleServeFileRel);
-		let styles = (await import(stylesSrcFileAbs)).default as string; // eslint-disable-line @typescript-eslint/no-unsafe-member-access
+
+		let styles = (await import(this.stylesSrcFileAbs)).default as string; // eslint-disable-line @typescript-eslint/no-unsafe-member-access
 		styles = this.formatCss(styles);
 		log(
-			path.relative(process.cwd(), stylesSrcFileAbs),
-			path.relative(process.cwd(), stylesServeFileAbs),
+			path.relative(process.cwd(), this.stylesSrcFileAbs),
+			path.relative(process.cwd(), this.stylesServeFileAbs),
 		);
-		fs.writeFileSync(stylesServeFileAbs, styles);
+		fs.writeFileSync(this.stylesServeFileAbs, styles);
 	}
 
 	buildVendor() {
 		header(`Building vendor JS`);
-		const vendorServeFileAbs = path.join(this.serveDirAbs, this.vendorServeFileName);
 		log(
 			this.vendorSrcFileAbs,
-			path.relative(process.cwd(), vendorServeFileAbs)
+			path.relative(process.cwd(), this.vendorServeFileAbs)
 		);
 		return esbuild.build({
 			bundle: true,
 			entryPoints: [this.vendorSrcFileAbs],
 			format: `esm`,
-			outfile: vendorServeFileAbs,
+			outfile: this.vendorServeFileAbs,
 		});
 	}
 
