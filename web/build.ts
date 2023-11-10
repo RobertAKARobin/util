@@ -22,6 +22,10 @@ function header(input: string) {
 	console.log(`...${input}...\n`);
 }
 
+function local(input: string) {
+	return path.relative(process.cwd(), input);
+}
+
 function log(...args: Array<string>) {
 	console.log(args.join(`\n`) + `\n`);
 }
@@ -95,10 +99,7 @@ export class Builder<Routes extends RouteMap> {
 	buildAssets() {
 		header(`Building assets`);
 		if (fs.existsSync(this.assetsSrcDirAbs)) {
-			log(
-				path.relative(process.cwd(), this.assetsSrcDirAbs),
-				path.relative(process.cwd(), this.assetsServeDirAbs),
-			);
+			log(local(this.assetsSrcDirAbs), local(this.assetsServeDirAbs));
 			fs.cpSync(this.assetsSrcDirAbs, this.assetsServeDirAbs, { recursive: true });
 		}
 	}
@@ -143,7 +144,7 @@ export class Builder<Routes extends RouteMap> {
 					log(
 						`Route: ${routeName as string}`,
 						routePath,
-						path.relative(process.cwd(), routeServeFileAbs),
+						local(routeServeFileAbs),
 					);
 					fs.mkdirSync(routeServeDirAbs, { recursive: true });
 					fs.writeFileSync(routeServeFileAbs, routeServeContents);
@@ -176,11 +177,8 @@ export class Builder<Routes extends RouteMap> {
 					? `${routeServeFileRel}.js`
 					: `/${routeServeFileRel}.js`;
 				log(
-					path.relative(process.cwd(), routeSrcFileAbs),
-					path.join(
-						path.relative(process.cwd(), this.serveDirAbs),
-						routeServeFileRel,
-					),
+					local(routeSrcFileAbs),
+					path.join(local(this.serveDirAbs), routeServeFileRel),
 				);
 				return {
 					external: true,
@@ -198,8 +196,8 @@ export class Builder<Routes extends RouteMap> {
 
 		header(`Bundling JS and building dynamically-imported page templates`);
 		log(
-			path.relative(process.cwd(), this.scriptSrcFileAbs),
-			path.relative(process.cwd(), this.scriptServeFileRel.replace(/\.ts$/, `.js`))
+			local(this.scriptSrcFileAbs),
+			local(this.scriptServeFileRel.replace(/\.ts$/, `.js`)),
 		);
 		const results = await esbuild.build({
 			absWorkingDir: this.serveDirAbs,
@@ -226,7 +224,7 @@ export class Builder<Routes extends RouteMap> {
 			const jsServeFileAbs = path.join(this.serveDirAbs, jsServeFileRel);
 			let html = fs.readFileSync(jsServeFileAbs, { encoding: `utf8` });
 			if (hasMarkdown.test(html)) {
-				log(path.relative(process.cwd(), jsServeFileAbs));
+				log(local(jsServeFileAbs));
 				html = this.formatMarkdown(html);
 				fs.writeFileSync(jsServeFileAbs, html);
 			}
@@ -238,19 +236,13 @@ export class Builder<Routes extends RouteMap> {
 
 		let styles = (await import(this.stylesSrcFileAbs)).default as string; // eslint-disable-line @typescript-eslint/no-unsafe-member-access
 		styles = this.formatCss(styles);
-		log(
-			path.relative(process.cwd(), this.stylesSrcFileAbs),
-			path.relative(process.cwd(), this.stylesServeFileAbs),
-		);
+		log(local(this.stylesSrcFileAbs), local(this.stylesServeFileAbs));
 		fs.writeFileSync(this.stylesServeFileAbs, styles);
 	}
 
 	buildVendor() {
 		header(`Building vendor JS`);
-		log(
-			this.vendorSrcFileAbs,
-			path.relative(process.cwd(), this.vendorServeFileAbs)
-		);
+		log(this.vendorSrcFileAbs, local(this.vendorServeFileAbs));
 		return esbuild.build({
 			bundle: true,
 			entryPoints: [this.vendorSrcFileAbs],
@@ -291,10 +283,7 @@ export class Builder<Routes extends RouteMap> {
 				port,
 				servedir: this.serveDirAbs,
 			}).then(() => {
-				log(
-					path.relative(process.cwd(), this.serveDirAbs),
-					`http://localhost:${port}`,
-				);
+				log(local(this.serveDirAbs), `http://localhost:${port}`);
 			}).catch(error => {
 				console.warn(error);
 				void retryPort();
