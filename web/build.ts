@@ -18,17 +18,13 @@ import defaultLayout from './layout.ts';
 const hasMarkdown = /<markdown>(.*?)<\/markdown>/gs;
 const hasJsTemplate = /\$\{.*?\}/gs;
 
-function header(input: string) {
-	console.log(`...${input}...\n`);
-}
+const header = (input: string) => console.log(`...${input}...\n`);
 
-function local(input: string) {
-	return path.relative(process.cwd(), input);
-}
+const local = (input: string) => path.relative(process.cwd(), input);
 
-function log(...args: Array<string>) {
-	console.log(args.join(`\n`) + `\n`);
-}
+const log = (...args: Array<string>) => console.log(args.join(`\n`));
+
+const logBreak = () => console.log(``);
 
 export class Builder<Routes extends RouteMap> {
 	readonly assetsServeDirAbs: string;
@@ -37,12 +33,13 @@ export class Builder<Routes extends RouteMap> {
 	readonly baseDirAbs: string;
 	readonly routesSrcFileAbs: string;
 	readonly routesSrcFileRel: string;
+	readonly scriptServeFileAbs: string;
 	readonly scriptServeFileName: string;
-	readonly scriptServeFileRel: string;
 	readonly scriptSrcFileAbs: string;
 	readonly scriptSrcFileRel: string;
 	readonly serveDirAbs: string;
 	readonly srcDirAbs: string;
+	readonly srcRawDirAbs: string;
 	readonly styleServeFileRel: string;
 	readonly stylesServeFileAbs: string;
 	readonly stylesSrcFileAbs: string;
@@ -56,14 +53,16 @@ export class Builder<Routes extends RouteMap> {
 		routesSrcFileRel: string;
 		scriptSrcFileRel: string;
 		serveDirRel: string;
-		srcDirRel: string;
+		srcRawDirRel: string;
+		srcTmpDirRel: string;
 		styleServeFileRel: string;
 		vendorServeFileName: string;
 		vendorSrcFileAbs: string;
 	}> = {}) {
 		this.baseDirAbs = input.baseDirAbs || process.cwd();
-		this.srcDirAbs = path.join(this.baseDirAbs, input.srcDirRel || `./src`);
 		this.serveDirAbs = path.join(this.baseDirAbs, input.serveDirRel || `./dist`);
+		this.srcRawDirAbs = path.join(this.baseDirAbs, input.srcRawDirRel || `./src`);
+		this.srcDirAbs = path.join(this.baseDirAbs, input.srcTmpDirRel || `./tmp`);
 
 		this.assetsSrcDirRel = input.assetsSrcDirRel || `./assets`;
 		this.assetsSrcDirAbs = path.join(this.baseDirAbs, this.assetsSrcDirRel);
@@ -75,7 +74,7 @@ export class Builder<Routes extends RouteMap> {
 		this.scriptSrcFileRel = input.scriptSrcFileRel || `./script.ts`;
 		this.scriptSrcFileAbs = path.join(this.srcDirAbs, this.scriptSrcFileRel);
 		this.scriptServeFileName = path.parse(this.scriptSrcFileRel).name;
-		this.scriptServeFileRel = path.join(this.serveDirAbs, this.scriptSrcFileRel);
+		this.scriptServeFileAbs = path.join(this.serveDirAbs, this.scriptSrcFileRel);
 
 		this.styleServeFileRel = input.styleServeFileRel || `./styles.css`;
 		this.stylesSrcFileAbs = path.join(this.srcDirAbs, `${this.styleServeFileRel}.ts`);
@@ -90,10 +89,15 @@ export class Builder<Routes extends RouteMap> {
 		fs.rmSync(this.serveDirAbs, { force: true, recursive: true });
 		fs.mkdirSync(this.serveDirAbs);
 
+		fs.rmSync(this.srcDirAbs, { force: true, recursive: true });
+		fs.cpSync(this.srcRawDirAbs, this.srcDirAbs, { force: true, recursive: true });
+
 		this.buildAssets();
 		await this.buildStyles();
-		await this.buildVendor();
+		this.buildVendor();
 		await this.buildJs();
+
+		fs.rmSync(this.srcDirAbs, { force: true, recursive: true });
 	}
 
 	buildAssets() {
@@ -102,6 +106,7 @@ export class Builder<Routes extends RouteMap> {
 			log(local(this.assetsSrcDirAbs), local(this.assetsServeDirAbs));
 			fs.cpSync(this.assetsSrcDirAbs, this.assetsServeDirAbs, { recursive: true });
 		}
+		logBreak();
 	}
 
 	async buildJs() {
@@ -132,8 +137,6 @@ export class Builder<Routes extends RouteMap> {
 				const shouldFallback = Page.shouldFallback.last;
 				const shouldSplit = Page.shouldSplit.last;
 
-				const tmpFileAbs = `${srcFileAbs}.tmp.ts`;
-
 				return {
 					routePath,
 					serveDirAbs,
@@ -143,20 +146,20 @@ export class Builder<Routes extends RouteMap> {
 					shouldSplit,
 					srcFileAbs,
 					srcFileRel,
-					tmpFileAbs,
 				};
 			})
 		);
 
+		header(`Building pages' fallback HTML`);
 		await routeInfos.reduce(async(previous, route) => {
 			await previous;
 
-			let source = fs.readFileSync(route.srcFileAbs, { encoding: `utf8` });
-			source = this.formatMarkdown(source);
-			fs.renameSync(route.srcFileAbs, route.tmpFileAbs);
-			fs.writeFileSync(route.srcFileAbs, source);
+			let tsSrc = fs.readFileSync(route.srcFileAbs, { encoding: `utf8` });
+			tsSrc = this.formatTSSource(tsSrc);
+			fs.writeFileSync(route.srcFileAbs, tsSrc);
 
 			if (route.shouldFallback) {
+				log(route.routePath);
 				let html = await resolve(route.routePath);
 				if (!html) {
 					log(`Does not resolve to a template.`);
@@ -164,13 +167,18 @@ export class Builder<Routes extends RouteMap> {
 				}
 				html = this.formatHtml(html);
 				fs.mkdirSync(route.serveDirAbs, { recursive: true });
+				log(local(route.serveFileAbs));
 				fs.writeFileSync(route.serveFileAbs, html);
+				logBreak();
 			}
 		}, Promise.resolve());
 
-		const routesBySrcFileRel = Object.fromEntries(
-			routeInfos.map(route => [`./${route.srcFileRel}`, route])
+		header(`Bundling JS`);
+		const routesBySrcFileAbs = Object.fromEntries(
+			routeInfos.map(route => [route.srcFileAbs, route])
 		);
+		log(local(this.scriptSrcFileAbs), local(this.scriptServeFileAbs));
+		logBreak();
 		await esbuild.build({
 			absWorkingDir: this.serveDirAbs,
 			alias: {
@@ -193,52 +201,53 @@ export class Builder<Routes extends RouteMap> {
 			outdir: this.serveDirAbs,
 			plugins: [{
 				name: `Split page resolver`,
-				setup(build) {
+				setup: build => {
+					header(`Building pages' split JS templates`);
 					build.onResolve({ filter: isRelativePath }, args => {
 						if (args.kind !== `dynamic-import`) {
 							return;
 						}
 
-						const route = routesBySrcFileRel[args.path];
+						const srcFileAbs = path.join(this.srcDirAbs, args.path);
+						const route = routesBySrcFileAbs[srcFileAbs];
 						if (!route) {
 							return;
 						}
 
 						if (route.shouldSplit) {
+							const routeSplitPath = `/${route.serveFileRel}.js`;
+							log(route.routePath, `${local(route.serveFileAbs)}.js`);
+							logBreak();
 							return {
 								external: true,
-								path: `/${route.serveFileRel}.js`,
+								path: routeSplitPath,
 							};
 						}
 					});
 				},
 			}],
 		});
-
-		await routeInfos.reduce(async(previous, route) => {
-			await previous;
-			fs.renameSync(route.tmpFileAbs, route.srcFileAbs);
-		}, Promise.resolve());
 	}
 
 	async buildStyles() {
 		header(`Building styles`);
-
 		let styles = (await import(this.stylesSrcFileAbs)).default as string; // eslint-disable-line @typescript-eslint/no-unsafe-member-access
 		styles = this.formatCss(styles);
 		log(local(this.stylesSrcFileAbs), local(this.stylesServeFileAbs));
 		fs.writeFileSync(this.stylesServeFileAbs, styles);
+		logBreak();
 	}
 
 	buildVendor() {
 		header(`Building vendor JS`);
 		log(this.vendorSrcFileAbs, local(this.vendorServeFileAbs));
-		return esbuild.build({
+		esbuild.buildSync({
 			bundle: true,
 			entryPoints: [this.vendorSrcFileAbs],
 			format: `esm`,
 			outfile: this.vendorServeFileAbs,
 		});
+		logBreak();
 	}
 
 	formatCss(input: string) {
@@ -266,6 +275,10 @@ export class Builder<Routes extends RouteMap> {
 		return output;
 	}
 
+	formatTSSource(input: string) {
+		return this.formatMarkdown(input);
+	}
+
 	async serve(options: (esbuild.ServeOptions & { watch?: boolean; }) = {}) {
 		const port = options.port || 3000;
 		const retryPort = async() => {
@@ -285,7 +298,7 @@ export class Builder<Routes extends RouteMap> {
 		await retryPort();
 		if (options.watch) {
 			fs.watch(
-				this.srcDirAbs,
+				this.srcRawDirAbs,
 				{ recursive: true },
 				(event, pathName) => {
 					log(`Watched: ${event}`, pathName as string);

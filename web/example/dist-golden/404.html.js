@@ -1,4 +1,4 @@
-// ../src/pages/error.ts
+// ../tmp/pages/error.ts
 import { Page } from "/web.js";
 var ErrorPage = class extends Page {
   importMetaUrl = import.meta.url;

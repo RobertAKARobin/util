@@ -1,7 +1,7 @@
-// ../src/pages/index.ts
+// ../tmp/pages/index.ts
 import { Page } from "/web.js";
 
-// ../src/components/textbox.ts
+// ../tmp/components/textbox.ts
 import { Component } from "/web.js";
 var Textbox = class extends Component {
   max = 10;
@@ -33,7 +33,7 @@ var Textbox = class extends Component {
 };
 var textbox_default = Component.toFunction(Textbox);
 
-// ../src/pages/index.ts
+// ../tmp/pages/index.ts
 var style = `
 h1 {
 	color: red;
