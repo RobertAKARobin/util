@@ -109,7 +109,7 @@ export class DB {
 		await this.assertConnection();
 
 		const exists = DB.data.has(id);
-		if (options?.assert && !exists) {
+		if (options?.assert !== undefined && !exists) {
 			throw new Error(`ID '${id}' is not present in database.`);
 		}
 		return exists;

@@ -74,6 +74,7 @@ module.exports = {
 				"@typescript-eslint/object-curly-spacing": [`error`, `always`],
 				"@typescript-eslint/semi": [`error`, `always`],
 				"@typescript-eslint/space-before-function-paren": [`error`, `never`],
+				"@typescript-eslint/strict-boolean-expressions": `error`,
 				"@typescript-eslint/unbound-method": [`warn`, {
 					ignoreStatic: true,
 				}],

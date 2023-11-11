@@ -26,6 +26,9 @@ const log = (...args: Array<string>) => console.log(args.join(`\n`));
 
 const logBreak = () => console.log(``);
 
+const isStringElse = (input: unknown, fallback: string) =>
+	typeof input === `string` ? input : fallback;
+
 export class Builder<Routes extends RouteMap> {
 	readonly assetsServeDirAbs: string;
 	readonly assetsSrcDirAbs: string;
@@ -59,29 +62,29 @@ export class Builder<Routes extends RouteMap> {
 		vendorServeFileName: string;
 		vendorSrcFileAbs: string;
 	}> = {}) {
-		this.baseDirAbs = input.baseDirAbs || process.cwd();
-		this.serveDirAbs = path.join(this.baseDirAbs, input.serveDirRel || `./dist`);
-		this.srcRawDirAbs = path.join(this.baseDirAbs, input.srcRawDirRel || `./src`);
-		this.srcDirAbs = path.join(this.baseDirAbs, input.srcTmpDirRel || `./tmp`);
+		this.baseDirAbs = isStringElse(input.baseDirAbs, process.cwd());
+		this.serveDirAbs = path.join(this.baseDirAbs, isStringElse(input.serveDirRel, `./dist`));
+		this.srcRawDirAbs = path.join(this.baseDirAbs, isStringElse(input.srcRawDirRel, `./src`));
+		this.srcDirAbs = path.join(this.baseDirAbs, isStringElse(input.srcTmpDirRel, `./tmp`));
 
-		this.assetsSrcDirRel = input.assetsSrcDirRel || `./assets`;
+		this.assetsSrcDirRel = isStringElse(input.assetsSrcDirRel, `./assets`);
 		this.assetsSrcDirAbs = path.join(this.baseDirAbs, this.assetsSrcDirRel);
 		this.assetsServeDirAbs = path.join(this.serveDirAbs, this.assetsSrcDirRel);
 
-		this.routesSrcFileRel = input.routesSrcFileRel || `./routes.ts`;
+		this.routesSrcFileRel = isStringElse(input.routesSrcFileRel, `./routes.ts`);
 		this.routesSrcFileAbs = path.join(this.srcDirAbs, this.routesSrcFileRel);
 
-		this.scriptSrcFileRel = input.scriptSrcFileRel || `./script.ts`;
+		this.scriptSrcFileRel = isStringElse(input.scriptSrcFileRel, `./script.ts`);
 		this.scriptSrcFileAbs = path.join(this.srcDirAbs, this.scriptSrcFileRel);
 		this.scriptServeFileName = path.parse(this.scriptSrcFileRel).name;
 		this.scriptServeFileAbs = path.join(this.serveDirAbs, this.scriptSrcFileRel);
 
-		this.styleServeFileRel = input.styleServeFileRel || `./styles.css`;
+		this.styleServeFileRel = isStringElse(input.styleServeFileRel, `./styles.css`);
 		this.stylesSrcFileAbs = path.join(this.srcDirAbs, `${this.styleServeFileRel}.ts`);
 		this.stylesServeFileAbs = path.join(this.serveDirAbs, this.styleServeFileRel);
 
-		this.vendorSrcFileAbs = input.vendorSrcFileAbs || `@robertakarobin/web/index.ts`;
-		this.vendorServeFileName = input.vendorServeFileName || `/web.js`;
+		this.vendorSrcFileAbs = isStringElse(input.vendorSrcFileAbs, `@robertakarobin/web/index.ts`);
+		this.vendorServeFileName = isStringElse(input.vendorServeFileName, `/web.js`);
 		this.vendorServeFileAbs = path.join(this.serveDirAbs, this.vendorServeFileName);
 	}
 
@@ -161,7 +164,7 @@ export class Builder<Routes extends RouteMap> {
 			if (route.shouldFallback) {
 				log(route.routePath);
 				let html = await resolve(route.routePath);
-				if (!html) {
+				if (typeof html !== `string`) {
 					log(`Does not resolve to a template.`);
 					return;
 				}
@@ -210,7 +213,7 @@ export class Builder<Routes extends RouteMap> {
 
 						const srcFileAbs = path.join(this.srcDirAbs, args.path);
 						const route = routesBySrcFileAbs[srcFileAbs];
-						if (!route) {
+						if (route === undefined) {
 							return;
 						}
 
@@ -269,7 +272,10 @@ export class Builder<Routes extends RouteMap> {
 				return jsPlaceholder;
 			});
 			html = marked(html.trim());
-			html = html.replaceAll(jsPlaceholder, () => jsTemplates.shift() || ``);
+			html = html.replaceAll(jsPlaceholder, () => {
+				const jsTemplate = jsTemplates.shift();
+				return typeof jsTemplate === `string` ? jsTemplate : ``;
+			});
 			return html;
 		});
 		return output;
@@ -280,7 +286,7 @@ export class Builder<Routes extends RouteMap> {
 	}
 
 	async serve(options: (esbuild.ServeOptions & { watch?: boolean; }) = {}) {
-		const port = options.port || 3000;
+		const port = isNaN(options.port as number) ? 3000 : options.port;
 		const retryPort = async() => {
 			(await esbuild.context({})).serve({
 				port,
@@ -296,7 +302,7 @@ export class Builder<Routes extends RouteMap> {
 
 		await this.build();
 		await retryPort();
-		if (options.watch) {
+		if (options.watch === true) {
 			fs.watch(
 				this.srcRawDirAbs,
 				{ recursive: true },

@@ -117,7 +117,7 @@ export class SpecRenderer<
 		let valueWrapperMatcher: RegExp | undefined;
 		let explanation = title;
 
-		if (valueWrapperName) {
+		if (valueWrapperName !== undefined) {
 			const valueWrapperPrefix = valueWrapperName.startsWith(`$`)
 				? `\\$${valueWrapperName.substring(1)}`
 				: `\\b${valueWrapperName}`; // JS variables can start with `$` which is a special character in RegEx that doesn't play nice with `\b`
@@ -244,7 +244,7 @@ export class SpecRenderer<
 			this.print(results, options);
 			process.exit(1);
 		} else {
-			if (options.verbose) {
+			if (options.verbose === true) {
 				this.print(results, options);
 			}
 			process.exit(0);

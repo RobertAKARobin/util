@@ -97,7 +97,7 @@ export abstract class Component {
 	): ReturnType<this[`template`]> {
 		const rendered = this.template(...args) as ReturnType<this[`template`]>;
 
-		if (this.style && !Component.styleCache.has(this.constructor)) {
+		if (typeof(this.style) === `string` && !Component.styleCache.has(this.constructor)) {
 			Component.styleCache.set(this.constructor, this.style);
 
 			if (routerContext === `browser`) {

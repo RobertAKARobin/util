@@ -138,7 +138,7 @@ export class SpecRunner {
 		return async(inheritedArgs, index) => {
 			const result: Type.SuiteResult = {
 				count: { ...specStepCountDefault },
-				indexAtDefinition: index || 0,
+				indexAtDefinition: isNaN(index as number) ? 0 : index as number,
 				iterations: [],
 				status: `pass`,
 				timeBegin: this.getTime(),
@@ -153,7 +153,7 @@ export class SpecRunner {
 				: () => ({ ...inheritedArgs });
 
 			const iterations = $.nTimes(
-				options.iterations || 1,
+				isNaN(options.iterations as number) ? 1 : options.iterations as number,
 				(_nil, index) => () => this.suiteIteration({
 					args,
 					children,
@@ -235,7 +235,7 @@ export class SpecRunner {
 		return async(args, index) => {
 			const result: Type.TestResult = {
 				count: { ...specStepCountDefault },
-				indexAtDefinition: index || 0,
+				indexAtDefinition: isNaN(index as number) ? 0 : index as number,
 				iterations: [],
 				status: `pass`,
 				timeBegin: this.getTime(),
@@ -246,7 +246,7 @@ export class SpecRunner {
 			};
 
 			const iterations = $.nTimes(
-				options.iterations || 1,
+				isNaN(options.iterations as number) ? 1 : options.iterations as number,
 				(_nil, index) => () => this.testIteration<Args>({
 					args,
 					index,

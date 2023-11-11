@@ -69,7 +69,7 @@ export function fromKeys<Value>(
 	}
 
 	return keys.map(key => {
-		if (!input[key]) {
+		if (input[key] === undefined) {
 			throw new Error(`'${key}' is not a valid key.`);
 		} else {
 			return input[key];
@@ -102,7 +102,7 @@ export function nTimes<Value>(
 		| Value
 		| nTimesCallback<Value>,
 ): Array<Value> {
-	if (contents) {
+	if (contents === null || contents === undefined) {
 		if (typeof contents === `function`) {
 			return Array.from(Array(number), contents as nTimesCallback<Value>);
 		} else {
@@ -175,7 +175,7 @@ export function traverseMap<
 ) {
 	const ancestors: Array<Target> = [];
 	let current: Target = input;
-	while (current) {
+	while (current !== undefined) {
 		ancestors.push(current);
 		current = current[propertyName];
 	}

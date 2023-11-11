@@ -36,6 +36,7 @@ module.exports = {
 		"brace-style": [`error`, `1tbs`],
 		"comma-dangle": [`error`, `always-multiline`],
 		"curly": [`error`, `all`],
+		"eqeqeq": `error`,
 		"import-newlines/enforce": [`error`, {
 			items: 4,
 		}],

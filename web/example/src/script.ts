@@ -7,6 +7,10 @@ Page.title.subscribe(title => document.title = title);
 
 const $output = document.getElementById(`output`)!;
 router.subscribe(async path => {
-	$output.innerHTML = await resolve(path) || error();
+	let page = await resolve(path);
+	if (typeof page !== `string`) {
+		page = error();
+	}
+	$output.innerHTML = page;
 });
 router.onChange();
