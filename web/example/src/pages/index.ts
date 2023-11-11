@@ -13,39 +13,40 @@ const colors = [`red`, `yellow`, `green`, `brown`, `scarlet`];
 const template = (message: string) => `
 <h1>Hello world!</h1>
 
-<markdown>
-# Headline 1
-
-## ${message}
-
+<h1>Headline 1</h1>
+<h2>${message}</h2>
 <div>${textbox()}</div>
 
 <div>${textbox()}</div>
 
-Lorem ipsum dolor <strong>sit amet</strong>, consectetur *adipiscing elit*, sed do _eiusmod tempor_ incididunt.
+<p>Lorem ipsum dolor <strong>sit amet</strong>, consectetur <em>adipiscing elit</em>, sed do <em>eiusmod tempor</em> incididunt.</p>
+<p>Duis aute voluptate <a href="https://example.com">velit esse cillum</a> dolore /eu fugiat/ nulla pariatur.</p>
 
-Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ nulla pariatur.
-</markdown>
 
-<markdown>
-## Headline 2
+<h2>Headline 2</h2>
+<blockquote>
+<p>Excepteur sint ${`occaecat cupidatat non`} proident.</p>
+</blockquote>
+<p>Joseph&#39;s coat was ${colors.join(` and `)}.</p>
+<ul>
+<li>   ut aliquip ex</li>
+<li>   ea commodo consequat.<ul>
+<li>   Duis aute</li>
+<li>   irure dolor in</li>
+</ul>
+</li>
+<li>   ut aliquip ex</li>
+</ul>
+<ol>
+<li>   ut aliquip ex</li>
+<li>   ea commodo consequat.<ol>
+<li>   Duis aute</li>
+<li>   irure dolor in</li>
+</ol>
+</li>
+<li>   ut aliquip ex</li>
+</ol>
 
-> Excepteur sint ${`occaecat cupidatat non`} proident.
-
-Joseph's coat was ${colors.join(` and `)}.
-
--	ut aliquip ex
--	ea commodo consequat.
-	-	Duis aute
-	-	irure dolor in
--	ut aliquip ex
-
-1.	ut aliquip ex
-1.	ea commodo consequat.
-	1.	Duis aute
-	1.	irure dolor in
-1.	ut aliquip ex
-</markdown>
 `;
 
 export class IndexPage extends Page {
