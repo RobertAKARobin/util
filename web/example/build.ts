@@ -3,7 +3,6 @@ import path from 'path';
 
 import { Builder } from '@robertakarobin/web/build.ts';
 
-import layout from './src/pages/_layout.ts';
 import { type routes } from './src/routes.ts';
 
 const trimNewlines = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
@@ -19,8 +18,7 @@ class CustomBuilder extends Builder<typeof routes> {
 	}
 
 	formatHtml(contents: string) {
-		let html = contents;
-		html = layout(html);
+		let html = super.formatHtml(contents);
 		html = trimNewlines(html);
 		html = jsBeautify.html(html, {
 			end_with_newline: true, // TODO2: Once we're using editorconfig, use the `--editorconfig` option

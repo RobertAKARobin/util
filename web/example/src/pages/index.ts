@@ -1,5 +1,6 @@
 import { Page } from '@robertakarobin/web/index.ts';
 
+import nav from '../components/nav.ts';
 import textbox from '../components/textbox.ts';
 
 const style =  `
@@ -11,6 +12,7 @@ h1 {
 const colors = [`red`, `yellow`, `green`, `brown`, `scarlet`];
 
 const template = (message: string) => `
+${nav()}
 <h1>Hello world!</h1>
 
 <h1>Headline 1</h1>

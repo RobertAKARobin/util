@@ -14,10 +14,7 @@ export abstract class Component {
 	private static readonly htmlAttribute = `data-component`;
 	private static readonly instanceCache = new WeakMap<HTMLElement, Component>();
 	static readonly onload = new Map<string, CachedFunction>();
-	private static styleCache = new Map< // This is a Map instead of a WeakMap because we don't want <style> elements to be garbage collected; once a style is applied to a page it is permanent
-		typeof Component.constructor,
-		HTMLStyleElement
-	>();
+	static readonly styleCache = new Map<typeof Component.constructor, string>();
 
 	static {
 		if (routerContext === `browser`) {
@@ -99,17 +96,20 @@ export abstract class Component {
 		...args: Parameters<this[`template`]>
 	): ReturnType<this[`template`]> {
 		const rendered = this.template(...args) as ReturnType<this[`template`]>;
+
+		if (this.style && !Component.styleCache.has(this.constructor)) {
+			Component.styleCache.set(this.constructor, this.style);
+
+			if (routerContext === `browser`) {
+				const $style = document.createElement(`style`);
+				$style.textContent = this.style;
+				document.head.appendChild($style);
+			}
+		}
+
 		if (routerContext !== `browser`) {
 			return rendered;
 		}
-
-		if (this.style && !Component.styleCache.has(this.constructor)) {
-			const $style = document.createElement(`style`);
-			$style.textContent = this.style;
-			document.head.appendChild($style);
-			Component.styleCache.set(this.constructor, $style);
-		}
-
 		if (rendered instanceof Promise) {
 			return rendered.then(html => Component.wrap(this, html)) as ReturnType<this[`template`]>;
 		}
