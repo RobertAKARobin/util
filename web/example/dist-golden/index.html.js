@@ -39,17 +39,45 @@ h1 {
 	color: red;
 }
 `;
+var colors = [`red`, `yellow`, `green`, `brown`, `scarlet`];
 var template = (message) => `
 <h1>Hello world!</h1>
 
-<markdown>
-# Headline 1 ${message}
+<h1>Headline 1</h1>
+<h2>${message}</h2>
+<div>${textbox_default()}</div>
 
-## ${message}
+<div>${textbox_default()}</div>
 
-${textbox_default()}
+<p>Lorem ipsum dolor <strong>sit amet</strong>, consectetur <em>adipiscing elit</em>, sed do <em>eiusmod tempor</em> incididunt.</p>
+<p>Duis aute voluptate <a href="https://example.com">velit esse cillum</a> dolore /eu fugiat/ nulla pariatur.</p>
 
-${textbox_default()}`;
+
+<h2>Headline 2</h2>
+<blockquote>
+<p>Excepteur sint ${`occaecat cupidatat non`} proident.</p>
+</blockquote>
+<p>Joseph&#39;s coat was ${colors.join(` and `)}.</p>
+<ul>
+<li>   ut aliquip ex</li>
+<li>   ea commodo consequat.<ul>
+<li>   Duis aute</li>
+<li>   irure dolor in</li>
+</ul>
+</li>
+<li>   ut aliquip ex</li>
+</ul>
+<ol>
+<li>   ut aliquip ex</li>
+<li>   ea commodo consequat.<ol>
+<li>   Duis aute</li>
+<li>   irure dolor in</li>
+</ol>
+</li>
+<li>   ut aliquip ex</li>
+</ol>
+
+`;
 var IndexPage = class extends Page {
   importMetaUrl = import.meta.url;
   style = style;

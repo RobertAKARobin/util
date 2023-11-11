@@ -1,3 +1,4 @@
+import * as $ from '@robertakarobin/jsutil';
 import esbuild from 'esbuild';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
@@ -114,49 +115,56 @@ export class Builder<Routes extends RouteMap> {
 
 		const routeNames = Object.keys(routes) as Array<keyof Routes>;
 
-		header(`Building fallback page templates`);
-		for (const routeName of routeNames) {
-			const routePath = routes[routeName];
-			let routeServeContents = await resolve(routePath); // All `Page.whatever.last` has to come after `resolve`
-			if (!routeServeContents) {
-				log(`${routeName as string} does not resolve to a template.`);
-				continue;
-			}
+		await $.promiseConsecutive(
+			routeNames.map(routeName => async() => {
+				const routePath = routes[routeName];
+				console.log(`Route '${routeName as string}':`);
+				console.log(routePath);
 
-			const routeSrcFileAbs = fileURLToPath(Page.importMetaUrl.last);
+				if (!await resolve(routePath)) { // All `Page.whatever.last` has to come after `resolve`
+					log(`Does not resolve to a template.`);
+					return;
+				}
 
-			let routeServeFileRel = routePath as string;
-			routeServeFileRel = routeServeFileRel
-				.replace(/^\//, ``)
-				.replace(hasHash, ``);
-			if (!hasExtension.test(routeServeFileRel)) {
-				routeServeFileRel = path.join(routeServeFileRel, `index.html`);
-			}
+				const routeSrcFileAbs = fileURLToPath(Page.importMetaUrl.last);
 
-			routeServeFileRelBySrcFileAbs[routeSrcFileAbs] = routeServeFileRel;
+				let routeServeFileRel = routePath as string;
+				routeServeFileRel = routeServeFileRel
+					.replace(/^\//, ``)
+					.replace(hasHash, ``);
+				if (!hasExtension.test(routeServeFileRel)) {
+					routeServeFileRel = path.join(routeServeFileRel, `index.html`);
+				}
 
-			const routeServeDirRel = path.dirname(routeServeFileRel);
-			const routeServeDirAbs = path.join(this.serveDirAbs, routeServeDirRel);
-			const routeServeFileAbs = path.join(
-				routeServeDirAbs,
-				path.basename(routeServeFileRel),
-			);
+				routeServeFileRelBySrcFileAbs[routeSrcFileAbs] = routeServeFileRel;
 
-			if (Page.shouldFallback.last) {
-				routeServeContents = this.formatHtml(routeServeContents);
-				log(
-					`Route: ${routeName as string}`,
-					routePath,
-					local(routeServeFileAbs),
+				const routeServeDirRel = path.dirname(routeServeFileRel);
+				const routeServeDirAbs = path.join(this.serveDirAbs, routeServeDirRel);
+				const routeServeFileAbs = path.join(
+					routeServeDirAbs,
+					path.basename(routeServeFileRel),
 				);
-				fs.mkdirSync(routeServeDirAbs, { recursive: true });
-				fs.writeFileSync(routeServeFileAbs, routeServeContents);
-			}
 
-			if (Page.shouldSplit.last) {
-				routeSrcFileAbsToSplit.add(routeSrcFileAbs);
-			}
-		}
+				if (Page.shouldFallback.last) {
+					let sourceContents = fs.readFileSync(routeSrcFileAbs, { encoding: `utf8` });
+					sourceContents = this.formatMarkdown(sourceContents);
+					fs.mkdirSync(routeServeDirAbs, { recursive: true });
+					const tmpFile = `${routeSrcFileAbs}.tmp.ts`;
+					fs.writeFileSync(tmpFile, sourceContents);
+					log(local(routeServeFileAbs));
+					const module = (await import(tmpFile)) as { default: () => string; };
+					let compiled = module.default();
+					compiled = this.formatHtml(compiled);
+					fs.writeFileSync(routeServeFileAbs, compiled);
+					fs.rmSync(tmpFile);
+				}
+
+				if (Page.shouldSplit.last) {
+					routeSrcFileAbsToSplit.add(routeSrcFileAbs);
+				}
+				console.log(``);
+			})
+		);
 
 		// ESBuild plugin to replace each dynamic import path to a `.ts` file with the path to the corresponding `.js` file, because browsers can't load `.ts` files
 		const replaceDynamicImportPaths = ((args: esbuild.OnResolveArgs) => {
@@ -168,10 +176,6 @@ export class Builder<Routes extends RouteMap> {
 			if (routeSrcFileAbsToSplit.has(routeSrcFileAbs)) {
 				let routeServeFileRel = routeServeFileRelBySrcFileAbs[routeSrcFileAbs];
 				routeServeFileRel = `${routeServeFileRel}.js`;
-				log(
-					local(routeSrcFileAbs),
-					path.join(local(this.serveDirAbs), routeServeFileRel),
-				);
 				return {
 					external: true,
 					path: `/${routeServeFileRel}`,
@@ -219,7 +223,7 @@ export class Builder<Routes extends RouteMap> {
 			plugins: [pageResolver],
 		});
 
-		header(`Converting Markdown to HTML`);
+		header(`Converting Markdown to HTML in JS templates`);
 		for (const jsServeFileRel in results.metafile.outputs) {
 			const jsServeFileAbs = path.join(this.serveDirAbs, jsServeFileRel);
 			let html = fs.readFileSync(jsServeFileAbs, { encoding: `utf8` });
@@ -283,6 +287,7 @@ export class Builder<Routes extends RouteMap> {
 				port,
 				servedir: this.serveDirAbs,
 			}).then(() => {
+				header(`Serving`);
 				log(local(this.serveDirAbs), `http://localhost:${port}`);
 			}).catch(error => {
 				console.warn(error);
