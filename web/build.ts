@@ -17,6 +17,8 @@ import {
 } from './index.ts';
 import defaultLayout from './layout.ts';
 
+const bustCache = (path: string) => import(`${path}?v=${Date.now() + performance.now()}`);
+
 const header = (input: string) => console.log(`...${input}...\n`);
 
 const local = (input: string) => path.relative(process.cwd(), input);
@@ -113,7 +115,7 @@ export class Builder<Routes extends RouteMap> {
 	}
 
 	async buildJs() {
-		const { routes, resolve } = (await import(this.routesSrcFileAbs)) as {
+		const { routes, resolve } = (await bustCache(this.routesSrcFileAbs)) as {
 			resolve: Resolver<Routes>;
 			routes: Routes;
 		};
@@ -193,7 +195,7 @@ export class Builder<Routes extends RouteMap> {
 
 	async buildStyles() {
 		header(`Building styles`);
-		let styles = (await import(this.stylesSrcFileAbs)).default as string; // eslint-disable-line @typescript-eslint/no-unsafe-member-access
+		let styles = (await bustCache(this.stylesSrcFileAbs)).default as string; // eslint-disable-line @typescript-eslint/no-unsafe-member-access
 		styles = this.formatCss(styles);
 		log(local(this.stylesServeFileAbs));
 		fs.writeFileSync(this.stylesServeFileAbs, styles);
