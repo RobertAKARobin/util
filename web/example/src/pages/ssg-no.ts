@@ -2,13 +2,14 @@ import { Page } from '@robertakarobin/web/index.ts';
 
 import nav from '../components/nav.ts';
 
-export class SplitPage extends Page {
+export class NoSSGPage extends Page {
 	importMetaUrl = import.meta.url;
-	title = `Split`;
+	isSSG = false;
+	title = `SSG no`;
 	template = () => `
 		${nav()}
-		<h1>Split</h1>
+		<h1>SSG no</h1>
 	`;
 }
 
-export default Page.toFunction(SplitPage);
+export default Page.toFunction(NoSSGPage);

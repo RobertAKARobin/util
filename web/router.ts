@@ -34,6 +34,8 @@ export type RouteMap = Record<string, string>;
 
 export const hasExtension = /\.\w+$/;
 export const hasHash = /#.*$/;
+export const hasJsTemplate = /\$\{.*?\}/gs;
+export const hasMarkdown = /<markdown>(.*?)<\/markdown>/gs;
 export const isRelativePath = /^\.\.?\/.*/;
 
 export const routeMap = < // TODO2: Nested routes? Kinda prefer flat routes

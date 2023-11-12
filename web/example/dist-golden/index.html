@@ -4,13 +4,26 @@
 <head>
 	<title>Home page</title>
 	<base href="/" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<script src="/web.js" type="module"></script>
 	<script src="/script.js" type="module"></script>
 	<link rel="stylesheet" href="/styles.css" />
+	<style>
+		h1 {
+			color: red;
+		}
+
+	</style>
 </head>
 
 <body>
-	<div class="view" id="output">
+	<main id="output">
+		<ul>
+			<li> <a href="/404.html" onclick="" target="_self"> Go /404.html </a> </li>
+			<li> <a href="/" onclick="" target="_self"> Go / </a> </li>
+			<li> <a href="/ssg/no/" onclick="" target="_self"> Go /ssg/no/ </a> </li>
+			<li> <a href="/ssg/yes/" onclick="" target="_self"> Go /ssg/yes/ </a> </li>
+		</ul>
 		<h1>Hello world!</h1>
 		<h1>Headline 1</h1>
 		<h2>This is a variable</h2>
@@ -45,17 +58,7 @@
 			</li>
 			<li> ut aliquip ex</li>
 		</ol>
-	</div>
-	<nav>
-		<ul>
-			<li> <a href="/404.html" onclick="" target="_self"> Go /404.html </a> </li>
-			<li> <a href="/" onclick="" target="_self"> Go / </a> </li>
-			<li> <a href="/nosplit/" onclick="" target="_self"> Go /nosplit/ </a> </li>
-			<li> <a href="/nosplit-nofallback/" onclick="" target="_self"> Go /nosplit-nofallback/ </a> </li>
-			<li> <a href="/split/" onclick="" target="_self"> Go /split/ </a> </li>
-			<li> <a href="/split-nofallback/" onclick="" target="_self"> Go /split-nofallback/ </a> </li>
-		</ul>
-	</nav>
+	</main>
 </body>
 
 </html>

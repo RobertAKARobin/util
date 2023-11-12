@@ -3,19 +3,20 @@ import fs from 'fs';
 import { suite, test } from '@robertakarobin/spec';
 import { diff } from '@robertakarobin/spec/diff.ts';
 
+import { hasMarkdown } from '../router.ts';
+
 const dist = (path: string) =>
 	fs.readFileSync(`web/example/dist/${path}`, { encoding: `utf8` });
 const golden = (path: string) =>
 	fs.readFileSync(`web/example/dist-golden/${path}`, { encoding: `utf8` });
+const src = (path: string) =>
+	fs.readFileSync(`web/example/src/${path}`, { encoding: `utf8` });
 
 const distMatchesGolden = (path: string) =>
 	diff(dist(path), golden(path));
 
-const hasFallback = (page: string) =>
+const hasSSG = (page: string) =>
 	fs.existsSync(`web/example/dist/${page}.html`);
-
-const hasSplit = (page: string) =>
-	fs.existsSync(`web/example/dist/${page}.html.js`);
 
 export const spec = suite(`@robertakarobin/web`,
 	{
@@ -28,36 +29,13 @@ export const spec = suite(`@robertakarobin/web`,
 		$.assert(x => x(distMatchesGolden(`styles.css`)) === ``);
 		$.assert(x => x(distMatchesGolden(`index.html`)) === ``);
 		$.assert(x => x(distMatchesGolden(`404.html`)) === ``);
-		$.assert(x => x(distMatchesGolden(`index.html.js`)) === ``);
-		$.assert(x => x(distMatchesGolden(`404.html.js`)) === ``);
 
-		const mainScript = fs.readFileSync(`web/example/dist/script.js`, { encoding: `utf8` });
+		$.assert(() => hasSSG(`404`));
+		$.assert(() => hasSSG(`index`));
+		$.assert(() => hasSSG(`ssg/yes/index`));
+		$.assert(() => !hasSSG(`ssg/no/index`));
 
-		const isDynamic = (page: string) =>
-			mainScript.includes(`import("/${page}.html.js")`);
-
-		$.assert(() => hasFallback(`404`));
-		$.assert(() => hasSplit(`404`));
-		$.assert(() => isDynamic(`404`));
-
-		$.assert(() => hasFallback(`index`));
-		$.assert(() => hasSplit(`index`));
-		$.assert(() => isDynamic(`index`));
-
-		$.assert(() => !hasFallback(`nosplit-nofallback`));
-		$.assert(() => !hasSplit(`nosplit-nofallback`));
-		$.assert(() => !isDynamic(`nosplit-nofallback`));
-
-		$.assert(() => hasFallback(`nosplit/index`));
-		$.assert(() => !hasSplit(`nosplit/index`));
-		$.assert(() => !isDynamic(`nosplit/index`));
-
-		$.assert(() => !hasFallback(`split-nofallback/index`));
-		$.assert(() => hasSplit(`split-nofallback/index`));
-		$.assert(() => isDynamic(`split-nofallback/index`));
-
-		$.assert(() => hasFallback(`split/index`));
-		$.assert(() => hasSplit(`split/index`));
-		$.assert(() => isDynamic(`split/index`));
+		$.assert(() => hasMarkdown.test(src(`pages/index.ts`)));
+		$.assert(() => !hasMarkdown.test(dist(`index.html`)));
 	}),
 );

@@ -2,14 +2,13 @@ import { Page } from '@robertakarobin/web/index.ts';
 
 import nav from '../components/nav.ts';
 
-export class BundledPage extends Page {
-	doSplit = false;
+export class NoSSGPage extends Page {
 	importMetaUrl = import.meta.url;
-	title = `Nosplit`;
+	title = `SSG yes`;
 	template = () => `
 		${nav()}
-		<h1>Nosplit</h1>
+		<h1>SSG yes</h1>
 	`;
 }
 
-export default Page.toFunction(BundledPage);
+export default Page.toFunction(NoSSGPage);
