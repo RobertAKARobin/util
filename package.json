@@ -14,10 +14,10 @@
 		"@robertakarobin/eslint-config-ts": "file:./eslint-config-ts",
 		"@robertakarobin/spec": "file:./spec",
 		"@robertakarobin/web": "file:./web",
-		"@types/clean-css": "^4.2.9",
+		"@types/clean-css": "^4.2.10",
 		"husky": "^8.0.3",
 		"npm-check-updates": "^16.14.6",
-		"tsx": "^3.14.0"
+		"tsx": "^4.1.1"
 	},
 	"files": [
 		".gitignore",

@@ -103,14 +103,12 @@ export function nTimes<Value>(
 		| nTimesCallback<Value>,
 ): Array<Value> {
 	if (contents === null || contents === undefined) {
-		if (typeof contents === `function`) {
-			return Array.from(Array(number), contents as nTimesCallback<Value>);
-		} else {
-			return Array(number).fill(contents) as Array<Value>;
-		}
-	} else {
 		return Array.from(Array(number)) as Array<Value>;
 	}
+	if (typeof contents === `function`) {
+		return Array.from(Array(number), contents as nTimesCallback<Value>);
+	}
+	return Array(number).fill(contents) as Array<Value>;
 }
 
 export async function promiseConsecutive<Value>(

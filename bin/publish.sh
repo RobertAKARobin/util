@@ -11,6 +11,7 @@ function dowhat {
 	fi
 
 	npm version patch
+	npm i
 	npm publish
 }
 
