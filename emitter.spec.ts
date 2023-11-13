@@ -1,6 +1,6 @@
 import { suite, test } from '@robertakarobin/spec';
 
-import { Emitter } from './index.ts';
+import { Emitter } from './jsutil/emitter.ts';
 
 export const spec = suite(`@robertakarobin/emit`, {},
 

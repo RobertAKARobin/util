@@ -1,4 +1,4 @@
-import { Emitter } from '@robertakarobin/emit';
+import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
 
 import { Component } from './component.ts';
 

@@ -1,4 +1,4 @@
-import { Emitter } from '@robertakarobin/emit/index.ts';
+import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
 
 export type RouteMap = Record<string, string>;
 
