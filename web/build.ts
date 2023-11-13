@@ -183,6 +183,7 @@ export class Builder<
 			external: [this.vendorServeFileName],
 			format: `esm`,
 			metafile: true,
+			minify: true,
 			outdir: this.serveDirAbs,
 			splitting: true,
 		});
@@ -218,6 +219,7 @@ export class Builder<
 			bundle: true,
 			entryPoints: [this.vendorSrcFileAbs],
 			format: `esm`,
+			minify: true,
 			outfile: this.vendorServeFileAbs,
 		});
 		logBreak();

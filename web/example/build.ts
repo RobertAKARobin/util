@@ -9,11 +9,6 @@ import nav from './src/components/nav.ts';
 
 const trimNewlines = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
 
-const layout = (contents: string) => defaultLayout(`
-	<nav>${nav()}</nav>
-	<main>${contents}</main>
-`);
-
 class CustomBuilder extends Builder<typeof app[`routes`]> {
 	formatCss(contents: string) {
 		let css = trimNewlines(contents);
@@ -26,7 +21,10 @@ class CustomBuilder extends Builder<typeof app[`routes`]> {
 
 	formatHtml(contents: string) {
 		let html = contents;
-		html = layout(html);
+		html = defaultLayout(`
+			<nav>${nav()}</nav>
+			<main>${html}</main>
+		`);
 		html = trimNewlines(html);
 		html = jsBeautify.html(html, {
 			end_with_newline: true, // TODO2: Once we're using editorconfig, use the `--editorconfig` option
