@@ -1,10 +1,13 @@
-import type { App, RouteMap } from './app.ts';
 import { Component, toAttributes } from './component.ts';
+import type { App } from './app.ts';
 
 const absoluteUrl = /^\w+\:\/\//;
 
 export abstract class RouteComponent<
-	Routes extends RouteMap
+	AppInstance extends App<any> = App<any>, // eslint-disable-line @typescript-eslint/no-explicit-any
+	Routes extends (
+		AppInstance extends App<infer Routes> ? Routes : never
+	) = AppInstance extends App<infer Routes> ? Routes : never
 > extends Component {
 	abstract readonly app: App<Routes>;
 
