@@ -12,28 +12,24 @@ export const spec = suite(`@robertakarobin/emit`, {},
 		let emitter1_subscription2_value: number;
 		let emitter2_subscription1_value: number;
 
-		$.assert(x => x(Emitter.subscriptions.size) === 0);
 		$.assert(x => x(emitter1.subscriptions.size) === 0);
 		$.assert(x => x(emitter1.cache.list[0]) === void 0);
 		$.assert(x => x(emitter2.subscriptions.size) === 0);
 		$.assert(x => x(emitter2.cache.list[0]) === void 0);
 
 		$.log(() => emitter1.subscribe(value => emitter1_subscription1_value = value));
-		$.assert(x => x(Emitter.subscriptions.size) === 1);
 		$.assert(x => x(emitter1.subscriptions.size) === 1);
 		$.assert(x => x(emitter1.cache.list[0]) === void 0);
 		$.assert(x => x(emitter2.subscriptions.size) === 0);
 		$.assert(x => x(emitter2.cache.list[0]) === void 0);
 
 		$.log(() => emitter1.subscribe(value => emitter1_subscription2_value = value));
-		$.assert(x => x(Emitter.subscriptions.size) === 2);
 		$.assert(x => x(emitter1.subscriptions.size) === 2);
 		$.assert(x => x(emitter1.cache.list[0]) === void 0);
 		$.assert(x => x(emitter2.subscriptions.size) === 0);
 		$.assert(x => x(emitter2.cache.list[0]) === void 0);
 
 		$.log(() => emitter2.subscribe(value => emitter2_subscription1_value = value));
-		$.assert(x => x(Emitter.subscriptions.size) === 3);
 		$.assert(x => x(emitter1.subscriptions.size) === 2);
 		$.assert(x => x(emitter1.cache.list[0]) === void 0);
 		$.assert(x => x(emitter2.subscriptions.size) === 1);

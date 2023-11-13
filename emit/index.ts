@@ -1,7 +1,6 @@
-export class Emitter<Type> {
-	/** A collection of all active subscriptions to all Emitters. Used to debug memory management. */
-	static readonly subscriptions = new Set<Subscription<any>>(); // eslint-disable-line @typescript-eslint/no-explicit-any
+type OnEmit<Type> = (value: Type) => unknown;
 
+export class Emitter<Type> {
 	/** @see {@link EmitterCache} */
 	readonly cache: EmitterCache<Type>;
 
@@ -10,7 +9,7 @@ export class Emitter<Type> {
 	}
 
 	/** A collection of all active subcriptions to this Emitter. */
-	readonly subscriptions = new Set<Subscription<Type>>();
+	readonly subscriptions = new Set<WeakRef<OnEmit<Type>>>;
 
 	constructor(options: Partial<EmitterOptions> = {}) {
 		this.cache = new EmitterCache<Type>(options.cache ?? {});
@@ -18,25 +17,27 @@ export class Emitter<Type> {
 
 	next(value: Type): void {
 		this.cache.add(value);
-		for (const subscription of this.subscriptions) {
-			subscription.onEmit?.(value);
+		for (const subscription of this.subscriptions.values()) {
+			const onEmit = subscription.deref();
+			if (onEmit) {
+				onEmit(value);
+			} else {
+				this.subscriptions.delete(subscription);
+			}
 		}
 	}
 
-	subscribe(onEvent?: Subscription<Type>[`onEmit`]): Subscription<Type> {
-		const subscription = new Subscription<Type>(this, onEvent);
-		Emitter.subscriptions.add(subscription);
+	subscribe(onEmit: OnEmit<Type>): WeakRef<OnEmit<Type>> {
+		const subscription = new WeakRef(onEmit);
 		this.subscriptions.add(subscription);
 		return subscription;
 	}
 
-	unsubscribe(subscription: Subscription<Type>): void {
-		Emitter.subscriptions.delete(subscription);
+	unsubscribe(subscription: WeakRef<OnEmit<Type>>): void {
 		this.subscriptions.delete(subscription);
 	}
 
 	unsubscribeAll(): void {
-		this.subscriptions.forEach(Emitter.subscriptions.delete); // eslint-disable-line @typescript-eslint/unbound-method
 		this.subscriptions.clear();
 	}
 }
@@ -77,15 +78,4 @@ export const EmitterCacheOptionsDefault = {
 
 export interface EmitterOptions {
 	cache: Partial<EmitterCacheOptions>;
-}
-
-export class Subscription<Type> {
-	constructor(
-		readonly emitter: Emitter<Type>,
-		public onEmit?: (value: Type) => unknown,
-	) {}
-
-	destroy(): void {
-		this.emitter.unsubscribe(this);
-	}
 }
