@@ -7,12 +7,12 @@ import { marked } from 'marked';
 import path from 'path';
 
 import {
+	type App,
 	hasExtension,
 	hasHash,
 	hasJsTemplate,
 	hasMarkdown,
 	Page,
-	type Resolver,
 	type RouteMap,
 } from './index.ts';
 import defaultLayout from './layout.ts';
@@ -30,13 +30,15 @@ const logBreak = () => console.log(``);
 const isStringElse = (input: unknown, fallback: string) =>
 	typeof input === `string` ? input : fallback;
 
-export class Builder<Routes extends RouteMap> {
+export class Builder<
+	Routes extends RouteMap
+> {
+	readonly appSrcFileAbs: string;
+	readonly appSrcFileRel: string;
 	readonly assetsServeDirAbs: string;
 	readonly assetsSrcDirAbs: string;
 	readonly assetsSrcDirRel: string;
 	readonly baseDirAbs: string;
-	readonly routesSrcFileAbs: string;
-	readonly routesSrcFileRel: string;
 	readonly scriptServeFileAbs: string;
 	readonly scriptServeFileName: string;
 	readonly scriptSrcFileAbs: string;
@@ -52,9 +54,9 @@ export class Builder<Routes extends RouteMap> {
 	readonly vendorSrcFileAbs: string;
 
 	constructor(input: Partial<{
+		appSrcFileRel: string;
 		assetsSrcDirRel: string;
 		baseDirAbs: string;
-		routesSrcFileRel: string;
 		scriptSrcFileRel: string;
 		serveDirRel: string;
 		srcRawDirRel: string;
@@ -72,8 +74,8 @@ export class Builder<Routes extends RouteMap> {
 		this.assetsSrcDirAbs = path.join(this.baseDirAbs, this.assetsSrcDirRel);
 		this.assetsServeDirAbs = path.join(this.serveDirAbs, this.assetsSrcDirRel);
 
-		this.routesSrcFileRel = isStringElse(input.routesSrcFileRel, `./routes.ts`);
-		this.routesSrcFileAbs = path.join(this.srcDirAbs, this.routesSrcFileRel);
+		this.appSrcFileRel = isStringElse(input.appSrcFileRel, `./app.ts`);
+		this.appSrcFileAbs = path.join(this.srcDirAbs, this.appSrcFileRel);
 
 		this.scriptSrcFileRel = isStringElse(input.scriptSrcFileRel, `./script.ts`);
 		this.scriptSrcFileAbs = path.join(this.srcDirAbs, this.scriptSrcFileRel);
@@ -115,17 +117,14 @@ export class Builder<Routes extends RouteMap> {
 	}
 
 	async buildJs() {
-		const { routes, resolve } = (await bustCache(this.routesSrcFileAbs)) as {
-			resolve: Resolver<Routes>;
-			routes: Routes;
-		};
+		const { app } = (await bustCache(this.appSrcFileAbs)) as { app: App<Routes>; };
 
-		const routeNames = Object.keys(routes) as Array<keyof Routes>;
+		const routeNames = Object.keys(app.routes) as Array<keyof Routes>;
 
 		const routeInfos = await $.promiseConsecutive(
 			routeNames.map(routeName => async() => {
-				const routePath = routes[routeName];
-				await resolve(routePath);
+				const routePath = app.routes[routeName];
+				await app.resolve(routePath); // Populates `Page.importMetaUrl`, `Page.title`, and `Component.style` emitters
 				const srcFileAbs = fileURLToPath(Page.importMetaUrl.last);
 				const srcFileRel = path.relative(this.srcDirAbs, srcFileAbs);
 
@@ -159,11 +158,7 @@ export class Builder<Routes extends RouteMap> {
 
 			if (route.isSSG) {
 				log(route.routePath);
-				let html = await resolve(route.routePath);
-				if (typeof html !== `string`) {
-					log(`Does not resolve to a template.`);
-					return;
-				}
+				let html = await app.resolve(route.routePath);
 				html = this.formatHtml(html);
 				fs.mkdirSync(route.serveDirAbs, { recursive: true });
 				log(local(route.serveFileAbs));

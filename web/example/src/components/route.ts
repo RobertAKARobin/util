@@ -1,9 +1,9 @@
 import { RouteComponent } from '@robertakarobin/web/index.ts';
 
-import { routes } from '../routes.ts';
+import { app } from '../app.ts';
 
-export class Route extends RouteComponent<typeof routes> {
-	routes = routes;
+export class Route extends RouteComponent<typeof app.routes> {
+	app = app;
 }
 
 export default Route.toFunction(Route);

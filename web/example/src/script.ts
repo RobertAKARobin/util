@@ -1,16 +1,7 @@
-import { Page, router } from '@robertakarobin/web/index.ts';
+import { setupForBrowser } from '@robertakarobin/web/index.ts';
 
-import error from './pages/error.ts';
-import { resolve } from './routes.ts';
+import { app } from './app.ts';
+import nav from './components/nav.ts';
 
-Page.title.subscribe(title => document.title = title);
-
-const $output = document.getElementById(`output`)!;
-router.subscribe(async path => {
-	let page = await resolve(path);
-	if (typeof page !== `string`) {
-		page = error();
-	}
-	$output.innerHTML = page;
-});
-router.onChange();
+setupForBrowser(app, document.querySelector(`main`)!);
+document.querySelector(`nav`)!.innerHTML = nav();

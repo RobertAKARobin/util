@@ -24,7 +24,7 @@ export class Textbox extends Component {
 				placeholder="Type here"
 				type="text"
 				value="${this.value}"
-				/>
+			>
 
 			<span>${this.remaining()}</span>
 		</div>

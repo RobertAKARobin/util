@@ -1,22 +1,24 @@
+import type { App, RouteMap } from './app.ts';
 import { Component, toAttributes } from './component.ts';
-import { type RouteMap, type Router, router } from './router.ts';
 
 const absoluteUrl = /^\w+\:\/\//;
 
 export abstract class RouteComponent<
 	Routes extends RouteMap
 > extends Component {
-	protected readonly router: Router = router;
-	abstract readonly routes: Routes;
+	abstract readonly app: App<Routes>;
 
-	routeTo(event: MouseEvent, path: string) {
+	routeTo(
+		event: MouseEvent,
+		path: Routes[keyof Routes],
+	) {
 		if (event.metaKey || event.ctrlKey) { // Allow opening in new tab
 			return;
 		}
 
 		event.preventDefault();
 		window.history.pushState({}, ``, path);
-		this.router.next(path);
+		this.app.path.next(path);
 	}
 
 	template(
@@ -24,7 +26,7 @@ export abstract class RouteComponent<
 		content: string = ``,
 		rest: Record<string, string> = {}
 	) {
-		const url = this.routes[routeName];
+		const url = this.app.routes[routeName];
 		const isAbsolute = absoluteUrl.test(url);
 		return `
 			<a

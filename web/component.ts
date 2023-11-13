@@ -1,6 +1,6 @@
 import type * as $ from '@robertakarobin/jsutil';
 
-import { routerContext } from './router.ts';
+import { appContext } from './context.ts';
 
 export const toAttributes = (input: Record<string, string>) =>
 	Object.entries(input)
@@ -17,7 +17,7 @@ export abstract class Component {
 	static readonly styleCache = new Map<typeof Component.constructor, string>();
 
 	static {
-		if (routerContext === `browser`) {
+		if (appContext === `browser`) {
 			Object.assign(window, { Component });
 		}
 	}
@@ -85,7 +85,7 @@ export abstract class Component {
 		methodName: keyof this,
 		...args: Array<string> | []
 	): string {
-		if (routerContext !== `browser`) {
+		if (appContext !== `browser`) {
 			return `""`;
 		}
 		const argsString = args.map(arg => `'${arg}'`).join(``);
@@ -100,14 +100,14 @@ export abstract class Component {
 		if (typeof(this.style) === `string` && !Component.styleCache.has(this.constructor)) {
 			Component.styleCache.set(this.constructor, this.style);
 
-			if (routerContext === `browser`) {
+			if (appContext === `browser`) {
 				const $style = document.createElement(`style`);
 				$style.textContent = this.style;
 				document.head.appendChild($style);
 			}
 		}
 
-		if (routerContext !== `browser`) {
+		if (appContext !== `browser`) {
 			return rendered;
 		}
 		if (rendered instanceof Promise) {
