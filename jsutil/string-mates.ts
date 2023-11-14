@@ -1,5 +1,5 @@
 type Tag = string;
-type TagPair = [Tag, Tag];
+type TagPair = Array<string>; // Not using `[string, string]` because TS throws "not assignable" error
 export type TagResult = {
 	contents: Array<string | TagResult>;
 	tags?: TagPair;
@@ -18,6 +18,10 @@ export function stringMates(
 
 	const pairsByOpenTag = {} as Record<Tag, TagPair>;
 	for (const pair of tagPairs) {
+		if (pair.length !== 2) {
+			throw new Error(`Tag pairs must have 2 elements.`);
+		}
+
 		const [openTag] = pair;
 		if (openTag in pairsByOpenTag) {
 			throw new Error(`Tag '${openTag}' used more than once`);
