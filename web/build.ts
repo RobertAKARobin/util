@@ -90,7 +90,11 @@ export class Builder<
 		this.vendorServeFileAbs = path.join(this.serveDirAbs, this.vendorServeFileName);
 	}
 
-	async build() {
+	async build(input: { serve?: boolean; } = {}) {
+		if (input.serve === true) {
+			this.serve();
+		}
+
 		fs.rmSync(this.serveDirAbs, { force: true, recursive: true });
 		fs.mkdirSync(this.serveDirAbs);
 
@@ -267,35 +271,21 @@ export class Builder<
 		return this.formatMarkdown(input);
 	}
 
-	async serve(options: (esbuild.ServeOptions & { watch?: boolean; }) = {}) {
+	serve(options: (esbuild.ServeOptions) = {}) {
 		const port = isNaN(options.port as number) ? 3000 : options.port;
-		const retryPort = async() => {
-			(await esbuild.context({})).serve({
+		const retryPort = () => esbuild.context({}).then(context => {
+			context.serve({
 				port,
 				servedir: this.serveDirAbs,
 			}).then(() => {
 				header(`Serving`);
 				log(local(this.serveDirAbs), `http://localhost:${port}`);
 				logBreak();
-			}).catch(error => {
-				console.warn(error);
+			}).catch(() => {
 				void retryPort();
 			});
-		};
+		});
 
-		await this.build();
-		await retryPort();
-		if (options.watch === true) {
-			fs.watch(
-				this.srcRawDirAbs,
-				{ recursive: true },
-				(event, pathName) => {
-					header(`Watched: ${event}`);
-					log(pathName as string);
-					logBreak();
-					void this.build();
-				}
-			);
-		}
+		void retryPort();
 	}
 }

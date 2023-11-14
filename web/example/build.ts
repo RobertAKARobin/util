@@ -38,8 +38,4 @@ const builder = new CustomBuilder({
 	baseDirAbs: path.join(process.cwd(), `./web/example`),
 });
 
-if (process.argv.includes(`--serve`)) {
-	await builder.serve({ watch: true });
-} else {
-	await builder.build();
-}
+await builder.build({ serve: process.argv.includes(`--serve`) });
