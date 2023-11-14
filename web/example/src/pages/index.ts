@@ -30,7 +30,7 @@ Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ 
 <markdown>
 ## Headline 2
 
-> Excepteur sint ${`occaecat cupidatat non`} proident.
+> Excepteur sint ${`occaecat <markdown>*cupidatat*</markdown> non`} proident.
 
 Joseph's coat was ${colors.join(` and `)}.
 

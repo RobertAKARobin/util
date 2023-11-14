@@ -9,9 +9,6 @@ export type Resolver<Routes extends RouteMap> = (
 
 export const hasExtension = /\.\w+$/;
 export const hasHash = /#.*$/;
-export const hasJsTemplate = /\$\{.*?\}/gs;
-export const hasMarkdown = /<markdown>(.*?)<\/markdown>/gs;
-export const isRelativePath = /^\.\.?\/.*/;
 
 export class App<
 	Routes extends RouteMap

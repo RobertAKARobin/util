@@ -42,6 +42,7 @@ export function stringMates(
 			closeTag: null as unknown as Tag,
 			openPosition: Infinity,
 			openTag: null as unknown as Tag,
+			pair: null as unknown as TagPair,
 		};
 		for (const openTag in pairsByOpenTag) {
 			const closeTag = pairsByOpenTag[openTag][1];
@@ -86,6 +87,7 @@ export function stringMates(
 					nearest.openTag = openTag;
 					nearest.closePosition = closePosition;
 					nearest.closeTag = closeTag;
+					nearest.pair = pairsByOpenTag[nearest.openTag];
 				}
 			}
 		}
@@ -107,7 +109,7 @@ export function stringMates(
 		);
 		results.push({
 			contents: getNext(contents),
-			tags: [nearest.openTag, nearest.closeTag],
+			tags: nearest.pair,
 		});
 
 		const afterContents = input.substring(

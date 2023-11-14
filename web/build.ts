@@ -1,4 +1,5 @@
 import * as $ from '@robertakarobin/jsutil';
+import { stringMates, type TagResult } from '@robertakarobin/jsutil/string-mates.ts';
 import esbuild from 'esbuild';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
@@ -10,8 +11,6 @@ import {
 	type App,
 	hasExtension,
 	hasHash,
-	hasJsTemplate,
-	hasMarkdown,
 	Page,
 	type RouteMap,
 } from './index.ts';
@@ -234,23 +233,34 @@ export class Builder<
 	}
 
 	formatMarkdown(input: string) {
-		let output = input;
-		const jsPlaceholder = `/%%/`;
-		output = output.replace(hasMarkdown, (nil, markdown: string) => {
-			const jsTemplates: Array<string> = [];
-			let html = markdown;
-			html = html.replace(hasJsTemplate, (js: string) => {
-				jsTemplates.push(js);
-				return jsPlaceholder;
+		const isMarkdown = [`<markdown>`, `</markdown>`];
+		const isJsTemplate = ['${', '}']; // eslint-disable-line quotes
+		const jsChunks: Array<string> = [];
+		const tokens = stringMates(input, [
+			isMarkdown,
+			isJsTemplate,
+		]);
+		return parse(tokens)
+			.flat()
+			.join(``)
+			.replace(/\/%%\//g, () => jsChunks.shift()!);
+
+		function parse(input: Array<string | TagResult>): $.Type.Nested<string> {
+			return input.map(item => {
+				if (typeof item === `string`) {
+					return item;
+				}
+				const contents = parse(item.contents).flat().join(``);
+				if (item.tags === isMarkdown) {
+					if (contents.indexOf(`\n`) < 0) {
+						return marked.parseInline(contents, { gfm: true }) as string;
+					}
+					return marked(contents, { gfm: true });
+				}
+				jsChunks.push('${' + contents + '}'); // eslint-disable-line quotes
+				return `/%%/`; // TODO3: Use a better placeholder
 			});
-			html = marked(html.trim());
-			html = html.replaceAll(jsPlaceholder, () => {
-				const jsTemplate = jsTemplates.shift();
-				return typeof jsTemplate === `string` ? jsTemplate : ``;
-			});
-			return html;
-		});
-		return output;
+		}
 	}
 
 	formatTSSource(input: string) {

@@ -3,7 +3,7 @@ import fs from 'fs';
 import { suite, test } from '@robertakarobin/spec';
 import { diff } from '@robertakarobin/spec/diff.ts';
 
-import { hasMarkdown } from '../app.ts';
+export const hasMarkdown = /<markdown>(.*?)<\/markdown>/gs;
 
 const dist = (path: string) =>
 	fs.readFileSync(`web/example/dist/${path}`, { encoding: `utf8` });
