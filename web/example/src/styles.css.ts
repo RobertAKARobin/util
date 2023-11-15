@@ -1,4 +1,4 @@
-import { theme, val } from './theme.ts';
+import { bps, theme, val } from './theme.ts';
 
 export default `
 :root {
@@ -13,5 +13,9 @@ ${theme.typeClasses}
 
 h1 {
 	${theme.types.h1}
+
+	@media ${bps.phone.moreThan} and ${bps.tablet.lessThan} {
+		color: orange !important;
+	}
 }
 `;

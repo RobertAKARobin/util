@@ -31,4 +31,8 @@
 h1 {
 	color: darkgreen;
 	--varName: 'h1';
+
+	@media (min-width: 601px) and (max-width: 1000px) {
+		color: orange !important;
+	}
 }
