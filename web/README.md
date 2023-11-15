@@ -1,15 +1,18 @@
 # TODO
 
--	Jump anchors
 -	CSS to external
--	VS plugin for CSS
--	VS plugin for HTML
 -	Template/CSS prefix
+
 -	Fix `route()` names not bring strongly typed?
 -	Route names for HTML IDs
--	Import from other file (ergo SVG)
 -	Match routes with params
+-	Jump anchors
+
+-	Import from other file (ergo SVG)
 -	Support tokens with attributes?
+
+-	VS plugin for CSS
+-	VS plugin for HTML
 
 ## Done
 
