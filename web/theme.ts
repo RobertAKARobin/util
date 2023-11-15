@@ -24,12 +24,12 @@ export class CssTheme<
 	Typefaces extends GenericTypefaces = GenericTypefaces,
 > {
 	/**
-	 * A map of CSS breakpoints to strings that can be used in `@media` queries, e.g. `bp.lessThan` translates to `(max-width: ${size}px)`
+	 * A map of CSS breakpoints to strings that can be used in `@media` queries, e.g. `bp.lessThan.phone` translates to `(max-width: ${phone}px)`
 	 */
-	readonly bps = {} as Record<keyof Breakpoints, {
-		lessThan: string;
-		moreThan: string;
-	}>;
+	readonly bp = {
+		lessThan: {} as Record<keyof Breakpoints, string>,
+		moreThan: {} as Record<keyof Breakpoints, string>,
+	};
 	/**
 	 * A CSS snippet that resets most of the browser's default styles
 	 */
@@ -96,10 +96,8 @@ export class CssTheme<
 
 		for (const bpName in breakpoints) {
 			const bpSize = breakpoints[bpName];
-			this.bps[bpName] = {
-				lessThan: `(max-width: ${bpSize}px)`,
-				moreThan: `(min-width: ${bpSize + 1}px)`,
-			};
+			this.bp.lessThan[bpName] = `(max-width: ${bpSize}px)`;
+			this.bp.moreThan[bpName] = `(min-width: ${bpSize + 1}px)`;
 		}
 	}
 

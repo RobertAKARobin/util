@@ -25,4 +25,4 @@ export const theme = new CssTheme({
 	val: constants,
 });
 
-export const { bps, val, vars } = theme;
+export const { bp, val, vars } = theme;
