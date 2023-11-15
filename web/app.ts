@@ -38,10 +38,6 @@ export class App<
 	}
 
 	async resolve(path: Routes[keyof Routes]) {
-		const page = await this.resolver(path, this.routes);
-		if (typeof page !== `string`) {
-			throw new Error(`Path '${path.toString()}' does not resolve to a page template.`);
-		}
-		return page;
+		return await this.resolver(path, this.routes);
 	}
 }
