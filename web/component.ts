@@ -111,8 +111,8 @@ export abstract class Component {
 		this.uid = `c${Component.componentsSize++}`;
 	}
 
-	bind( // TODO2: Stronger typing on this
-		methodName: keyof this,
+	bind(
+		methodName: keyof this, // TODO2: Stronger typing; should only accept methods
 		...args: Array<string> | []
 	): string {
 		if (appContext !== `browser`) {
