@@ -13,7 +13,7 @@ const constants = {
 const typefaces = {
 	body: `
 		font-family: ${constants.fontBase_family};
-		font-size: ${constants.fontBase_size};
+		font-size: ${constants.fontBase_size}px;
 	`,
 	h1: `
 		color: darkgreen;

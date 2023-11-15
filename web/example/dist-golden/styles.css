@@ -17,13 +17,13 @@
 	padding: 0;
 	text-decoration: inherit;
 	font-family: monospace;
-	font-size: 24;
+	font-size: 24px;
 	--varName: 'body';
 }
 
 .type-body {
 	font-family: monospace;
-	font-size: 24;
+	font-size: 24px;
 }
 
 .type-h1 {
