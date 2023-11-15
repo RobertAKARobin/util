@@ -1,10 +1,17 @@
-import { css, theme } from './styles/shared.ts';
+import { theme, val } from './theme.ts';
 
 export default `
 :root {
-	${theme.setCssVals()}
+	${theme.reset}
+	${theme.varsDeclarations}
 
-	font-family: ${css.fontBase_family};
-	font-size: calc(${css.fontBase_size} * 1px);
+	font-family: ${val.fontBase_family};
+	font-size: calc(${val.fontBase_size} * 1px);
+}
+
+${theme.typeClasses}
+
+h1 {
+	${theme.types.h1}
 }
 `;
