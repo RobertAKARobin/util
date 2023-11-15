@@ -16,4 +16,8 @@ h1 {
 		color: orange !important;
 	}
 }
+
+*:target {
+	outline: 1px solid red;
+}
 `;

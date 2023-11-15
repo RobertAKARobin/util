@@ -13,6 +13,8 @@ const colors = [`red`, `yellow`, `green`, `brown`, `scarlet`];
 const template = (message: string) => `
 <h1>Hello world!</h1>
 
+<div id="jump1">Jump 1</div>
+
 <markdown>
 # Headline 1
 
@@ -46,6 +48,8 @@ Joseph's coat was ${colors.join(` and `)}.
 	1.	irure dolor in
 1.	ut aliquip ex
 </markdown>
+
+<div id="jump2">Jump 2</div>
 `;
 
 export class IndexPage extends Page {

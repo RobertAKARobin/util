@@ -22,8 +22,16 @@ export class App<
 		for (const key in this.routes) {
 			const routeName: keyof Routes = key;
 			let path = this.routes[routeName] as string;
+			let hash: string | undefined;
+			path = path.replace(hasHash, match => {
+				hash = match;
+				return ``;
+			});
 			if (!path.endsWith(`/`) && !hasExtension.test(path)) {
 				path = `${path}/`;
+			}
+			if (typeof hash !== `undefined`) {
+				path = `${path}${hash}`;
 			}
 			this.routes[routeName] = path as Routes[keyof Routes];
 		}
