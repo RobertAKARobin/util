@@ -2,7 +2,6 @@
 
 -	Template/CSS prefix
 
--	Fix `route()` names not bring strongly typed?
 -	Route names for HTML IDs
 -	Match routes with params
 -	Jump anchors
@@ -15,6 +14,7 @@
 
 ## Done
 
+-	Fix `route()` names not bring strongly typed
 -	CSS to external
 -	Vendor doesn't need own bundle
 -	CSS breakpoints

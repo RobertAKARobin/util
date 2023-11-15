@@ -1,14 +1,10 @@
-import { app } from '../app.ts';
-import route from './route.ts';
-
-const routeNames = Object.keys(app.routes) as Array<keyof typeof app.routes>;
+import { route } from '../app.ts';
 
 export default () => `
 	<ul>
-	${routeNames.map(routeName =>
-		`<li>
-			${route(routeName, `Go ${app.routes[routeName]}`)}
-		</li>`
-	).join(``)}
+		<li>${route(`error404`, `Go /404.html`)}</li>
+		<li>${route(`home`, `Go /`)}</li>
+		<li>${route(`ssgNo`, `Go /ssg/no/`)}</li>
+		<li>${route(`ssgYes`, `Go /ssg/yes/`)}</li>
 	</ul>
 `;

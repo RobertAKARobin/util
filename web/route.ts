@@ -1,13 +1,11 @@
 import { Component, toAttributes } from './component.ts';
 import type { App } from './app.ts';
+import { type RouteMap } from '@robertakarobin/web/index.ts';
 
 const absoluteUrl = /^\w+\:\/\//;
 
 export abstract class RouteComponent<
-	AppInstance extends App<any> = App<any>, // eslint-disable-line @typescript-eslint/no-explicit-any
-	Routes extends (
-		AppInstance extends App<infer Routes> ? Routes : never
-	) = AppInstance extends App<infer Routes> ? Routes : never
+	Routes extends RouteMap
 > extends Component {
 	abstract readonly app: App<Routes>;
 
@@ -43,3 +41,12 @@ export abstract class RouteComponent<
 		`;
 	}
 }
+
+export const routeFactory = <Routes extends RouteMap>(
+	app: App<Routes>
+) => {
+	class AppRouteComponent extends RouteComponent<typeof app.routes> {
+		app = app;
+	}
+	return AppRouteComponent.toFunction(AppRouteComponent);
+};

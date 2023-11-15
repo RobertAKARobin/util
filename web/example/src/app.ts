@@ -1,4 +1,4 @@
-import { App } from '@robertakarobin/web/index.ts';;
+import { App, routeFactory } from '@robertakarobin/web/index.ts';;
 
 export const app = new App(
 	{
@@ -21,3 +21,5 @@ export const app = new App(
 		}
 	},
 );
+
+export const route = routeFactory(app);
