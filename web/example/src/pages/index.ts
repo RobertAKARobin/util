@@ -49,8 +49,7 @@ Joseph's coat was ${colors.join(` and `)}.
 `;
 
 export class IndexPage extends Page {
-	importMetaUrl = import.meta.url;
-	style = style;
+	static style = style;
 	template = template;
 	title = `Home page`;
 }

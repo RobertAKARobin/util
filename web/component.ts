@@ -9,12 +9,16 @@ export const toAttributes = (input: Record<string, string>) =>
 
 type CachedFunction = (event: Event, ...args: Array<string>) => void;
 
+export const RouteComponents = new Set<Component>();
+
 export abstract class Component {
 	private static componentsSize = 0;
-	private static readonly htmlAttribute = `data-component`;
+	private static count = 0;
+	static readonly htmlAttribute = `data-component`;
 	private static readonly instanceCache = new WeakMap<HTMLElement, Component>();
 	static readonly onload = new Map<string, CachedFunction>();
-	static readonly styleCache = new Map<typeof Component.constructor, string>();
+	static readonly style: string;
+	static uid: string;
 
 	static {
 		if (appContext === `browser`) {
@@ -30,6 +34,26 @@ export abstract class Component {
 			return;
 		}
 		return Component.instanceCache.get($root as HTMLElement);
+	}
+
+	/**
+	 * Runs when Component is subclassed, because the actual static constructor doesn't:
+	 * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Static_initialization_blocks
+	 */
+	static staticConstructor() {
+		this.uid = `${this.name}-${this.count}`;
+
+		if (typeof(this.style) === `string`) {
+			if (appContext === `browser`) {
+				let $style = document.querySelector(`style[${this.htmlAttribute}="${this.uid}"]`);
+				if ($style === null) {
+					$style = document.createElement(`style`);
+					$style.textContent = this.style;
+					$style.setAttribute(this.htmlAttribute, this.uid);
+					document.head.appendChild($style);
+				}
+			}
+		}
 	}
 
 	static toFunction<
@@ -74,10 +98,16 @@ export abstract class Component {
 	}
 
 	protected $root?: HTMLElement;
-	readonly style?: string;
+	get ctor() {
+		return this.constructor as typeof Component;
+	}
+	readonly style: undefined;
 	readonly uid: string;
 
 	constructor() {
+		if (this.ctor.uid === undefined) {
+			this.ctor.staticConstructor();
+		}
 		this.uid = `c${Component.componentsSize++}`;
 	}
 
@@ -97,23 +127,17 @@ export abstract class Component {
 	): ReturnType<this[`template`]> {
 		const rendered = this.template(...args) as ReturnType<this[`template`]>;
 
-		if (typeof(this.style) === `string` && !Component.styleCache.has(this.constructor)) {
-			Component.styleCache.set(this.constructor, this.style);
-
-			if (appContext === `browser`) {
-				const $style = document.createElement(`style`);
-				$style.textContent = this.style;
-				document.head.appendChild($style);
-			}
-		}
-
 		if (appContext !== `browser`) {
+			RouteComponents.add(this);
 			return rendered;
 		}
+
 		if (rendered instanceof Promise) {
 			return rendered.then(html => Component.wrap(this, html)) as ReturnType<this[`template`]>;
 		}
-		return Component.wrap(this, rendered) as ReturnType<this[`template`]>;
+
+		const html = Component.wrap(this, rendered) as ReturnType<this[`template`]>;
+		return html;
 	}
 
 	// TODO2: rerender

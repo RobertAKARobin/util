@@ -11,6 +11,10 @@ const constants = {
 };
 
 const typefaces = {
+	body: `
+		font-family: ${constants.fontBase_family};
+		font-size: ${constants.fontBase_size};
+	`,
 	h1: `
 		color: darkgreen;
 	`,
@@ -25,4 +29,4 @@ export const theme = new CssTheme({
 	val: constants,
 });
 
-export const { bp, val, vars } = theme;
+export const { bp, types, val, vars } = theme;

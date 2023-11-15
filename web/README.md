@@ -1,6 +1,5 @@
 # TODO
 
--	CSS to external
 -	Template/CSS prefix
 
 -	Fix `route()` names not bring strongly typed?
@@ -16,6 +15,7 @@
 
 ## Done
 
+-	CSS to external
 -	Vendor doesn't need own bundle
 -	CSS breakpoints
 -	Declare CSS variables inline

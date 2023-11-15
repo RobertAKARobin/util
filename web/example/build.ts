@@ -1,8 +1,7 @@
 import jsBeautify from 'js-beautify';
 import path from 'path';
 
-import { Builder } from '@robertakarobin/web/build.ts';
-import defaultLayout from '@robertakarobin/web/layout.ts';
+import { Builder, type LayoutArgs } from '@robertakarobin/web/build.ts';
 
 import { type app } from './src/app.ts';
 import nav from './src/components/nav.ts';
@@ -19,12 +18,15 @@ class CustomBuilder extends Builder<typeof app[`routes`]> {
 		return css;
 	}
 
-	formatHtml(contents: string) {
-		let html = contents;
-		html = defaultLayout(`
+	formatHtml(input: LayoutArgs) {
+		const body = `
 			<nav>${nav()}</nav>
-			<main>${html}</main>
-		`);
+			<main>${input.body}</main>
+		`;
+		let html = super.formatHtml({
+			...input,
+			body,
+		});
 		html = trimNewlines(html);
 		html = jsBeautify.html(html, {
 			end_with_newline: true, // TODO2: Once we're using editorconfig, use the `--editorconfig` option

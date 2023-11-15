@@ -1,6 +1,14 @@
 import { Component } from '@robertakarobin/web/index.ts';
 
+import { types } from '../theme.ts';
+
 export class Textbox extends Component {
+	static style = `
+input {
+	${types.body}
+}
+	`;
+
 	max = 10;
 	value = ``;
 

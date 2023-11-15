@@ -1,16 +1,41 @@
-import { Component, Page } from '@robertakarobin/web/index.ts';
+import { type LayoutArgs } from './build.ts';
 
-export default (contents: string) => `
+export default (input: LayoutArgs) => `
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>${Page.title.last}</title>
+		<title>${input.page.title}</title>
 		<base href="/">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<script src="/script.js" type="module"></script>
-		<link rel="stylesheet" href="/styles.css">
-		<style>${Array.from(Component.styleCache.values()).join(`\n`)}</style>
+
+		${typeof (input.mainJsPath) === `string`
+			? `<script src="${input.mainJsPath}" type="module"></script>`
+			: ``
+		}
+
+		${typeof (input.mainCssPath) === `string`
+			? `<link rel="stylesheet" href="${input.mainCssPath}">`
+			: ``
+		}
+
+		${typeof (input.head) === `string`
+			? `<head>${input.head}</head>`
+			: ``
+		}
+
+		${typeof input.routeCssPath === `string`
+			? `<link rel="stylesheet" href="${input.routeCssPath}">`
+			: ``
+		}
+
+		${[...input.ctors].map(ctor => `
+			<style ${ctor.htmlAttribute}="${ctor.uid}"></style>
+		`).join(`\n`)}
 	</head>
-	<body>${contents}</body>
+
+	${typeof (input.body) === `string`
+		? `<body>${input.body}</body>`
+		: ``
+	}
 </html>
 `;

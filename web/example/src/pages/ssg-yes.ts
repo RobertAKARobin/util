@@ -1,7 +1,13 @@
 import { Page } from '@robertakarobin/web/index.ts';
 
+const style = `
+h1 {
+	color: purple;
+}
+`;
+
 export class NoSSGPage extends Page {
-	importMetaUrl = import.meta.url;
+	static style = style;
 	title = `SSG yes`;
 	template = () => `
 		<h1>SSG yes</h1>

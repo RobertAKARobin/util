@@ -1,7 +1,6 @@
 import * as $ from '@robertakarobin/jsutil';
 import { stringMates, type TagResult } from '@robertakarobin/jsutil/string-mates.ts';
 import esbuild from 'esbuild';
-import { fileURLToPath } from 'url';
 import fs from 'fs';
 import { glob } from 'glob';
 import { marked } from 'marked';
@@ -9,12 +8,27 @@ import path from 'path';
 
 import {
 	type App,
+	type Component,
 	hasExtension,
 	hasHash,
 	Page,
+	RouteComponents,
 	type RouteMap,
 } from './index.ts';
 import defaultLayout from './layout.ts';
+
+export type LayoutArgs = {
+	body?: string;
+	components: Array<Component>;
+	css?: string;
+	ctors: Set<typeof Component>;
+	head?: string;
+	mainCssPath: string;
+	mainJsPath: string;
+	page: Page;
+	routeCssPath?: string;
+	routePath: string;
+};
 
 const bustCache = (path: string) => import(`${path}?v=${Date.now() + performance.now()}`);
 
@@ -25,9 +39,6 @@ const local = (input: string) => path.relative(process.cwd(), input);
 const log = (...args: Array<string>) => console.log(args.join(`\n`));
 
 const logBreak = () => console.log(``);
-
-const isStringElse = (input: unknown, fallback: string) =>
-	typeof input === `string` ? input : fallback;
 
 export class Builder<
 	Routes extends RouteMap
@@ -40,6 +51,7 @@ export class Builder<
 	readonly baseDirAbs: string;
 	readonly scriptServeFileAbs: string;
 	readonly scriptServeFileName: string;
+	readonly scriptServeFileRel: string;
 	readonly scriptSrcFileAbs: string;
 	readonly scriptSrcFileRel: string;
 	readonly serveDirAbs: string;
@@ -61,24 +73,25 @@ export class Builder<
 		vendorServeFileName: string;
 		vendorSrcFileAbs: string;
 	}> = {}) {
-		this.baseDirAbs = isStringElse(input.baseDirAbs, process.cwd());
-		this.serveDirAbs = path.join(this.baseDirAbs, isStringElse(input.serveDirRel, `./dist`));
-		this.srcRawDirAbs = path.join(this.baseDirAbs, isStringElse(input.srcRawDirRel, `./src`));
-		this.srcDirAbs = path.join(this.baseDirAbs, isStringElse(input.srcTmpDirRel, `./tmp`));
+		this.baseDirAbs = input.baseDirAbs ?? process.cwd();
+		this.serveDirAbs = path.join(this.baseDirAbs, input.serveDirRel ?? `./dist`);
+		this.srcRawDirAbs = path.join(this.baseDirAbs, input.srcRawDirRel ?? `./src`);
+		this.srcDirAbs = path.join(this.baseDirAbs, input.srcTmpDirRel ?? `./tmp`);
 
-		this.assetsSrcDirRel = isStringElse(input.assetsSrcDirRel, `./assets`);
+		this.assetsSrcDirRel = input.assetsSrcDirRel ?? `./assets`;
 		this.assetsSrcDirAbs = path.join(this.baseDirAbs, this.assetsSrcDirRel);
 		this.assetsServeDirAbs = path.join(this.serveDirAbs, this.assetsSrcDirRel);
 
-		this.appSrcFileRel = isStringElse(input.appSrcFileRel, `./app.ts`);
+		this.appSrcFileRel = input.appSrcFileRel ?? `./app.ts`;
 		this.appSrcFileAbs = path.join(this.srcDirAbs, this.appSrcFileRel);
 
-		this.scriptSrcFileRel = isStringElse(input.scriptSrcFileRel, `./script.ts`);
+		this.scriptSrcFileRel = input.scriptSrcFileRel ?? `./script.ts`;
 		this.scriptSrcFileAbs = path.join(this.srcDirAbs, this.scriptSrcFileRel);
 		this.scriptServeFileName = path.parse(this.scriptSrcFileRel).name;
 		this.scriptServeFileAbs = path.join(this.serveDirAbs, this.scriptSrcFileRel);
+		this.scriptServeFileRel = path.relative(this.serveDirAbs, `${this.scriptServeFileName}.js`);
 
-		this.styleServeFileRel = isStringElse(input.styleServeFileRel, `./styles.css`);
+		this.styleServeFileRel = input.styleServeFileRel ?? `./styles.css`;
 		this.stylesSrcFileAbs = path.join(this.srcDirAbs, `${this.styleServeFileRel}.ts`);
 		this.stylesServeFileAbs = path.join(this.serveDirAbs, this.styleServeFileRel);
 	}
@@ -97,7 +110,7 @@ export class Builder<
 		await this.buildTSSource();
 		this.buildAssets();
 		await this.buildStyles();
-		await this.buildJs();
+		await this.buildRoutes();
 
 		fs.rmSync(this.srcDirAbs, { force: true, recursive: true });
 	}
@@ -111,17 +124,25 @@ export class Builder<
 		logBreak();
 	}
 
-	async buildJs() {
+	async buildRoutes() {
+		header(`Building routes`);
 		const { app } = (await bustCache(this.appSrcFileAbs)) as { app: App<Routes>; };
 
 		const routeNames = Object.keys(app.routes) as Array<keyof Routes>;
 
-		const routeInfos = await $.promiseConsecutive(
+		await $.promiseConsecutive(
 			routeNames.map(routeName => async() => {
 				const routePath = app.routes[routeName];
-				await app.resolve(routePath); // Populates `Page.importMetaUrl`, `Page.title`, and `Component.style` emitters
-				const srcFileAbs = fileURLToPath(Page.importMetaUrl.last);
-				const srcFileRel = path.relative(this.srcDirAbs, srcFileAbs);
+				log(routePath);
+
+				RouteComponents.clear();
+				const body = await app.resolve(routePath); // Populates RouteComponents
+				const components = [...RouteComponents];
+				const page = components.find(component => component instanceof Page) as Page;
+				if (page === undefined || !page.isSSG) {
+					logBreak();
+					return;
+				}
 
 				let serveFileRel = routePath as string;
 				serveFileRel = serveFileRel
@@ -132,35 +153,37 @@ export class Builder<
 				}
 				const serveFileAbs = path.join(this.serveDirAbs, serveFileRel);
 				const serveDirAbs = path.dirname(serveFileAbs);
+				fs.mkdirSync(serveDirAbs, { recursive: true });
 
-				const isSSG = Page.isSSG.last;
+				const ctors = new Set(components.map(({ ctor }) => ctor));
+				const ctorsWithStyles = [...ctors].filter(ctor => typeof ctor.style === `string`);
 
-				return {
-					isSSG,
-					routePath,
-					serveDirAbs,
-					serveFileAbs,
-					serveFileRel,
-					srcFileAbs,
-					srcFileRel,
-				};
+				let css = ctorsWithStyles.map(({ style }) => style).join(`\n`);
+				let routeCssPath: string | undefined = undefined;
+				if (css.length > 0) {
+					css = this.formatCss(css);
+					routeCssPath = `${serveFileRel}.css`;
+					const routeCssAbs = path.join(this.serveDirAbs, routeCssPath);
+					log(local(routeCssAbs));
+					fs.writeFileSync(routeCssAbs, css);
+				}
+
+				const html = this.formatHtml({
+					body,
+					components,
+					css,
+					ctors,
+					mainCssPath: path.join(`/`, this.styleServeFileRel),
+					mainJsPath: path.join(`/`, this.scriptServeFileRel),
+					page,
+					routeCssPath: typeof routeCssPath === `string` ? path.join(`/`, routeCssPath) : undefined,
+					routePath: path.join(`/`, routePath),
+				});
+				log(local(serveFileAbs));
+				fs.writeFileSync(serveFileAbs, html);
+				logBreak();
 			})
 		);
-
-		header(`Building SSG pages`);
-		await routeInfos.reduce(async(previous, route) => {
-			await previous;
-
-			if (route.isSSG) {
-				log(route.routePath);
-				let html = await app.resolve(route.routePath);
-				html = this.formatHtml(html);
-				fs.mkdirSync(route.serveDirAbs, { recursive: true });
-				log(local(route.serveFileAbs));
-				fs.writeFileSync(route.serveFileAbs, html);
-				logBreak();
-			}
-		}, Promise.resolve());
 
 		header(`Bundling JS`);
 		log(local(this.scriptServeFileAbs));
@@ -181,7 +204,7 @@ export class Builder<
 	}
 
 	async buildStyles() {
-		header(`Building styles`);
+		header(`Building root styles`);
 		let styles = (await bustCache(this.stylesSrcFileAbs)).default as string; // eslint-disable-line @typescript-eslint/no-unsafe-member-access
 		styles = this.formatCss(styles);
 		log(local(this.stylesServeFileAbs));
@@ -207,7 +230,7 @@ export class Builder<
 		return input;
 	}
 
-	formatHtml(input: string) {
+	formatHtml(input: LayoutArgs) {
 		return defaultLayout(input);
 	}
 

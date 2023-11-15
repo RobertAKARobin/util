@@ -1,4 +1,8 @@
 :root {
+	--fontBase_family: monospace;
+	--fontBase_size: 24;
+	--phone: 600;
+	--tablet: 1000;
 	background: transparent;
 	border: 0;
 	border-collapse: collapse;
@@ -12,12 +16,14 @@
 	margin: 0;
 	padding: 0;
 	text-decoration: inherit;
-	--fontBase_family: monospace;
-	--fontBase_size: 24;
-	--phone: 600;
-	--tablet: 1000;
 	font-family: monospace;
-	font-size: calc(24 * 1px);
+	font-size: 24;
+	--varName: 'body';
+}
+
+.type-body {
+	font-family: monospace;
+	font-size: 24;
 }
 
 .type-h1 {
