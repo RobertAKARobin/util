@@ -48,9 +48,6 @@ export class Builder<
 	readonly styleServeFileRel: string;
 	readonly stylesServeFileAbs: string;
 	readonly stylesSrcFileAbs: string;
-	readonly vendorServeFileAbs: string;
-	readonly vendorServeFileName: string;
-	readonly vendorSrcFileAbs: string;
 
 	constructor(input: Partial<{
 		appSrcFileRel: string;
@@ -84,10 +81,6 @@ export class Builder<
 		this.styleServeFileRel = isStringElse(input.styleServeFileRel, `./styles.css`);
 		this.stylesSrcFileAbs = path.join(this.srcDirAbs, `${this.styleServeFileRel}.ts`);
 		this.stylesServeFileAbs = path.join(this.serveDirAbs, this.styleServeFileRel);
-
-		this.vendorSrcFileAbs = isStringElse(input.vendorSrcFileAbs, `@robertakarobin/web/index.ts`);
-		this.vendorServeFileName = isStringElse(input.vendorServeFileName, `/web.js`);
-		this.vendorServeFileAbs = path.join(this.serveDirAbs, this.vendorServeFileName);
 	}
 
 	async build(input: { serve?: boolean; } = {}) {
@@ -104,7 +97,6 @@ export class Builder<
 		await this.buildTSSource();
 		this.buildAssets();
 		await this.buildStyles();
-		this.buildVendor();
 		await this.buildJs();
 
 		fs.rmSync(this.srcDirAbs, { force: true, recursive: true });
@@ -175,15 +167,11 @@ export class Builder<
 		logBreak();
 		await esbuild.build({
 			absWorkingDir: this.serveDirAbs,
-			alias: {
-				[this.vendorSrcFileAbs]: this.vendorServeFileName,
-			},
 			bundle: true,
 			entryPoints: [{
 				in: this.scriptSrcFileAbs,
 				out: this.scriptServeFileName,
 			}],
-			external: [this.vendorServeFileName],
 			format: `esm`,
 			metafile: true,
 			minify: true,
@@ -212,19 +200,6 @@ export class Builder<
 			}
 			fs.writeFileSync(tsSrcAbs, tsSrcModified);
 		}
-		logBreak();
-	}
-
-	buildVendor() {
-		header(`Building vendor JS`);
-		log(local(this.vendorServeFileAbs));
-		esbuild.buildSync({
-			bundle: true,
-			entryPoints: [this.vendorSrcFileAbs],
-			format: `esm`,
-			minify: true,
-			outfile: this.vendorServeFileAbs,
-		});
 		logBreak();
 	}
 

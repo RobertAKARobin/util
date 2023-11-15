@@ -4,7 +4,6 @@
 -	CSS to external
 -	VS plugin for CSS
 -	VS plugin for HTML
--	Vendor doesn't need own bundle
 -	Template/CSS prefix
 -	Fix `route()` names not bring strongly typed?
 -	Route names for HTML IDs
@@ -14,6 +13,7 @@
 
 ## Done
 
+-	Vendor doesn't need own bundle
 -	CSS breakpoints
 -	Declare CSS variables inline
 -	Get CSS variable names inline
