@@ -97,10 +97,6 @@ export class Builder<
 	}
 
 	async build(input: { serve?: boolean; } = {}) {
-		if (input.serve === true) {
-			this.serve();
-		}
-
 		fs.rmSync(this.serveDirAbs, { force: true, recursive: true });
 		fs.mkdirSync(this.serveDirAbs);
 
@@ -113,6 +109,10 @@ export class Builder<
 		await this.buildRoutes();
 
 		fs.rmSync(this.srcDirAbs, { force: true, recursive: true });
+
+		if (input.serve === true) {
+			this.serve();
+		}
 	}
 
 	buildAssets() {
@@ -133,12 +133,13 @@ export class Builder<
 		await $.promiseConsecutive(
 			routeNames.map(routeName => async() => {
 				const routePath = router.routes[routeName];
-				log(routePath);
+				log(`${routeName.toString()}: ${routePath}`);
 
 				RouteComponents.clear();
 				const page = await router.resolve(routePath); // Populates RouteComponents
 				if (page === undefined) {
 					console.warn(`Route '${routeName.toString()}' does not resolve to a page. Skipping...`);
+					logBreak();
 					return;
 				}
 				const body = await page.render();
