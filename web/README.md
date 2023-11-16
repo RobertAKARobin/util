@@ -1,12 +1,15 @@
 # TODO
 
 -	Template/CSS prefix
+-	`bind` without needing page referesh
 
 -	Match routes with params
 -	Jump anchors
 
 -	Import from other file (ergo SVG)
 -	Support tokens with attributes?
+
+-	Image preprocessing
 
 -	VS plugin for CSS
 -	VS plugin for HTML

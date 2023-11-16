@@ -62,6 +62,7 @@ export class Router<
 
 		const $outlet = typeof input === undefined ? document.body : input;
 		Page.current.subscribe(async page => {
+			document.title = page.title;
 			$outlet.innerHTML = await page.render();
 		});
 	}
