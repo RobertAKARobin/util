@@ -7,13 +7,13 @@ import { marked } from 'marked';
 import path from 'path';
 
 import {
-	type App,
 	type Component,
 	hasExtension,
 	hasHash,
-	Page,
+	type Page,
 	RouteComponents,
 	type RouteMap,
+	type Router,
 } from './index.ts';
 import defaultLayout from './layout.ts';
 
@@ -43,12 +43,12 @@ const logBreak = () => console.log(``);
 export class Builder<
 	Routes extends RouteMap
 > {
-	readonly appSrcFileAbs: string;
-	readonly appSrcFileRel: string;
 	readonly assetsServeDirAbs: string;
 	readonly assetsSrcDirAbs: string;
 	readonly assetsSrcDirRel: string;
 	readonly baseDirAbs: string;
+	readonly routerSrcFileAbs: string;
+	readonly routerSrcFileRel: string;
 	readonly scriptServeFileAbs: string;
 	readonly scriptServeFileName: string;
 	readonly scriptServeFileRel: string;
@@ -62,9 +62,9 @@ export class Builder<
 	readonly stylesSrcFileAbs: string;
 
 	constructor(input: Partial<{
-		appSrcFileRel: string;
 		assetsSrcDirRel: string;
 		baseDirAbs: string;
+		routerSrcFileRel: string;
 		scriptSrcFileRel: string;
 		serveDirRel: string;
 		srcRawDirRel: string;
@@ -82,8 +82,8 @@ export class Builder<
 		this.assetsSrcDirAbs = path.join(this.baseDirAbs, this.assetsSrcDirRel);
 		this.assetsServeDirAbs = path.join(this.serveDirAbs, this.assetsSrcDirRel);
 
-		this.appSrcFileRel = input.appSrcFileRel ?? `./app.ts`;
-		this.appSrcFileAbs = path.join(this.srcDirAbs, this.appSrcFileRel);
+		this.routerSrcFileRel = input.routerSrcFileRel ?? `./router.ts`;
+		this.routerSrcFileAbs = path.join(this.srcDirAbs, this.routerSrcFileRel);
 
 		this.scriptSrcFileRel = input.scriptSrcFileRel ?? `./script.ts`;
 		this.scriptSrcFileAbs = path.join(this.srcDirAbs, this.scriptSrcFileRel);
@@ -126,19 +126,23 @@ export class Builder<
 
 	async buildRoutes() {
 		header(`Building routes`);
-		const { app } = (await bustCache(this.appSrcFileAbs)) as { app: App<Routes>; };
+		const { router } = (await bustCache(this.routerSrcFileAbs)) as { router: Router<Routes>; };
 
-		const routeNames = Object.keys(app.routes) as Array<keyof Routes>;
+		const routeNames = Object.keys(router.routes) as Array<keyof Routes>;
 
 		await $.promiseConsecutive(
 			routeNames.map(routeName => async() => {
-				const routePath = app.routes[routeName];
+				const routePath = router.routes[routeName];
 				log(routePath);
 
 				RouteComponents.clear();
-				const body = await app.resolve(routePath); // Populates RouteComponents
+				const page = await router.resolve(routePath); // Populates RouteComponents
+				if (page === undefined) {
+					console.warn(`Route '${routeName.toString()}' does not resolve to a page. Skipping...`);
+					return;
+				}
+				const body = await page.render();
 				const components = [...RouteComponents];
-				const page = components.find(component => component instanceof Page) as Page;
 				if (page === undefined || !page.isSSG) {
 					logBreak();
 					return;

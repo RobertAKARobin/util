@@ -40,4 +40,4 @@ input {
 	}
 }
 
-export default Component.toFunction(Textbox);
+export default Textbox.toFunction(Textbox);

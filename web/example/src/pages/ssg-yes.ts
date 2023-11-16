@@ -6,7 +6,7 @@ h1 {
 }
 `;
 
-export class NoSSGPage extends Page {
+export class YesSSGPage extends Page {
 	static style = style;
 	title = `SSG yes`;
 	template = () => `
@@ -17,5 +17,3 @@ export class NoSSGPage extends Page {
 		<div id="jump2">Jump 2</div>
 	`;
 }
-
-export default Page.toFunction(NoSSGPage);

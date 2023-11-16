@@ -3,12 +3,12 @@ import path from 'path';
 
 import { Builder, type LayoutArgs } from '@robertakarobin/web/build.ts';
 
-import { type app } from './src/app.ts';
 import nav from './src/components/nav.ts';
+import { type routes } from './src/router.ts';
 
 const trimNewlines = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
 
-class CustomBuilder extends Builder<typeof app[`routes`]> {
+class CustomBuilder extends Builder<typeof routes> {
 	formatCss(contents: string) {
 		let css = trimNewlines(contents);
 		css = jsBeautify.css(css, {

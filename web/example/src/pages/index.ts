@@ -10,7 +10,21 @@ h1 {
 
 const colors = [`red`, `yellow`, `green`, `brown`, `scarlet`];
 
-const template = (message: string) => `
+export class IndexPage extends Page {
+	static style = style;
+
+	message: string;
+	title = `Home page`;
+
+	constructor(input: {
+		message: string;
+	}) {
+		super({});
+		this.message = input.message;
+	}
+
+	template() {
+		return `
 <h1>Hello world!</h1>
 
 <div id="jump1">Jump 1</div>
@@ -18,7 +32,7 @@ const template = (message: string) => `
 <markdown>
 # Headline 1
 
-## ${message}
+## ${this.message}
 
 <div>${textbox()}</div>
 
@@ -50,12 +64,6 @@ Joseph's coat was ${colors.join(` and `)}.
 </markdown>
 
 <div id="jump2">Jump 2</div>
-`;
-
-export class IndexPage extends Page {
-	static style = style;
-	template = template;
-	title = `Home page`;
+		`;
+	}
 }
-
-export default Page.toFunction(IndexPage);
