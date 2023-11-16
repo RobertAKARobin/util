@@ -2,7 +2,6 @@
 
 -	Template/CSS prefix
 
--	Route names for HTML IDs
 -	Match routes with params
 -	Jump anchors
 
@@ -14,6 +13,7 @@
 
 ## Done
 
+-	Route names for HTML IDs
 -	Fix `route()` names not bring strongly typed
 -	CSS to external
 -	Vendor doesn't need own bundle

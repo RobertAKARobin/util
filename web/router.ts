@@ -45,14 +45,6 @@ export class Router<
 		return await this.resolver(path, this.routes);
 	}
 
-	routeToComponent() {
-		const router = this;
-		class RouteComponent extends GenericRouteComponent<Routes> {
-			router = router;
-		}
-		return RouteComponent.toFunction(RouteComponent);
-	}
-
 	setOutlet(input: HTMLElement) {
 		window.onpopstate = () => {
 			const newPath = window.location.pathname;
@@ -111,4 +103,28 @@ export abstract class GenericRouteComponent<
 			</a>
 		`;
 	}
+}
+
+/**
+ * This is separate from `Router` because Router depends on templates, which depend on hashes, which depend on Router, which causes a circular dependency that makes Typescript unhappy.
+ */
+export function routeHashes<Routes extends RouteMap>(routes: Routes) {
+	const hashes = {} as Record<keyof Routes, string | undefined>;
+	for (const routeName in routes) {
+		const routePath = routes[routeName];
+		const hashPosition = routePath.indexOf(`#`);
+		hashes[routeName] = hashPosition >= 0
+			? routePath.substring(hashPosition + 1)
+			: undefined;
+	}
+	return hashes;
+}
+
+export function routeComponent<Routes extends RouteMap>(
+	router: Router<Routes>
+) {
+	class RouteComponent extends GenericRouteComponent<Routes> {
+		router = router;
+	}
+	return RouteComponent.toFunction(RouteComponent);
 }

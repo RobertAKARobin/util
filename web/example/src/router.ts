@@ -1,4 +1,4 @@
-import { Router } from '@robertakarobin/web/index.ts';
+import { routeComponent, routeHashes, Router } from '@robertakarobin/web/index.ts';
 
 export const routes = {
 	error404: `/404.html`,
@@ -30,4 +30,6 @@ export const router = new Router(routes, async(path, routes) => {
 	}
 });
 
-export const routeTo = router.routeToComponent();
+export const routeHash = routeHashes(routes);
+
+export const routeTo = routeComponent(router);
