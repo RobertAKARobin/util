@@ -12,3 +12,4 @@ export default () => `
 		<li>${routeTo(`ssgYesJump2`, `Go ${routes.ssgYesJump2}`)}</li>
 	</ul>
 `;
+

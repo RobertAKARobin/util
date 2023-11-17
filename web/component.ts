@@ -59,9 +59,9 @@ export abstract class Component {
 	static toFunction<
 		Subclass extends Component
 	>(Constructor: $.Type.Constructor<Subclass>) {
-		return (...args: Parameters<Subclass[`render`]>) => {
-			const instance = new Constructor();
-			return instance.render(...args);
+		return (...args: ConstructorParameters<typeof Constructor>) => {
+			const instance = new Constructor(...args);
+			return instance.render.bind(instance);
 		};
 	}
 

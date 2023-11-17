@@ -3,6 +3,8 @@ import fs from 'fs';
 import { suite, test } from '@robertakarobin/spec';
 import { diff } from '@robertakarobin/spec/diff.ts';
 
+import { Component } from '../component.ts';
+
 export const hasMarkdown = /<markdown>(.*?)<\/markdown>/gs;
 
 const dist = (path: string) =>
@@ -17,6 +19,15 @@ const distMatchesGolden = (path: string) =>
 
 const hasSSG = (page: string) =>
 	fs.existsSync(`web/example/dist/${page}.html`);
+
+class Widget extends Component {
+	prop = 42;
+	template(message: string) {
+		return `<h1>${message}${this.prop}</h1>`;
+	}
+}
+
+const widget = Widget.toFunction(Widget);
 
 export const spec = suite(`@robertakarobin/web`,
 	{
@@ -40,5 +51,9 @@ export const spec = suite(`@robertakarobin/web`,
 
 		$.assert(() => hasMarkdown.test(src(`pages/index.ts`)));
 		$.assert(() => !hasMarkdown.test(dist(`index.html`)));
+	}),
+
+	test(`component`, $ => {
+		$.assert(x => x(widget()(`x`)) === `<h1>x42</h1>`);
 	}),
 );

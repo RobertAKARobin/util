@@ -35,9 +35,9 @@ export class IndexPage extends Page {
 
 ## ${this.message}
 
-<div>${textbox()}</div>
+<div>${textbox()()}</div>
 
-<div>${textbox()}</div>
+<div>${textbox()()}</div>
 
 Lorem ipsum dolor <strong>sit amet</strong>, consectetur *adipiscing elit*, sed do _eiusmod tempor_ incididunt.
 

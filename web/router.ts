@@ -68,7 +68,7 @@ export class Router<
 	}
 }
 
-export abstract class GenericRouteComponent<
+export abstract class RouteComponent<
 	Routes extends RouteMap
 > extends Component {
 	abstract readonly router: Router<Routes>;
@@ -124,8 +124,10 @@ export function routeHashes<Routes extends RouteMap>(routes: Routes) {
 export function routeComponent<Routes extends RouteMap>(
 	router: Router<Routes>
 ) {
-	class RouteComponent extends GenericRouteComponent<Routes> {
+	class AppRouteComponent extends RouteComponent<Routes> {
 		router = router;
 	}
-	return RouteComponent.toFunction(RouteComponent);
+	const routeTo = AppRouteComponent.toFunction(AppRouteComponent);
+	const renderer = routeTo();
+	return renderer;
 }
