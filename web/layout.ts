@@ -6,20 +6,24 @@ export default (input: LayoutArgs) => `
 	<head>
 		<title>${input.page.title}</title>
 		<base href="/">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
 
-		${typeof (input.mainJsPath) === `string`
+		${typeof input.meta === `string`
+			?	input.meta
+			: `<meta name="viewport" content="width=device-width, initial-scale=1">`
+		}
+
+		${typeof input.mainJsPath === `string`
 			? `<script src="${input.mainJsPath}" type="module"></script>`
 			: ``
 		}
 
-		${typeof (input.mainCssPath) === `string`
+		${typeof input.mainCssPath === `string`
 			? `<link rel="stylesheet" href="${input.mainCssPath}">`
 			: ``
 		}
 
-		${typeof (input.head) === `string`
-			? `<head>${input.head}</head>`
+		${typeof input.head === `string`
+			? input.head
 			: ``
 		}
 
@@ -33,7 +37,7 @@ export default (input: LayoutArgs) => `
 		`).join(`\n`)}
 	</head>
 
-	${typeof (input.body) === `string`
+	${typeof input.body === `string`
 		? `<body>${input.body}</body>`
 		: ``
 	}

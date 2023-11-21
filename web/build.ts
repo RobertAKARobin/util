@@ -22,6 +22,7 @@ export type LayoutArgs = {
 	head?: string;
 	mainCssPath: string;
 	mainJsPath: string;
+	meta?: string;
 	page: Page;
 	routeCssPath?: string;
 	routePath: string;
