@@ -9,12 +9,16 @@ input {
 }
 	`;
 
-	max = 10;
-	value = ``;
+	constructor(
+		public max = 10,
+		public value = ``,
+	) {
+		super();
+	}
 
 	handleInput(event: Event) {
 		this.value = (event.currentTarget as HTMLInputElement).value;
-		this.$root!.querySelector(`span`)!.innerHTML = this.remaining(); // TODO2: Better rerender
+		this.$el!.querySelector(`span`)!.innerHTML = this.remaining(); // TODO1: Better rerender
 	}
 
 	remaining() {
@@ -23,8 +27,7 @@ input {
 		`;
 	}
 
-	template() {
-		return `
+	template = () => `
 		<div>
 			<input
 				oninput=${this.bind(`handleInput`)}
@@ -37,7 +40,6 @@ input {
 			<span>${this.remaining()}</span>
 		</div>
 		`;
-	}
 }
 
-export default Textbox.toFunction(Textbox);
+export default Component.register(Textbox);

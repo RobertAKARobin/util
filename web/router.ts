@@ -1,6 +1,7 @@
 import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
 
-import { Component, toAttributes } from './component.ts';
+import { appContext } from './context.ts';
+import { Component } from './component.ts';
 import { Page } from './page.ts';
 
 export const isAbsoluteUrl = /^\w+\:\/\//;
@@ -34,11 +35,28 @@ export class Router<
 			if (!path.endsWith(`/`) && !hasExtension.test(path)) {
 				path = `${path}/`;
 			}
-			if (typeof hash !== `undefined`) {
+			if (hash !== undefined) {
 				path = `${path}${hash}`;
 			}
 			this.routes[routeName] = path as Routes[keyof Routes];
 		}
+
+		if (appContext === `browser`) {
+			window.onpopstate = () => {
+				const newPath = window.location.pathname;
+				if (newPath !== this.path.last) {
+					this.path.next(newPath as Routes[keyof Routes]);
+				}
+			};
+		}
+
+		this.path.subscribe(async path => {
+			// TODO1: If newPath is same as oldPath, esp without hash
+			const page = await this.resolve(path);
+			if (page) {
+				Page.current.next(page);
+			}
+		});
 	}
 
 	async resolve(path: Routes[keyof Routes]) {
@@ -46,24 +64,19 @@ export class Router<
 	}
 
 	setOutlet(input: HTMLElement) {
-		window.onpopstate = () => {
-			const newPath = window.location.pathname;
-			if (newPath !== this.path.last) {
-				this.path.next(newPath as Routes[keyof Routes]);
-			}
-		};
+		const $outlet = typeof input === undefined ? document.body : input;
 
-		this.path.subscribe(async path => {
-			const page = await this.resolve(path);
-			if (page) {
-				Page.current.next(page);
-			}
+		Page.current.subscribe((page, subscription) => {
+			page.$el = $outlet;
+			Page.current.unsubscribe(subscription); // On landing page, if SSG, don't want to reset the title or rerender the page
 		});
 
-		const $outlet = typeof input === undefined ? document.body : input;
-		Page.current.subscribe(async page => {
+		this.path.next(window.location.pathname as Routes[keyof Routes]);;
+
+		Page.current.subscribe(page => {
 			document.title = page.title;
-			$outlet.innerHTML = await page.render();
+			page.$el = $outlet;
+			page.rerender();
 		});
 	}
 }
@@ -72,6 +85,14 @@ export abstract class RouteComponent<
 	Routes extends RouteMap
 > extends Component {
 	abstract readonly router: Router<Routes>;
+
+	constructor(
+		public routeName: keyof Routes,
+		public content: string,
+		public attributes = {}
+	) {
+		super();
+	}
 
 	onClick(
 		event: MouseEvent,
@@ -86,28 +107,24 @@ export abstract class RouteComponent<
 		this.router.path.next(path);
 	}
 
-	template(
-		routeName: keyof Routes,
-		content: string = ``,
-		rest: Record<string, string> = {}
-	) {
-		const url = this.router.routes[routeName];
+	template = () => {
+		const url = this.router.routes[this.routeName];
 		const isAbsolute = isAbsoluteUrl.test(url);
 		return `
 			<a
 				href="${url}"
 				onclick=${this.bind(`onClick`, url)}
 				target="${isAbsolute ? `_blank` : `_self`}"
-				${toAttributes(rest)}
+				${this.attrs()}
 				>
-				${content || ``}
+				${this.content || ``}
 			</a>
 		`;
-	}
+	};
 }
 
 /**
- * This is separate from `Router` because Router depends on templates, which depend on hashes, which depend on Router, which causes a circular dependency that makes Typescript unhappy.
+ * This is separate from `Router` because Router depends on templates, which depend on `hashes`, which depend on Router, which causes a circular dependency that makes Typescript unhappy.
  */
 export function routeHashes<Routes extends RouteMap>(routes: Routes) {
 	const hashes = {} as Record<keyof Routes, string | undefined>;
@@ -127,7 +144,5 @@ export function routeComponent<Routes extends RouteMap>(
 	class AppRouteComponent extends RouteComponent<Routes> {
 		router = router;
 	}
-	const routeTo = AppRouteComponent.toFunction(AppRouteComponent);
-	const renderer = routeTo();
-	return renderer;
+	return Component.register(AppRouteComponent);
 }

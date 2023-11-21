@@ -20,12 +20,11 @@ export class IndexPage extends Page {
 	constructor(input: {
 		message: string;
 	}) {
-		super({});
-		this.message = input.message;
+		super();
+		this.message = input.message ?? ``;
 	}
 
-	template() {
-		return `
+	template = () => `
 <h1>Hello world!</h1>
 
 <div id="${routeHash.homeJump1}">Jump 1</div>
@@ -35,9 +34,9 @@ export class IndexPage extends Page {
 
 ## ${this.message}
 
-<div>${textbox()()}</div>
+<div>${this.put(textbox(10, `foo`))}</div>
 
-<div>${textbox()()}</div>
+<div>${this.put(textbox(777))}</div>
 
 Lorem ipsum dolor <strong>sit amet</strong>, consectetur *adipiscing elit*, sed do _eiusmod tempor_ incididunt.
 
@@ -65,6 +64,5 @@ Joseph's coat was ${colors.join(` and `)}.
 </markdown>
 
 <div id="${routeHash.homeJump2}">Jump 2</div>
-		`;
-	}
+	`;
 }

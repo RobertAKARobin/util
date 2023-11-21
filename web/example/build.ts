@@ -20,7 +20,7 @@ class CustomBuilder extends Builder<typeof routes> {
 
 	formatHtml(input: LayoutArgs) {
 		const body = `
-			<nav>${nav()}</nav>
+			<nav>${nav().template()}</nav>
 			<main>${input.body}</main>
 		`;
 		let html = super.formatHtml({
@@ -31,6 +31,7 @@ class CustomBuilder extends Builder<typeof routes> {
 		html = jsBeautify.html(html, {
 			end_with_newline: true, // TODO2: Once we're using editorconfig, use the `--editorconfig` option
 			indent_with_tabs: true,
+			unformatted: [`script`],
 		});
 		return html;
 	}

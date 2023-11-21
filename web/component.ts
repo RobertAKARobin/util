@@ -1,146 +1,108 @@
-import type * as $ from '@robertakarobin/jsutil';
-
 import { appContext } from './context.ts';
 
-export const toAttributes = (input: Record<string, string>) =>
-	Object.entries(input)
-		.map(([key, value]) => `${key}="${value}"`)
-		.join(` `);
+type BoundElement = HTMLElement & {
+	[Component.$elInstances]: Map<Component[`uid`], Component>; // Attaching instances to HTMLElements should prevent the instance from being garbage-collected until the HTMLElement is GCd
+};
 
-type CachedFunction = (event: Event, ...args: Array<string>) => void;
+type DerivedComponent<Subclass extends Component> = {
+	new(...args: Array<any>): Subclass; // eslint-disable-line @typescript-eslint/no-explicit-any
+};
 
-export const RouteComponents = new Set<Component>();
+const globals = (appContext === `browser` ? window : global) as unknown as Window & {
+	[key in typeof Component.name]: typeof Component;
+};
 
 export abstract class Component {
-	private static componentsSize = 0;
-	private static count = 0;
-	static readonly htmlAttribute = `data-component`;
-	private static readonly instanceCache = new WeakMap<HTMLElement, Component>();
-	static readonly onload = new Map<string, CachedFunction>();
-	static readonly style: string;
-	static uid: string;
+	static readonly $elAttribute = `data-component`;
+	static readonly $elInstances = `instances`;
+	static readonly deconstructeds = globals[this.name] as unknown as Record<
+		Component[`uid`],
+		[BoundElement, typeof Component.name, unknown]
+	>;
+	static readonly instances = new Map<Component[`uid`], WeakRef<Component>>(); // A garbage-collectible way to reference all instances. Instances should be GCd when the corresponding HTML element is GCd. See BoundElement
+	static readonly style: string | undefined;
 
 	static {
-		if (appContext === `browser`) {
-			Object.assign(window, { Component });
-		}
+		globals[this.name] = this;
 	}
 
-	static cached(uid: string, $descendant: HTMLElement) {
-		const $root = $descendant.getAttribute(Component.htmlAttribute) === uid
-			? $descendant
-			: $descendant.closest(`[${Component.htmlAttribute}="${uid}"]`);
-		if (!$root) {
-			return;
-		}
-		return Component.instanceCache.get($root as HTMLElement);
+	static createUid() {
+		return Math.random().toString(); // TODO2: Just has to be fairly random, not actually unique
 	}
 
-	/**
-	 * Runs when Component is subclassed, because the actual static constructor doesn't:
-	 * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes/Static_initialization_blocks
-	 */
-	static staticConstructor() {
-		this.uid = `${this.name}-${this.count}`;
+	static register<
+		Instance extends Component,
+		Subclass extends DerivedComponent<Instance>
+	>(Constructor: Subclass) {
+		if (
+			appContext === `browser`
+			&& typeof this.style === `string`
+			&& document.querySelector(`[${this.$elInstances}="${this.name}"]`) === null
+		) {
+			const $style = document.createElement(`style`);
+			$style.textContent = this.style;
+			$style.setAttribute(this.$elInstances, this.name);
+			document.head.appendChild($style);
+		}
 
-		if (typeof(this.style) === `string`) {
-			if (appContext === `browser`) {
-				let $style = document.querySelector(`style[${this.htmlAttribute}="${this.uid}"]`);
-				if ($style === null) {
-					$style = document.createElement(`style`);
-					$style.textContent = this.style;
-					$style.setAttribute(this.htmlAttribute, this.uid);
-					document.head.appendChild($style);
-				}
+		for (const uid in this.deconstructeds) {
+			const [$placeholder, componentName, ...args] = this.deconstructeds[uid];
+			if (componentName !== Constructor.name) {
+				continue;
 			}
+			delete this.deconstructeds[uid];
+			const instance = new Constructor(...args);
+			const $el = $placeholder.nextElementSibling as BoundElement;
+			instance.uid = uid;
+			instance.$el = $el;
+			$el.instances = $el.instances ?? new Map();
+			$el.instances.set(uid, instance);
+			$placeholder.remove();
+			instance.onload();
 		}
-	}
 
-	static toFunction<
-		Subclass extends Component
-	>(Constructor: $.Type.Constructor<Subclass>) {
 		return (...args: ConstructorParameters<typeof Constructor>) => {
 			const instance = new Constructor(...args);
-			return instance.render.bind(instance);
+			const key = Component.name;
+			const argsString = args.map(arg => typeof arg === `string` ? `'${arg}'` : `${arg}`).join(`,`);
+			instance.placeholder = `<script src="data:text/javascript," onload="window.${key}=window.${key}||{};window.${key}['${instance.uid}']=[this,'${Constructor.name}',${argsString}]"></script>`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args
+			return instance;
 		};
 	}
 
-	protected static wrap(component: Component, contents: string) {
-		function onload(this: HTMLElement) {
-			Component.onload.delete(component.uid);
+	$el: HTMLElement | undefined;
+	attributes: Record<string, string> = {};
+	readonly children = new Set<Component>();
+	private placeholder?: string;
+	abstract template: () => string;
+	uid: string = Component.createUid();
 
-			const $anchor = this;
-			const $root = $anchor.nextElementSibling as HTMLElement;
-			component.$root = $root;
-			try {
-				$root.setAttribute(Component.htmlAttribute, component.uid);
-				Component.instanceCache.set($root, component);
-			} catch (error) {
-				console.log(error);
-				console.error(`Couldn't bind listeners for ${component.constructor.name} ${component.uid}. Make sure the component's template is valid for its surrounding HTML tags, e.g. don't put an <input> in a <p>.`);
-			} finally {
-				$anchor.remove();
-			}
-		};
-
-		Component.onload.set(component.uid, onload);
-
-		return `
-		<img
-			aria-hidden="true"
-			${Component.htmlAttribute}="${component.uid}"
-			onerror="Component.onload.get('${component.uid}').call(this)"
-			src=""
-			style="display:none"
-			/>
-		${contents}
-		`;
-	}
-
-	protected $root?: HTMLElement;
-	get ctor() {
-		return this.constructor as typeof Component;
-	}
-	readonly style: undefined;
-	readonly uid: string;
-
-	constructor() {
-		if (this.ctor.uid === undefined) {
-			this.ctor.staticConstructor();
-		}
-		this.uid = `c${Component.componentsSize++}`;
+	attrs(input: typeof this[`attributes`] = {}) {
+		return Object.entries({ ...this.attributes, ...input })
+			.map(([key, value]) => `${key}="${value}"`)
+			.join(` `);
 	}
 
 	bind(
 		methodName: keyof this, // TODO2: Stronger typing; should only accept methods
 		...args: Array<string> | []
 	): string {
-		if (appContext !== `browser`) {
-			return `""`;
-		}
-		const argsString = args.map(arg => `'${arg}'`).join(``);
-		return `"Component.cached('${this.uid}', this).${methodName as string}(event, ${argsString})"`;
+		const argsString = args.map(arg => `'${arg}'`).join(`,`);
+		return `"this.${Component.$elInstances}.get('${this.uid.toString()}').${methodName as string}(event,${argsString})"`;
 	}
 
-	render(
-		...args: Parameters<this[`template`]>
-	): ReturnType<this[`template`]> {
-		const rendered = this.template(...args) as ReturnType<this[`template`]>;
+	onload() {}
 
-		if (appContext !== `browser`) {
-			RouteComponents.add(this);
-			return rendered;
-		}
-
-		if (rendered instanceof Promise) {
-			return rendered.then(html => Component.wrap(this, html)) as ReturnType<this[`template`]>;
-		}
-
-		const html = Component.wrap(this, rendered) as ReturnType<this[`template`]>;
-		return html;
+	put<ChildInstance extends Component>(child: ChildInstance): string {
+		this.children.add(child);
+		return child.render();
 	}
 
-	// TODO2: rerender
+	render() {
+		return `${this.placeholder}${this.template()}`;
+	}
 
-	abstract template(...args: Array<any> | []): string | Promise<string>; // eslint-disable-line @typescript-eslint/no-explicit-any
+	rerender() {
+		this.$el!.innerHTML = this.template();
+	}
 }

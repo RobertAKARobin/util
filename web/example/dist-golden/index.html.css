@@ -1,9 +1,9 @@
+h1 {
+	color: red;
+}
+
 input {
 	font-family: monospace;
 	font-size: 24px;
 	--varName: 'body';
-}
-
-h1 {
-	color: red;
 }

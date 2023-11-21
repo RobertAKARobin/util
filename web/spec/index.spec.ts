@@ -7,12 +7,13 @@ import { Component } from '../component.ts';
 
 export const hasMarkdown = /<markdown>(.*?)<\/markdown>/gs;
 
-const dist = (path: string) =>
-	fs.readFileSync(`web/example/dist/${path}`, { encoding: `utf8` });
-const golden = (path: string) =>
-	fs.readFileSync(`web/example/dist-golden/${path}`, { encoding: `utf8` });
-const src = (path: string) =>
-	fs.readFileSync(`web/example/src/${path}`, { encoding: `utf8` });
+const read = (path: string) =>
+	fs.readFileSync(path, { encoding: `utf8` })
+		.replace(/'0\.\d{10,}'/g, ``); // Janky way to strip out UIDs
+
+const dist = (path: string) => read(`web/example/dist/${path}`);
+const golden = (path: string) => read(`web/example/dist-golden/${path}`);
+const src = (path: string) => read(`web/example/src/${path}`);
 
 const distMatchesGolden = (path: string) =>
 	diff(dist(path), golden(path));
@@ -22,12 +23,16 @@ const hasSSG = (page: string) =>
 
 class Widget extends Component {
 	prop = 42;
-	template(message: string) {
-		return `<h1>${message}${this.prop}</h1>`;
+	constructor(
+		public message: string,
+	) {
+		super();
 	}
+
+	template = () => `<h1>${this.message}${this.prop}</h1>`;
 }
 
-const widget = Widget.toFunction(Widget);
+const widget = Component.register(Widget);
 
 export const spec = suite(`@robertakarobin/web`,
 	{
@@ -54,6 +59,6 @@ export const spec = suite(`@robertakarobin/web`,
 	}),
 
 	test(`component`, $ => {
-		$.assert(x => x(widget()(`x`)) === `<h1>x42</h1>`);
+		$.assert(x => x(widget(`x`).template()) === `<h1>x42</h1>`);
 	}),
 );

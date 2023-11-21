@@ -28,8 +28,8 @@ export default (input: LayoutArgs) => `
 			: ``
 		}
 
-		${[...input.ctors].map(ctor => `
-			<style ${ctor.htmlAttribute}="${ctor.uid}"></style>
+		${[...input.subclasses.values()].map(Subclass => `
+			<style ${Subclass.$elAttribute}="${Subclass.name}"></style>
 		`).join(`\n`)}
 	</head>
 

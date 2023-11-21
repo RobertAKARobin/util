@@ -4,25 +4,24 @@
 <head>
 	<title>Home page</title>
 	<base href="/">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<script src="/script.js" type="module"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1"> <script src="/script.js" type="module"></script>
 	<link rel="stylesheet" href="/styles.css">
 	<link rel="stylesheet" href="/index.html.css">
-	<style data-component="Textbox-0"></style>
-	<style data-component="IndexPage-0"></style>
+	<style data-component="IndexPage"></style>
+	<style data-component="Textbox"></style>
 </head>
 
 <body>
 	<nav>
 		<ul>
-			<li> <a href="/404.html" onclick="" target="_self"> Go /404.html </a> </li>
-			<li> <a href="/" onclick="" target="_self"> Go / </a> </li>
-			<li> <a href="/#jump1" onclick="" target="_self"> Go /#jump1 </a> </li>
-			<li> <a href="/#jump2" onclick="" target="_self"> Go /#jump2 </a> </li>
-			<li> <a href="/ssg/no/" onclick="" target="_self"> Go /ssg/no/ </a> </li>
-			<li> <a href="/ssg/yes/" onclick="" target="_self"> Go /ssg/yes/ </a> </li>
-			<li> <a href="/ssg/yes/#jump1" onclick="" target="_self"> Go /ssg/yes/#jump1 </a> </li>
-			<li> <a href="/ssg/yes/#jump2" onclick="" target="_self"> Go /ssg/yes/#jump2 </a> </li>
+			<li><script src="data:text/javascript," onload="window.Component=window.Component||{};window.Component['0.040761090266868694']=[this,'AppRouteComponent','error404','Go error404']"></script> <a href="/404.html" onclick="this.instances.get('0.040761090266868694').onClick(event,'/404.html')" target="_self"> Go error404 </a> </li>
+			<li><script src="data:text/javascript," onload="window.Component=window.Component||{};window.Component['0.05415633199797143']=[this,'AppRouteComponent','home','Go home']"></script> <a href="/" onclick="this.instances.get('0.05415633199797143').onClick(event,'/')" target="_self"> Go home </a> </li>
+			<li><script src="data:text/javascript," onload="window.Component=window.Component||{};window.Component['0.6690435022829702']=[this,'AppRouteComponent','homeJump1','Go homeJump1']"></script> <a href="/#jump1" onclick="this.instances.get('0.6690435022829702').onClick(event,'/#jump1')" target="_self"> Go homeJump1 </a> </li>
+			<li><script src="data:text/javascript," onload="window.Component=window.Component||{};window.Component['0.6610816790046836']=[this,'AppRouteComponent','homeJump2','Go homeJump2']"></script> <a href="/#jump2" onclick="this.instances.get('0.6610816790046836').onClick(event,'/#jump2')" target="_self"> Go homeJump2 </a> </li>
+			<li><script src="data:text/javascript," onload="window.Component=window.Component||{};window.Component['0.8954496268541419']=[this,'AppRouteComponent','ssgNo','Go ssgNo']"></script> <a href="/ssg/no/" onclick="this.instances.get('0.8954496268541419').onClick(event,'/ssg/no/')" target="_self"> Go ssgNo </a> </li>
+			<li><script src="data:text/javascript," onload="window.Component=window.Component||{};window.Component['0.7415751152865513']=[this,'AppRouteComponent','ssgYes','Go ssgYes']"></script> <a href="/ssg/yes/" onclick="this.instances.get('0.7415751152865513').onClick(event,'/ssg/yes/')" target="_self"> Go ssgYes </a> </li>
+			<li><script src="data:text/javascript," onload="window.Component=window.Component||{};window.Component['0.500178199669703']=[this,'AppRouteComponent','ssgYesJump1','Go ssgYesJump1']"></script> <a href="/ssg/yes/#jump1" onclick="this.instances.get('0.500178199669703').onClick(event,'/ssg/yes/#jump1')" target="_self"> Go ssgYesJump1 </a> </li>
+			<li><script src="data:text/javascript," onload="window.Component=window.Component||{};window.Component['0.7700155939743596']=[this,'AppRouteComponent','ssgYesJump2','Go ssgYesJump2']"></script> <a href="/ssg/yes/#jump2" onclick="this.instances.get('0.7700155939743596').onClick(event,'/ssg/yes/#jump2')" target="_self"> Go ssgYesJump2 </a> </li>
 		</ul>
 	</nav>
 	<main>
@@ -30,11 +29,11 @@
 		<div id="jump1">Jump 1</div>
 		<h1>Headline 1</h1>
 		<h2>This is a variable</h2>
-		<div>
-			<div> <input oninput="" maxlength="10" placeholder="Type here" type="text" value=""> <span> 10 / 10 Remaining </span> </div>
+		<div><script src="data:text/javascript," onload="window.Component=window.Component||{};window.Component['0.9868059076902969']=[this,'Textbox',10,'foo']"></script>
+			<div> <input oninput="this.instances.get('0.9868059076902969').handleInput(event,)" maxlength="10" placeholder="Type here" type="text" value="foo"> <span> 7 / 10 Remaining </span> </div>
 		</div>
-		<div>
-			<div> <input oninput="" maxlength="10" placeholder="Type here" type="text" value=""> <span> 10 / 10 Remaining </span> </div>
+		<div><script src="data:text/javascript," onload="window.Component=window.Component||{};window.Component['0.9937962493499441']=[this,'Textbox',777]"></script>
+			<div> <input oninput="this.instances.get('0.9937962493499441').handleInput(event,)" maxlength="777" placeholder="Type here" type="text" value=""> <span> 777 / 777 Remaining </span> </div>
 		</div>
 		<p>Lorem ipsum dolor <strong>sit amet</strong>, consectetur <em>adipiscing elit</em>, sed do <em>eiusmod tempor</em> incididunt.</p>
 		<p>Duis aute voluptate <a href="https://example.com">velit esse cillum</a> dolore /eu fugiat/ nulla pariatur.</p>

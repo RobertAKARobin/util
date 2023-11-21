@@ -11,7 +11,6 @@ import {
 	hasExtension,
 	hasHash,
 	type Page,
-	RouteComponents,
 	type RouteMap,
 	type Router,
 } from './index.ts';
@@ -19,15 +18,14 @@ import defaultLayout from './layout.ts';
 
 export type LayoutArgs = {
 	body?: string;
-	components: Array<Component>;
 	css?: string;
-	ctors: Set<typeof Component>;
 	head?: string;
 	mainCssPath: string;
 	mainJsPath: string;
 	page: Page;
 	routeCssPath?: string;
 	routePath: string;
+	subclasses: Set<typeof Component>;
 };
 
 const bustCache = (path: string) => import(`${path}?v=${Date.now() + performance.now()}`);
@@ -135,19 +133,27 @@ export class Builder<
 				const routePath = router.routes[routeName];
 				log(`${routeName.toString()}: ${routePath}`);
 
-				RouteComponents.clear();
-				const page = await router.resolve(routePath); // Populates RouteComponents
+				const page = await router.resolve(routePath);
 				if (page === undefined) {
 					console.warn(`Route '${routeName.toString()}' does not resolve to a page. Skipping...`);
 					logBreak();
 					return;
 				}
-				const body = await page.render();
-				const components = [...RouteComponents];
+
+				const body = page.template(); // Populates subclasses used on page
 				if (page === undefined || !page.isSSG) {
 					logBreak();
 					return;
 				}
+
+				const subclasses = new Set<typeof Component>();
+				const getSubclasses = (parent: Component) => {
+					subclasses.add(parent.constructor as typeof Component);
+					for (const child of parent.children) {
+						getSubclasses(child);
+					}
+				};
+				getSubclasses(page);
 
 				let serveFileRel = routePath as string;
 				serveFileRel = serveFileRel
@@ -160,11 +166,11 @@ export class Builder<
 				const serveDirAbs = path.dirname(serveFileAbs);
 				fs.mkdirSync(serveDirAbs, { recursive: true });
 
-				const ctors = new Set(components.map(({ ctor }) => ctor));
-				const ctorsWithStyles = [...ctors].filter(ctor => typeof ctor.style === `string`);
-
-				let css = ctorsWithStyles.map(({ style }) => style).join(`\n`);
 				let routeCssPath: string | undefined = undefined;
+				let css = Array.from(subclasses.values())
+					.map(Subclass => Subclass.style)
+					.filter(Boolean).join(`\n`);
+
 				if (css.length > 0) {
 					css = this.formatCss(css);
 					routeCssPath = `${serveFileRel}.css`;
@@ -175,14 +181,13 @@ export class Builder<
 
 				const html = this.formatHtml({
 					body,
-					components,
 					css,
-					ctors,
 					mainCssPath: path.join(`/`, this.styleServeFileRel),
 					mainJsPath: path.join(`/`, this.scriptServeFileRel),
 					page,
 					routeCssPath: typeof routeCssPath === `string` ? path.join(`/`, routeCssPath) : undefined,
 					routePath: path.join(`/`, routePath),
+					subclasses,
 				});
 				log(local(serveFileAbs));
 				fs.writeFileSync(serveFileAbs, html);
@@ -201,6 +206,7 @@ export class Builder<
 				out: this.scriptServeFileName,
 			}],
 			format: `esm`,
+			keepNames: true,
 			metafile: true,
 			minify: true,
 			outdir: this.serveDirAbs,
