@@ -57,6 +57,7 @@ export abstract class Component {
 			instance.$el = $el;
 			$el.instances = $el.instances ?? new Map();
 			$el.instances.set(uid, instance);
+			$el.setAttribute(`data-${Constructor.name}`, instance.uid);
 			$placeholder.remove();
 			instance.onload();
 		}
@@ -88,7 +89,7 @@ export abstract class Component {
 		...args: Array<string> | []
 	): string {
 		const argsString = args.map(arg => `'${arg}'`).join(`,`);
-		return `"this.${Component.$elInstances}.get('${this.uid.toString()}').${methodName as string}(event,${argsString})"`;
+		return `"this.closest('[data-${this.constructor.name}=&quot;${this.uid}&quot;]').${Component.$elInstances}.get('${this.uid.toString()}').${methodName as string}(event,${argsString})"`; // &quot; is apprently the correct way to escape quotes in HTML attributes
 	}
 
 	onload() {}
