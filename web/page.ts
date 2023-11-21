@@ -4,6 +4,9 @@ import { Component } from './component.ts';
 
 export abstract class Page extends Component {
 
+	/**
+	 * The current page of the application
+	 */
 	static current = new Emitter<Page>({
 		cache: {
 			limit: 0,

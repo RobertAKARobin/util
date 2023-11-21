@@ -2,7 +2,6 @@
 
 -	Template/CSS prefix
 
--	Jump anchors
 -	Match routes with params
 
 -	Import from other file (ergo SVG)
@@ -17,6 +16,7 @@
 
 Done:
 
+-	Jump anchors
 -	`bind` without needing page referesh
 -	Route names for HTML IDs
 -	Fix `route()` names not bring strongly typed

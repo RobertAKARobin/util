@@ -14,7 +14,7 @@ import {
 	type Resolver,
 	type RouteMap,
 } from './index.ts';
-import defaultLayout from './layout.ts';
+import { defaultLayout } from './layout.ts';
 
 export type LayoutArgs = {
 	body?: string;

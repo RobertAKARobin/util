@@ -1,6 +1,9 @@
 import { type LayoutArgs } from './build.ts';
 
-export default (input: LayoutArgs) => `
+/**
+ * The default layout used to render static HTML files for SSG routes
+ */
+export const defaultLayout = (input: LayoutArgs) => `
 <!DOCTYPE html>
 <html lang="en">
 	<head>

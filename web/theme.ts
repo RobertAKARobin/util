@@ -18,6 +18,9 @@ type GenericBreakpoints = Record<string, number>;
 type GenericConstants = Record<string, string | number>;
 type GenericTypefaces = Record<string, string>;
 
+/**
+ * Produces a bunch of useful CSS helpers, given the constants that underly your application's styling
+ */
 export class CssTheme<
 	Breakpoints extends GenericBreakpoints = GenericBreakpoints,
 	Constants extends GenericConstants = GenericConstants,
@@ -54,12 +57,11 @@ export class CssTheme<
 	 * The contents of `this.val` as CSS variables, such as can be inserted into the `root:` of a stylesheet
 	 */
 	readonly varsDeclarations: string;
+	/**
+	 * The keys of `this.val` written as CSS variable names, e.g. `--foo`
+	 */
 	readonly vname = {} as Record<keyof Constants, string>;
 
-	/**
-	 *
-	 * @param input.constants CssTheme.constants
-	 */
 	constructor(input: Partial<{
 		bps: Breakpoints;
 		types: Typefaces;

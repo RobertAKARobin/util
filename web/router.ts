@@ -15,9 +15,15 @@ export type ResolverFunction<Routes extends RouteMap> = (
 	routes: Routes,
 ) => Page | undefined | Promise<Page | undefined>;
 
+/**
+ * Listens for URL/location changes and updates `.path` accordingly
+ */
 export class Router<
 	Routes extends RouteMap
 > {
+	/**
+	 * A map of each route name to the URL hash in its path (if any)
+	 */
 	readonly hashes = {} as Record<keyof Routes, string | undefined>;
 	readonly path = new Emitter<Routes[keyof Routes]>();
 
@@ -62,6 +68,9 @@ export class Router<
 	}
 }
 
+/**
+ * Updates `Page.current` whenever `router.path` changes.
+ */
 export class Resolver<Routes extends RouteMap> {
 	private routeCount = -1;
 	constructor(
@@ -82,6 +91,9 @@ export class Resolver<Routes extends RouteMap> {
 		});
 	}
 
+	/**
+	 * When `Page.current` changes, attach it to the provided HTML element and render it
+	 */
 	bindTo($input: HTMLElement) {
 		const $outlet = typeof $input === undefined ? document.body : $input;
 
@@ -95,11 +107,17 @@ export class Resolver<Routes extends RouteMap> {
 		});
 	}
 
+	/**
+	 * Convert a Router path to a Page
+	 */
 	async resolve(path: Routes[keyof Routes]) {
 		return await this.resolveFunction(path, this.router.routes);
 	}
 }
 
+/**
+ * Use in place of `<a>` to link to a different path/page
+ */
 export abstract class RouteComponent<
 	Routes extends RouteMap
 > extends Component {
@@ -129,19 +147,13 @@ export abstract class RouteComponent<
 	template = () => {
 		const url = this.router.routes[this.routeName];
 		const isAbsolute = isAbsoluteUrl.test(url);
-		return `
-			<a
-				href="${url}"
-				onclick=${this.bind(`onClick`, url)}
-				target="${isAbsolute ? `_blank` : `_self`}"
-				${this.attrs()}
-				>
-				${this.content ?? ``}
-			</a>
-		`;
+		return `<a href="${url}" onclick=${this.bind(`onClick`, url)} target="${isAbsolute ? `_blank` : `_self`}" ${this.attrs()}>${this.content ?? ``}</a>`;
 	};
 }
 
+/**
+ * Creates a RouteComponent that uses the provided Router
+ */
 export function routeComponent<Routes extends RouteMap>(
 	router: Router<Routes>
 ) {
