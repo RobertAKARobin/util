@@ -19,6 +19,7 @@ export class Router<
 	Routes extends RouteMap
 > {
 	readonly path = new Emitter<Routes[keyof Routes]>();
+	private routeCount = -1;
 
 	constructor(
 		readonly routes: Routes,
@@ -49,14 +50,6 @@ export class Router<
 				}
 			};
 		}
-
-		this.path.subscribe(async path => {
-			// TODO1: If newPath is same as oldPath, esp without hash
-			const page = await this.resolve(path);
-			if (page) {
-				Page.current.next(page);
-			}
-		});
 	}
 
 	async resolve(path: Routes[keyof Routes]) {
@@ -66,18 +59,25 @@ export class Router<
 	setOutlet(input: HTMLElement) {
 		const $outlet = typeof input === undefined ? document.body : input;
 
-		Page.current.subscribe((page, subscription) => {
-			page.$el = $outlet;
-			Page.current.unsubscribe(subscription); // On landing page, if SSG, don't want to reset the title or rerender the page
+		this.path.subscribe(async path => {
+			// TODO1: If newPath is same as oldPath, esp without hash
+			this.routeCount += 1;
+			const page = await this.resolve(path);
+			if (page) {
+				Page.current.next(page);
+			}
 		});
-
-		this.path.next(window.location.pathname as Routes[keyof Routes]);;
 
 		Page.current.subscribe(page => {
-			document.title = page.title;
 			page.$el = $outlet;
-			page.rerender();
+
+			if (this.routeCount > 0) {
+				document.title = page.title;
+				page.rerender();
+			}
 		});
+
+		this.path.next(window.location.pathname as Routes[keyof Routes]);
 	}
 }
 
