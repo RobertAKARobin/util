@@ -72,11 +72,14 @@ export abstract class Component {
 	}
 
 	$el: HTMLElement | undefined;
-	attributes: Record<string, string> = {};
 	readonly children = new Set<Component>();
 	private placeholder?: string;
 	abstract template: () => string;
 	uid: string = Component.createUid();
+
+	constructor(
+		public attributes: Record<string, string> = {}
+	) {}
 
 	attrs(input: typeof this[`attributes`] = {}) {
 		return Object.entries({ ...this.attributes, ...input })

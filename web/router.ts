@@ -108,9 +108,9 @@ export abstract class RouteComponent<
 	constructor(
 		public routeName: keyof Routes,
 		public content?: string,
-		public attributes = {}
+		...args: ConstructorParameters<typeof Component>
 	) {
-		super();
+		super(...args);
 	}
 
 	onClick(
