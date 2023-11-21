@@ -1,4 +1,6 @@
-type OnEmit<Type> = (value: Type) => unknown;
+type OnEmit<Type> = (value: Type, subscription: Subscription<Type>) => unknown;
+
+type Subscription<Type> = WeakRef<OnEmit<Type>>;
 
 export class Emitter<Type> {
 	/** @see {@link EmitterCache} */
@@ -9,7 +11,7 @@ export class Emitter<Type> {
 	}
 
 	/** A collection of all active subcriptions to this Emitter. */
-	readonly subscriptions = new Set<WeakRef<OnEmit<Type>>>;
+	readonly subscriptions = new Set<Subscription<Type>>;
 
 	constructor(options: Partial<EmitterOptions> = {}) {
 		this.cache = new EmitterCache<Type>(options.cache ?? {});
@@ -20,7 +22,7 @@ export class Emitter<Type> {
 		for (const subscription of this.subscriptions.values()) {
 			const onEmit = subscription.deref();
 			if (onEmit) {
-				onEmit(value);
+				onEmit(value, subscription);
 			} else {
 				this.subscriptions.delete(subscription);
 			}
