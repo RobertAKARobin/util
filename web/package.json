@@ -1,7 +1,7 @@
 {
 	"dependencies": {
-		"@robertakarobin/jsutil": "^0.0.9",
-		"esbuild": "^0.19.5",
+		"@robertakarobin/jsutil": "^0.0.10",
+		"esbuild": "^0.19.7",
 		"glob": "^10.3.10",
 		"marked": "^10.0.0"
 	},
@@ -16,5 +16,5 @@
 		"test": "tsx ./spec/run.ts"
 	},
 	"type": "module",
-	"version": "0.0.21"
+	"version": "0.0.22"
 }

@@ -13,6 +13,7 @@ function dowhat {
 	npm version patch
 	npm i
 	npm publish
+	sleep 2
 }
 
 for repo in ${repos[@]}; do
