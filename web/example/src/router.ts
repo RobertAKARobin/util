@@ -1,4 +1,6 @@
-import { routeComponent, routeHashes, Router } from '@robertakarobin/web/index.ts';
+import { Resolver, routeComponent, Router } from '@robertakarobin/web/index.ts';
+
+import { IndexPage } from './pages/index.ts';
 
 export const routes = {
 	error404: `/404.html`,
@@ -11,14 +13,18 @@ export const routes = {
 	ssgYesJump2: `/ssg/yes/#jump2`,
 };
 
-export const router = new Router(routes, async(path, routes) => {
+export const router = new Router(routes);
+
+export const routeTo = routeComponent(router);
+
+export const resolver = new Resolver(router, async(path, routes) => {
 	switch (path) {
 		case routes.error404:
 			return new (await import(`./pages/error.ts`)).ErrorPage();
 		case routes.home:
 		case routes.homeJump1:
 		case routes.homeJump2:
-			return new (await import(`./pages/index.ts`)).IndexPage({
+			return new IndexPage({
 				message: `This is a variable`,
 			});
 		case routes.ssgNo:
@@ -29,7 +35,3 @@ export const router = new Router(routes, async(path, routes) => {
 			return new (await import(`./pages/ssg-yes.ts`)).YesSSGPage();
 	}
 });
-
-export const routeHash = routeHashes(routes);
-
-export const routeTo = routeComponent(router);

@@ -16,5 +16,5 @@
 		"test": "tsx ./spec/run.ts"
 	},
 	"type": "module",
-	"version": "0.0.22"
+	"version": "0.0.23"
 }

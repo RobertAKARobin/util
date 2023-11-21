@@ -10,6 +10,8 @@
 
 -	Image preprocessing
 
+-	Remove CSS from JS bundles
+
 -	VS plugin for CSS
 -	VS plugin for HTML
 

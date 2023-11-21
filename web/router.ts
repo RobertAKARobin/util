@@ -10,7 +10,7 @@ export const hasHash = /#.*$/;
 
 export type RouteMap = Record<string, string>;
 
-export type Resolver<Routes extends RouteMap> = (
+export type ResolverFunction<Routes extends RouteMap> = (
 	path: Routes[keyof Routes],
 	routes: Routes,
 ) => Page | undefined | Promise<Page | undefined>;
@@ -18,12 +18,11 @@ export type Resolver<Routes extends RouteMap> = (
 export class Router<
 	Routes extends RouteMap
 > {
+	readonly hashes = {} as Record<keyof Routes, string | undefined>;
 	readonly path = new Emitter<Routes[keyof Routes]>();
-	private routeCount = -1;
 
 	constructor(
-		readonly routes: Routes,
-		readonly resolver: Resolver<Routes>,
+		readonly routes: Routes
 	) {
 		for (const key in this.routes) {
 			const routeName: keyof Routes = key;
@@ -42,6 +41,14 @@ export class Router<
 			this.routes[routeName] = path as Routes[keyof Routes];
 		}
 
+		for (const routeName in routes) {
+			const routePath = routes[routeName];
+			const hashPosition = routePath.indexOf(`#`);
+			this.hashes[routeName] = hashPosition >= 0
+				? routePath.substring(hashPosition + 1)
+				: undefined;
+		}
+
 		if (appContext === `browser`) {
 			window.onpopstate = () => {
 				const newPath = window.location.pathname;
@@ -49,17 +56,23 @@ export class Router<
 					this.path.next(newPath as Routes[keyof Routes]);
 				}
 			};
+
+			this.path.next(window.location.pathname as Routes[keyof Routes]);
 		}
 	}
+}
 
-	async resolve(path: Routes[keyof Routes]) {
-		return await this.resolver(path, this.routes);
-	}
+export class Resolver<Routes extends RouteMap> {
+	private routeCount = -1;
+	constructor(
+		readonly router: Router<Routes>,
+		readonly resolveFunction: (
+			path: Routes[keyof Routes],
+			routes: Routes,
+		) => Page | undefined | Promise<Page | undefined>,
+	) {
 
-	setOutlet(input: HTMLElement) {
-		const $outlet = typeof input === undefined ? document.body : input;
-
-		this.path.subscribe(async path => {
+		this.router.path.subscribe(async path => {
 			// TODO1: If newPath is same as oldPath, esp without hash
 			this.routeCount += 1;
 			const page = await this.resolve(path);
@@ -67,6 +80,10 @@ export class Router<
 				Page.current.next(page);
 			}
 		});
+	}
+
+	bindTo($input: HTMLElement) {
+		const $outlet = typeof $input === undefined ? document.body : $input;
 
 		Page.current.subscribe(page => {
 			page.$el = $outlet;
@@ -76,8 +93,10 @@ export class Router<
 				page.rerender();
 			}
 		});
+	}
 
-		this.path.next(window.location.pathname as Routes[keyof Routes]);
+	async resolve(path: Routes[keyof Routes]) {
+		return await this.resolveFunction(path, this.router.routes);
 	}
 }
 
@@ -88,7 +107,7 @@ export abstract class RouteComponent<
 
 	constructor(
 		public routeName: keyof Routes,
-		public content: string,
+		public content?: string,
 		public attributes = {}
 	) {
 		super();
@@ -117,25 +136,10 @@ export abstract class RouteComponent<
 				target="${isAbsolute ? `_blank` : `_self`}"
 				${this.attrs()}
 				>
-				${this.content || ``}
+				${this.content ?? ``}
 			</a>
 		`;
 	};
-}
-
-/**
- * This is separate from `Router` because Router depends on templates, which depend on `hashes`, which depend on Router, which causes a circular dependency that makes Typescript unhappy.
- */
-export function routeHashes<Routes extends RouteMap>(routes: Routes) {
-	const hashes = {} as Record<keyof Routes, string | undefined>;
-	for (const routeName in routes) {
-		const routePath = routes[routeName];
-		const hashPosition = routePath.indexOf(`#`);
-		hashes[routeName] = hashPosition >= 0
-			? routePath.substring(hashPosition + 1)
-			: undefined;
-	}
-	return hashes;
 }
 
 export function routeComponent<Routes extends RouteMap>(

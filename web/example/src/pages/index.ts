@@ -1,6 +1,6 @@
 import { Page } from '@robertakarobin/web/index.ts';
 
-import { routeHash } from '../router.ts';
+import { router, routeTo } from '../router.ts';
 import textbox from '../components/textbox.ts';
 
 const style =  `
@@ -27,7 +27,7 @@ export class IndexPage extends Page {
 	template = () => `
 <h1>Hello world!</h1>
 
-<div id="${routeHash.homeJump1}">Jump 1</div>
+<div id="${router.hashes.homeJump1}">Jump 1</div>
 
 <markdown>
 # Headline 1
@@ -42,6 +42,8 @@ Lorem ipsum dolor <strong>sit amet</strong>, consectetur *adipiscing elit*, sed 
 
 Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ nulla pariatur.
 </markdown>
+
+<p>${this.put(routeTo(`home`))}</p>
 
 <markdown>
 ## Headline 2
@@ -63,6 +65,6 @@ Joseph's coat was ${colors.join(` and `)}.
 1.	ut aliquip ex
 </markdown>
 
-<div id="${routeHash.homeJump2}">Jump 2</div>
+<div id="${router.hashes.homeJump2}">Jump 2</div>
 	`;
 }

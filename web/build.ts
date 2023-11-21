@@ -11,8 +11,8 @@ import {
 	hasExtension,
 	hasHash,
 	type Page,
+	type Resolver,
 	type RouteMap,
-	type Router,
 } from './index.ts';
 import defaultLayout from './layout.ts';
 
@@ -124,16 +124,18 @@ export class Builder<
 
 	async buildRoutes() {
 		header(`Building routes`);
-		const { router } = (await bustCache(this.routerSrcFileAbs)) as { router: Router<Routes>; };
+		const { resolver } = (
+			await bustCache(this.routerSrcFileAbs)
+		) as { resolver: Resolver<Routes>; };
 
-		const routeNames = Object.keys(router.routes) as Array<keyof Routes>;
+		const routeNames = Object.keys(resolver.router.routes) as Array<keyof Routes>;
 
 		await $.promiseConsecutive(
 			routeNames.map(routeName => async() => {
-				const routePath = router.routes[routeName];
+				const routePath = resolver.router.routes[routeName];
 				log(`${routeName.toString()}: ${routePath}`);
 
-				const page = await router.resolve(routePath);
+				const page = await resolver.resolve(routePath);
 				if (page === undefined) {
 					console.warn(`Route '${routeName.toString()}' does not resolve to a page. Skipping...`);
 					logBreak();
