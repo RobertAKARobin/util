@@ -19,9 +19,9 @@ export abstract class Component {
 	static readonly $elInstances = `instances`;
 	static readonly [instancesKey] = new Map<Component[`uid`], WeakRef<Component>>(); // A garbage-collectible way to reference all instances. Instances should be GCd when the corresponding HTML element is GCd. See BoundElement
 	static readonly onloaders = globals[this.name] as unknown as Record<
-	Component[`uid`],
-	[BoundElement, typeof Component.name, unknown]
->;
+		Component[`uid`],
+		[BoundElement, typeof Component.name, unknown]
+	>;
 	static readonly style: string | undefined;
 
 	static {
@@ -46,15 +46,15 @@ export abstract class Component {
 		Args extends (
 			Subclass extends { new(...args: infer Args): Instance; } ? Args : never
 		)
-	>(Constructor: { new(...args: Args): Instance; }) {
+	>(Constructor: { new(...args: Args): Instance; } & Pick<typeof Component, `style`>) {
 		if (
 			appContext === `browser`
-			&& typeof this.style === `string`
-			&& document.querySelector(`[${this.$elAttribute}="${this.name}"]`) === null
+			&& typeof Constructor.style === `string`
+			&& document.querySelector(`style[${this.$elAttribute}="${Constructor.name}"]`) === null
 		) {
 			const $style = document.createElement(`style`);
-			$style.textContent = this.style;
-			$style.setAttribute(this.$elAttribute, this.name);
+			$style.textContent = Constructor.style;
+			$style.setAttribute(Component.$elAttribute, Constructor.name);
 			document.head.appendChild($style);
 		}
 

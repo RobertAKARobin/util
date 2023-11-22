@@ -6,3 +6,5 @@ export class ErrorPage extends Page {
 		<h1>404 page :(</h1>
 	`;
 }
+
+export default Page.register(ErrorPage);

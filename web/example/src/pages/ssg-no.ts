@@ -7,3 +7,5 @@ export class NoSSGPage extends Page {
 		<h1>SSG no</h1>
 	`;
 }
+
+export default Page.register(NoSSGPage);

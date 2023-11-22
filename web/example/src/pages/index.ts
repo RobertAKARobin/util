@@ -68,3 +68,5 @@ Joseph's coat was ${colors.join(` and `)}.
 <div id="${router.routes.homeJump2.hash.substring(1)}">Jump 2</div>
 	`;
 }
+
+export default Page.register(IndexPage);

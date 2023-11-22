@@ -34,10 +34,6 @@ export const defaultLayout = (input: LayoutArgs) => `
 			? `<link rel="stylesheet" href="${input.routeCssPath}">`
 			: ``
 		}
-
-		${[...input.subclasses.values()].map(Subclass => `
-			<style ${Subclass.$elAttribute}="${Subclass.name}"></style>
-		`).join(`\n`)}
 	</head>
 
 	${typeof input.body === `string`
