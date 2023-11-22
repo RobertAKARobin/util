@@ -37,8 +37,11 @@ export abstract class Component {
 	 */
 	static register<
 		Instance extends Component,
-		Subclass extends DerivedComponent<Instance>
-	>(Constructor: Subclass) {
+		Subclass extends DerivedComponent<Instance>,
+		Args extends (
+			Subclass extends { new(...args: infer Args): Instance; } ? Args : never
+		)
+	>(Constructor: { new(...args: Args): Instance; }) {
 		if (
 			appContext === `browser`
 			&& typeof this.style === `string`
@@ -56,7 +59,7 @@ export abstract class Component {
 				continue;
 			}
 			delete this.onloaders[uid];
-			const instance = new Constructor(...args);
+			const instance = new Constructor(...args as unknown as Args);
 			const $el = $placeholder.nextElementSibling as BoundElement;
 			instance.uid = uid;
 			instance.$el = $el;
