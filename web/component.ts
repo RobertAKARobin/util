@@ -77,6 +77,10 @@ export abstract class Component {
 	$el: HTMLElement | undefined;
 	readonly children = new Set<Component>();
 	private placeholder?: string;
+	/**
+	 * Error: `style` should be defined as a static property, not an instance property
+	 */
+	private readonly style: void = undefined;
 	abstract template: () => string;
 	uid: string = Component.createUid();
 
