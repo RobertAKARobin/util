@@ -42,11 +42,11 @@ export abstract class Component {
 		if (
 			appContext === `browser`
 			&& typeof this.style === `string`
-			&& document.querySelector(`[${this.$elInstances}="${this.name}"]`) === null
+			&& document.querySelector(`[${this.$elAttribute}="${this.name}"]`) === null
 		) {
 			const $style = document.createElement(`style`);
 			$style.textContent = this.style;
-			$style.setAttribute(this.$elInstances, this.name);
+			$style.setAttribute(this.$elAttribute, this.name);
 			document.head.appendChild($style);
 		}
 
