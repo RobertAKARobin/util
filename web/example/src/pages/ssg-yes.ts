@@ -14,8 +14,8 @@ export class YesSSGPage extends Page {
 	template = () => `
 		<h1>SSG yes</h1>
 
-		<div id="${router.hashes.ssgYesJump1}">Jump 1</div>
+		<div id="${router.routes.ssgYesJump1.hash.substring(1)}">Jump 1</div>
 
-		<div id="${router.hashes.ssgYesJump2}">Jump 2</div>
+		<div id="${router.routes.ssgYesJump2.hash.substring(1)}">Jump 2</div>
 	`;
 }

@@ -27,7 +27,7 @@ export class IndexPage extends Page {
 	template = () => `
 <h1>Hello world!</h1>
 
-<div id="${router.hashes.homeJump1}">Jump 1</div>
+<div id="${router.routes.homeJump1.hash.substring(1)}">Jump 1</div>
 
 <markdown>
 # Headline 1
@@ -65,6 +65,6 @@ Joseph's coat was ${colors.join(` and `)}.
 1.	ut aliquip ex
 </markdown>
 
-<div id="${router.hashes.homeJump2}">Jump 2</div>
+<div id="${router.routes.homeJump2.hash.substring(1)}">Jump 2</div>
 	`;
 }

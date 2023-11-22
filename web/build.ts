@@ -11,8 +11,8 @@ import {
 	hasExtension,
 	hasHash,
 	type Page,
-	type Resolver,
 	type RouteMap,
+	type Router,
 } from './index.ts';
 import { defaultLayout } from './layout.ts';
 
@@ -39,9 +39,7 @@ const log = (...args: Array<string>) => console.log(args.join(`\n`));
 
 const logBreak = () => console.log(``);
 
-export class Builder<
-	Routes extends RouteMap
-> {
+export class Builder {
 	readonly assetsServeDirAbs: string;
 	readonly assetsSrcDirAbs: string;
 	readonly assetsSrcDirRel: string;
@@ -125,18 +123,18 @@ export class Builder<
 
 	async buildRoutes() {
 		header(`Building routes`);
-		const { resolver } = (
+		const { router } = (
 			await bustCache(this.routerSrcFileAbs)
-		) as { resolver: Resolver<Routes>; };
+		) as { router: Router<RouteMap>; };
 
-		const routeNames = Object.keys(resolver.router.routes) as Array<keyof Routes>;
+		const routeNames = Object.keys(router.routes);
 
 		await $.promiseConsecutive(
 			routeNames.map(routeName => async() => {
-				const routePath = resolver.router.routes[routeName];
-				log(`${routeName.toString()}: ${routePath}`);
+				const routePath = router.routes[routeName];
+				log(`${routeName.toString()}: ${routePath.pathname}`);
 
-				const page = await resolver.resolve(routePath);
+				const page = await router.resolve(routePath);
 				if (page === undefined) {
 					console.warn(`Route '${routeName.toString()}' does not resolve to a page. Skipping...`);
 					logBreak();
@@ -158,7 +156,7 @@ export class Builder<
 				};
 				getSubclasses(page);
 
-				let serveFileRel = routePath as string;
+				let serveFileRel = routePath.pathname;
 				serveFileRel = serveFileRel
 					.replace(/^\//, ``)
 					.replace(hasHash, ``);
@@ -189,7 +187,7 @@ export class Builder<
 					mainJsPath: path.join(`/`, this.scriptServeFileRel),
 					page,
 					routeCssPath: typeof routeCssPath === `string` ? path.join(`/`, routeCssPath) : undefined,
-					routePath: path.join(`/`, routePath),
+					routePath: path.join(`/`, routePath.pathname),
 					subclasses,
 				});
 				log(local(serveFileAbs));

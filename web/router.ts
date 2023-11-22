@@ -4,114 +4,87 @@ import { appContext } from './context.ts';
 import { Component } from './component.ts';
 import { Page } from './page.ts';
 
-export const isAbsoluteUrl = /^\w+\:\/\//;
 export const hasExtension = /\.\w+$/;
 export const hasHash = /#.*$/;
 
 export type RouteMap = Record<string, string>;
 
-export type ResolverFunction<Routes extends RouteMap> = (
-	path: Routes[keyof Routes],
-	routes: Routes,
-) => Page | undefined | Promise<Page | undefined>;
+const defaultOrigin = `https://example.com/`; // Let's just hope this isn't used on example.com
+const defaultOriginUrl = new URL(defaultOrigin);
 
 /**
- * Listens for URL/location changes and updates `.path` accordingly
+ * Resolves the current URL to a page
  */
-export class Router<
-	Routes extends RouteMap
-> {
-	/**
-	 * A map of each route name to the URL hash in its path (if any)
-	 */
-	readonly hashes = {} as Record<keyof Routes, string | undefined>;
-	readonly path = new Emitter<Routes[keyof Routes]>();
+export class Router<Routes extends RouteMap> {
+	private navigationCount = -1;
+	readonly routes = {} as Record<keyof Routes, URL>;
+	readonly url = new Emitter<URL>();
 
 	constructor(
-		readonly routes: Routes
+		routes: Routes,
+		readonly resolver: (
+			this: Router<Routes>,
+			url: URL,
+		) => Page | undefined | Promise<Page | undefined>
 	) {
-		for (const key in this.routes) {
+		for (const key in routes) {
 			const routeName: keyof Routes = key;
-			let path = this.routes[routeName] as string;
-			let hash: string | undefined;
-			path = path.replace(hasHash, match => {
-				hash = match;
-				return ``;
-			});
-			if (!path.endsWith(`/`) && !hasExtension.test(path)) {
-				path = `${path}/`;
-			}
-			if (hash !== undefined) {
-				path = `${path}${hash}`;
-			}
-			this.routes[routeName] = path as Routes[keyof Routes];
-		}
-
-		for (const routeName in routes) {
-			const routePath = routes[routeName];
-			const hashPosition = routePath.indexOf(`#`);
-			this.hashes[routeName] = hashPosition >= 0
-				? routePath.substring(hashPosition + 1)
-				: undefined;
-		}
-
-		if (appContext === `browser`) {
-			window.onpopstate = () => {
-				const newPath = window.location.pathname;
-				if (newPath !== this.path.last) {
-					this.path.next(newPath as Routes[keyof Routes]);
+			let routePath = routes[routeName] as string;
+			routePath = routePath.startsWith(`/`) ? routePath.substring(1) : routePath;
+			let url: URL;
+			try {
+				url = new URL(routePath);
+			} catch {
+				try {
+					url = new URL(defaultOrigin + routePath);
+				} catch {
+					throw new Error(`Path '${routePath}' for route '${key}' can't be parsed as a valid URL`);
 				}
-			};
-
-			this.path.next(window.location.pathname as Routes[keyof Routes]);
+			}
+			this.routes[routeName] = url;
 		}
-	}
-}
 
-/**
- * Updates `Page.current` whenever `router.path` changes.
- */
-export class Resolver<Routes extends RouteMap> {
-	private routeCount = -1;
-	constructor(
-		readonly router: Router<Routes>,
-		readonly resolveFunction: (
-			path: Routes[keyof Routes],
-			routes: Routes,
-		) => Page | undefined | Promise<Page | undefined>,
-	) {
-
-		this.router.path.subscribe(async path => {
-			// TODO1: If newPath is same as oldPath, esp without hash
-			this.routeCount += 1;
-			const page = await this.resolve(path);
+		this.url.subscribe(async url => {
+			this.navigationCount += 1;
+			const page = await this.resolve(url);
 			if (page) {
 				Page.current.next(page);
 			}
 		});
-	}
 
-	/**
-	 * When `Page.current` changes, attach it to the provided HTML element and render it
-	 */
-	bindTo($input: HTMLElement) {
-		const $outlet = typeof $input === undefined ? document.body : $input;
+		if (appContext === `browser`) {
+			window.onpopstate = () => {
+				const newRoute = new URL(window.location.href);
+				if (newRoute.href !== this.url.last?.href) {
+					this.url.next(newRoute);
+				}
+			};
 
-		Page.current.subscribe(page => {
-			page.$el = $outlet;
-
-			if (this.routeCount > 0) {
-				document.title = page.title;
-				page.rerender();
-			}
-		});
+			this.url.next(new URL(window.location.href));
+		}
 	}
 
 	/**
 	 * Convert a Router path to a Page
 	 */
-	async resolve(path: Routes[keyof Routes]) {
-		return await this.resolveFunction(path, this.router.routes);
+	async resolve(url: URL) {
+		return await this.resolver(url);
+	}
+
+	/**
+	 * When `Page.current` changes, attach it to the provided HTML element and render it
+	 */
+	setOutlet($input: HTMLElement) {
+		const $outlet = typeof $input === undefined ? document.body : $input;
+
+		Page.current.subscribe(page => {
+			page.$el = $outlet;
+
+			if (this.navigationCount > 0) {
+				document.title = page.title;
+				page.rerender();
+			}
+		});
 	}
 }
 
@@ -121,38 +94,37 @@ export class Resolver<Routes extends RouteMap> {
 export abstract class RouteComponent<
 	Routes extends RouteMap
 > extends Component {
+	get route() {
+		return this.router.routes[this.routeName];
+	}
 	abstract readonly router: Router<Routes>;
 
 	constructor(
-		public routeName: keyof Routes,
-		public content?: string,
+		readonly routeName: keyof Routes,
+		readonly content?: string,
 		...args: ConstructorParameters<typeof Component>
 	) {
 		super(...args);
 	}
 
-	onClick(
-		event: MouseEvent,
-		path: Routes[keyof Routes],
-	) {
+	onClick(event: MouseEvent) {
 		if (event.metaKey || event.ctrlKey) { // Allow opening in new tab
 			return;
 		}
 
 		event.preventDefault();
-		window.history.pushState({}, ``, path);
-		this.router.path.next(path);
+		window.history.pushState({}, ``, this.route.pathname);
+		this.router.url.next(this.route);
 	}
 
 	template = () => {
-		const url = this.router.routes[this.routeName];
-		const isAbsolute = isAbsoluteUrl.test(url);
-		return `<a href="${url}" onclick=${this.bind(`onClick`, url)} target="${isAbsolute ? `_blank` : `_self`}" ${this.attrs()}>${this.content ?? ``}</a>`;
+		const isAbsolute = this.route.origin !== defaultOriginUrl.origin;
+		return `<a href="${this.route.pathname}" onclick=${this.bind(`onClick`)} target="${isAbsolute ? `_blank` : `_self`}" ${this.attrs()}>${this.content ?? ``}</a>`;
 	};
 }
 
 /**
- * Creates a RouteComponent that uses the provided Router
+ * Registers a component that can be used in place of `<a>` tags to navigate between app routes
  */
 export function routeComponent<Routes extends RouteMap>(
 	router: Router<Routes>

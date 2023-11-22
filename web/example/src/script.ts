@@ -1,5 +1,5 @@
 import nav from './components/nav.ts';
-import { resolver } from './router.ts';
+import { router } from './router.ts';
 
-resolver.bindTo(document.querySelector(`main`)!);
+router.setOutlet(document.querySelector(`main`)!);
 nav().$el = document.querySelector(`nav`)!;

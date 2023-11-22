@@ -16,7 +16,7 @@ const golden = (path: string) => read(`web/example/dist-golden/${path}`);
 const src = (path: string) => read(`web/example/src/${path}`);
 
 const distMatchesGolden = (path: string) =>
-	diff(dist(path), golden(path));
+	diff(golden(path), dist(path));
 
 const hasSSG = (page: string) =>
 	fs.existsSync(`web/example/dist/${page}.html`);

@@ -1,22 +1,24 @@
 # TODO
 
+-	Bug: Instances not binding to elements on rerender
+
 -	Template/CSS prefix
 
 -	Match routes with params
+-	Jump anchors
 
 -	Import from other file (ergo SVG)
 -	Support tokens with attributes?
 
 -	Image preprocessing
 
--	Remove CSS from JS bundles
+-	Remove CSS from JS bundles?
 
 -	VS plugin for CSS
 -	VS plugin for HTML
 
 Done:
 
--	Jump anchors
 -	`bind` without needing page referesh
 -	Route names for HTML IDs
 -	Fix `route()` names not bring strongly typed
