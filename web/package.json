@@ -6,7 +6,7 @@
 		"marked": "^10.0.0"
 	},
 	"devDependencies": {
-		"@robertakarobin/spec": "^0.0.7"
+		"@robertakarobin/spec": "^0.0.9"
 	},
 	"main": "./dist/index.js",
 	"name": "@robertakarobin/web",
