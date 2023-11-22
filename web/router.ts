@@ -1,3 +1,4 @@
+import type * as $ from '@robertakarobin/jsutil/types.d.ts';
 import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
 
 import { appContext } from './context.ts';
@@ -91,20 +92,27 @@ export class Router<Routes extends RouteMap> {
 /**
  * Use in place of `<a>` to link to a different path/page
  */
-export abstract class RouteComponent<
+export class RouteComponent<
 	Routes extends RouteMap
 > extends Component {
-	get route() {
-		return this.router.routes[this.routeName];
-	}
-	abstract readonly router: Router<Routes>;
+	readonly content: string;
+	readonly href: string;
+	readonly isAbsolute: boolean;
+	readonly route: typeof this.router.routes[keyof Routes];
 
 	constructor(
+		readonly router: Router<Routes>,
 		readonly routeName: keyof Routes,
-		readonly content?: string,
+		content?: string,
 		...args: ConstructorParameters<typeof Component>
 	) {
 		super(...args);
+		this.route = this.router.routes[this.routeName];
+		this.isAbsolute = this.route.origin !== defaultOriginUrl.origin;
+		this.href = this.isAbsolute ? this.route.href : this.route.pathname;
+		this.content = content ?? (
+			this.isAbsolute ? this.route.href : this.route.pathname
+		);
 	}
 
 	onClick(event: MouseEvent) {
@@ -118,8 +126,7 @@ export abstract class RouteComponent<
 	}
 
 	template = () => {
-		const isAbsolute = this.route.origin !== defaultOriginUrl.origin;
-		return `<a href="${this.route.pathname}" onclick=${this.bind(`onClick`)} target="${isAbsolute ? `_blank` : `_self`}" ${this.attrs()}>${this.content ?? ``}</a>`;
+		return `<a href="${this.href}" onclick=${this.bind(`onClick`)} ${this.attrs()}>${this.content}</a>`;
 	};
 }
 
@@ -130,7 +137,13 @@ export function routeComponent<Routes extends RouteMap>(
 	router: Router<Routes>
 ) {
 	class AppRouteComponent extends RouteComponent<Routes> {
-		router = router;
+		constructor(
+			...args: $.FromIndex1<
+				ConstructorParameters<typeof RouteComponent<Routes>>
+			>
+		) {
+			super(router, ...args);
+		}
 	}
 	return Component.register(AppRouteComponent);
 }
