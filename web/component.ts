@@ -12,14 +12,16 @@ const globals = (appContext === `browser` ? window : global) as unknown as Windo
 	[key in typeof Component.name]: typeof Component;
 };
 
+const instancesKey = `instances`;
+
 export abstract class Component {
 	static readonly $elAttribute = `data-component`;
 	static readonly $elInstances = `instances`;
-	static readonly deconstructeds = globals[this.name] as unknown as Record<
-		Component[`uid`],
-		[BoundElement, typeof Component.name, unknown]
-	>;
-	static readonly instances = new Map<Component[`uid`], WeakRef<Component>>(); // A garbage-collectible way to reference all instances. Instances should be GCd when the corresponding HTML element is GCd. See BoundElement
+	static readonly [instancesKey] = new Map<Component[`uid`], WeakRef<Component>>(); // A garbage-collectible way to reference all instances. Instances should be GCd when the corresponding HTML element is GCd. See BoundElement
+	static readonly onloaders = globals[this.name] as unknown as Record<
+	Component[`uid`],
+	[BoundElement, typeof Component.name, unknown]
+>;
 	static readonly style: string | undefined;
 
 	static {
@@ -48,18 +50,18 @@ export abstract class Component {
 			document.head.appendChild($style);
 		}
 
-		for (const uid in this.deconstructeds) {
-			const [$placeholder, componentName, ...args] = this.deconstructeds[uid];
+		for (const uid in this.onloaders) {
+			const [$placeholder, componentName, ...args] = this.onloaders[uid];
 			if (componentName !== Constructor.name) {
 				continue;
 			}
-			delete this.deconstructeds[uid];
+			delete this.onloaders[uid];
 			const instance = new Constructor(...args);
 			const $el = $placeholder.nextElementSibling as BoundElement;
 			instance.uid = uid;
 			instance.$el = $el;
-			$el.instances = $el.instances ?? new Map();
-			$el.instances.set(uid, instance);
+			$el[Component.$elInstances] = $el[Component.$elInstances] ?? new Map();
+			$el[Component.$elInstances].set(uid, instance);
 			$el.setAttribute(`data-${Constructor.name}`, instance.uid);
 			$placeholder.remove();
 			instance.onload();
