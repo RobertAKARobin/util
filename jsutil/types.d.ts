@@ -11,13 +11,13 @@ export type PromiseMaybe<Type> = Type | Promise<Type>;
 export type RequireOnly<_Object, _RequiredKeys extends keyof _Object> = Partial<_Object>
 	& Pick<_Object, _RequiredKeys>;
 
-export type OmitParam1<InputFunction> =
-	InputFunction extends (param1: any, ...rest: infer Rest) => any // eslint-disable-line @typescript-eslint/no-explicit-any
+export type FromIndex1<Input> =
+	Input extends [param1: any, ...rest: infer Rest] // eslint-disable-line @typescript-eslint/no-explicit-any
 		? Rest
 		: never;
 
-export type Param1<InputFunction> =
-	InputFunction extends (param1: infer Param, ...rest: any) => any // eslint-disable-line @typescript-eslint/no-explicit-any
+export type AtIndex1<Input> =
+	Input extends [param1: infer Param, ...rest: any] // eslint-disable-line @typescript-eslint/no-explicit-any
 		? Param
 		: never;
 
