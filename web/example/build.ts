@@ -1,3 +1,4 @@
+import { HtmlValidate } from 'html-validate';
 import jsBeautify from 'js-beautify';
 import path from 'path';
 
@@ -6,6 +7,8 @@ import { Builder, type LayoutArgs } from '@robertakarobin/web/build.ts';
 import nav from './src/components/nav.ts';
 
 const trimNewlines = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
+
+const htmlValidate = new HtmlValidate();
 
 class CustomBuilder extends Builder {
 	formatCss(contents: string) {
@@ -32,6 +35,10 @@ class CustomBuilder extends Builder {
 			indent_with_tabs: true,
 			unformatted: [`script`],
 		});
+		const validation = htmlValidate.validateStringSync(html);
+		if (!validation.valid) {
+			throw new Error(JSON.stringify(validation.results[0].messages, null, `  `));
+		}
 		return html;
 	}
 }
