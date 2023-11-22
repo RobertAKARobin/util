@@ -29,7 +29,12 @@ export abstract class Component {
 	}
 
 	static createUid() {
-		return Math.random().toString(); // TODO2: Just has to be fairly random, not actually unique
+		while(true) {
+			const uid = Math.random().toString(36).slice(-5);
+			if (!Component[instancesKey].has(uid)) {
+				return uid;
+			}
+		}
 	}
 
 	/**

@@ -7,9 +7,9 @@ import { Component } from '../component.ts';
 
 export const hasMarkdown = /<markdown>(.*?)<\/markdown>/gs;
 
-const read = (path: string) =>
-	fs.readFileSync(path, { encoding: `utf8` })
-		.replace(/0\.\d{10,}/g, ``); // Janky way to strip out UIDs
+Component.createUid = () => `/UID/`;
+
+const read = (path: string) => fs.readFileSync(path, { encoding: `utf8` });
 
 const dist = (path: string) => read(`web/example/dist/${path}`);
 const golden = (path: string) => read(`web/example/dist-golden/${path}`);
