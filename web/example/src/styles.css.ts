@@ -1,10 +1,6 @@
 import { bp, theme, types } from './theme.ts';
 
 export default `
-* {
-	${theme.reset}
-}
-
 :root {
 	${theme.varsDeclarations}
 
