@@ -1,9 +1,4 @@
 {
-	"dependencies": {
-		"@types/js-beautify": "^1.14.3",
-		"html-validate": "^8.7.2",
-		"js-beautify": "^1.14.11"
-	},
 	"devDependencies": {
 		"@robertakarobin/web": "file:../"
 	},

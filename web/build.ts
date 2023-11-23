@@ -173,14 +173,14 @@ export class Builder {
 					.filter(Boolean).join(`\n`);
 
 				if (css.length > 0) {
-					css = this.formatCss(css);
+					css = await this.formatCss(css);
 					routeCssPath = `${serveFileRel}.css`;
 					const routeCssAbs = path.join(this.serveDirAbs, routeCssPath);
 					log(local(routeCssAbs));
 					fs.writeFileSync(routeCssAbs, css);
 				}
 
-				const html = this.formatHtml({
+				const html = await this.formatHtml({
 					body,
 					css,
 					mainCssPath: path.join(`/`, this.styleServeFileRel),
@@ -218,7 +218,7 @@ export class Builder {
 	async buildStyles() {
 		header(`Building root styles`);
 		let styles = (await bustCache(this.stylesSrcFileAbs)).default as string; // eslint-disable-line @typescript-eslint/no-unsafe-member-access
-		styles = this.formatCss(styles);
+		styles = await this.formatCss(styles);
 		log(local(this.stylesServeFileAbs));
 		fs.writeFileSync(this.stylesServeFileAbs, styles);
 		logBreak();
@@ -229,7 +229,7 @@ export class Builder {
 		const tsSrcsAbs = await glob(`${this.srcDirAbs}/**/*.ts`, { absolute: true });
 		for (const tsSrcAbs of tsSrcsAbs) {
 			const tsSrc = fs.readFileSync(tsSrcAbs, { encoding: `utf8` });
-			const tsSrcModified = this.formatTSSource(tsSrc);
+			const tsSrcModified = await this.formatTSSource(tsSrc);
 			if (tsSrc !== tsSrcModified) {
 				log(local(tsSrcAbs));
 			}
@@ -238,15 +238,15 @@ export class Builder {
 		logBreak();
 	}
 
-	formatCss(input: string) {
+	formatCss(input: string): string | Promise<string> {
 		return input;
 	}
 
-	formatHtml(input: LayoutArgs) {
+	formatHtml(input: LayoutArgs): string | Promise<string> {
 		return defaultLayout(input);
 	}
 
-	formatMarkdown(input: string) {
+	formatMarkdown(input: string): string | Promise<string> {
 		const isMarkdown = [`<markdown>`, `</markdown>`];
 		const isJsTemplate = ['${', '}']; // eslint-disable-line quotes
 		const jsChunks: Array<string> = [];
@@ -277,7 +277,7 @@ export class Builder {
 		}
 	}
 
-	formatTSSource(input: string) {
+	formatTSSource(input: string): string | Promise<string> {
 		return this.formatMarkdown(input);
 	}
 
