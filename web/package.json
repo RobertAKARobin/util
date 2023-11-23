@@ -6,13 +6,11 @@
 		"marked": "^10.0.0"
 	},
 	"devDependencies": {
+		"@robertakarobin/csslint": "^0.0.2",
 		"@robertakarobin/spec": "^0.0.10",
 		"@types/js-beautify": "^1.14.3",
 		"html-validate": "^8.7.2",
-		"js-beautify": "^1.14.11",
-		"stylelint": "^15.11.0",
-		"stylelint-order": "^6.0.3",
-		"stylelint-stylistic": "^0.4.3"
+		"js-beautify": "^1.14.11"
 	},
 	"main": "./dist/index.js",
 	"name": "@robertakarobin/web",

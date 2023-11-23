@@ -107,6 +107,8 @@ export class Builder {
 
 		fs.rmSync(this.srcDirAbs, { force: true, recursive: true });
 
+		await this.cleanup();
+
 		if (input.serve === true) {
 			this.serve();
 		}
@@ -237,6 +239,8 @@ export class Builder {
 		}
 		logBreak();
 	}
+
+	cleanup(): void | Promise<void> {}
 
 	formatCss(input: string): string | Promise<string> {
 		return input;

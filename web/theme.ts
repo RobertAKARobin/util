@@ -84,8 +84,8 @@ export class CssTheme<
 		for (const typeName in typefaces) {
 			const typeStyles = typefaces[typeName];
 			typefaces[typeName] = `
+				--typeface-name: '${typeName}';
 				${typeStyles}
-				--varName: '${typeName}';
 			`;
 			typeClasses.push(`
 				.type-${typeName} {
@@ -98,8 +98,8 @@ export class CssTheme<
 
 		for (const bpName in breakpoints) {
 			const bpSize = breakpoints[bpName];
-			this.bp.lessThan[bpName] = `(max-width: ${bpSize}px)`;
-			this.bp.moreThan[bpName] = `(min-width: ${bpSize + 1}px)`;
+			this.bp.lessThan[bpName] = `(width < ${bpSize}px)`;
+			this.bp.moreThan[bpName] = `(width >= ${bpSize}px)`;
 		}
 	}
 

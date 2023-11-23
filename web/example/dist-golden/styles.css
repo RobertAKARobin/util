@@ -1,8 +1,4 @@
-:root {
-	--fontBase_family: monospace;
-	--fontBase_size: 24;
-	--phone: 600;
-	--tablet: 1000;
+* {
 	background: transparent;
 	border: 0;
 	border-collapse: collapse;
@@ -16,9 +12,16 @@
 	margin: 0;
 	padding: 0;
 	text-decoration: inherit;
+}
+
+:root {
+	--fontBase_family: monospace;
+	--fontBase_size: 24;
+	--phone: 600;
+	--tablet: 1000;
+	--typeface-name: 'body';
 	font-family: monospace;
 	font-size: 24px;
-	--varName: 'body';
 }
 
 .type-body {
@@ -35,10 +38,10 @@
 }
 
 h1 {
+	--typeface-name: 'h1';
 	color: darkgreen;
-	--varName: 'h1';
 
-	@media (min-width: 601px) and (max-width: 1000px) {
+	@media (width >=600px) and (width < 1000px) {
 		color: orange !important;
 	}
 }

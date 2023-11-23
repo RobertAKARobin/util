@@ -12,7 +12,23 @@ const trimNewlines = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
 
 const htmlValidate = new HtmlValidate();
 
+const stylelintConfig: stylelint.Config = {
+	extends: `@robertakarobin/csslint`,
+	rules: {
+		"custom-property-pattern": null,
+		"declaration-empty-line-before": null,
+	},
+};
+
+let hasErrors = false;
+
 class CustomBuilder extends Builder {
+	cleanup() {
+		if (hasErrors) { // Throwing the error here so everything still compiles, if possible, which makes it easier to debug
+			throw new Error(color(`Errors! See output above.`, `red`));
+		}
+	}
+
 	async formatCss(contents: string) {
 		let css = trimNewlines(contents);
 		css = jsBeautify.css(css, {
@@ -21,15 +37,16 @@ class CustomBuilder extends Builder {
 		});
 		const validation = await stylelint.lint({
 			code: css,
+			config: stylelintConfig,
 		});
 		if (validation.errored) {
+			hasErrors = true;
 			for (const result of validation.results) { // TODO2: Report parseErrors?
 				result.deprecations.forEach(item => console.log(item.text));
 				result.warnings.sort((a, b) => a.line - b.line).forEach(item => {
-					console.log(`${color(`${item.line} ${item.severity}`, `yellow`)}: ${item.text}`);
+					console.log(`${color(`${item.line} ${item.rule}`, `yellow`)}\n\t${item.text}`);
 				});
 			}
-			throw new Error(`CSS validation failed. See above messages.`);
 		}
 		return css;
 	}
@@ -51,7 +68,8 @@ class CustomBuilder extends Builder {
 		});
 		const validation = htmlValidate.validateStringSync(html);
 		if (!validation.valid) {
-			throw new Error(JSON.stringify(validation.results[0].messages, null, `  `));
+			hasErrors = true;
+			console.log(JSON.stringify(validation.results[0].messages, null, `  `));
 		}
 		return html;
 	}
