@@ -1,11 +1,11 @@
 {
 	"dependencies": {
-		"@robertakarobin/jsutil": "^0.0.10"
+		"@robertakarobin/jsutil": "^0.0.12"
 	},
 	"devDependencies": {
 		"@types/diff": "^5.0.8",
 		"diff": "^5.1.0",
-		"tsx": "^4.2.0"
+		"tsx": "^4.4.0"
 	},
 	"main": "index.ts",
 	"name": "@robertakarobin/spec",
