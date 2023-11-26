@@ -1,6 +1,6 @@
 {
 	"dependencies": {
-		"@robertakarobin/jsutil": "^0.0.12",
+		"@robertakarobin/jsutil": "^0.0.13",
 		"esbuild": "^0.19.7",
 		"glob": "^10.3.10",
 		"marked": "^10.0.0"
@@ -9,7 +9,7 @@
 		"@robertakarobin/csslint": "^0.0.2",
 		"@robertakarobin/spec": "^0.0.10",
 		"@types/js-beautify": "^1.14.3",
-		"html-validate": "^8.7.2",
+		"html-validate": "^8.7.3",
 		"js-beautify": "^1.14.11"
 	},
 	"main": "./dist/index.js",
