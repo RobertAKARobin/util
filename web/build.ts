@@ -38,6 +38,46 @@ const log = (...args: Array<string>) => console.log(args.join(`\n`));
 
 const logBreak = () => console.log(``);
 
+/**
+ * Serialize an object as a native JS value so that it can be included in `on*` attributes. TODO2: Use JSON5 or something robust
+ */
+function serialize(input: any): string { // eslint-disable-line @typescript-eslint/no-explicit-any
+	if (input === null || input === undefined) {
+		return ``;
+	}
+	if (Array.isArray(input)) {
+		return `[${input.map(serialize).join(`,`)}]`;
+	}
+	if (typeof input === `object`) {
+		let out = ``;
+		for (const property in input) {
+			const value = input[property] as Record<string, unknown>; // eslint-disable-line @typescript-eslint/no-unsafe-member-access
+			out += `${property.replaceAll(`"`, `&quot;`)}:${serialize(value)},`;
+		}
+		return `{${out}}`;
+	}
+	if (typeof input === `string`) {
+		const out = input
+			.replaceAll(`"`, `&quot;`)
+			.replaceAll(`'`, `\\'`);
+		return `'${out}'`;
+	}
+	return input.toString(); // eslint-disable-line
+};
+
+Component.build = function(instance: Component, args: unknown) {
+	const key = Component.name;
+	const argsString = serialize(args);
+	let out = ``;
+	if (instance.isCSR) {
+		out += `<script src="data:text/javascript," onload="window.${key}=window.${key}||{};window.${key}['${instance.uid}']=[this,'${instance.Ctor.name}',${argsString}]"></script>`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
+	}
+	if (instance.isSSG) {
+		out += instance.template();
+	}
+	return out;
+};
+
 export class Builder {
 	readonly assetsServeDirAbs: string;
 	readonly assetsSrcDirAbs: string;

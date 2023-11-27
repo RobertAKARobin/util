@@ -6,7 +6,7 @@ type BoundElement = HTMLElement & {
 
 type DerivedComponent<Subclass extends Component> = {
 	new(...args: Array<any>): Subclass; // eslint-disable-line @typescript-eslint/no-explicit-any
-};
+} & Pick<typeof Component, `init`>;
 
 const globals = (appContext === `browser` ? window : global) as unknown as Window & {
 	[key in typeof Component.name]: typeof Component;
@@ -16,8 +16,8 @@ export abstract class Component {
 	static readonly $elAttribute = `data-component`;
 	static readonly $elInstances = `instances`;
 	static readonly onloaders = globals[this.name] as unknown as Record<
-	Component[`uid`],
-	[HTMLScriptElement, typeof Component.name, Record<string, unknown>]
+		Component[`uid`],
+		[HTMLScriptElement, typeof Component.name, Record<string, unknown>]
 	>;
 	static readonly style: string | undefined;
 	static readonly subclasses = new Map<string, typeof Component>();
@@ -25,6 +25,13 @@ export abstract class Component {
 
 	static {
 		globals[this.name] = this;
+	}
+
+	/**
+	 * Placeholder for use in `build.ts`
+	 */
+	static build(_instance: Component, _args: unknown) {
+		return ``;
 	}
 
 	static createUid() {
@@ -68,45 +75,23 @@ export abstract class Component {
 		}
 	}
 
-	static rerender(uid: Component[`uid`], $placeholder: HTMLScriptElement) {
-		const instance = this.uidInstances.get(uid)!;
-		$placeholder.replaceWith(instance.$el!);
+	static rerender(
+		$placeholder: HTMLElement,
+		uid: Component[`uid`],
+		args: unknown
+	) {
+		$placeholder.remove();
+		console.log(args);
+		// const instance = this.uidInstances.get(uid)!;
+		// $placeholder.replaceWith(instance.$el!);
 	}
-
-	/**
-	 * Serialize an object as a native JS value so that it can be included in `on*` attributes. TODO2: Use JSON5 or something robust
-	 */
-	private static serialize(input: any): string { // eslint-disable-line @typescript-eslint/no-explicit-any
-		if (input === null || input === undefined) {
-			return ``;
-		}
-		if (Array.isArray(input)) {
-			return `[${input.map(this.serialize).join(`,`)}]`;
-		}
-		if (typeof input === `object`) {
-			let out = ``;
-			for (const property in input) {
-				const value = input[property] as Record<string, unknown>; // eslint-disable-line @typescript-eslint/no-unsafe-member-access
-				out += `${property.replaceAll(`"`, `&quot;`)}:${this.serialize(value)},`;
-			}
-			return `{${out}}`;
-		}
-		if (typeof input === `string`) {
-			const out = input
-				.replaceAll(`"`, `&quot;`)
-				.replaceAll(`'`, `\\'`);
-			return `'${out}'`;
-		}
-		return input.toString(); // eslint-disable-line
-	};
 
 	static toFunction<
 		Instance extends Component,
 		Subclass extends DerivedComponent<Instance>,
-		Args extends (
-			Subclass extends { new(args: infer Args): Instance; } ? Args : never
-		)
-	>(Constructor: { new(args: Args): Instance; } & Pick<typeof Component, `style`>) {
+	>(Constructor: Subclass) {
+		Constructor.init();
+
 		return (args: ConstructorParameters<typeof Constructor>[0]) => {
 			const uid = args.uid as Component[`uid`];
 			const instance = (
@@ -114,10 +99,12 @@ export abstract class Component {
 					? Component.uidInstances.get(uid)!
 					: new Constructor(args)
 			);
-			if (instance.$el) {
+			if (appContext === `build`) {
+				return Component.build(instance, args);
+			} else if (instance.$el) {
 				return instance.rerender();
 			} else {
-				return instance.render(args);
+				return instance.render();
 			}
 		};
 	}
@@ -191,21 +178,9 @@ export abstract class Component {
 	 */
 	onload() {}
 
-	render(args: ConstructorParameters<typeof this.Ctor>[0]) {
+	render() {
 		const key = Component.name;
-		const argsString = Component.serialize(args);
-		let out = ``;
-		if (appContext === `build`) {
-			if (this.isCSR) {
-				out += `<script src="data:text/javascript," onload="window.${key}=window.${key}||{};window.${key}['${this.uid}']=[this,'${this.Ctor.name}',${argsString}]"></script>`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
-			}
-			if (this.isSSG) {
-				out += this.template();
-			}
-		} else {
-			return this.template();
-		}
-		return out;
+		return `<img src="" style="display:none" onerror="${key}.rerender(this,'${this.uid}')" />${this.template()}`;
 	}
 
 	/**
