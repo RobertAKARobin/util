@@ -150,5 +150,5 @@ export function routeComponent<Routes extends RouteMap>(
 
 	AppRouteComponent.init();
 
-	return Component.register(AppRouteComponent);
+	return Component.toFunction(AppRouteComponent);
 }

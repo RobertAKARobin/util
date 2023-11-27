@@ -30,7 +30,10 @@ export abstract class Component {
 		return Math.random().toString(36).slice(-5); // TODO2: Better UID generator. Doesn't have to actually be unique, just unlikely to repeat within app
 	}
 
-	static init() {
+	static init<
+		Instance extends Component,
+		Subclass extends DerivedComponent<Instance>,
+	>() {
 		Component.subclasses.set(this.name, this);
 
 		if (
@@ -43,40 +46,39 @@ export abstract class Component {
 			$style.setAttribute(Component.$elAttribute, this.name);
 			document.head.appendChild($style);
 		}
-	}
 
-	/**
-	 * Applies the given component's styles, hydrates the component data defined during SSG, and returns a helper function for rendering components
-	 */
-	static register<
-		Instance extends Component,
-		Subclass extends DerivedComponent<Instance>,
-		Args extends (
-			Subclass extends { new(args: infer Args): Instance; } ? Args : never
-		)
-	>(Constructor: { new(args: Args): Instance; } & Pick<typeof Component, `style`>) {
 		for (const uid in this.onloaders) {
 			const [$placeholder, componentName] = this.onloaders[uid];
-			if (componentName !== Constructor.name) {
+			if (componentName !== this.name) {
 				continue;
 			}
 			delete this.onloaders[uid];
 			const $el = $placeholder.nextElementSibling as BoundElement;
 			let argsString = $placeholder.innerHTML;
 			argsString = argsString.substring(2, argsString.length - 2);
-			const args = JSON.parse(argsString) as Args;
-			const instance = new Constructor({
+			const args = JSON.parse(argsString) as (
+				Subclass extends { new(args: infer Args): Instance; } ? Args : never
+			);
+			const instance = new (this as unknown as Subclass)({
 				...args,
 				uid,
 			});
 			instance.$el = $el;
-			$el.setAttribute(`data-${Constructor.name}`, uid);
+			$el.setAttribute(`data-${this.name}`, uid);
 			$el[Component.$elInstances] = $el[Component.$elInstances] ?? new Map();
 			$el[Component.$elInstances].set(uid, instance);
 			$placeholder.remove();
 			instance.onload();
 		}
+	}
 
+	static toFunction<
+		Instance extends Component,
+		Subclass extends DerivedComponent<Instance>,
+		Args extends (
+			Subclass extends { new(args: infer Args): Instance; } ? Args : never
+		)
+	>(Constructor: { new(args: Args): Instance; } & Pick<typeof Component, `style`>) {
 		return (args: ConstructorParameters<typeof Constructor>[0]) => {
 			const instance = new Constructor(args);
 			const key = Component.name;
@@ -103,7 +105,7 @@ export abstract class Component {
 		this.attributes = attributes;
 
 		if (!Component.subclasses.has(this.Ctor.name)) {
-			this.Ctor.init();
+			this.Ctor.init<typeof this, DerivedComponent<typeof this>>();
 		}
 	}
 

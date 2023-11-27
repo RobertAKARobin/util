@@ -32,7 +32,7 @@ class Widget extends Component {
 	template = () => `<h1>${this.message}${this.prop}</h1>`;
 }
 
-const widget = Component.register(Widget);
+const widget = Component.toFunction(Widget);
 
 export const spec = suite(`@robertakarobin/web`,
 	{

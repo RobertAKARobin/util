@@ -46,4 +46,4 @@ input {
 		`;
 }
 
-export default Component.register(Textbox);
+export default Component.toFunction(Textbox);
