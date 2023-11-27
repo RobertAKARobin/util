@@ -106,6 +106,16 @@ export abstract class Component {
 		return this.constructor as typeof Component;
 	}
 	/**
+	 * If true, a <script> tag will be inserted that allows this component to be dynamically rendered. Otherwise it will be rendered only once. TODO2: Preserve isCSR=false elements
+	 */
+	isCSR = true;
+	/**
+	 * If true, if this is a Page it will be compiled into a static `.html` file at the route(s) used for this Page, which serves as a landing page for performance and SEO purposes.
+	 * If this is a Component it will be compiled into static HTML included in the landing page.
+	 * Not a static variable because a Component/Page may/may not want to be SSG based on certain conditions
+	*/
+	isSSG = true;
+	/**
 	 * Warning: `style` should be defined as a static property, not an instance property
 	 */
 	private readonly style: void = undefined;
@@ -161,7 +171,18 @@ export abstract class Component {
 
 	render(args: ConstructorParameters<typeof this.Ctor>[0]) {
 		const key = Component.name;
-		return `<script src="data:text/javascript," onload="window.${key}=window.${key}||{};window.${key}['${this.uid}']=[this,'${this.Ctor.name}']">/*${JSON.stringify(args)}*/</script>${this.template()}`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
+		let out = ``;
+		if (appContext === `build`) {
+			if (this.isCSR) {
+				out += `<script src="data:text/javascript," onload="window.${key}=window.${key}||{};window.${key}['${this.uid}']=[this,'${this.Ctor.name}']">/*${JSON.stringify(args)}*/</script>`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
+			}
+			if (this.isSSG) {
+				out += this.template();
+			}
+		} else {
+			return this.template();
+		}
+		return out;
 	}
 
 	/**
