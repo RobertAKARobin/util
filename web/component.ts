@@ -17,7 +17,7 @@ export abstract class Component {
 	static readonly $elInstances = `instances`;
 	static readonly onloaders = globals[this.name] as unknown as Record<
 	Component[`uid`],
-	[HTMLScriptElement, typeof Component.name, unknown]
+	[HTMLScriptElement, typeof Component.name, Record<string, unknown>]
 	>;
 	static readonly style: string | undefined;
 	static readonly subclasses = new Map<string, typeof Component>();
@@ -49,16 +49,11 @@ export abstract class Component {
 		}
 
 		for (const uid in this.onloaders) {
-			const [$placeholder, componentName] = this.onloaders[uid];
+			const [$placeholder, componentName, args] = this.onloaders[uid];
 			if (componentName !== this.name) {
 				continue;
 			}
 			delete this.onloaders[uid];
-			let argsString = $placeholder.innerHTML;
-			argsString = argsString.substring(2, argsString.length - 2);
-			const args = JSON.parse(argsString) as (
-				Subclass extends { new(args: infer Args): Instance; } ? Args : never
-			);
 			const instance = new (this as unknown as Subclass)({
 				...args,
 				uid,
@@ -77,6 +72,33 @@ export abstract class Component {
 		const instance = this.uidInstances.get(uid)!;
 		$placeholder.replaceWith(instance.$el!);
 	}
+
+	/**
+	 * Serialize an object as a native JS value so that it can be included in `on*` attributes. TODO2: Use JSON5 or something robust
+	 */
+	private static serialize(input: any): string { // eslint-disable-line @typescript-eslint/no-explicit-any
+		if (input === null || input === undefined) {
+			return ``;
+		}
+		if (Array.isArray(input)) {
+			return `[${input.map(this.serialize).join(`,`)}]`;
+		}
+		if (typeof input === `object`) {
+			let out = ``;
+			for (const property in input) {
+				const value = input[property] as Record<string, unknown>; // eslint-disable-line @typescript-eslint/no-unsafe-member-access
+				out += `${property.replaceAll(`"`, `&quot;`)}:${this.serialize(value)},`;
+			}
+			return `{${out}}`;
+		}
+		if (typeof input === `string`) {
+			const out = input
+				.replaceAll(`"`, `&quot;`)
+				.replaceAll(`'`, `\\'`);
+			return `'${out}'`;
+		}
+		return input.toString(); // eslint-disable-line
+	};
 
 	static toFunction<
 		Instance extends Component,
@@ -171,10 +193,11 @@ export abstract class Component {
 
 	render(args: ConstructorParameters<typeof this.Ctor>[0]) {
 		const key = Component.name;
+		const argsString = Component.serialize(args);
 		let out = ``;
 		if (appContext === `build`) {
 			if (this.isCSR) {
-				out += `<script src="data:text/javascript," onload="window.${key}=window.${key}||{};window.${key}['${this.uid}']=[this,'${this.Ctor.name}']">/*${JSON.stringify(args)}*/</script>`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
+				out += `<script src="data:text/javascript," onload="window.${key}=window.${key}||{};window.${key}['${this.uid}']=[this,'${this.Ctor.name}',${argsString}]"></script>`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
 			}
 			if (this.isSSG) {
 				out += this.template();
