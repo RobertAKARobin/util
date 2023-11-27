@@ -12,12 +12,9 @@ const globals = (appContext === `browser` ? window : global) as unknown as Windo
 	[key in typeof Component.name]: typeof Component;
 };
 
-const instancesKey = `instances`;
-
 export abstract class Component {
 	static readonly $elAttribute = `data-component`;
 	static readonly $elInstances = `instances`;
-	static readonly [instancesKey] = new Map<Component[`uid`], WeakRef<Component>>(); // A garbage-collectible way to reference all instances. Instances should be GCd when the corresponding HTML element is GCd. See BoundElement
 	static readonly onloaders = globals[this.name] as unknown as Record<
 	Component[`uid`],
 	[BoundElement, typeof Component.name, unknown]
@@ -30,12 +27,7 @@ export abstract class Component {
 	}
 
 	static createUid() {
-		while(true) {
-			const uid = Math.random().toString(36).slice(-5);
-			if (!Component[instancesKey].has(uid)) {
-				return uid;
-			}
-		}
+		return Math.random().toString(36).slice(-5); // TODO2: Better UID generator. Doesn't have to actually be unique, just unlikely to repeat within app
 	}
 
 	static init() {
