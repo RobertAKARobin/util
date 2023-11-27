@@ -7,7 +7,7 @@ import { marked } from 'marked';
 import path from 'path';
 
 import {
-	type Component,
+	Component,
 	hasExtension,
 	hasHash,
 	type Page,
@@ -133,6 +133,8 @@ export class Builder {
 
 		await $.promiseConsecutive(
 			routeNames.map(routeName => async() => {
+				Component.subclasses.clear();
+
 				const routePath = router.routes[routeName];
 				log(`${routeName.toString()}: ${routePath.pathname}`);
 
@@ -149,15 +151,6 @@ export class Builder {
 					return;
 				}
 
-				const subclasses = new Set<typeof Component>();
-				const getSubclasses = (parent: Component) => {
-					subclasses.add(parent.constructor as typeof Component);
-					for (const child of parent.children) {
-						getSubclasses(child);
-					}
-				};
-				getSubclasses(page);
-
 				let serveFileRel = routePath.pathname;
 				serveFileRel = serveFileRel
 					.replace(/^\//, ``)
@@ -170,7 +163,7 @@ export class Builder {
 				fs.mkdirSync(serveDirAbs, { recursive: true });
 
 				let routeCssPath: string | undefined = undefined;
-				let css = Array.from(subclasses.values())
+				let css = Array.from(Component.subclasses.values())
 					.map(Subclass => Subclass.style)
 					.filter(Boolean).join(`\n`);
 
@@ -190,7 +183,7 @@ export class Builder {
 					page,
 					routeCssPath: typeof routeCssPath === `string` ? path.join(`/`, routeCssPath) : undefined,
 					routePath: path.join(`/`, routePath.pathname),
-					subclasses,
+					subclasses: Component.subclasses,
 				});
 				log(local(serveFileAbs));
 				fs.writeFileSync(serveFileAbs, html);

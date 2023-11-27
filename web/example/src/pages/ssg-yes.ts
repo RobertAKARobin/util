@@ -8,7 +8,7 @@ h1 {
 }
 `;
 
-export class YesSSGPage extends Page {
+export default class YesSSGPage extends Page {
 	static style = style;
 	title = `SSG yes`;
 	template = () => `
@@ -19,5 +19,3 @@ export class YesSSGPage extends Page {
 		<div id="${router.routes.ssgYesJump2.hash.substring(1)}">Jump 2</div>
 	`;
 }
-
-export default Page.register(YesSSGPage);

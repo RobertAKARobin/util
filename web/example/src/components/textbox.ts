@@ -9,11 +9,16 @@ input {
 }
 	`;
 
-	constructor(
-		public max = 10,
-		public value = ``,
-	) {
-		super();
+	maxlength: number;
+	value: string;
+
+	constructor(input: {
+		maxlength?: number;
+		value?: string;
+	}) {
+		super(input);
+		this.maxlength = input.maxlength ?? 10;
+		this.value = input.value ?? ``;
 	}
 
 	handleInput(event: Event) {
@@ -23,7 +28,7 @@ input {
 
 	remaining() {
 		return `
-		${this.max - this.value.length} / ${this.max} Remaining
+		${this.maxlength - this.value.length} / ${this.maxlength} Remaining
 		`;
 	}
 
@@ -31,10 +36,9 @@ input {
 		<div>
 			<input
 				oninput=${this.bind(`handleInput`)}
-				maxlength="${this.max}"
 				placeholder="Type here"
 				type="text"
-				value="${this.value}"
+				${this.attrs()}
 			>
 
 			<span>${this.remaining()}</span>

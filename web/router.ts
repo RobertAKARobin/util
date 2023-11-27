@@ -1,4 +1,4 @@
-import type * as $ from '@robertakarobin/jsutil/types.d.ts';
+import * as $ from '@robertakarobin/jsutil/index.ts';
 import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
 
 import { appContext } from './context.ts';
@@ -99,18 +99,19 @@ export class RouteComponent<
 	readonly href: string;
 	readonly isAbsolute: boolean;
 	readonly route: typeof this.router.routes[keyof Routes];
+	readonly router: Router<Routes>;
 
-	constructor(
-		readonly router: Router<Routes>,
-		readonly routeName: keyof Routes,
-		content?: string,
-		...args: ConstructorParameters<typeof Component>
-	) {
-		super(...args);
-		this.route = this.router.routes[this.routeName];
+	constructor(input: {
+		router: Router<Routes>;
+		to: keyof Routes;
+		txt?: string;
+	}) {
+		super($.omit(input, `router`, `to`, `txt`));
+		this.router = input.router;
+		this.route = this.router.routes[input.to];
 		this.isAbsolute = this.route.origin !== defaultOriginUrl.origin;
 		this.href = this.isAbsolute ? this.route.href : this.route.pathname;
-		this.content = content ?? (
+		this.content = input.txt ?? (
 			this.isAbsolute ? this.route.href : this.route.pathname
 		);
 	}
@@ -138,12 +139,16 @@ export function routeComponent<Routes extends RouteMap>(
 ) {
 	class AppRouteComponent extends RouteComponent<Routes> {
 		constructor(
-			...args: $.FromIndex1<
-				ConstructorParameters<typeof RouteComponent<Routes>>
-			>
+			args: Omit<ConstructorParameters<typeof RouteComponent<Routes>>[0], `router`>
 		) {
-			super(router, ...args);
+			super({
+				...args,
+				router,
+			});
 		}
 	}
+
+	AppRouteComponent.init();
+
 	return Component.register(AppRouteComponent);
 }

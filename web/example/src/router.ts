@@ -19,19 +19,19 @@ export const router: Router<typeof routeDefs> = new Router( // Have to declare r
 	async function(url) {
 		switch (url.pathname) {
 			case this.routes.error404.pathname:
-				return (await import(`./pages/error.ts`)).default();
+				return new (await import(`./pages/error.ts`)).default();
 			case this.routes.home.pathname:
 			case this.routes.homeJump1.pathname:
 			case this.routes.homeJump2.pathname:
-				return indexPage({ message: `This is a variable` });
+				return new indexPage({ message: `This is a variable` });
 			case this.routes.ssgNo.pathname:
-				return (await import(`./pages/ssg-no.ts`)).default();
+				return new (await import(`./pages/ssg-no.ts`)).default();
 			case this.routes.ssgYes.pathname:
 			case this.routes.ssgYesJump1.pathname:
 			case this.routes.ssgYesJump2.pathname:
-				return (await import(`./pages/ssg-yes.ts`)).default();
+				return new (await import(`./pages/ssg-yes.ts`)).default();
 		}
 	}
 );
 
-export const routeTo = routeComponent(router);
+export const route = routeComponent(router);

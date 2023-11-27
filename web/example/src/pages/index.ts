@@ -1,6 +1,6 @@
 import { Page } from '@robertakarobin/web/index.ts';
 
-import { router, routeTo } from '../router.ts';
+import { route, router } from '../router.ts';
 import textbox from '../components/textbox.ts';
 
 const style =  `
@@ -11,7 +11,7 @@ h1 {
 
 const colors = [`red`, `yellow`, `green`, `brown`, `scarlet`];
 
-export class IndexPage extends Page {
+export default class IndexPage extends Page {
 	static style = style;
 
 	message: string;
@@ -34,16 +34,16 @@ export class IndexPage extends Page {
 
 ## ${this.message}
 
-<div>${this.put(textbox(10, `foo`))}</div>
+<div>${textbox({ maxlength: 10, value: `foo` })}</div>
 
-<div>${this.put(textbox(777))}</div>
+<div>${textbox({ maxlength: 777 })}</div>
 
 Lorem ipsum dolor <strong>sit amet</strong>, consectetur *adipiscing elit*, sed do _eiusmod tempor_ incididunt.
 
 Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ nulla pariatur.
 </markdown>
 
-<p>${this.put(routeTo(`home`))}</p>
+<p>${route({ to: `home` })}</p>
 
 <markdown>
 ## Headline 2
@@ -68,5 +68,3 @@ Joseph's coat was ${colors.join(` and `)}.
 <div id="${router.routes.homeJump2.hash.substring(1)}">Jump 2</div>
 	`;
 }
-
-export default Page.register(IndexPage);

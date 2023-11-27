@@ -19,10 +19,11 @@ export abstract class Component {
 	static readonly $elInstances = `instances`;
 	static readonly [instancesKey] = new Map<Component[`uid`], WeakRef<Component>>(); // A garbage-collectible way to reference all instances. Instances should be GCd when the corresponding HTML element is GCd. See BoundElement
 	static readonly onloaders = globals[this.name] as unknown as Record<
-		Component[`uid`],
-		[BoundElement, typeof Component.name, unknown]
+	Component[`uid`],
+	[BoundElement, typeof Component.name, unknown]
 	>;
 	static readonly style: string | undefined;
+	static readonly subclasses = new Set<typeof Component>();
 
 	static {
 		globals[this.name] = this;
@@ -37,6 +38,21 @@ export abstract class Component {
 		}
 	}
 
+	static init() {
+		Component.subclasses.add(this);
+
+		if (
+			appContext === `browser`
+			&& typeof this.style === `string`
+			&& document.querySelector(`style[${this.$elAttribute}="${this.name}"]`) === null
+		) {
+			const $style = document.createElement(`style`);
+			$style.textContent = this.style;
+			$style.setAttribute(Component.$elAttribute, this.name);
+			document.head.appendChild($style);
+		}
+	}
+
 	/**
 	 * Applies the given component's styles, hydrates the component data defined during SSG, and returns a helper function for rendering components
 	 */
@@ -44,59 +60,60 @@ export abstract class Component {
 		Instance extends Component,
 		Subclass extends DerivedComponent<Instance>,
 		Args extends (
-			Subclass extends { new(...args: infer Args): Instance; } ? Args : never
+			Subclass extends { new(args: infer Args): Instance; } ? Args : never
 		)
-	>(Constructor: { new(...args: Args): Instance; } & Pick<typeof Component, `style`>) {
-		if (
-			appContext === `browser`
-			&& typeof Constructor.style === `string`
-			&& document.querySelector(`style[${this.$elAttribute}="${Constructor.name}"]`) === null
-		) {
-			const $style = document.createElement(`style`);
-			$style.textContent = Constructor.style;
-			$style.setAttribute(Component.$elAttribute, Constructor.name);
-			document.head.appendChild($style);
-		}
-
+	>(Constructor: { new(args: Args): Instance; } & Pick<typeof Component, `style`>) {
 		for (const uid in this.onloaders) {
-			const [$placeholder, componentName, ...args] = this.onloaders[uid];
+			const [$placeholder, componentName] = this.onloaders[uid];
 			if (componentName !== Constructor.name) {
 				continue;
 			}
 			delete this.onloaders[uid];
-			const instance = new Constructor(...args as unknown as Args);
 			const $el = $placeholder.nextElementSibling as BoundElement;
-			instance.uid = uid;
+			let argsString = $placeholder.innerHTML;
+			argsString = argsString.substring(2, argsString.length - 2);
+			const args = JSON.parse(argsString) as Args;
+			const instance = new Constructor({
+				...args,
+				uid,
+			});
 			instance.$el = $el;
+			$el.setAttribute(`data-${Constructor.name}`, uid);
 			$el[Component.$elInstances] = $el[Component.$elInstances] ?? new Map();
 			$el[Component.$elInstances].set(uid, instance);
-			$el.setAttribute(`data-${Constructor.name}`, instance.uid);
 			$placeholder.remove();
 			instance.onload();
 		}
 
-		return (...args: ConstructorParameters<typeof Constructor>) => {
-			const instance = new Constructor(...args);
+		return (args: ConstructorParameters<typeof Constructor>[0]) => {
+			const instance = new Constructor(args);
 			const key = Component.name;
-			const argsString = args.map(arg => typeof arg === `string` ? `'${arg}'` : `${arg}`).join(`,`);
-			instance.placeholder = `<script src="data:text/javascript," onload="window.${key}=window.${key}||{};window.${key}['${instance.uid}']=[this,'${Constructor.name}',${argsString}]"></script>`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args
-			return instance;
+			return `<script src="data:text/javascript," onload="window.${key}=window.${key}||{};window.${key}['${instance.uid}']=[this,'${Constructor.name}']">/*${JSON.stringify(args)}*/</script>${instance.template()}`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
 		};
 	}
 
 	$el: HTMLElement | undefined;
-	readonly children = new Set<Component>();
-	private placeholder?: string;
+	attributes: Record<string, string | number | boolean>;
+	get Ctor() {
+		return this.constructor as typeof Component;
+	}
 	/**
-	 * Error: `style` should be defined as a static property, not an instance property
+	 * Warning: `style` should be defined as a static property, not an instance property
 	 */
 	private readonly style: void = undefined;
 	abstract template: () => string;
-	uid: string = Component.createUid();
+	readonly uid: string;
 
 	constructor(
-		public attributes: Record<string, string> = {}
-	) {}
+		{ uid, ...attributes }: Record<string, string | number | boolean> = {}
+	) {
+		this.uid = uid?.toString() ?? Component.createUid();
+		this.attributes = attributes;
+
+		if (!Component.subclasses.has(this.Ctor)) {
+			this.Ctor.init();
+		}
+	}
 
 	/**
 	 * Returns the component's `.attributes` and the provided dict as HTML attributes
@@ -129,21 +146,6 @@ export abstract class Component {
 	 * Called when the instance is first loaded
 	 */
 	onload() {}
-
-	/**
-	 * Given a child component, set the child's parent to this instance, and render the child
-	 */
-	put<ChildInstance extends Component>(child: ChildInstance): string {
-		this.children.add(child);
-		return child.render();
-	}
-
-	/**
-	 * Returns this instance's HTML as a string, along with a <script> that will allow the instance to be attached to its topmost HTML element
-	 */
-	render() {
-		return `${this.placeholder}${this.template()}`;
-	}
 
 	/**
 	 * Replace the instance's `$el` with updated HTML
