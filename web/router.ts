@@ -79,7 +79,7 @@ export class Router<Routes extends RouteMap> {
 		const $outlet = typeof $input === undefined ? document.body : $input;
 
 		Page.current.subscribe(page => {
-			page.$el = $outlet;
+			page.$outlet = $outlet;
 
 			if (this.navigationCount > 0) {
 				document.title = page.title;

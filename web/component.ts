@@ -17,10 +17,11 @@ export abstract class Component {
 	static readonly $elInstances = `instances`;
 	static readonly onloaders = globals[this.name] as unknown as Record<
 	Component[`uid`],
-	[BoundElement, typeof Component.name, unknown]
+	[HTMLScriptElement, typeof Component.name, unknown]
 	>;
 	static readonly style: string | undefined;
 	static readonly subclasses = new Map<string, typeof Component>();
+	static readonly uidInstances = new Map<Component[`uid`], Component>();
 
 	static {
 		globals[this.name] = this;
@@ -53,7 +54,6 @@ export abstract class Component {
 				continue;
 			}
 			delete this.onloaders[uid];
-			const $el = $placeholder.nextElementSibling as BoundElement;
 			let argsString = $placeholder.innerHTML;
 			argsString = argsString.substring(2, argsString.length - 2);
 			const args = JSON.parse(argsString) as (
@@ -63,6 +63,7 @@ export abstract class Component {
 				...args,
 				uid,
 			});
+			const $el = $placeholder.nextElementSibling as BoundElement;
 			instance.$el = $el;
 			$el.setAttribute(`data-${this.name}`, uid);
 			$el[Component.$elInstances] = $el[Component.$elInstances] ?? new Map();
@@ -70,6 +71,11 @@ export abstract class Component {
 			$placeholder.remove();
 			instance.onload();
 		}
+	}
+
+	static rerender(uid: Component[`uid`], $placeholder: HTMLScriptElement) {
+		const instance = this.uidInstances.get(uid)!;
+		$placeholder.replaceWith(instance.$el!);
 	}
 
 	static toFunction<
@@ -80,9 +86,17 @@ export abstract class Component {
 		)
 	>(Constructor: { new(args: Args): Instance; } & Pick<typeof Component, `style`>) {
 		return (args: ConstructorParameters<typeof Constructor>[0]) => {
-			const instance = new Constructor(args);
-			const key = Component.name;
-			return `<script src="data:text/javascript," onload="window.${key}=window.${key}||{};window.${key}['${instance.uid}']=[this,'${Constructor.name}']">/*${JSON.stringify(args)}*/</script>${instance.template()}`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
+			const uid = args.uid as Component[`uid`];
+			const instance = (
+				args.uid !== undefined && Component.uidInstances.has(uid)
+					? Component.uidInstances.get(uid)!
+					: new Constructor(args)
+			);
+			if (instance.$el) {
+				return instance.rerender();
+			} else {
+				return instance.render(args);
+			}
 		};
 	}
 
@@ -103,6 +117,10 @@ export abstract class Component {
 	) {
 		this.uid = uid?.toString() ?? Component.createUid();
 		this.attributes = attributes;
+
+		if (uid !== undefined) {
+			Component.uidInstances.set(uid.toString(), this);
+		}
 
 		if (!Component.subclasses.has(this.Ctor.name)) {
 			this.Ctor.init<typeof this, DerivedComponent<typeof this>>();
@@ -141,10 +159,15 @@ export abstract class Component {
 	 */
 	onload() {}
 
+	render(args: ConstructorParameters<typeof this.Ctor>[0]) {
+		const key = Component.name;
+		return `<script src="data:text/javascript," onload="window.${key}=window.${key}||{};window.${key}['${this.uid}']=[this,'${this.Ctor.name}']">/*${JSON.stringify(args)}*/</script>${this.template()}`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
+	}
+
 	/**
 	 * Replace the instance's `$el` with updated HTML
 	 */
-	rerender() { // TODO1: A better rerender
-		this.$el!.innerHTML = this.template();
+	rerender() {
+		return this.template();
 	}
 }
