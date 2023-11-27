@@ -26,7 +26,6 @@ export type LayoutArgs = {
 	page: Page;
 	routeCssPath?: string;
 	routePath: string;
-	subclasses: Set<typeof Component>;
 };
 
 const bustCache = (path: string) => import(`${path}?v=${Date.now() + performance.now()}`);
@@ -183,7 +182,6 @@ export class Builder {
 					page,
 					routeCssPath: typeof routeCssPath === `string` ? path.join(`/`, routeCssPath) : undefined,
 					routePath: path.join(`/`, routePath.pathname),
-					subclasses: Component.subclasses,
 				});
 				log(local(serveFileAbs));
 				fs.writeFileSync(serveFileAbs, html);

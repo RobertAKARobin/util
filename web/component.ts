@@ -20,7 +20,7 @@ export abstract class Component {
 	[BoundElement, typeof Component.name, unknown]
 	>;
 	static readonly style: string | undefined;
-	static readonly subclasses = new Set<typeof Component>();
+	static readonly subclasses = new Map<string, typeof Component>();
 
 	static {
 		globals[this.name] = this;
@@ -31,7 +31,7 @@ export abstract class Component {
 	}
 
 	static init() {
-		Component.subclasses.add(this);
+		Component.subclasses.set(this.name, this);
 
 		if (
 			appContext === `browser`
@@ -102,7 +102,7 @@ export abstract class Component {
 		this.uid = uid?.toString() ?? Component.createUid();
 		this.attributes = attributes;
 
-		if (!Component.subclasses.has(this.Ctor)) {
+		if (!Component.subclasses.has(this.Ctor.name)) {
 			this.Ctor.init();
 		}
 	}
