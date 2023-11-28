@@ -70,7 +70,8 @@ Component.placeSSG = (instance: Component, args: unknown, content: string) => {
 	const argsString = serialize(args);
 	const template = instance.template().trim();
 	const hasOneRootElement = /^<(\w+).*<\/\1>$/s.test(template); // TODO2: False positive for e.g. <div>one</div> <div>two</div>
-	if (!hasOneRootElement) {
+	const isOneElement = /^<[^<>]+>$/s.test(template);
+	if (!hasOneRootElement && !isOneElement) {
 		throw new Error(`Template for ${instance.Ctor.name} invalid: Component templates must have one root HTML element`);
 	}
 	let out = ``;

@@ -1,6 +1,9 @@
-# TODO
+# Web
 
--	Components emit events
+## Goals
+
+## TODO
+-	Components emit events -- toFunction should return the instance?
 
 -	Persist state for elements with UIDs?
 
