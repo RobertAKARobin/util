@@ -83,13 +83,6 @@ export abstract class Component {
 	}
 
 	/**
-	 * Overridden in build.ts
-	 */
-	static placeSSG(_instance: Component, _args: unknown, _content: string) {
-		return ``;
-	}
-
-	/**
 	 * Combines Component's constructor and template into a single function, and returns a string that, when read by the browser, will hydrate the Component
 	 */
 	static toFunction<
@@ -98,27 +91,20 @@ export abstract class Component {
 	>(Constructor: Subclass) {
 		Constructor.init();
 
-		return (
-			args: ConstructorParameters<Subclass>[0],
-			content: Parameters<Instance[`template`]>[0] = ``
-		) => {
+		return (args: ConstructorParameters<Subclass>[0]) => {
 			const uid = args.uid as Component[`uid`];
 			const instance = (
 				uid !== undefined && Component.uidInstances.has(uid)
 					? Component.uidInstances.get(uid)!
 					: new Constructor(args)
 			);
-			if (appContext === `build`) {
-				return Component.placeSSG(instance, args, content);
-			}
-			Component.toPlace.set(instance.uid, instance);
-
-			const key = Component.name;
-			return `<img src="#" style="display:none" onerror="${key}.${Component.onPlace.name}('${instance.uid}', this)" />${instance.template(content)}`;
+			instance.args = args;
+			return instance;
 		};
 	}
 
 	$el: Element | undefined;
+	args = {} as unknown; // TODO1: Figure out a better way to tack args on here
 	/**
 	 * Properties that can be turned into HTML attributes with `.attrs()`
 	 */
@@ -192,5 +178,12 @@ export abstract class Component {
 		const $el = this.$el as BoundElement;
 		$el.setAttribute(Component.$elAttribute, this.Ctor.name);
 		$el[Component.$elInstance] = this;
+	}
+
+	render(content: Parameters<this[`template`]>[0] = ``) {
+		Component.toPlace.set(this.uid, this);
+
+		const key = Component.name;
+		return `<img src="#" style="display:none" onerror="${key}.${Component.onPlace.name}('${this.uid}', this)" />${this.template(content)}`;
 	}
 }

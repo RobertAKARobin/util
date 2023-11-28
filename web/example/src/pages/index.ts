@@ -58,16 +58,16 @@ export default class IndexPage extends Page {
 
 ## ${this.message}
 
-<div>${textbox({ maxlength: 10, value: `foo` })}</div>
+<div>${textbox({ maxlength: 10, value: `foo` }).render()}</div>
 
-<div>${textbox({ maxlength: 777 })}</div>
+<div>${textbox({ maxlength: 777 }).render()}</div>
 
 Lorem ipsum dolor <strong>sit amet</strong>, consectetur *adipiscing elit*, sed do _eiusmod tempor_ incididunt.
 
 Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ nulla pariatur.
 </markdown>
 
-<p>${route({ to: `home` }, `Link to homepage`)}</p>
+<p>${route({ to: `home` }).render(`Link to homepage`)}</p>
 
 <markdown>
 ## Headline 2
