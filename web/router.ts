@@ -74,18 +74,18 @@ export class Router<Routes extends RouteMap> {
 	/**
 	 * When `Page.current` changes, attach it to the provided HTML element and render it
 	 */
-	setOutlet(selector: () => HTMLElement) {
+	setOutlet($outlet: Element) {
 		Page.current.subscribe(page => {
-			page.$el = selector();
-
 			if (this.navigationCount > 0) {
+				while ($outlet.firstChild) {
+					$outlet.removeChild($outlet.lastChild!);
+				}
+
 				document.title = page.title;
-				const $outlet = page.$el;
-				$outlet.insertAdjacentHTML(`afterend`, page.template());
-				page.$el = $outlet.nextElementSibling!;
-				$outlet.remove();
+				$outlet.insertAdjacentHTML(`beforeend`, page.template());
 			}
 
+			page.$el = $outlet.firstElementChild!;
 			page.onRender();
 		});
 	}

@@ -48,7 +48,7 @@ export default class IndexPage extends Page {
 	// </ol>
 
 	template = () => `
-<main>
+<div>
 <h1>Hello world!</h1>
 
 <div id="${router.routes.homeJump1.hash.substring(1)}">Jump 1</div>
@@ -90,5 +90,5 @@ Joseph's coat was ${colors.join(` and `)}.
 </markdown>
 
 <div id="${router.routes.homeJump2.hash.substring(1)}">Jump 2</div>
-</main>`;
+</div>`;
 }
