@@ -20,6 +20,7 @@ export abstract class Component {
 	static readonly toInit = globals[this.name] as unknown as Array<
 		[Element, typeof Component.name, Record<string, unknown>]
 	>;
+	static readonly toPlace = new Map<Component[`uid`], Component>();
 	static readonly uidInstances = new Map<Component[`uid`], Component>();
 
 	static {
@@ -68,25 +69,23 @@ export abstract class Component {
 		}
 	}
 
-	/**
-	 * Callback used by placeholder elements in [onload]/[onerror]
-	 */
-	static onPlace(
-		uid: Component[`uid`],
-		$placeholder: Element,
-	): void {
-		const instance = Component.uidInstances.get(uid);
+	static onPlace(uid: Component[`uid`], $placeholder: Element) {
+		const instance = Component.toPlace.get(uid);
 		if (instance === undefined) {
-			throw new Error(`Could not find ${this.name} instance #${uid}`);
+			throw new Error(`onPlace: Could not find instance #${uid}`);
 		}
-		instance.$el = $placeholder as BoundElement;
-		instance.render();
+
+		Component.toPlace.delete(uid);
+
+		instance.$el = $placeholder.nextElementSibling!;
+		$placeholder.remove();
+		instance.onRender();
 	}
 
 	/**
 	 * Overridden in build.ts
 	 */
-	static placeSSG(_instance: Component, _args: unknown) {
+	static placeSSG(_instance: Component, _args: unknown, _content: string) {
 		return ``;
 	}
 
@@ -99,7 +98,10 @@ export abstract class Component {
 	>(Constructor: Subclass) {
 		Constructor.init();
 
-		return (args: ConstructorParameters<Subclass>[0]) => {
+		return (
+			args: ConstructorParameters<Subclass>[0],
+			content: Parameters<Instance[`template`]>[0] = ``
+		) => {
 			const uid = args.uid as Component[`uid`];
 			const instance = (
 				uid !== undefined && Component.uidInstances.has(uid)
@@ -107,9 +109,12 @@ export abstract class Component {
 					: new Constructor(args)
 			);
 			if (appContext === `build`) {
-				return Component.placeSSG(instance, args);
+				return Component.placeSSG(instance, args, content);
 			}
-			return instance.place();
+			Component.toPlace.set(instance.uid, instance);
+
+			const key = Component.name;
+			return `<img src="#" style="display:none" onerror="${key}.${Component.onPlace.name}('${instance.uid}', this)" />${instance.template(content)}`;
 		};
 	}
 
@@ -135,7 +140,7 @@ export abstract class Component {
 	 * Warning: `style` should be defined as a static property, not an instance property
 	 */
 	private readonly style: void = undefined;
-	abstract template: () => string;
+	abstract template: (content?: string) => string;
 	readonly uid: string;
 
 	constructor(
@@ -144,7 +149,9 @@ export abstract class Component {
 		this.uid = uid?.toString() ?? Component.createUid();
 		this.attributes = attributes;
 
-		Component.uidInstances.set(this.uid.toString(), this); // TODO1: Memory leak!
+		if (uid !== undefined) {
+			Component.uidInstances.set(this.uid.toString(), this);
+		}
 
 		if (!Component.subclasses.has(this.Ctor.name)) {
 			this.Ctor.init<typeof this, DerivedComponent<typeof this>>();
@@ -185,27 +192,5 @@ export abstract class Component {
 		const $el = this.$el as BoundElement;
 		$el.setAttribute(Component.$elAttribute, this.Ctor.name);
 		$el[Component.$elInstance] = this;
-	}
-
-	place() {
-		const key = Component.name;
-		return `<img src="" style="display:none" onerror="${key}.onPlace('${this.uid}', this)" />`;
-	}
-
-	/**
-	 * Replace the instance's `$el` with updated HTML
-	 */
-	render() {
-		const $el = this.$el!;
-		if ($el === undefined) {
-			throw new Error(`render: ${this.Ctor.name} #${this.uid} has no element`);
-		}
-		while ($el.firstChild) {
-			$el.removeChild($el.lastChild!);
-		}
-		$el.insertAdjacentHTML(`afterend`, this.template());
-		this.$el = $el.nextElementSibling!;
-		$el.remove();
-		this.onRender();
 	}
 }

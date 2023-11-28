@@ -1,4 +1,3 @@
-import * as $ from '@robertakarobin/jsutil/index.ts';
 import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
 
 import { appContext } from './context.ts';
@@ -81,10 +80,13 @@ export class Router<Routes extends RouteMap> {
 
 			if (this.navigationCount > 0) {
 				document.title = page.title;
-				page.render();
-			} else {
-				page.onRender();
+				const $outlet = page.$el;
+				$outlet.insertAdjacentHTML(`afterend`, page.template());
+				page.$el = $outlet.nextElementSibling!;
+				$outlet.remove();
 			}
+
+			page.onRender();
 		});
 	}
 }
@@ -95,25 +97,24 @@ export class Router<Routes extends RouteMap> {
 export class RouteComponent<
 	Routes extends RouteMap
 > extends Component {
-	readonly content: string;
 	readonly href: string;
 	readonly isAbsolute: boolean;
 	readonly route: typeof this.router.routes[keyof Routes];
 	readonly router: Router<Routes>;
 
-	constructor(input: {
+	constructor({
+		router,
+		to,
+		...args
+	}: {
 		router: Router<Routes>;
 		to: keyof Routes;
-		txt?: string;
 	}) {
-		super($.omit(input, `router`, `to`, `txt`));
-		this.router = input.router;
-		this.route = this.router.routes[input.to];
+		super(args);
+		this.router = router;
+		this.route = this.router.routes[to];
 		this.isAbsolute = this.route.origin !== defaultOriginUrl.origin;
 		this.href = this.isAbsolute ? this.route.href : this.route.pathname;
-		this.content = input.txt ?? (
-			this.isAbsolute ? this.route.href : this.route.pathname
-		);
 	}
 
 	onClick(event: MouseEvent) {
@@ -126,8 +127,8 @@ export class RouteComponent<
 		this.router.url.next(this.route);
 	}
 
-	template = () => {
-		return `<a href="${this.href}" onclick=${this.bind(`onClick`)} ${this.attrs()}>${this.content}</a>`;
+	template = (content: string = ``) => {
+		return `<a href="${this.href}" onclick=${this.bind(`onClick`)} ${this.attrs()}>${content}</a>`;
 	};
 }
 

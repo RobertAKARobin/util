@@ -44,7 +44,7 @@ Lorem ipsum dolor <strong>sit amet</strong>, consectetur *adipiscing elit*, sed 
 Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ nulla pariatur.
 </markdown>
 
-<p>${route({ to: `home` })}</p>
+<p>${route({ to: `home` }, `Link to homepage`)}</p>
 
 <markdown>
 ## Headline 2

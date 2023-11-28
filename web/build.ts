@@ -65,7 +65,7 @@ function serialize(input: any): string { // eslint-disable-line @typescript-esli
 	return input.toString(); // eslint-disable-line
 };
 
-Component.placeSSG = (instance: Component, args: unknown) => {
+Component.placeSSG = (instance: Component, args: unknown, content: string) => {
 	const key = Component.name;
 	const argsString = serialize(args);
 	const template = instance.template().trim();
@@ -78,7 +78,7 @@ Component.placeSSG = (instance: Component, args: unknown) => {
 		out += `<script src="data:text/javascript," onload="window.${key}=window.${key}||[];window.${key}.push([this,'${instance.Ctor.name}',${argsString}])"></script>`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
 	}
 	if (instance.isSSG) {
-		out += instance.template();
+		out += instance.template(content);
 	}
 	return out;
 };
@@ -189,7 +189,7 @@ export class Builder {
 					return;
 				}
 
-				const body = Component.placeSSG(page, {}); // Populates subclasses used on page. TODO1: Use actual args for page
+				const body = Component.placeSSG(page, {}, ``); // Populates subclasses used on page. TODO1: Use actual args for page
 				if (page === undefined || !page.isSSG) {
 					logBreak();
 					return;
