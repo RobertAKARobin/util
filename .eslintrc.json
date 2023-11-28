@@ -4,6 +4,7 @@
 	],
 	"ignorePatterns": [
 		"**/dist/*",
-		"**/dist-golden/*"
+		"**/dist-golden/*",
+		"**/tmp/*"
 	]
 }

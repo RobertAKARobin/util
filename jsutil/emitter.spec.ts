@@ -85,4 +85,11 @@ export const spec = test(`Emitter`, $ => {
 
 	$.log(`cache.list always returns new array:`);
 	$.assert(x => x(emitterCache2.cache.list) !== x(emitterCache2.cache.list));
+
+	let emitter1Pipe: Emitter<number>;
+	$.log(() => emitter1Pipe = emitter1.pipe(state => state * 100));
+	$.log(() => emitter1.next(3));
+	$.assert(x => x(emitter1Pipe.last) === 300);
+	$.log(() => emitter1.next(4));
+	$.assert(x => x(emitter1Pipe.last) === 400);
 });

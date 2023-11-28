@@ -29,6 +29,12 @@ export class Emitter<State> {
 		}
 	}
 
+	pipe<Output>(callback: (state: State) => Output) {
+		const emitter = new Emitter<Output>();
+		this.subscribe(state => emitter.next(callback(state)));
+		return emitter;
+	}
+
 	subscribe(onEmit: OnEmit<State>): WeakRef<OnEmit<State>> {
 		const subscription = new WeakRef(onEmit);
 		this.subscriptions.add(subscription);
