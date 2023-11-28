@@ -1,7 +1,7 @@
 import { appContext } from './context.ts';
 
 type BoundElement = Element & {
-	[Component.$elInstances]: Map<Component[`uid`], Component>; // Attaching instances to Elements should prevent the instance from being garbage-collected until the Element is GCd
+	[Component.$elInstance]: Component; // Attaching instances to Elements should prevent the instance from being garbage-collected until the Element is GCd
 };
 
 type DerivedComponent<Subclass extends Component> = {
@@ -14,9 +14,8 @@ const globals = (appContext === `browser` ? window : global) as unknown as Windo
 
 export abstract class Component {
 	static readonly $elAttribute = `data-component`;
-	static readonly $elInstances = `instances`;
-	static readonly onInits = globals[this.name] as unknown as Record<
-		Component[`uid`],
+	static readonly $elInstance = `instance`;
+	static readonly onInits = globals[this.name] as unknown as Array<
 		[Element, typeof Component.name, Record<string, unknown>]
 	>;
 	static readonly style: string | undefined;
@@ -52,12 +51,15 @@ export abstract class Component {
 		}
 
 
-		for (const uid in this.onInits) {
-			const [$placeholder, componentName, args] = this.onInits[uid];
+		const onInits = [...this.onInits];
+		this.onInits.splice(0, this.onInits.length); // Want to remove valid items from array. JS doesn't really have a good way to do that, so instead clearing and rebuilding the array
+		for (let index = 0, length = onInits.length; index < length; index += 1) {
+			const onInit = onInits[index];
+			const [$placeholder, componentName, args] = onInit;
 			if (componentName !== this.name) {
+				this.onInits.push(onInit); // Persist not-yet-initialized components
 				continue;
 			}
-			delete this.onInits[uid];
 
 			const instance = new (this as unknown as Subclass)(args);
 			instance.$el = $placeholder.nextElementSibling! as BoundElement;
@@ -105,10 +107,7 @@ export abstract class Component {
 					: new Constructor(args)
 			);
 			if (appContext === `build`) {
-				return Component.placeSSG(instance, {
-					...args,
-					uid: instance.uid,
-				});
+				return Component.placeSSG(instance, args);
 			}
 			return instance.place();
 		};
@@ -176,7 +175,7 @@ export abstract class Component {
 			}
 			return arg;
 		}).join(`,`);
-		return `"this.closest('[data-${this.constructor.name}=&quot;${this.uid}&quot;]').${Component.$elInstances}.get('${this.uid.toString()}').${methodName as string}(event,${argsString})"`; // &quot; is apprently the correct way to escape quotes in HTML attributes
+		return `"this.closest('[data-${this.constructor.name}]').${Component.$elInstance}.${methodName as string}(event,${argsString})"`; // &quot; is apprently the correct way to escape quotes in HTML attributes
 	}
 
 	onRender() {
@@ -185,8 +184,7 @@ export abstract class Component {
 		}
 		const $el = this.$el as BoundElement;
 		$el.setAttribute(`data-${this.Ctor.name}`, this.uid);
-		$el[Component.$elInstances] = $el[Component.$elInstances] ?? new Map();
-		$el[Component.$elInstances].set(this.uid, this);
+		$el[Component.$elInstance] = this;
 	}
 
 	place() {

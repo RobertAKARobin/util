@@ -75,7 +75,7 @@ Component.placeSSG = (instance: Component, args: unknown) => {
 	}
 	let out = ``;
 	if (instance.isCSR) {
-		out += `<script src="data:text/javascript," onload="window.${key}=window.${key}||{};window.${key}['${instance.uid}']=[this,'${instance.Ctor.name}',${argsString}]"></script>`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
+		out += `<script src="data:text/javascript," onload="window.${key}=window.${key}||[];window.${key}.push([this,'${instance.Ctor.name}',${argsString}])"></script>`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
 	}
 	if (instance.isSSG) {
 		out += instance.template();
