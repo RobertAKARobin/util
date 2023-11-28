@@ -8,9 +8,7 @@ export abstract class Page extends Component {
 	 * The current page of the application
 	 */
 	static current = new Emitter<Page>({
-		cache: {
-			limit: 0,
-		},
+		limit: 0,
 	});
 
 	title: string = ``;

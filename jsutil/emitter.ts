@@ -1,23 +1,23 @@
-type OnEmit<Type> = (value: Type, subscription: Subscription<Type>) => unknown;
+type OnEmit<State> = (value: State, subscription: Subscription<State>) => unknown;
 
-type Subscription<Type> = WeakRef<OnEmit<Type>>;
+type Subscription<State> = WeakRef<OnEmit<State>>;
 
-export class Emitter<Type> {
+export class Emitter<State> {
 	/** @see {@link EmitterCache} */
-	readonly cache: EmitterCache<Type>;
+	readonly cache: EmitterCache<State>;
 
 	get last() {
 		return this.cache?.list?.[0];
 	}
 
 	/** A collection of all active subcriptions to this Emitter. */
-	readonly subscriptions = new Set<Subscription<Type>>;
+	readonly subscriptions = new Set<Subscription<State>>;
 
-	constructor(options: Partial<EmitterOptions> = {}) {
-		this.cache = new EmitterCache<Type>(options.cache ?? {});
+	constructor(options: Partial<EmitterCacheOptions<State>> = {}) {
+		this.cache = new EmitterCache<State>(options ?? {});
 	}
 
-	next(value: Type): void {
+	next(value: State): void {
 		this.cache.add(value);
 		for (const subscription of this.subscriptions.values()) {
 			const onEmit = subscription.deref();
@@ -29,13 +29,13 @@ export class Emitter<Type> {
 		}
 	}
 
-	subscribe(onEmit: OnEmit<Type>): WeakRef<OnEmit<Type>> {
+	subscribe(onEmit: OnEmit<State>): WeakRef<OnEmit<State>> {
 		const subscription = new WeakRef(onEmit);
 		this.subscriptions.add(subscription);
 		return subscription;
 	}
 
-	unsubscribe(subscription: WeakRef<OnEmit<Type>>): void {
+	unsubscribe(subscription: WeakRef<OnEmit<State>>): void {
 		this.subscriptions.delete(subscription);
 	}
 
@@ -45,25 +45,28 @@ export class Emitter<Type> {
 }
 
 /** Encloses an array of values in reverse insertion order. */
-export class EmitterCache<Type> {
+export class EmitterCache<State> {
 	/** The quantity of values to cache. */
 	limit: number;
 
-	get list(): Array<Type> {
+	get list(): Array<State> {
 		return [...this.memory];
 	}
 
-	private readonly memory: Array<Type> = [];
+	private readonly memory: Array<State> = [];
 
-	constructor(options: Partial<EmitterCacheOptions> = {}) {
+	constructor(options: Partial<EmitterCacheOptions<State>> = {}) {
 		this.limit = options.limit ?? EmitterCacheOptionsDefault.limit;
+		if (`initial` in options) {
+			this.add(options.initial!);
+		}
 	}
 
-	add(value: Type): void {
+	add(value: State): void {
 		return this.addMany([value]);
 	}
 
-	addMany(values: Array<Type>): void {
+	addMany(values: Array<State>): void {
 		if (this.limit <= 0) {
 			return;
 		}
@@ -72,12 +75,10 @@ export class EmitterCache<Type> {
 	}
 }
 
-export type EmitterCacheOptions = typeof EmitterCacheOptionsDefault;
+export type EmitterCacheOptions<State> = typeof EmitterCacheOptionsDefault & {
+	initial: State;
+};
 
 export const EmitterCacheOptionsDefault = {
 	limit: 1,
 };
-
-export interface EmitterOptions {
-	cache: Partial<EmitterCacheOptions>;
-}

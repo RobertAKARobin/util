@@ -58,9 +58,9 @@ export const spec = test(`Emitter`, $ => {
 	let emitterCache0: Emitter<number>;
 	let emitterCache1: Emitter<number>;
 	let emitterCache2: Emitter<number>;
-	$.log(() => emitterCache0 = new Emitter({ cache: { limit: 0 } }));
+	$.log(() => emitterCache0 = new Emitter({ limit: 0 }));
 	$.log(() => emitterCache1 = new Emitter());
-	$.log(() => emitterCache2 = new Emitter({ cache: { limit: 2 } }));
+	$.log(() => emitterCache2 = new Emitter({ limit: 2 }));
 	$.assert(x => x(emitterCache0.cache.list.join(`,`)) === ``);
 	$.assert(x => x(emitterCache1.cache.list.join(`,`)) === ``);
 	$.assert(x => x(emitterCache2.cache.list.join(`,`)) === ``);
