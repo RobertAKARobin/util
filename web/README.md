@@ -1,8 +1,7 @@
 # TODO
 
--	Bug: Instances not binding to elements on rerender
-
--	Template/CSS prefix
+-	Persist state for elements with UIDs
+-	Component content shouldn't be duplicated
 
 -	Match routes with params
 -	Jump anchors
@@ -14,11 +13,14 @@
 
 -	Remove CSS from JS bundles?
 
+-	Template/CSS prefix?
+
 -	VS plugin for CSS
 -	VS plugin for HTML
 
 Done:
 
+-	Bug: Instances not binding to elements on rerender
 -	`bind` without needing page referesh
 -	Route names for HTML IDs
 -	Fix `route()` names not bring strongly typed

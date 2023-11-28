@@ -15,7 +15,7 @@ const globals = (appContext === `browser` ? window : global) as unknown as Windo
 export abstract class Component {
 	static readonly $elAttribute = `data-component`;
 	static readonly $elInstances = `instances`;
-	static readonly onloaders = globals[this.name] as unknown as Record<
+	static readonly onInits = globals[this.name] as unknown as Record<
 		Component[`uid`],
 		[Element, typeof Component.name, Record<string, unknown>]
 	>;
@@ -37,9 +37,12 @@ export abstract class Component {
 	>() {
 		Component.subclasses.set(this.name, this);
 
+		if (appContext !== `browser`) {
+			return;
+		}
+
 		if (
-			appContext === `browser`
-			&& typeof this.style === `string`
+			typeof this.style === `string`
 			&& document.querySelector(`style[${this.$elAttribute}="${this.name}"]`) === null
 		) {
 			const $style = document.createElement(`style`);
@@ -48,12 +51,14 @@ export abstract class Component {
 			document.head.appendChild($style);
 		}
 
-		for (const uid in this.onloaders) {
-			const [$placeholder, componentName, args] = this.onloaders[uid];
+
+		for (const uid in this.onInits) {
+			const [$placeholder, componentName, args] = this.onInits[uid];
 			if (componentName !== this.name) {
 				continue;
 			}
-			delete this.onloaders[uid];
+			delete this.onInits[uid];
+
 			const instance = new (this as unknown as Subclass)(args);
 			instance.$el = $placeholder.nextElementSibling! as BoundElement;
 			$placeholder.remove();
@@ -77,12 +82,15 @@ export abstract class Component {
 	}
 
 	/**
-	 * Placeholder for use in `build.ts`
+	 * Overridden in build.ts
 	 */
 	static placeSSG(_instance: Component, _args: unknown) {
 		return ``;
 	}
 
+	/**
+	 * Combines Component's constructor and template into a single function, and returns a string that, when read by the browser, will hydrate the Component
+	 */
 	static toFunction<
 		Instance extends Component,
 		Subclass extends DerivedComponent<Instance>,
@@ -92,7 +100,7 @@ export abstract class Component {
 		return (args: ConstructorParameters<Subclass>[0]) => {
 			const uid = args.uid as Component[`uid`];
 			const instance = (
-				args.uid !== undefined && Component.uidInstances.has(uid)
+				uid !== undefined && Component.uidInstances.has(uid)
 					? Component.uidInstances.get(uid)!
 					: new Constructor(args)
 			);
@@ -172,7 +180,7 @@ export abstract class Component {
 	}
 
 	onRender() {
-		if (this.$el === undefined) {
+		if (this.$el === undefined || this.$el === null) {
 			throw new Error(`onRender: ${this.Ctor.name} #${this.uid} has no element`);
 		}
 		const $el = this.$el as BoundElement;

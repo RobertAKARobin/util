@@ -65,7 +65,7 @@ function serialize(input: any): string { // eslint-disable-line @typescript-esli
 	return input.toString(); // eslint-disable-line
 };
 
-Component.placeSSG = function(instance: Component, args: unknown) { // Moved this out of `component.ts` since it's not needed client-side
+Component.placeSSG = (instance: Component, args: unknown) => {
 	const key = Component.name;
 	const argsString = serialize(args);
 	const template = instance.template().trim();
