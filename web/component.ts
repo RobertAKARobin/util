@@ -15,11 +15,11 @@ const globals = (appContext === `browser` ? window : global) as unknown as Windo
 export abstract class Component {
 	static readonly $elAttribute = `data-component`;
 	static readonly $elInstance = `instance`;
-	static readonly onInits = globals[this.name] as unknown as Array<
-		[Element, typeof Component.name, Record<string, unknown>]
-	>;
 	static readonly style: string | undefined;
 	static readonly subclasses = new Map<string, typeof Component>();
+	static readonly toInit = globals[this.name] as unknown as Array<
+		[Element, typeof Component.name, Record<string, unknown>]
+	>;
 	static readonly uidInstances = new Map<Component[`uid`], Component>();
 
 	static {
@@ -51,13 +51,13 @@ export abstract class Component {
 		}
 
 
-		const onInits = [...this.onInits];
-		this.onInits.splice(0, this.onInits.length); // Want to remove valid items from array. JS doesn't really have a good way to do that, so instead clearing and rebuilding the array
-		for (let index = 0, length = onInits.length; index < length; index += 1) {
-			const onInit = onInits[index];
-			const [$placeholder, componentName, args] = onInit;
+		const toInit = [...this.toInit];
+		this.toInit.splice(0, this.toInit.length); // Want to remove valid items from array. JS doesn't really have a good way to do that, so instead clearing and rebuilding the array
+		for (let index = 0, length = toInit.length; index < length; index += 1) {
+			const item = toInit[index];
+			const [$placeholder, componentName, args] = item;
 			if (componentName !== this.name) {
-				this.onInits.push(onInit); // Persist not-yet-initialized components
+				this.toInit.push(item); // Persist not-yet-initialized components
 				continue;
 			}
 
@@ -175,7 +175,7 @@ export abstract class Component {
 			}
 			return arg;
 		}).join(`,`);
-		return `"this.closest('[data-${this.constructor.name}]').${Component.$elInstance}.${methodName as string}(event,${argsString})"`; // &quot; is apprently the correct way to escape quotes in HTML attributes
+		return `"this.closest('[${Component.$elAttribute}=&quot;${this.Ctor.name}&quot;]').${Component.$elInstance}.${methodName as string}(event,${argsString})"`; // &quot; is apprently the correct way to escape quotes in HTML attributes
 	}
 
 	onRender() {
@@ -183,7 +183,7 @@ export abstract class Component {
 			throw new Error(`onRender: ${this.Ctor.name} #${this.uid} has no element`);
 		}
 		const $el = this.$el as BoundElement;
-		$el.setAttribute(`data-${this.Ctor.name}`, this.uid);
+		$el.setAttribute(Component.$elAttribute, this.Ctor.name);
 		$el[Component.$elInstance] = this;
 	}
 

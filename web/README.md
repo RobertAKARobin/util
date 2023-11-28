@@ -1,6 +1,5 @@
 # TODO
 
--	Persist state for elements with UIDs
 -	Component content shouldn't be duplicated
 
 -	Match routes with params
@@ -20,6 +19,7 @@
 
 Done:
 
+-	Persist state for elements with UIDs
 -	Bug: Instances not binding to elements on rerender
 -	`bind` without needing page referesh
 -	Route names for HTML IDs
