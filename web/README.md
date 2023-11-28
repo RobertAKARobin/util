@@ -1,5 +1,7 @@
 # TODO
 
+-	Components emit events
+
 -	Persist state for elements with UIDs?
 
 -	Match routes with params

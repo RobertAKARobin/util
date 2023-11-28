@@ -1,4 +1,8 @@
-type OnEmit<State> = (value: State, subscription: Subscription<State>) => unknown;
+type OnEmit<State> = (
+	value: State,
+	previous: State,
+	subscription: Subscription<State>
+) => unknown;
 
 type Subscription<State> = WeakRef<OnEmit<State>>;
 
@@ -18,11 +22,12 @@ export class Emitter<State> {
 	}
 
 	next(value: State): void {
+		const previous = this.last;
 		this.cache.add(value);
 		for (const subscription of this.subscriptions.values()) {
 			const onEmit = subscription.deref();
 			if (onEmit) {
-				onEmit(value, subscription);
+				onEmit(value, previous, subscription);
 			} else {
 				this.subscriptions.delete(subscription);
 			}

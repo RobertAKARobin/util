@@ -1,6 +1,8 @@
 import { Page } from '@robertakarobin/web/index.ts';
 
 import { route, router } from '../router.ts';
+import listItem from '../components/listitem.ts';
+import { state } from '../state.ts';
 import textbox from '../components/textbox.ts';
 
 const style =  `
@@ -14,6 +16,17 @@ const colors = [`red`, `yellow`, `green`, `brown`, `scarlet`];
 export default class IndexPage extends Page {
 	static style = style;
 
+	listItemsById = state.pipe(({ listItems }) => {
+		type ListItem = typeof listItems[number];
+		return listItems.reduce((listItems, listItem, index) => {
+			listItems[listItem.uid] = {
+				...listItem,
+				index,
+			};
+			return listItems;
+		}, {} as Record<ListItem[`uid`], ListItem & { index: number; }>);
+	});
+
 	message: string;
 	title = `Home page`;
 
@@ -22,7 +35,17 @@ export default class IndexPage extends Page {
 	}) {
 		super();
 		this.message = input.message ?? ``;
+
+		state.subscribe((newState, oldState) => {
+			console.log(newState, oldState);
+		});
 	}
+
+	// <ol>
+	// ${state.last.listItems.map(item => `
+	// 	<li>${listItem({ listItem: item })}</li>
+	// `).join(`\n`)}
+	// </ol>
 
 	template = () => `
 <main>
