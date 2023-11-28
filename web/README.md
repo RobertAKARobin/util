@@ -2,28 +2,50 @@
 
 ## Goals
 
+-	Valid typing
+-	Valid HTML
+-	No custom template syntax
+-	No custom CSS syntax
+-	Automates the boring stuff with CSS
+-	Produces static HTML/CSS files for SSG
+-	Adds interactivity with JS to static HTML files, without needing to rerender
+-	Produces interactive sites for CSR
+-	Blends seamlessly from static files to CSR
+-	Autocompletes routes
+-	Markdown support
+
 ## TODO
--	Components emit events -- toFunction should return the instance?
+
+-	Components emit events
+
+-	Differentiate between weak/strong subscriptions
 
 -	Persist state for elements with UIDs?
 
+-	Add route helper
 -	Match routes with params
 -	Jump anchors
 
+-	Fix Windows paths
+
 -	Import from other file (ergo SVG)
 -	Support tokens with attributes?
+
+-	Add config with HTML/CSS validator/formatter
 
 -	Image preprocessing
 
 -	Remove CSS from JS bundles?
 
 -	Template/CSS prefix?
+-	Autocomplete CSS classes?
 
 -	VS plugin for CSS
 -	VS plugin for HTML
 
-Done:
+### Done:
 
+-	toFunction should return the instance
 -	Component content shouldn't be duplicated
 -	Bug: Instances not binding to elements on rerender
 -	`bind` without needing page referesh
