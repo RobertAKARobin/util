@@ -13,7 +13,6 @@ export abstract class Page extends Component {
 		},
 	});
 
-	$outlet: HTMLElement | undefined;
 	title: string = ``;
 
 	constructor(input: {
@@ -22,14 +21,5 @@ export abstract class Page extends Component {
 		super();
 
 		this.title = input.title ?? this.title;
-	}
-
-	rerender() {
-		const $outlet = this.$outlet!;
-		while ($outlet.firstChild) {
-			$outlet.removeChild($outlet.lastChild!);
-		}
-		this.$outlet!.insertAdjacentHTML(`afterbegin`, this.template());
-		return ``;
 	}
 }

@@ -54,7 +54,7 @@ class CustomBuilder extends Builder {
 	async formatHtml(input: LayoutArgs) {
 		const body = `
 			<nav>${nav()}</nav>
-			<main>${input.body}</main>
+			${input.body}
 		`;
 		let html = await super.formatHtml({
 			...input,

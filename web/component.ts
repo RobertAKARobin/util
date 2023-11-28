@@ -1,7 +1,7 @@
 import { appContext } from './context.ts';
 
-type BoundElement = HTMLElement & {
-	[Component.$elInstances]: Map<Component[`uid`], Component>; // Attaching instances to HTMLElements should prevent the instance from being garbage-collected until the HTMLElement is GCd
+type BoundElement = Element & {
+	[Component.$elInstances]: Map<Component[`uid`], Component>; // Attaching instances to Elements should prevent the instance from being garbage-collected until the Element is GCd
 };
 
 type DerivedComponent<Subclass extends Component> = {
@@ -17,7 +17,7 @@ export abstract class Component {
 	static readonly $elInstances = `instances`;
 	static readonly onloaders = globals[this.name] as unknown as Record<
 		Component[`uid`],
-		[HTMLScriptElement, typeof Component.name, Record<string, unknown>]
+		[Element, typeof Component.name, Record<string, unknown>]
 	>;
 	static readonly style: string | undefined;
 	static readonly subclasses = new Map<string, typeof Component>();
@@ -25,13 +25,6 @@ export abstract class Component {
 
 	static {
 		globals[this.name] = this;
-	}
-
-	/**
-	 * Placeholder for use in `build.ts`
-	 */
-	static build(_instance: Component, _args: unknown) {
-		return ``;
 	}
 
 	static createUid() {
@@ -61,29 +54,33 @@ export abstract class Component {
 				continue;
 			}
 			delete this.onloaders[uid];
-			const instance = new (this as unknown as Subclass)({
-				...args,
-				uid,
-			});
-			const $el = $placeholder.nextElementSibling as BoundElement;
-			instance.$el = $el;
-			$el.setAttribute(`data-${this.name}`, uid);
-			$el[Component.$elInstances] = $el[Component.$elInstances] ?? new Map();
-			$el[Component.$elInstances].set(uid, instance);
+			const instance = new (this as unknown as Subclass)(args);
+			instance.$el = $placeholder.nextElementSibling! as BoundElement;
 			$placeholder.remove();
-			instance.onload();
+			instance.onRender();
 		}
 	}
 
-	static rerender(
-		$placeholder: HTMLElement,
+	/**
+	 * Callback used by placeholder elements in [onload]/[onerror]
+	 */
+	static onPlace(
 		uid: Component[`uid`],
-		args: unknown
-	) {
-		$placeholder.remove();
-		console.log(args);
-		// const instance = this.uidInstances.get(uid)!;
-		// $placeholder.replaceWith(instance.$el!);
+		$placeholder: Element,
+	): void {
+		const instance = Component.uidInstances.get(uid);
+		if (instance === undefined) {
+			throw new Error(`Could not find ${this.name} instance #${uid}`);
+		}
+		instance.$el = $placeholder as BoundElement;
+		instance.render();
+	}
+
+	/**
+	 * Placeholder for use in `build.ts`
+	 */
+	static placeSSG(_instance: Component, _args: unknown) {
+		return ``;
 	}
 
 	static toFunction<
@@ -92,7 +89,7 @@ export abstract class Component {
 	>(Constructor: Subclass) {
 		Constructor.init();
 
-		return (args: ConstructorParameters<typeof Constructor>[0]) => {
+		return (args: ConstructorParameters<Subclass>[0]) => {
 			const uid = args.uid as Component[`uid`];
 			const instance = (
 				args.uid !== undefined && Component.uidInstances.has(uid)
@@ -100,23 +97,26 @@ export abstract class Component {
 					: new Constructor(args)
 			);
 			if (appContext === `build`) {
-				return Component.build(instance, args);
-			} else if (instance.$el) {
-				return instance.rerender();
-			} else {
-				return instance.render();
+				return Component.placeSSG(instance, {
+					...args,
+					uid: instance.uid,
+				});
 			}
+			return instance.place();
 		};
 	}
 
-	$el: HTMLElement | undefined;
+	$el: Element | undefined;
+	/**
+	 * Properties that can be turned into HTML attributes with `.attrs()`
+	 */
 	attributes: Record<string, string | number | boolean>;
 	get Ctor() {
 		return this.constructor as typeof Component;
 	}
 	/**
-	 * If true, a <script> tag will be inserted that allows this component to be dynamically rendered. Otherwise it will be rendered only once. TODO2: Preserve isCSR=false elements
-	 */
+	* If true, a <script> tag will be inserted that allows this component to be dynamically rendered. Otherwise it will be rendered only once. TODO2: Preserve isCSR=false elements
+	*/
 	isCSR = true;
 	/**
 	 * If true, if this is a Page it will be compiled into a static `.html` file at the route(s) used for this Page, which serves as a landing page for performance and SEO purposes.
@@ -137,9 +137,7 @@ export abstract class Component {
 		this.uid = uid?.toString() ?? Component.createUid();
 		this.attributes = attributes;
 
-		if (uid !== undefined) {
-			Component.uidInstances.set(uid.toString(), this);
-		}
+		Component.uidInstances.set(this.uid.toString(), this); // TODO1: Memory leak!
 
 		if (!Component.subclasses.has(this.Ctor.name)) {
 			this.Ctor.init<typeof this, DerivedComponent<typeof this>>();
@@ -163,7 +161,7 @@ export abstract class Component {
 	bind(
 		methodName: keyof this, // TODO2: Stronger typing; should only accept methods
 		...args: Array<string | number> | []
-	): string {
+	) {
 		const argsString = args.map(arg => {
 			if (typeof arg === `string`) {
 				return `'${arg}'`;
@@ -173,20 +171,35 @@ export abstract class Component {
 		return `"this.closest('[data-${this.constructor.name}=&quot;${this.uid}&quot;]').${Component.$elInstances}.get('${this.uid.toString()}').${methodName as string}(event,${argsString})"`; // &quot; is apprently the correct way to escape quotes in HTML attributes
 	}
 
-	/**
-	 * Called when the instance is first loaded
-	 */
-	onload() {}
+	onRender() {
+		if (this.$el === undefined) {
+			throw new Error(`onRender: ${this.Ctor.name} #${this.uid} has no element`);
+		}
+		const $el = this.$el as BoundElement;
+		$el.setAttribute(`data-${this.Ctor.name}`, this.uid);
+		$el[Component.$elInstances] = $el[Component.$elInstances] ?? new Map();
+		$el[Component.$elInstances].set(this.uid, this);
+	}
 
-	render() {
+	place() {
 		const key = Component.name;
-		return `<img src="" style="display:none" onerror="${key}.rerender(this,'${this.uid}')" />${this.template()}`;
+		return `<img src="" style="display:none" onerror="${key}.onPlace('${this.uid}', this)" />`;
 	}
 
 	/**
 	 * Replace the instance's `$el` with updated HTML
 	 */
-	rerender() {
-		return this.template();
+	render() {
+		const $el = this.$el!;
+		if ($el === undefined) {
+			throw new Error(`render: ${this.Ctor.name} #${this.uid} has no element`);
+		}
+		while ($el.firstChild) {
+			$el.removeChild($el.lastChild!);
+		}
+		$el.insertAdjacentHTML(`afterend`, this.template());
+		this.$el = $el.nextElementSibling!;
+		$el.remove();
+		this.onRender();
 	}
 }

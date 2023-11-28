@@ -75,15 +75,15 @@ export class Router<Routes extends RouteMap> {
 	/**
 	 * When `Page.current` changes, attach it to the provided HTML element and render it
 	 */
-	setOutlet($input: HTMLElement) {
-		const $outlet = typeof $input === undefined ? document.body : $input;
-
+	setOutlet(selector: () => HTMLElement) {
 		Page.current.subscribe(page => {
-			page.$outlet = $outlet;
+			page.$el = selector();
 
 			if (this.navigationCount > 0) {
 				document.title = page.title;
-				page.rerender();
+				page.render();
+			} else {
+				page.onRender();
 			}
 		});
 	}
