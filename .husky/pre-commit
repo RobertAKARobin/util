@@ -3,6 +3,4 @@
 
 if [[ -z $git_force ]]; then
 	npm run test
-  # npm version patch
-  git add package.json package-lock.json
 fi
