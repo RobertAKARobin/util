@@ -4,5 +4,5 @@
 	},
 	"main": ".htmlvalidate.js",
 	"name": "@robertakarobin/htmlvalidate",
-	"version": "0.0.1"
+	"version": "0.0.2"
 }
