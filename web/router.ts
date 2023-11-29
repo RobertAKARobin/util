@@ -50,7 +50,7 @@ export class Router<Routes extends RouteMap> {
 			if (page) {
 				Page.current.next(page);
 			}
-		});
+		}, { strong: true });
 
 		if (appContext === `browser`) {
 			window.onpopstate = () => {
@@ -87,7 +87,7 @@ export class Router<Routes extends RouteMap> {
 
 			page.$el = $outlet.firstElementChild!;
 			page.onRender();
-		});
+		}, { strong: true });
 	}
 }
 

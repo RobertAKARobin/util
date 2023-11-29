@@ -4,7 +4,7 @@ type OnEmit<State> = (
 	subscription: Subscription<State>
 ) => unknown;
 
-type Subscription<State> = WeakRef<OnEmit<State>>;
+type Subscription<State> = WeakRef<OnEmit<State>> | OnEmit<State>;
 
 export class Emitter<State> {
 	/** @see {@link EmitterCache} */
@@ -25,7 +25,9 @@ export class Emitter<State> {
 		const previous = this.last;
 		this.cache.add(value);
 		for (const subscription of this.subscriptions.values()) {
-			const onEmit = subscription.deref();
+			const onEmit = subscription instanceof WeakRef
+				? subscription.deref()
+				: subscription;
 			if (onEmit) {
 				onEmit(value, previous, subscription);
 			} else {
@@ -40,8 +42,18 @@ export class Emitter<State> {
 		return emitter;
 	}
 
-	subscribe(onEmit: OnEmit<State>): WeakRef<OnEmit<State>> {
-		const subscription = new WeakRef(onEmit);
+	/**
+	 * @param options.strong If false, will create a subscription that may be garbage-collected. Default false.
+	 */
+	subscribe(
+		onEmit: OnEmit<State>,
+		options: {
+			strong?: boolean;
+		} = {}
+	): WeakRef<OnEmit<State>> | OnEmit<State> {
+		const subscription = options.strong === true
+			?	onEmit
+			: new WeakRef(onEmit);
 		this.subscriptions.add(subscription);
 		return subscription;
 	}

@@ -16,12 +16,11 @@
 
 ## TODO
 
--	Jump anchors
 -	Components emit events
--	Differentiate between weak/strong subscriptions
--	Add route helper
--	Import from other file (ergo SVG)
 -	Persist state for elements with UIDs?
+-	Add route helper
+-	Jump anchors
+-	Import from other file (ergo SVG)
 
 -	Match routes with params
 -	Remove CSS from JS bundles
@@ -36,6 +35,7 @@
 
 ### Done:
 
+-	Differentiate between weak/strong subscriptions
 -	Add config with HTML/CSS validator/formatter
 -	Fix Windows paths
 -	toFunction should return the instance
