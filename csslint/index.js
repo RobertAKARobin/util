@@ -26,9 +26,9 @@ module.exports = {
 		"property-no-vendor-prefix": null,
 		"selector-class-pattern": null,
 		"selector-pseudo-class-no-unknown": null,
-		"stylistic/color-hex-case": `upper`,
+		"stylistic/color-hex-case": `lower`,
 		"stylistic/indentation": `tab`,
-		"stylistic/number-leading-zero": `never`,
+		"stylistic/number-leading-zero": `always`,
 		"stylistic/string-quotes": `single`,
 	},
 };
