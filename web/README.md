@@ -16,35 +16,29 @@
 
 ## TODO
 
+-	Jump anchors
 -	Components emit events
-
 -	Differentiate between weak/strong subscriptions
-
+-	Add route helper
+-	Import from other file (ergo SVG)
 -	Persist state for elements with UIDs?
 
--	Add route helper
 -	Match routes with params
--	Jump anchors
-
--	Fix Windows paths
-
--	Import from other file (ergo SVG)
--	Support tokens with attributes?
-
--	Add config with HTML/CSS validator/formatter
-
+-	Remove CSS from JS bundles
 -	Image preprocessing
-
--	Remove CSS from JS bundles?
-
--	Template/CSS prefix?
--	Autocomplete CSS classes?
-
+-	Autocomplete CSS classes
+-	Template/CSS prefix
+-	Support tokens with attributes
 -	VS plugin for CSS
 -	VS plugin for HTML
 
+### WIP
+
+-	Add config with HTML/CSS validator/formatter
+
 ### Done:
 
+-	Fix Windows paths
 -	toFunction should return the instance
 -	Component content shouldn't be duplicated
 -	Bug: Instances not binding to elements on rerender

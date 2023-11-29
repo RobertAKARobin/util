@@ -28,7 +28,10 @@ export type LayoutArgs = {
 	routePath: string;
 };
 
-const bustCache = (path: string) => import(`${path}?v=${Date.now() + performance.now()}`);
+const bustCache = (pathname: string) => {
+	const url = new URL(`file:///${pathname}?v=${Date.now() + performance.now()}`); // URL is necessary for running on Windows
+	return import(url.toString());
+};
 
 const header = (input: string) => console.log(`...${input}...\n`);
 
