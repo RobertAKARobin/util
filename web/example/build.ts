@@ -1,11 +1,9 @@
-import path from 'path';
-
-import { BuilderWithValidation } from '@robertakarobin/web/build-validate.ts';
+import { Builder } from '@robertakarobin/web/build.ts';
 
 import nav from './src/components/nav.ts';
 
-class CustomBuilder extends BuilderWithValidation {
-	async formatHtml(...[input]: Parameters<BuilderWithValidation[`formatHtml`]>) {
+class CustomBuilder extends Builder {
+	async formatHtml(...[input]: Parameters<Builder[`formatHtml`]>) {
 		return await super.formatHtml({
 			...input,
 			body: `
@@ -16,8 +14,6 @@ class CustomBuilder extends BuilderWithValidation {
 	}
 }
 
-const builder = new CustomBuilder({
-	baseDirAbs: path.join(process.cwd(), `./web/example`),
-});
+const builder = new CustomBuilder();
 
 await builder.build({ serve: process.argv.includes(`--serve`) });

@@ -8,6 +8,8 @@
 		"@robertakarobin/eslint-config-ts"
 	],
 	"include": [
-		"**/*.ts"
+		"build.ts",
+		"spec/**/*.ts",
+		"src/**/*.ts"
 	]
 }

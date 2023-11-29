@@ -1,0 +1,13 @@
+{
+	"extends": [
+		"@robertakarobin/eslint-config-ts"
+	],
+	"ignorePatterns": [
+		"!**/.*.js*",
+		"dist/**",
+		"dist-golden/**",
+		"node_modules/**",
+		"tmp/**"
+	],
+	"root": true
+}

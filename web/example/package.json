@@ -1,6 +1,23 @@
 {
-	"devDependencies": {
+	"dependencies": {
+		"@robertakarobin/jsutil": "^0.0.17",
 		"@robertakarobin/web": "file:../"
+	},
+	"devDependencies": {
+		"@robertakarobin/csslint": "^0.0.3",
+		"@robertakarobin/eslint-config-ts": "^0.0.6",
+		"@robertakarobin/htmlvalidate": "^0.0.2",
+		"@robertakarobin/spec": "^0.0.10"
+	},
+	"scripts": {
+		"build": "tsx build.ts",
+		"dev": "tsx watch --watch-preserve-output --watch-path=src build.ts -- --serve",
+		"lint": "npm run lint:ts && npm run lint:css && npm run lint:html",
+		"lint:css": "stylelint dist/**/*.css dist-golden/**/*.css",
+		"lint:html": "html-validate dist dist-golden",
+		"lint:ts": "eslint .",
+		"spec": "tsx spec/run.ts",
+		"test": "tsc -p tsconfig.json && npm run lint && npm run spec"
 	},
 	"type": "module"
 }

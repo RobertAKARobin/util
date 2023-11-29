@@ -1,9 +1,9 @@
+import { Component } from '@robertakarobin/web/component.ts';
 import fs from 'fs';
 
 import { suite, test } from '@robertakarobin/spec';
 import { diff } from '@robertakarobin/spec/diff.ts';
 
-import { Component } from '../component.ts';
 
 export const hasMarkdown = /<markdown>(.*?)<\/markdown>/gs;
 
@@ -11,15 +11,15 @@ Component.createUid = () => `/UID/`;
 
 const read = (path: string) => fs.readFileSync(path, { encoding: `utf8` });
 
-const dist = (path: string) => read(`web/example/dist/${path}`);
-const golden = (path: string) => read(`web/example/dist-golden/${path}`);
-const src = (path: string) => read(`web/example/src/${path}`);
+const dist = (path: string) => read(`dist/${path}`);
+const golden = (path: string) => read(`dist-golden/${path}`);
+const src = (path: string) => read(`src/${path}`);
 
 const distMatchesGolden = (path: string) =>
 	diff(golden(path), dist(path));
 
 const hasSSG = (page: string) =>
-	fs.existsSync(`web/example/dist/${page}.html`);
+	fs.existsSync(`dist/${page}.html`);
 
 class Widget extends Component {
 	prop = 42;
@@ -37,7 +37,7 @@ const widget = Component.toFunction(Widget);
 export const spec = suite(`@robertakarobin/web`,
 	{
 		args: async() => {
-			await import(`../example/build.ts`);
+			await import(`../build.ts`);
 		},
 	},
 

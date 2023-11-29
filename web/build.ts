@@ -3,6 +3,7 @@ import { stringMates, type TagResult } from '@robertakarobin/jsutil/string-mates
 import esbuild from 'esbuild';
 import fs from 'fs';
 import { glob } from 'glob';
+import jsBeautify from 'js-beautify';
 import { marked } from 'marked';
 import path from 'path';
 
@@ -40,6 +41,8 @@ const local = (input: string) => path.relative(process.cwd(), input);
 const log = (...args: Array<string>) => console.log(args.join(`\n`));
 
 const logBreak = () => console.log(``);
+
+const trimNewlines = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
 
 /**
  * Serialize an object as a native JS value so that it can be included in `on*` attributes. TODO2: Use JSON5 or something robust
@@ -283,11 +286,24 @@ export class Builder {
 	cleanup(): void | Promise<void> {}
 
 	formatCss(input: string): string | Promise<string> {
-		return input;
+		let css = input;
+		css = trimNewlines(input);
+		css = jsBeautify.css(css, {
+			end_with_newline: true, // TODO2: Once we're using editorconfig, use the `--editorconfig` option
+			indent_with_tabs: true,
+		});
+		return css;
 	}
 
 	formatHtml(input: LayoutArgs): string | Promise<string> {
-		return defaultLayout(input);
+		let html = defaultLayout(input);
+		html = trimNewlines(html);
+		html = jsBeautify.html(html, {
+			end_with_newline: true, // TODO2: Once we're using editorconfig, use the `--editorconfig` option
+			indent_with_tabs: true,
+			unformatted: [`script`],
+		});
+		return html;
 	}
 
 	formatMarkdown(input: string): string | Promise<string> {

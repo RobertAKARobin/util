@@ -1,0 +1,6 @@
+{
+	"extends": [
+		"@robertakarobin/htmlvalidate"
+	],
+	"root": true
+}

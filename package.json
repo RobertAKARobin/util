@@ -31,12 +31,10 @@
 		"url": "https://github.com/RobertAKARobin/util"
 	},
 	"scripts": {
-		"build": "tsx web/example/build.ts",
-		"dev": "tsx watch --watch-preserve-output --watch-path=web/example/src web/example/build.ts -- --serve",
-		"lint": "tsc -p web/example/tsconfig.json && eslint . && npm run stylelint",
+		"build": "npm run build --prefix web/example",
+		"dev": "npm run dev --prefix web/example",
 		"spec": "tsx index.spec.ts",
-		"stylelint": "stylelint **/*.css --quietDeprecationWarnings",
-		"test": "npm run lint && npm run spec"
+		"test": "npm run spec && npm run test --prefix web/example"
 	},
 	"type": "module",
 	"version": "0.0.185"
