@@ -1,0 +1,13 @@
+{
+	"compilerOptions": {
+		"baseUrl": ".",
+		"noEmit": true,
+		"noEmitOnError": true
+	},
+	"extends": [
+		"@robertakarobin/eslint-config-ts"
+	],
+	"include": [
+		"**/*.ts"
+	]
+}

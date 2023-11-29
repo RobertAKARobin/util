@@ -33,10 +33,10 @@
 	"scripts": {
 		"build": "tsx web/example/build.ts",
 		"dev": "tsx watch --watch-preserve-output --watch-path=web/example/src web/example/build.ts -- --serve",
-		"lint": "eslint . && npm run stylelint",
+		"lint": "tsc -p web/example/tsconfig.json && eslint . && npm run stylelint",
 		"spec": "tsx index.spec.ts",
 		"stylelint": "stylelint **/*.css --quietDeprecationWarnings",
-		"test": "tsc && npm run lint && npm run spec"
+		"test": "npm run lint && npm run spec"
 	},
 	"type": "module",
 	"version": "0.0.185"
