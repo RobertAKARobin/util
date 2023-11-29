@@ -3,6 +3,7 @@
 		"@robertakarobin/eslint-config-ts"
 	],
 	"ignorePatterns": [
+		"!**/.*.js*",
 		"**/dist/*",
 		"**/dist-golden/*",
 		"**/tmp/*"

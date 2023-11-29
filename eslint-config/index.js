@@ -6,7 +6,7 @@
 module.exports = {
 	ignorePatterns: [
 		`**/dist/*`,
-		`!**/.*.json`,
+		`!**/.*.js*`,
 		`**/package-lock.json`,
 		`**/node_modules/**`,
 	],
