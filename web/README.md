@@ -34,10 +34,9 @@
 
 ### WIP
 
--	Add config with HTML/CSS validator/formatter
-
 ### Done:
 
+-	Add config with HTML/CSS validator/formatter
 -	Fix Windows paths
 -	toFunction should return the instance
 -	Component content shouldn't be duplicated

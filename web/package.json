@@ -6,7 +6,7 @@
 		"marked": "^11.0.0"
 	},
 	"devDependencies": {
-		"@robertakarobin/csslint": "^0.0.2",
+		"@robertakarobin/csslint": "^0.0.3",
 		"@robertakarobin/spec": "^0.0.10",
 		"@types/js-beautify": "^1.14.3",
 		"html-validate": "^8.7.3",
