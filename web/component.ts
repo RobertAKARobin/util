@@ -1,3 +1,5 @@
+import type * as $ from '@robertakarobin/jsutil/types.d.ts';
+
 import { appContext } from './context.ts';
 
 type BoundElement = Element & {
@@ -12,7 +14,7 @@ const globals = (appContext === `browser` ? window : global) as unknown as Windo
 	[key in typeof Component.name]: typeof Component;
 };
 
-export abstract class Component {
+export abstract class Component<Subclass extends Component = never> { // This generic lets `this.bind` work; without it `instance.bind` works but `this.bind` throws a type error
 	static readonly $elAttribute = `data-component`;
 	static readonly $elInstance = `instance`;
 	static readonly style: string | undefined;
@@ -158,8 +160,8 @@ export abstract class Component {
 	 * Arguments must be strings or numbers since other data types can't really be written onto the DOM
 	 * @example `<button onclick=${this.bind(`onClick`, `4.99`)}>$4.99</button>`
 	 */
-	bind(
-		methodName: keyof this, // TODO2: Stronger typing; should only accept methods
+	bind<Key extends $.KeysMatching<Subclass, (...args: any) => any>>( // eslint-disable-line @typescript-eslint/no-explicit-any
+		methodName: Key,
 		...args: Array<string | number> | []
 	) {
 		const argsString = args.map(arg => {

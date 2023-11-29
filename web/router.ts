@@ -96,7 +96,7 @@ export class Router<Routes extends RouteMap> {
  */
 export class RouteComponent<
 	Routes extends RouteMap
-> extends Component {
+> extends Component<RouteComponent<Routes>> {
 	readonly href: string;
 	readonly isAbsolute: boolean;
 	readonly route: typeof this.router.routes[keyof Routes];
