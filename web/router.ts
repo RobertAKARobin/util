@@ -83,10 +83,8 @@ export class Router<Routes extends RouteMap> {
 
 				document.title = page.title;
 				$outlet.insertAdjacentHTML(`beforeend`, page.template());
+				page.setEl($outlet.firstElementChild!);
 			}
-
-			page.$el = $outlet.firstElementChild!;
-			page.onRender();
 		}, { strong: true });
 	}
 }
@@ -94,27 +92,22 @@ export class Router<Routes extends RouteMap> {
 /**
  * Use in place of `<a>` to link to a different path/page
  */
-export class RouteComponent<
+export abstract class RouteComponent<
 	Routes extends RouteMap
 > extends Component<RouteComponent<Routes>> {
-	readonly href: string;
-	readonly isAbsolute: boolean;
-	readonly route: typeof this.router.routes[keyof Routes];
-	readonly router: Router<Routes>;
+	abstract readonly router: Router<Routes>;
 
-	constructor({
-		router,
-		to,
-		...args
-	}: {
-		router: Router<Routes>;
+	accept({ to, ...attributes }: {
 		to: keyof Routes;
 	}) {
-		super(args);
-		this.router = router;
-		this.route = this.router.routes[to];
-		this.isAbsolute = this.route.origin !== defaultOriginUrl.origin;
-		this.href = this.isAbsolute ? this.route.href : this.route.pathname;
+		this.attributes = attributes;
+		const route = this.router.routes[to];
+		const isAbsolute = route.origin !== defaultOriginUrl.origin;
+		return {
+			href: isAbsolute ? route.href : route.pathname,
+			isAbsolute,
+			route,
+		};
 	}
 
 	onClick(event: MouseEvent) {
@@ -123,12 +116,12 @@ export class RouteComponent<
 		}
 
 		event.preventDefault();
-		window.history.pushState({}, ``, this.route.pathname);
-		this.router.url.next(this.route);
+		window.history.pushState({}, ``, this.$.route.pathname);
+		this.router.url.next(this.$.route);
 	}
 
 	template = (content: string = ``) => {
-		return `<a href="${this.href}" onclick=${this.bind(`onClick`)} ${this.attrs()}>${content}</a>`;
+		return `<a href="${this.$.href}" onclick=${this.bind(`onClick`)}>${content}</a>`;
 	};
 }
 
@@ -139,17 +132,8 @@ export function routeComponent<Routes extends RouteMap>(
 	router: Router<Routes>
 ) {
 	class AppRouteComponent extends RouteComponent<Routes> {
-		constructor(
-			args: Omit<ConstructorParameters<typeof RouteComponent<Routes>>[0], `router`>
-		) {
-			super({
-				...args,
-				router,
-			});
-		}
+		router = router;
 	}
-
-	AppRouteComponent.init();
 
 	return Component.toFunction(AppRouteComponent);
 }

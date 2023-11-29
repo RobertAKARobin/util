@@ -16,12 +16,11 @@
 
 ## TODO
 
--	Components emit events
--	Persist state for elements with UIDs?
 -	Add route helper
 -	Jump anchors
 -	Import from other file (ergo SVG)
 
+-	Set initial state values?
 -	Match routes with params
 -	Remove CSS from JS bundles
 -	Image preprocessing
@@ -33,8 +32,12 @@
 
 ### WIP
 
+-	Persist state for elements with UIDs?
+
 ### Done:
 
+-	Components emit events
+-	Automatically set HTML attributes
 -	Differentiate between weak/strong subscriptions
 -	Add config with HTML/CSS validator/formatter
 -	Fix Windows paths

@@ -1,4 +1,5 @@
 import type * as $ from '@robertakarobin/jsutil/types.d.ts';
+import { Emitter, type Subscription } from '@robertakarobin/jsutil/emitter.ts';
 
 import { appContext } from './context.ts';
 
@@ -53,7 +54,6 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 			document.head.appendChild($style);
 		}
 
-
 		const toInit = [...this.toInit];
 		this.toInit.splice(0, this.toInit.length); // Want to remove valid items from array. JS doesn't really have a good way to do that, so instead clearing and rebuilding the array
 		for (let index = 0, length = toInit.length; index < length; index += 1) {
@@ -64,10 +64,10 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 				continue;
 			}
 
-			const instance = new (this as unknown as Subclass)(args);
-			instance.$el = $placeholder.nextElementSibling! as BoundElement;
+			const instance = new (this as unknown as Subclass)();
+			instance.set(args as Record<string, string>);
+			instance.setEl($placeholder.nextElementSibling!);
 			$placeholder.remove();
-			instance.onRender();
 		}
 	}
 
@@ -79,38 +79,36 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 
 		Component.toPlace.delete(uid);
 
-		instance.$el = $placeholder.nextElementSibling!;
+		instance.setEl($placeholder.nextElementSibling!);
 		$placeholder.remove();
-		instance.onRender();
 	}
 
 	/**
-	 * Combines Component's constructor and template into a single function, and returns a string that, when read by the browser, will hydrate the Component
+	 * Gets or creates the Component with the specified UID, if any
 	 */
-	static toFunction<
-		Instance extends Component,
-		Subclass extends DerivedComponent<Instance>,
-	>(Constructor: Subclass) {
-		Constructor.init();
+	static toFunction<Instance, Args extends Array<any>>( // eslint-disable-line @typescript-eslint/no-explicit-any
+		Constructor: new (...args: Args) => Instance
+	) { // Reveisit when/if Typescript supports generics in abstract statics https://github.com/microsoft/TypeScript/issues/34665
+		(Constructor as unknown as typeof Component).init();
 
-		return (args: ConstructorParameters<Subclass>[0]) => {
-			const uid = args.uid as Component[`uid`];
-			const instance = (
-				uid !== undefined && Component.uidInstances.has(uid)
-					? Component.uidInstances.get(uid)!
-					: new Constructor(args)
-			);
-			instance.args = args;
-			return instance;
+		return (...args: ConstructorParameters<typeof Constructor>) => {
+			const uid = args[0] as Component[`uid`];
+			const instance = uid !== undefined && Component.uidInstances.has(uid)
+				? Component.uidInstances.get(uid)!
+				: new Constructor(...args);
+			return instance as Instance;
 		};
 	}
 
+	get $() {
+		return this.state.last;
+	}
 	$el: Element | undefined;
-	args = {} as unknown; // TODO1: Figure out a better way to tack args on here
+	args: Component[`attributes`] = {};
 	/**
 	 * Properties that can be turned into HTML attributes with `.attrs()`
 	 */
-	attributes: Record<string, string | number | boolean>;
+	attributes: Record<string, string | symbol | number | boolean> = {};
 	get Ctor() {
 		return this.constructor as typeof Component;
 	}
@@ -124,18 +122,21 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	 * Not a static variable because a Component/Page may/may not want to be SSG based on certain conditions
 	*/
 	isSSG = true;
+	readonly load = new Emitter<number>({ initial: 0 });
+	readonly state = new Emitter<ReturnType<this[`accept`]>>({ initial: {} as ReturnType<this[`accept`]> });
 	/**
 	 * Warning: `style` should be defined as a static property, not an instance property
-	 */
+	*/
 	private readonly style: void = undefined;
-	abstract template: (content?: string) => string;
-	readonly uid: string;
+	/**
+	 * This instance's subscriptions. This should keep subscriptions from being garbage-collected as long as the instance persists?
+	 */
+	protected readonly subscriptions = new Set<Subscription<any>>(); // eslint-disable-line @typescript-eslint/no-explicit-any
 
 	constructor(
-		{ uid, ...attributes }: Record<string, string | number | boolean> = {}
+		readonly uid?: string
 	) {
 		this.uid = uid?.toString() ?? Component.createUid();
-		this.attributes = attributes;
 
 		if (uid !== undefined) {
 			Component.uidInstances.set(this.uid.toString(), this);
@@ -146,12 +147,16 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		}
 	}
 
+	accept(input: Component[`attributes`]) { // eslint-disable-line @typescript-eslint/no-explicit-any
+		return input as any; // eslint-disable-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return
+	}
+
 	/**
 	 * Returns the component's `.attributes` and the provided dict as HTML attributes
 	 */
-	attrs(input: typeof this[`attributes`] = {}) {
+	attrs(input: Component[`attributes`] = {}) {
 		return Object.entries({ ...this.attributes, ...input })
-			.map(([key, value]) => `${key}="${value}"`)
+			.map(([key, value]) => `${key}="${String(value)}"`)
 			.join(` `);
 	}
 
@@ -160,7 +165,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	 * Arguments must be strings or numbers since other data types can't really be written onto the DOM
 	 * @example `<button onclick=${this.bind(`onClick`, `4.99`)}>$4.99</button>`
 	 */
-	bind<Key extends $.KeysMatching<Subclass, (...args: any) => any>>( // eslint-disable-line @typescript-eslint/no-explicit-any
+	protected bind<Key extends $.KeysMatching<Subclass, (...args: any) => any>>( // eslint-disable-line @typescript-eslint/no-explicit-any
 		methodName: Key,
 		...args: Array<string | number> | []
 	) {
@@ -173,13 +178,18 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		return `"this.closest('[${Component.$elAttribute}=&quot;${this.Ctor.name}&quot;]').${Component.$elInstance}.${methodName as string}(event,${argsString})"`; // &quot; is apprently the correct way to escape quotes in HTML attributes
 	}
 
-	onRender() {
-		if (this.$el === undefined || this.$el === null) {
-			throw new Error(`onRender: ${this.Ctor.name} #${this.uid} has no element`);
-		}
-		const $el = this.$el as BoundElement;
-		$el.setAttribute(Component.$elAttribute, this.Ctor.name);
-		$el[Component.$elInstance] = this;
+	on<
+		EmitterValue,
+		SpecificEmitter extends Emitter<EmitterValue>,
+		Key extends $.KeysMatching<Subclass, SpecificEmitter>
+	>(
+		eventName: Key,
+		...[onEmit, options]: Parameters<SpecificEmitter[`subscribe`]>
+	) {
+		const emitter = (this as unknown as Subclass)[eventName] as SpecificEmitter;
+		const subscription = emitter.subscribe(onEmit, options);
+		this.subscriptions.add(subscription);
+		return this;
 	}
 
 	render(content: Parameters<this[`template`]>[0] = ``) {
@@ -187,5 +197,30 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 
 		const key = Component.name;
 		return `<img src="#" style="display:none" onerror="${key}.${Component.onPlace.name}('${this.uid}', this)" />${this.template(content)}`;
+	}
+
+	/**
+	 * Set values on this Component's state
+	 */
+	set(input: Parameters<this[`accept`]>[0]): this {
+		this.args = input;
+		const state = this.accept(input); // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+		this.state.next(state); // eslint-disable-line @typescript-eslint/no-unsafe-argument
+		return this;
+	}
+
+	setEl($input: Element) {
+		if ($input === undefined || $input === null) {
+			throw new Error(`onRender: ${this.Ctor.name} #${this.uid} has no element`);
+		}
+		const $el = $input as BoundElement;
+		$el[Component.$elInstance] = this;
+		$el.setAttribute(Component.$elAttribute, this.Ctor.name);
+		this.$el = $el;
+		this.load.next(this.load.last + 1);
+	}
+
+	template(content: string = ``): string {
+		return content ?? ``;
 	}
 }

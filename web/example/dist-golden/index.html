@@ -22,7 +22,7 @@
 			<li><script src="data:text/javascript," onload="window.Component=window.Component||[];window.Component.push([this,'AppRouteComponent',{to:'ssgYesJump2',}])"></script><a href="/ssg/yes/" onclick="this.closest('[data-component=&quot;AppRouteComponent&quot;]').instance.onClick(event,)">Go ssgYesJump2</a></li>
 		</ul>
 	</nav>
-	<main><script src="data:text/javascript," onload="window.Component=window.Component||[];window.Component.push([this,'IndexPage',{}])"></script>
+	<main><script src="data:text/javascript," onload="window.Component=window.Component||[];window.Component.push([this,'IndexPage',{message:'This is a variable',}])"></script>
 		<div>
 			<h1>Hello world!</h1>
 			<div id="jump1">Jump 1</div>
@@ -32,7 +32,7 @@
 				<div> <input oninput="this.closest('[data-component=&quot;Textbox&quot;]').instance.handleInput(event,)" placeholder="Type here" type="text" maxlength="10" value="foo"> <span> 7 / 10 Remaining </span> </div>
 			</div>
 			<div><script src="data:text/javascript," onload="window.Component=window.Component||[];window.Component.push([this,'Textbox',{maxlength:777,}])"></script>
-				<div> <input oninput="this.closest('[data-component=&quot;Textbox&quot;]').instance.handleInput(event,)" placeholder="Type here" type="text" maxlength="777"> <span> 777 / 777 Remaining </span> </div>
+				<div> <input oninput="this.closest('[data-component=&quot;Textbox&quot;]').instance.handleInput(event,)" placeholder="Type here" type="text" maxlength="777" value=""> <span> 777 / 777 Remaining </span> </div>
 			</div>
 			<p>Lorem ipsum dolor <strong>sit amet</strong>, consectetur <em>adipiscing elit</em>, sed do <em>eiusmod tempor</em> incididunt.</p>
 			<p>Duis aute voluptate <a href="https://example.com">velit esse cillum</a> dolore /eu fugiat/ nulla pariatur.</p>

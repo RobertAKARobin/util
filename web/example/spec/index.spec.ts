@@ -23,13 +23,13 @@ const hasSSG = (page: string) =>
 
 class Widget extends Component {
 	prop = 42;
-	constructor(
-		public message: string,
-	) {
-		super();
+	accept(input: {
+		message: string;
+	}) {
+		return input;
 	}
 
-	template = () => `<h1>${this.message}${this.prop}</h1>`;
+	template = () => `<h1>${this.$.message ?? ``}${this.prop}</h1>`;
 }
 
 const widget = Component.toFunction(Widget);
@@ -59,7 +59,7 @@ export const spec = suite(`@robertakarobin/web`,
 	}),
 
 	test(`component`, $ => {
-		$.assert(x => x(new Widget(`x`).template()) === `<h1>x42</h1>`);
-		$.assert(x => x(widget(`x`).render()) === `<script src="data:text/javascript," onload="window.Component=window.Component||[];window.Component.push([this,'Widget','x'])"></script><h1>x42</h1>`);
+		$.assert(x => x(new Widget().set({ message: `x` }).template()) === `<h1>x42</h1>`);
+		$.assert(x => x(widget().set({ message: `x` }).render()) === `<script src="data:text/javascript," onload="window.Component=window.Component||[];window.Component.push([this,'Widget',{message:'x',}])"></script><h1>x42</h1>`);
 	}),
 );

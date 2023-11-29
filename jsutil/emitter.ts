@@ -4,7 +4,7 @@ type OnEmit<State> = (
 	subscription: Subscription<State>
 ) => unknown;
 
-type Subscription<State> = WeakRef<OnEmit<State>> | OnEmit<State>;
+export type Subscription<State> = WeakRef<OnEmit<State>> | OnEmit<State>;
 
 export class Emitter<State> {
 	/** @see {@link EmitterCache} */

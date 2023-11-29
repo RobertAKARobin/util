@@ -27,18 +27,17 @@ export default class IndexPage extends Page {
 		}, {} as Record<ListItem[`uid`], ListItem & { index: number; }>);
 	});
 
-	message: string;
 	title = `Home page`;
 
-	constructor(input: {
+	accept(input: {
 		message: string;
 	}) {
-		super();
-		this.message = input.message ?? ``;
-
 		state.subscribe((newState, oldState) => {
 			console.log(newState, oldState);
 		});
+		return {
+			message: input.message ?? ``,
+		};
 	}
 
 	// <ol>
@@ -56,18 +55,18 @@ export default class IndexPage extends Page {
 <markdown>
 # Headline 1
 
-## ${this.message}
+## ${this.$.message}
 
-<div>${textbox({ maxlength: 10, value: `foo` }).render()}</div>
+<div>${textbox().set({ maxlength: 10, value: `foo` }).render()}</div>
 
-<div>${textbox({ maxlength: 777 }).render()}</div>
+<div>${textbox().set({ maxlength: 777 }).render()}</div>
 
 Lorem ipsum dolor <strong>sit amet</strong>, consectetur *adipiscing elit*, sed do _eiusmod tempor_ incididunt.
 
 Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ nulla pariatur.
 </markdown>
 
-<p>${route({ to: `home` }).render(`Link to homepage`)}</p>
+<p>${route().set({ to: `home` }).render(`Link to homepage`)}</p>
 
 <markdown>
 ## Headline 2

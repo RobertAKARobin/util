@@ -20,7 +20,7 @@ export class ListItemComponent extends Component {
 <div>
 	<button>↑</button>
 	<button>↓</button>
-	${textbox({ value: this.listItem.value }).render()}
+	${textbox().set({ value: this.listItem.value }).render()}
 </div>
 	`;
 }

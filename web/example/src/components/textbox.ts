@@ -9,26 +9,29 @@ input {
 }
 	`;
 
-	maxlength: number;
-	value: string;
-
-	constructor(input: {
+	accept(input: {
 		maxlength?: number;
 		value?: string;
 	}) {
-		super(input);
-		this.maxlength = input.maxlength ?? 10;
-		this.value = input.value ?? ``;
+		const state = {
+			maxlength: input.maxlength ?? 10,
+			value: input.value ?? ``,
+		};
+		this.attributes = state;
+		return state;
 	}
 
 	handleInput(event: Event) {
-		this.value = (event.currentTarget as HTMLInputElement).value;
+		this.state.next({
+			...this.state.last,
+			value: (event.currentTarget as HTMLInputElement).value,
+		});
 		this.$el!.querySelector(`span`)!.innerHTML = this.remaining(); // TODO1: Better rerender
 	}
 
 	remaining() {
 		return `
-		${this.maxlength - this.value.length} / ${this.maxlength} Remaining
+		${this.$.maxlength - this.$.value.length} / ${this.$.maxlength} Remaining
 		`;
 	}
 
