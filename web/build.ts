@@ -308,9 +308,9 @@ export class Builder {
 				const contents = parse(item.contents).flat().join(``);
 				if (item.tags === isMarkdown) {
 					if (contents.indexOf(`\n`) < 0) {
-						return marked.parseInline(contents, { gfm: true }) as string;
+						return marked.parseInline(contents, { async: false, gfm: true }) as string;
 					}
-					return marked(contents, { gfm: true });
+					return marked(contents, { async: false, gfm: true }) as string;
 				}
 				jsChunks.push('${' + contents + '}'); // eslint-disable-line quotes
 				return `/%%/`; // TODO3: Use a better placeholder

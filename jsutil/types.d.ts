@@ -2,6 +2,10 @@ export type Constructor<Type> = {
 	new(...args: Array<unknown>): Type;
 };
 
+export type KeysMatching<Type, Value> = { // https://stackoverflow.com/q/77571882/2053389
+	[Key in keyof Type]: Type[Key] extends Value ? Key : never
+}[keyof Type];
+
 export type OneOrMany<Type> = Type | Array<Type>;
 
 export type Nested<Type> = Array<Type | Nested<Type>>;

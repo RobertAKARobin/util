@@ -1,9 +1,9 @@
 {
 	"dependencies": {
-		"@robertakarobin/jsutil": "^0.0.16",
+		"@robertakarobin/jsutil": "^0.0.17",
 		"esbuild": "^0.19.8",
 		"glob": "^10.3.10",
-		"marked": "^10.0.0"
+		"marked": "^11.0.0"
 	},
 	"devDependencies": {
 		"@robertakarobin/csslint": "^0.0.2",
