@@ -50,11 +50,12 @@ export class Emitter<State> {
 		options: {
 			strong?: boolean;
 		} = {}
-	): WeakRef<OnEmit<State>> | OnEmit<State> {
-		const subscription = options.strong === true
-			?	onEmit
-			: new WeakRef(onEmit);
-		this.subscriptions.add(subscription);
+	): OnEmit<State> {
+		const subscription = onEmit;
+		this.subscriptions.add(options.strong === true
+			? subscription
+			: new WeakRef(subscription)
+		);
 		return subscription;
 	}
 

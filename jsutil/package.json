@@ -1,6 +1,12 @@
 {
+	"devDependencies": {
+		"@robertakarobin/spec": "^0.0.10"
+	},
 	"main": "index.ts",
 	"name": "@robertakarobin/jsutil",
+	"scripts": {
+		"test": "tsx run.ts"
+	},
 	"type": "module",
-	"version": "0.0.18"
+	"version": "0.0.19"
 }
