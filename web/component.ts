@@ -72,11 +72,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 
 			const instance = new (this as unknown as Subclass)(uid);
 			instance.set(args as Record<string, string>);
-			try {
-				instance.setEl($placeholder.nextElementSibling!);
-			} catch {
-				debugger;
-			}
+			instance.setEl($placeholder.nextElementSibling!);
 			$placeholder.remove();
 		}
 	}
