@@ -35,6 +35,7 @@
 
 ### Done:
 
+-	Show `[data-component]` on build?
 -	Jump anchors
 -	Base URI
 -	Add route helper

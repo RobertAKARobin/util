@@ -62,6 +62,6 @@ export const spec = suite(`@robertakarobin/web`,
 
 	test(`component`, $ => {
 		$.assert(x => x(new Widget().set({ message: `x` }).template()) === `<h1>x42</h1>`);
-		$.assert(x => x(widget().set({ message: `x` }).render()) === `<script src="data:text/javascript," onload="toInit.push([this,'Widget',,{message:'x',}])"></script><h1>x42</h1>`);
+		$.assert(x => x(widget().set({ message: `x` }).render()) === `<script src="data:text/javascript," onload="toInit.push([this,'Widget',,{message:'x',}])"></script><h1 data-component="Widget">x42</h1>`);
 	}),
 );

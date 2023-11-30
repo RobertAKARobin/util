@@ -290,7 +290,11 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		}
 		if (this.isSSG) {
 			const [content] = args;
-			out += this.template(content);
+			let rendered = this.template(content);
+			rendered = rendered.replace(/^\s*<\w+/, match =>
+				`${match} ${Component.$elAttribute}="${this.Ctor.name}"`
+			);
+			out += rendered;
 		}
 		return out;
 	}
