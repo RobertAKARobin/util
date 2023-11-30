@@ -8,7 +8,7 @@ export const defaultLayout = (input: LayoutArgs) => `
 <html lang="en">
 	<head>
 		<title>${input.page.title}</title>
-		<base href="/">
+		<base href="${input.baseHref}">
 
 		${typeof input.meta === `string`
 			?	input.meta

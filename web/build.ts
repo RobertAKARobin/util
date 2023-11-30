@@ -18,6 +18,7 @@ import {
 import { defaultLayout } from './layout.ts';
 
 export type LayoutArgs = {
+	baseHref: string;
 	body?: string;
 	css?: string;
 	head?: string;
@@ -50,6 +51,7 @@ export class Builder {
 	readonly assetsSrcDirAbs: string;
 	readonly assetsSrcDirRel: string;
 	readonly baseDirAbs: string;
+	readonly baseHref: string;
 	readonly routerSrcFileAbs: string;
 	readonly routerSrcFileRel: string;
 	readonly scriptServeFileAbs: string;
@@ -67,6 +69,7 @@ export class Builder {
 	constructor(input: Partial<{
 		assetsSrcDirRel: string;
 		baseDirAbs: string;
+		baseHref: string;
 		routerSrcFileRel: string;
 		scriptSrcFileRel: string;
 		serveDirRel: string;
@@ -76,6 +79,8 @@ export class Builder {
 		vendorServeFileName: string;
 		vendorSrcFileAbs: string;
 	}> = {}) {
+		this.baseHref = input.baseHref ?? `/`;
+
 		this.baseDirAbs = input.baseDirAbs ?? process.cwd();
 		this.serveDirAbs = path.join(this.baseDirAbs, input.serveDirRel ?? `./dist`);
 		this.srcRawDirAbs = path.join(this.baseDirAbs, input.srcRawDirRel ?? `./src`);
@@ -182,6 +187,7 @@ export class Builder {
 				}
 
 				const html = await this.formatHtml({
+					baseHref: this.baseHref,
 					body,
 					css,
 					loadScript: Component.toInitScript,

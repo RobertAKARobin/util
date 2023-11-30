@@ -16,7 +16,6 @@
 
 ## TODO
 
--	Jump anchors
 -	Import from other file (ergo SVG)
 
 -	Match routes with params
@@ -31,11 +30,13 @@
 
 ### WIP
 
+-	Jump anchors
 -	Components emit events
 -	Persist state for elements with UIDs?
 
 ### Done:
 
+-	Base URI
 -	Add route helper
 -	Don't use `Component.push` in `<script>`
 -	Set absolute path for imports
