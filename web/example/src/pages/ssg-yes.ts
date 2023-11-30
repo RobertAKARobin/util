@@ -1,6 +1,6 @@
 import { Page } from '@robertakarobin/web/index.ts';
 
-import { router } from '../router.ts';
+import { router } from '@src/router.ts';
 
 const style = `
 h1 {

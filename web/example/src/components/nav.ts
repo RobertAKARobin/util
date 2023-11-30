@@ -1,4 +1,4 @@
-import { route, router } from '../router.ts';
+import { route, router } from '@src/router.ts';
 
 export default () => `
 <ul>

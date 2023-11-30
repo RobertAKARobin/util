@@ -1,8 +1,8 @@
 import { Page } from '@robertakarobin/web/index.ts';
 
-import { route, router } from '../router.ts';
-import listItem from '../components/listitem.ts';
-import { state } from '../state.ts';
+import { route, router } from '@src/router.ts';
+import listItem from '@src/components/listitem.ts';
+import { state } from '@src/state.ts';
 
 const style =  `
 h1 {

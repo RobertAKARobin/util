@@ -1,6 +1,6 @@
 import { Component } from '@robertakarobin/web/index.ts';
 
-import { types } from '../theme.ts';
+import { types } from '@src/theme.ts';
 
 export class Textbox extends Component<Textbox> {
 	static style = `

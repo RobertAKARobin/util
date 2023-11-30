@@ -1,4 +1,4 @@
-import { appContext } from '../../context.ts';
+import { appContext } from '@robertakarobin/web/context.ts';
 import { EntityStateEmitter } from '@robertakarobin/jsutil/entities.ts';
 
 export type ListItem = {

@@ -1,7 +1,7 @@
 import { Component } from '@robertakarobin/web/index.ts';
 
-import { type ListItem, state } from '../state.ts';
-import textbox from './textbox.ts';
+import { type ListItem, state } from '@src/state.ts';
+import textbox from '@src/components/textbox.ts';
 
 export class ListItemComponent extends Component<ListItemComponent> {
 	accept(input: ListItem) {

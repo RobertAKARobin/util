@@ -16,7 +16,6 @@
 
 ## TODO
 
--	Set absolute path for imports
 -	Don't use `Component.push` in `<script>`
 -	Add route helper
 -	Jump anchors
@@ -39,6 +38,7 @@
 
 ### Done:
 
+-	Set absolute path for imports
 -	Extract `window.` boilerplate to beginning of layout
 -	Automatically set HTML attributes
 -	Differentiate between weak/strong subscriptions

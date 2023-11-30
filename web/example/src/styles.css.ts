@@ -1,4 +1,4 @@
-import { bp, theme, types } from './theme.ts';
+import { bp, theme, types } from '@src/theme.ts';
 
 export default `
 :root {
