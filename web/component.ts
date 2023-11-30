@@ -18,6 +18,7 @@ const globals = (appContext === `browser` ? window : global) as unknown as Windo
 export abstract class Component<Subclass extends Component = never> { // This generic lets `this.bind` work; without it `instance.bind` works but `this.bind` throws a type error
 	static readonly $elAttribute = `data-component`;
 	static readonly $elInstance = `instance`;
+	static readonly loadScript = `window.${Component.name}=window.${Component.name}||[];`;
 	static readonly style: string | undefined;
 	static readonly subclasses = new Map<string, typeof Component>();
 	static readonly toInit = globals[this.name] as unknown as Array<
@@ -213,7 +214,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 			}
 			return arg;
 		}).join(`,`);
-		return `"this.closest('[${Component.$elAttribute}=&quot;${this.Ctor.name}&quot;]').${Component.$elInstance}.${methodName as string}(event,${argsString})"`; // &quot; is apprently the correct way to escape quotes in HTML attributes
+		return `"this.closest('[${Component.$elAttribute}=${this.Ctor.name}]').${Component.$elInstance}.${methodName as string}(event,${argsString})"`;
 	}
 
 	on<

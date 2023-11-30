@@ -21,6 +21,7 @@ export type LayoutArgs = {
 	body?: string;
 	css?: string;
 	head?: string;
+	loadScript?: string;
 	mainCssPath: string;
 	mainJsPath: string;
 	meta?: string;
@@ -72,7 +73,6 @@ function serialize(input: any): string { // eslint-disable-line @typescript-esli
 };
 
 Component.prototype.render = function(content = ``) {
-	const key = Component.name;
 	const argsString = serialize(this.args);
 	const template = this.template().trim();
 	const hasOneRootElement = /^<(\w+).*<\/\1>$/s.test(template); // TODO2: False positive for e.g. <div>one</div> <div>two</div>
@@ -82,7 +82,7 @@ Component.prototype.render = function(content = ``) {
 	}
 	let out = ``;
 	if (this.isCSR) {
-		out += `<script src="data:text/javascript," onload="window.${key}=window.${key}||[];window.${key}.push([this,'${this.Ctor.name}',${argsString}])"></script>`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
+		out += `<script src="data:text/javascript," onload="${Component.name}.push([this,'${this.Ctor.name}',${argsString}])"></script>`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
 	}
 	if (this.isSSG) {
 		out += this.template(content);
@@ -229,6 +229,7 @@ export class Builder {
 				const html = await this.formatHtml({
 					body,
 					css,
+					loadScript: Component.loadScript,
 					mainCssPath: path.join(`/`, this.styleServeFileRel),
 					mainJsPath: path.join(`/`, this.scriptServeFileRel),
 					page,

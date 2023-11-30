@@ -24,9 +24,9 @@
 -	Match routes with params
 -	Remove CSS from JS bundles
 -	Image preprocessing
+
 -	Autocomplete CSS classes
 -	Template/CSS prefix
--	Support tokens with attributes
 -	VS plugin for CSS
 -	VS plugin for HTML
 
@@ -36,6 +36,7 @@
 
 ### Done:
 
+-	Extract `window.` boilerplate to beginning of layout
 -	Components emit events
 -	Automatically set HTML attributes
 -	Differentiate between weak/strong subscriptions

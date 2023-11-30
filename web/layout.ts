@@ -34,6 +34,11 @@ export const defaultLayout = (input: LayoutArgs) => `
 			? `<link rel="stylesheet" href="${input.routeCssPath}">`
 			: ``
 		}
+
+		${typeof input.loadScript === `string`
+			? `<script>${input.loadScript}</script>`
+			: ``
+		}
 	</head>
 
 	${typeof input.body === `string`
