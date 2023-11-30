@@ -16,7 +16,6 @@
 
 ## TODO
 
--	Don't use `Component.push` in `<script>`
 -	Add route helper
 -	Jump anchors
 -	Import from other file (ergo SVG)
@@ -38,6 +37,7 @@
 
 ### Done:
 
+-	Don't use `Component.push` in `<script>`
 -	Set absolute path for imports
 -	Extract `window.` boilerplate to beginning of layout
 -	Automatically set HTML attributes

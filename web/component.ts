@@ -12,19 +12,22 @@ type DerivedComponent<Subclass extends Component> = {
 	new(...args: Array<any>): Subclass; // eslint-disable-line @typescript-eslint/no-explicit-any
 } & Pick<typeof Component, `init`>;
 
-const globals = (appContext === `browser` ? window : global) as unknown as Window & {
-	[key in typeof Component.name]: typeof Component;
-};
+type ToInit = Array<
+	[Element, typeof Component.name, Component[`uid`], Record<string, unknown>]
+>;
+
+const globals = (appContext === `browser` ? window : global) as unknown as Window
+	& { [key in typeof Component.name]: typeof Component; }
+	& { [key in typeof Component.toInitName]: ToInit; };
 
 export abstract class Component<Subclass extends Component = never> { // This generic lets `this.bind` work; without it `instance.bind` works but `this.bind` throws a type error
 	static readonly $elAttribute = `data-component`;
 	static readonly $elInstance = `instance`;
-	static readonly loadScript = `window.${Component.name}=window.${Component.name}||[];`;
 	static readonly style: string | undefined;
 	static readonly subclasses = new Map<string, typeof Component>();
-	static readonly toInit = globals[this.name] as unknown as Array<
-		[Element, typeof Component.name, Component[`uid`], Record<string, unknown>]
-	>;
+	static readonly toInitName = `toInit`;
+	static readonly toInitScript = `window.${Component.toInitName}=window.${Component.toInitName}||[];`;
+	static readonly toInit = globals[this.toInitName]; // eslint-disable-line @typescript-eslint/member-ordering
 	static readonly toPlace = new Map<Component[`uid`], Component>();
 	static readonly uidInstances = new Map<Component[`uid`], Component>();
 
@@ -291,7 +294,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		}
 		let out = ``;
 		if (this.isCSR) {
-			out += `<script src="data:text/javascript," onload="${Component.name}.push([this,'${this.Ctor.name}',${this.isUidPersisted ? `'${this.uid}'` : ``},${argsString}])"></script>`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
+			out += `<script src="data:text/javascript," onload="${Component.toInitName}.push([this,'${this.Ctor.name}',${this.isUidPersisted ? `'${this.uid}'` : ``},${argsString}])"></script>`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
 		}
 		if (this.isSSG) {
 			const [content] = args;

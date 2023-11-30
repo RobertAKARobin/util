@@ -184,7 +184,7 @@ export class Builder {
 				const html = await this.formatHtml({
 					body,
 					css,
-					loadScript: Component.loadScript,
+					loadScript: Component.toInitScript,
 					mainCssPath: path.join(`/`, this.styleServeFileRel),
 					mainJsPath: path.join(`/`, this.scriptServeFileRel),
 					page,
