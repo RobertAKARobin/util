@@ -9,9 +9,7 @@ export class ListItemComponent extends Component<ListItemComponent> {
 	}
 
 	onLoad() {
-		if (this.isUidPersisted) {
-			state.upsert(this.uid!, this.$);
-		}
+		state.upsert(this.uid!, this.$);
 	}
 
 	template = () => `

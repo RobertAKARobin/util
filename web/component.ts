@@ -24,13 +24,13 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	static readonly $elAttrType = `data-component`;
 	static readonly $elAttrUid = `data-uid`;
 	static readonly $elInstance = `instance`;
+	static readonly persists = new Map<Component[`uid`], Component>();
 	static readonly style: string | undefined;
 	static readonly subclasses = new Map<string, typeof Component>();
 	static readonly toInitName = `toInit`;
 	static readonly toInitScript = `window.${Component.toInitName}=window.${Component.toInitName}||[];`;
 	static readonly toInit = globals[this.toInitName]; // eslint-disable-line @typescript-eslint/member-ordering
 	static readonly toPlace = new Map<Component[`uid`], Component>();
-	static readonly uidInstances = new Map<Component[`uid`], Component>();
 
 	static {
 		globals[this.name] = this;
@@ -89,8 +89,8 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 
 		Component.toPlace.delete(uid);
 
-		if (Component.uidInstances.has(uid)) {
-			const existing = Component.uidInstances.get(uid)!;
+		if (Component.persists.has(uid)) {
+			const existing = Component.persists.get(uid)!;
 			$placeholder.nextElementSibling?.replaceWith(existing.$el!);
 		} else {
 			instance.setEl($placeholder.nextElementSibling!);
@@ -135,8 +135,8 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 
 		return (...args: ConstructorParameters<typeof Constructor>) => {
 			const uid = args[0] as Component[`uid`];
-			const instance = uid !== undefined && Component.uidInstances.has(uid)
-				? Component.uidInstances.get(uid)!
+			const instance = uid !== undefined && Component.persists.has(uid)
+				? Component.persists.get(uid)!
 				: new Constructor(...args);
 			return instance as Instance;
 		};
@@ -180,7 +180,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	 * Not a static variable because a Component/Page may/may not want to be SSG based on certain conditions
 	*/
 	readonly isSSG: boolean = true;
-	readonly isUidPersisted: boolean = false;
+	readonly isPersisted: boolean = false;
 	/**
 	 * Emits when the component is rendered
 	 */
@@ -200,8 +200,8 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		this.uid = uid ?? Component.createUid();
 
 		if (uid !== undefined) {
-			Component.uidInstances.set(this.uid, this);
-			this.isUidPersisted = true;
+			Component.persists.set(this.uid, this);
+			this.isPersisted = true;
 		}
 
 		if (!Component.subclasses.has(this.Ctor.name)) {
@@ -292,7 +292,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		}
 		let out = ``;
 		if (this.isCSR) {
-			out += `<script src="data:text/javascript," onload="${Component.toInitName}.push([this,'${this.Ctor.name}',${this.isUidPersisted ? `'${this.uid}'` : ``},${argsString}])"></script>`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
+			out += `<script src="data:text/javascript," onload="${Component.toInitName}.push([this,'${this.Ctor.name}',${this.isPersisted ? `'${this.uid}'` : ``},${argsString}])"></script>`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
 		}
 		if (this.isSSG) {
 			const [content] = args;
