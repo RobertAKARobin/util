@@ -12,61 +12,48 @@ type DerivedComponent<Subclass extends Component> = {
 	new(...args: Array<any>): Subclass; // eslint-disable-line @typescript-eslint/no-explicit-any
 } & Pick<typeof Component, `init`>;
 
-type ToInit = Array<
+type SsgHolder = Array<
 	[Element, typeof Component.name, Component[`uid`], Record<string, unknown>]
 >;
 
 const globals = (appContext === `browser` ? window : global) as unknown as Window
 	& { [key in typeof Component.name]: typeof Component; }
-	& { [key in typeof Component.toInitName]: ToInit; };
+	& { [key in typeof Component.ssgHolderName]: SsgHolder; };
 
 export abstract class Component<Subclass extends Component = never> { // This generic lets `this.bind` work; without it `instance.bind` works but `this.bind` throws a type error
 	static readonly $elAttrType = `data-component`;
 	static readonly $elAttrUid = `data-uid`;
 	static readonly $elInstance = `instance`;
-	static readonly persists = new Map<Component[`uid`], Component>();
+	private static readonly persists = new Map<Component[`uid`], Component>();
+	static readonly ssgHolderName = `ssgInstances`;
+	static readonly ssgHolderScript = `window.${Component.ssgHolderName}=window.${Component.ssgHolderName}||[];`;
+	private static readonly ssgsToConstruct = globals[this.ssgHolderName];
 	static readonly style: string | undefined;
 	static readonly subclasses = new Map<string, typeof Component>();
-	static readonly toInitName = `toInit`;
-	static readonly toInitScript = `window.${Component.toInitName}=window.${Component.toInitName}||[];`;
-	static readonly toInit = globals[this.toInitName]; // eslint-disable-line @typescript-eslint/member-ordering
-	static readonly toPlace = new Map<Component[`uid`], Component>();
+	private static readonly toPlace = new Map<Component[`uid`], Component>();
 
 	static {
 		globals[this.name] = this;
 	}
 
-	static createUid() {
-		return newUid();
-	}
-
-	static init<
+	/**
+	 * Hydrate instances for all the SSG elements on the page when it loads
+	 */
+	static constructSsgs<
 		Instance extends Component,
-		Subclass extends DerivedComponent<Instance>,
+		Subclass extends DerivedComponent<Instance>
 	>() {
-		Component.subclasses.set(this.name, this);
-
 		if (appContext !== `browser`) {
 			return;
 		}
 
-		if (
-			typeof this.style === `string`
-			&& document.querySelector(`style[${this.$elAttrType}="${this.name}"]`) === null
-		) {
-			const $style = document.createElement(`style`);
-			$style.textContent = this.style;
-			$style.setAttribute(Component.$elAttrType, this.name);
-			document.head.appendChild($style);
-		}
-
-		const toInit = [...this.toInit];
-		this.toInit.splice(0, this.toInit.length); // Want to remove valid items from array. JS doesn't really have a good way to do that, so instead clearing and rebuilding the array
-		for (let index = 0, length = toInit.length; index < length; index += 1) {
-			const item = toInit[index];
-			const [$placeholder, componentName, uid, args] = item;
+		const ssgsToConstruct = [...this.ssgsToConstruct];
+		this.ssgsToConstruct.splice(0, this.ssgsToConstruct.length); // Want to remove valid items from array. JS doesn't really have a good way to do that, so instead clearing and rebuilding the array
+		for (let index = 0, length = ssgsToConstruct.length; index < length; index += 1) {
+			const ssg = ssgsToConstruct[index];
+			const [$placeholder, componentName, uid, args] = ssg;
 			if (componentName !== this.name) {
-				this.toInit.push(item); // Persist not-yet-initialized components
+				this.ssgsToConstruct.push(ssg); // Persist not-yet-initialized components
 				continue;
 			}
 
@@ -77,8 +64,21 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		}
 	}
 
+	static createUid() {
+		return newUid();
+	}
+
+	/**
+	 * Should run after the page is done loading
+	 */
+	static init() {
+		Component.subclasses.set(this.name, this);
+		this.setStyle();
+		this.constructSsgs();
+	}
+
 	static onPlace(uid: Component[`uid`], $placeholder: Element) {
-		const instance = Component.toPlace.get(uid);
+		let instance = Component.toPlace.get(uid);
 		if (instance === undefined) {
 			throw new Error(`onPlace: Could not find instance #${uid}`);
 		}
@@ -86,12 +86,14 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		Component.toPlace.delete(uid);
 
 		if (Component.persists.has(uid)) {
-			const existing = Component.persists.get(uid)!;
-			$placeholder.nextElementSibling?.replaceWith(existing.$el!);
-		} else {
-			instance.setEl($placeholder.nextElementSibling!);
+			instance = Component.persists.get(uid)!;
 		}
-		$placeholder.remove();
+		const parser = new DOMParser();
+		const rendered = instance.template(instance.content);
+		const doc = parser.parseFromString(rendered, `text/html`);
+		const $replacement = doc.body.firstElementChild!;
+		$placeholder.replaceWith($replacement);
+		instance.setEl($replacement);
 	}
 
 	/**
@@ -120,6 +122,22 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		}
 		return input.toString(); // eslint-disable-line
 	};
+
+	static setStyle() {
+		if (appContext !== `browser`) {
+			return;
+		}
+
+		if (
+			typeof this.style === `string`
+			&& document.querySelector(`style[${this.$elAttrType}="${this.name}"]`) === null
+		) {
+			const $style = document.createElement(`style`);
+			$style.textContent = this.style;
+			$style.setAttribute(Component.$elAttrType, this.name);
+			document.head.appendChild($style);
+		}
+	}
 
 	/**
 	 * Gets or creates the Component with the specified UID, if any
@@ -158,8 +176,9 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	args: Component[`attributes`] = {};
 	/**
 	 * Properties that can be turned into HTML attributes with `.attrs()`
-	 */
+	*/
 	attributes: Record<string, string | symbol | number | boolean> = {};
+	content: string | undefined;
 	/**
 	 * @returns The instance's constructor
 	 */
@@ -175,8 +194,8 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	 * If this is a Component it will be compiled into static HTML included in the landing page.
 	 * Not a static variable because a Component/Page may/may not want to be SSG based on certain conditions
 	*/
-	readonly isSSG: boolean = true;
 	readonly isPersisted: boolean = false;
+	readonly isSSG: boolean = true;
 	/**
 	 * Emits when the component is rendered
 	 */
@@ -201,7 +220,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		}
 
 		if (!Component.subclasses.has(this.Ctor.name)) {
-			this.Ctor.init<typeof this, DerivedComponent<typeof this>>();
+			this.Ctor.init();
 		}
 	}
 
@@ -264,21 +283,21 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	 * Outputs the template to a string
 	 * @param content Any content that should be injected into the template
 	 */
-	render(...args: Parameters<this[`template`]>) {
+	render(content: string = ``) {
+		this.content = content;
 		Component.toPlace.set(this.uid, this);
 		if (appContext === `build`) {
-			return this.renderSSG(...args);
+			return this.renderSSG();
 		}
-		return this.renderCSR(...args);
+		return this.renderCSR();
 	}
 
-	private renderCSR(...args: Parameters<this[`template`]>) {
-		const [content] = args;
+	private renderCSR() {
 		const key = Component.name;
-		return `<img src="#" style="display:none" onerror="${key}.${Component.onPlace.name}('${this.uid}',this)" />${this.template(content)}`; // TODO1: (I think) this causes an unnecessary rerender on existing elements
+		return `<img src="#" style="display:none" onerror="${key}.${Component.onPlace.name}('${this.uid}',this)" />`; // TODO1: (I think) this causes an unnecessary rerender on existing elements
 	}
 
-	private renderSSG(...args: Parameters<this[`template`]>) { // TODO3: This is unused on browser, so I originally had it in build.ts, but like it better here
+	private renderSSG() { // TODO3: This is unused on browser, so I originally had it in build.ts, but like it better here
 		const argsString = Component.serialize(this.args);
 		const template = this.template().trim();
 		const hasOneRootElement = /^<(\w+).*<\/\1>$/s.test(template); // TODO2: False positive for e.g. <div>one</div> <div>two</div>
@@ -288,17 +307,24 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		}
 		let out = ``;
 		if (this.isCSR) {
-			out += `<script src="data:text/javascript," onload="${Component.toInitName}.push([this,'${this.Ctor.name}',${this.isPersisted ? `'${this.uid}'` : ``},${argsString}])"></script>`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
+			out += `<script src="data:text/javascript," onload="${Component.ssgHolderName}.push([this,'${this.Ctor.name}',${this.isPersisted ? `'${this.uid}'` : ``},${argsString}])"></script>`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
 		}
 		if (this.isSSG) {
-			const [content] = args;
-			let rendered = this.template(content);
+			let rendered = this.template(this.content);
 			rendered = rendered.replace(/^\s*<\w+/, match =>
 				`${match} ${Component.$elAttrType}="${this.Ctor.name}"${this.isPersisted ? ` ${Component.$elAttrUid}="${this.uid}"` : ``}`
 			);
 			out += rendered;
 		}
 		return out;
+	}
+
+	rerender() {
+		const parser = new DOMParser();
+		const doc = parser.parseFromString(this.template(this.content), `text/html`);
+		const $replacement = doc.body.firstElementChild!;
+		this.$el!.replaceWith($replacement);
+		this.setEl($replacement);
 	}
 
 	/**

@@ -27,6 +27,7 @@ export default class IndexPage extends Page<IndexPage> {
 
 	addListItem() {
 		state.add({ value: `` });
+		this.rerender();
 	}
 
 	anchorlessRoute() {

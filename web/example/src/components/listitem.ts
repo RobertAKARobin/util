@@ -17,6 +17,7 @@ export class ListItemComponent extends Component<ListItemComponent> {
 	<button type="button">↑</button>
 	<button type="button">↓</button>
 	${textbox()
+		.notify(this, `state`)
 		.set({ value: this.$.value })
 		.render()}
 </div>
