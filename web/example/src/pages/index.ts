@@ -29,6 +29,10 @@ export default class IndexPage extends Page<IndexPage> {
 		state.add({ value: `` });
 	}
 
+	anchorlessRoute() {
+		router.to(`ssgYes`);
+	}
+
 	template = () => `
 <div>
 <h1>Hello world!</h1>
@@ -54,6 +58,8 @@ Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ 
 </markdown>
 
 <p>${route().set({ to: `home` }).render(`Link to homepage`)}</p>
+
+<button type="button" onclick=${this.bind(`anchorlessRoute`)}>Go to SSG Yes</button>
 
 <markdown>
 ## Headline 2

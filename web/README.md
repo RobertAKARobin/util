@@ -16,15 +16,14 @@
 
 ## TODO
 
--	Add route helper
 -	Jump anchors
 -	Import from other file (ergo SVG)
 
--	Set initial state values?
 -	Match routes with params
 -	Remove CSS from JS bundles
 -	Image preprocessing
 
+-	Set initial state values?
 -	Autocomplete CSS classes
 -	Template/CSS prefix
 -	VS plugin for CSS
@@ -37,6 +36,7 @@
 
 ### Done:
 
+-	Add route helper
 -	Don't use `Component.push` in `<script>`
 -	Set absolute path for imports
 -	Extract `window.` boilerplate to beginning of layout

@@ -87,6 +87,12 @@ export class Router<Routes extends RouteMap> {
 			}
 		}, { strong: true });
 	}
+
+	to(routeName: keyof Routes) {
+		const route = this.routes[routeName];
+		window.history.pushState({}, ``, route.pathname);
+		this.url.next(route);
+	}
 }
 
 /**
