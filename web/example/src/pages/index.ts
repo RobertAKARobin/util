@@ -42,7 +42,10 @@ export default class IndexPage extends Page<IndexPage> {
 
 <ol>
 	${state.entries.last.map(({ id, value }) => `
-		<li>${listItem(id).set({ value }).render()}</li>
+		<li>${listItem(id)
+			.set({ value })
+			.render()
+		}</li>
 	`).join(`\n`)}
 
 	<li><button type="button" onclick=${this.bind(`addListItem`)}>Add</button></li>
@@ -51,7 +54,7 @@ export default class IndexPage extends Page<IndexPage> {
 <markdown>
 # Headline 1
 
-## ${this.$.message}
+## ${this.state.last.message}
 
 Lorem ipsum dolor <strong>sit amet</strong>, consectetur *adipiscing elit*, sed do _eiusmod tempor_ incididunt.
 

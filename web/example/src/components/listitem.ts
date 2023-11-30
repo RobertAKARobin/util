@@ -8,23 +8,33 @@ export class ListItemComponent extends Component<ListItemComponent> {
 		return input;
 	}
 
+	onArrow(increment: number) {
+		state.move(this.uid!, increment);
+	}
+
 	onLoad() {
-		state.upsert(this.uid!, this.$);
+		state.upsert(this.uid!, this.state.last);
 	}
 
 	onNotify(textbox: Textbox) {
 		state.update(this.uid!, {
-			value: textbox.$.value,
+			value: textbox.state.last.value,
 		});
 	}
 
 	template = () => `
 <div>
-	<button type="button">↑</button>
-	<button type="button">↓</button>
+	<button
+		onclick=${this.bind(`onArrow`, -1)}
+		type="button"
+	>↑</button>
+	<button
+		onclick=${this.bind(`onArrow`, 1)}
+		type="button"
+	>↓</button>
 	${textbox()
 		.notify(this, `state`)
-		.set({ value: this.$.value })
+		.set({ value: this.state.last.value })
 		.render()}
 </div>
 	`;

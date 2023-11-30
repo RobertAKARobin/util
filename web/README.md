@@ -18,6 +18,8 @@
 
 -	Import from other file (ergo SVG)
 
+-	Persist state for e.g. input elements
+
 -	Match routes with params
 -	Remove CSS from JS bundles
 -	Image preprocessing
@@ -30,11 +32,9 @@
 
 ### WIP
 
--	Components emit events
--	Persist state for elements with UIDs?
-
 ### Done:
 
+-	Components emit events
 -	Show `[data-component]` on build?
 -	Jump anchors
 -	Base URI

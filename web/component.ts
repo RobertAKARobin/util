@@ -153,12 +153,6 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	}
 
 	/**
-	 * A helper to access the instance's `.state.last`
-	 */
-	get $() {
-		return this.state.last;
-	}
-	/**
 	 * The element to which this instance is bound
 	 */
 	$el: Element | undefined;

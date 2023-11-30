@@ -146,11 +146,11 @@ export abstract class RouteComponent<
 			return;
 		}
 		event.preventDefault();
-		this.router.to(this.$.routeName);
+		this.router.to(this.state.last.routeName);
 	}
 
 	template = (content: string = ``) => {
-		return `<a href="${this.$.href}" onclick=${this.bind(`onClick`)}>${content}</a>`;
+		return `<a href="${this.state.last.href}" onclick=${this.bind(`onClick`)}>${content}</a>`;
 	};
 }
 

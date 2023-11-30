@@ -31,7 +31,7 @@ input {
 
 	remaining() {
 		return `
-		${this.$.maxlength - this.$.value.length} / ${this.$.maxlength} Remaining
+		${this.state.last.maxlength - this.state.last.value.length} / ${this.state.last.maxlength} Remaining
 		`;
 	}
 

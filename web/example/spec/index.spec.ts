@@ -31,7 +31,7 @@ class Widget extends Component {
 		return input;
 	}
 
-	template = () => `<h1>${this.$.message ?? ``}${this.prop}</h1>`;
+	template = () => `<h1>${this.state.last.message ?? ``}${this.prop}</h1>`;
 }
 
 const widget = Component.toFunction(Widget);

@@ -41,10 +41,45 @@ export class EntityStateEmitter<Type>
 				id,
 			],
 		});
+
+		return id;
 	}
 
 	createId() {
 		return newUid();
+	}
+
+	fromEnd(offset: number = 0) {
+		return this.last.ids[this.last.ids.length - offset - 1];
+	}
+
+	get(id: string) {
+		return this.last.byId[id];
+	}
+
+	indexOf(id: string) {
+		return this.last.ids.indexOf(id);
+	}
+
+	length() {
+		return this.last.ids.length;
+	}
+
+	move(id: string, distance: number) {
+		const oldIndex = this.last.ids.indexOf(id);
+		return this.moveTo(id, oldIndex + distance);
+	}
+
+	moveTo(id: string, newIndex: number) {
+		const ids = [...this.last.ids];
+		const oldIndex = ids.indexOf(id);
+		ids.splice(oldIndex, 1);
+		ids.splice(newIndex, 0, id);
+		this.next({
+			...this.last,
+			ids,
+		});
+		return ids;
 	}
 
 	remove(id: string) {
@@ -63,24 +98,28 @@ export class EntityStateEmitter<Type>
 	}
 
 	update(id: string, value: Partial<Type>) {
+		const updated = {
+			...this.last.byId[id],
+			...value,
+		};
+
 		this.next({
 			...this.last,
 			byId: {
 				...this.last.byId,
-				[id]: {
-					...this.last.byId[id],
-					...value,
-				},
+				[id]: updated,
 			},
 		});
+
+		return updated;
 	}
 
 	upsert(id: string, value: Partial<Type>) {
 		const existing = this.last.byId[id];
 		if (existing !== undefined) {
-			this.update(id, value);
+			return this.update(id, value);
 		} else {
-			this.add(value as Type, id);
+			return this.add(value as Type, id);
 		}
 	}
 }
