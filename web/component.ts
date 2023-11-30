@@ -71,7 +71,11 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 
 			const instance = new (this as unknown as Subclass)(uid);
 			instance.set(args as Record<string, string>);
-			instance._setEl($placeholder.nextElementSibling!);
+			try {
+				instance.setEl($placeholder.nextElementSibling!);
+			} catch {
+				debugger;
+			}
 			$placeholder.remove();
 		}
 	}
@@ -88,7 +92,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 			const existing = Component.uidInstances.get(uid)!;
 			$placeholder.nextElementSibling?.replaceWith(existing.$el!);
 		} else {
-			instance._setEl($placeholder.nextElementSibling!);
+			instance.setEl($placeholder.nextElementSibling!);
 		}
 		$placeholder.remove();
 	}
@@ -204,18 +208,6 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		}
 	}
 
-	_setEl($input: Element) {
-		if ($input === undefined || $input === null) {
-			throw new Error(`onRender: ${this.Ctor.name} #${this.uid} has no element`);
-		}
-		const $el = $input as BoundElement;
-		$el[Component.$elInstance] = this;
-		$el.setAttribute(Component.$elAttribute, this.Ctor.name);
-		this.$el = $el;
-		this.load.next(this.load.last + 1);
-		this.onLoad();
-	}
-
 	/**
 	 * @param input An object, the type of which defines the parameters the component should accept via `.set` when used in a template
 	 * @returns An object, the type of which defines the shape of the component's `.state`
@@ -311,6 +303,18 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		const state = this.accept(input); // eslint-disable-line @typescript-eslint/no-unsafe-assignment
 		this.state.next(state); // eslint-disable-line @typescript-eslint/no-unsafe-argument
 		return this;
+	}
+
+	setEl($input: Element) {
+		if ($input === undefined || $input === null) {
+			throw new Error(`onRender: ${this.Ctor.name} #${this.uid} has no element`);
+		}
+		const $el = $input as BoundElement;
+		$el[Component.$elInstance] = this;
+		$el.setAttribute(Component.$elAttribute, this.Ctor.name);
+		this.$el = $el;
+		this.load.next(this.load.last + 1);
+		this.onLoad();
 	}
 
 	/**

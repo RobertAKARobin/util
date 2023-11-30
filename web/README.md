@@ -30,12 +30,12 @@
 
 ### WIP
 
--	Jump anchors
 -	Components emit events
 -	Persist state for elements with UIDs?
 
 ### Done:
 
+-	Jump anchors
 -	Base URI
 -	Add route helper
 -	Don't use `Component.push` in `<script>`

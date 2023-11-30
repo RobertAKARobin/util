@@ -9,24 +9,26 @@ export const hasHash = /#.*$/;
 
 export type RouteMap = Record<string, string>;
 
-const defaultOrigin = `https://example.com/`; // Let's just hope this isn't used on example.com
-const defaultOriginUrl = new URL(defaultOrigin);
-
 /**
  * Resolves the current URL to a page
  */
 export class Router<Routes extends RouteMap> {
-	private navigationCount = -1;
+	readonly baseHref: URL;
 	readonly routes = {} as Record<keyof Routes, URL>;
 	readonly url = new Emitter<URL>();
 
 	constructor(
 		routes: Routes,
-		readonly resolver: (
+		readonly resolve: (
 			this: Router<Routes>,
 			url: URL,
 		) => Page | undefined | Promise<Page | undefined>
 	) {
+		this.baseHref = appContext === `browser`
+			? new URL(document.baseURI)
+			: new URL(`https://example.com`);
+
+		// Populate route URLs
 		for (const key in routes) {
 			const routeName: keyof Routes = key;
 			let routePath = routes[routeName] as string;
@@ -36,7 +38,7 @@ export class Router<Routes extends RouteMap> {
 				url = new URL(routePath);
 			} catch {
 				try {
-					url = new URL(defaultOrigin + routePath);
+					url = new URL(this.baseHref.href + routePath);
 				} catch {
 					throw new Error(`Path '${routePath}' for route '${key}' can't be parsed as a valid URL`);
 				}
@@ -44,53 +46,75 @@ export class Router<Routes extends RouteMap> {
 			this.routes[routeName] = url;
 		}
 
-		this.url.subscribe(async url => {
-			this.navigationCount += 1;
-			const page = await this.resolve(url);
-			if (page) {
-				Page.current.next(page);
-			}
+		this.url.subscribe((to, from) => {
+			void this.onNav({ from, to });
 		}, { strong: true });
 
 		if (appContext === `browser`) {
-			window.onpopstate = () => {
+			window.onpopstate = () => { // Popstate is fired only by performing a browser action on the current document, e.g. back, forward, or hashchange
 				const newRoute = new URL(window.location.href);
-				if (newRoute.href !== this.url.last?.href) {
-					this.url.next(newRoute);
-				}
+				this.url.next(newRoute);
 			};
 
-			this.url.next(new URL(window.location.href));
+			window.onhashchange = () => { // Hashchange is fired _after_ popstate
+				const newRoute = new URL(window.location.href);
+				this.url.next(newRoute);
+			};
 		}
 	}
 
-	/**
-	 * Convert a Router path to a Page
-	 */
-	async resolve(url: URL) {
-		return await this.resolver(url);
+	private async onNav(nav: { from?: URL; to: URL; }) {
+		if (nav.to.pathname !== nav.from?.pathname) { // On new page
+			const page = await this.resolve(nav.to);
+			if (page) {
+				Page.current.next(page);
+			}
+
+			return;
+		}
+
+		if (nav.to.href === nav.from?.href) { // On no change
+			return;
+		}
+
+		if (nav.to.origin !== nav.from?.origin) { // On external
+			location.href = nav.to.href;
+			return;
+		}
+
+		if (nav.to.hash !== nav.from?.hash) { // On same page with new hash
+			location.hash = nav.to.hash;
+			if (this.url.last.hash.length === 0) {
+				window.history.replaceState({}, ``, this.url.last.pathname); // Turns out `location.hash = ''` will still set a hash of `#`. So, if going from a path with hash to path without hash, we'll need to handle the hash differently
+			}
+		}
 	}
 
 	/**
 	 * When `Page.current` changes, attach it to the provided HTML element and render it
 	 */
 	setOutlet($outlet: Element) {
-		Page.current.subscribe(page => {
-			if (this.navigationCount > 0) {
-				while ($outlet.firstChild) {
-					$outlet.removeChild($outlet.lastChild!);
-				}
+		const url = new URL(window.location.href);
+		this.url.next(url); // This has to come before the page subscription or the landing page gets crabby
 
-				document.title = page.title;
-				$outlet.insertAdjacentHTML(`beforeend`, page.template());
-				page._setEl($outlet.firstElementChild!);
+		Page.current.subscribe(page => {
+			while ($outlet.firstChild) {
+				$outlet.removeChild($outlet.lastChild!);
+			}
+
+			document.title = page.title;
+			$outlet.insertAdjacentHTML(`beforeend`, page.template());
+			page.setEl($outlet.firstElementChild!);
+
+			window.history.pushState({}, ``, this.url.last.pathname); // Setting the hash here causes the jumpanchor to not be activated for some reason
+			if (this.url.last.hash.length > 0) {
+				location.hash = this.url.last.hash;
 			}
 		}, { strong: true });
 	}
 
 	to(routeName: keyof Routes) {
 		const route = this.routes[routeName];
-		window.history.pushState({}, ``, route.pathname);
 		this.url.next(route);
 	}
 }
@@ -108,11 +132,12 @@ export abstract class RouteComponent<
 	}) {
 		this.attributes = attributes;
 		const route = this.router.routes[to];
-		const isAbsolute = route.origin !== defaultOriginUrl.origin;
+		const isAbsolute = route.origin !== this.router.baseHref.origin;
 		return {
-			href: isAbsolute ? route.href : route.pathname,
+			href: isAbsolute ? route.href : `${route.pathname}${route.hash ?? ``}`,
 			isAbsolute,
 			route,
+			routeName: to,
 		};
 	}
 
@@ -120,10 +145,8 @@ export abstract class RouteComponent<
 		if (event.metaKey || event.ctrlKey) { // Allow opening in new tab
 			return;
 		}
-
 		event.preventDefault();
-		window.history.pushState({}, ``, this.$.route.pathname);
-		this.router.url.next(this.$.route);
+		this.router.to(this.$.routeName);
 	}
 
 	template = (content: string = ``) => {
