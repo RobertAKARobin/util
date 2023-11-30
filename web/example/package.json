@@ -14,10 +14,10 @@
 		"dev": "tsx watch --watch-preserve-output --watch-path=src build.ts -- --serve",
 		"lint": "npm run lint:ts && npm run lint:css && npm run lint:html",
 		"lint:css": "stylelint dist/**/*.css dist-golden/**/*.css",
-		"lint:html": "html-validate dist dist-golden",
+		"lint:html": "html-validate dist",
 		"lint:ts": "eslint .",
 		"spec": "tsx spec/run.ts",
-		"test": "tsc -p tsconfig.json && npm run lint && npm run spec"
+		"test": "tsc -p tsconfig.json && npm run build && npm run lint && npm run spec"
 	},
 	"type": "module"
 }

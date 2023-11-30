@@ -4,7 +4,7 @@ const initial = {
 	listItems: [
 		{
 			uid: `test`,
-			value: `Hello world`,
+			value: `Hello`,
 		},
 	],
 };

@@ -6,21 +6,18 @@ import textbox from './textbox.ts';
 type ListItem = typeof state.last.listItems[number];
 
 export class ListItemComponent extends Component {
-
-	listItem: ListItem;
-
-	constructor(input: {
-		listItem: ListItem;
-	}) {
-		super();
-		this.listItem = input.listItem;
+	accept(input: ListItem) {
+		return input;
 	}
 
 	template = () => `
 <div>
-	<button>↑</button>
-	<button>↓</button>
-	${textbox().set({ value: this.listItem.value }).render()}
+	<button type="button">↑</button>
+	<button type="button">↓</button>
+	${textbox()
+		.set({ value: this.$.value })
+		.on(`state`, () => console.log(`ay`))
+		.render()}
 </div>
 	`;
 }

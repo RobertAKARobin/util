@@ -64,7 +64,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 				continue;
 			}
 
-			const instance = new (this as unknown as Subclass)();
+			const instance = new (this as unknown as Subclass)(args.uid);
 			instance.set(args as Record<string, string>);
 			instance.setEl($placeholder.nextElementSibling!);
 			$placeholder.remove();
@@ -79,8 +79,13 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 
 		Component.toPlace.delete(uid);
 
-		instance.setEl($placeholder.nextElementSibling!);
-		$placeholder.remove();
+		if (Component.uidInstances.has(uid)) {
+			const existing = Component.uidInstances.get(uid)!;
+			$placeholder.replaceWith(existing.$el!);
+		} else {
+			instance.setEl($placeholder.nextElementSibling!);
+			$placeholder.remove();
+		}
 	}
 
 	/**
@@ -179,8 +184,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	}
 
 	on<
-		EmitterValue,
-		SpecificEmitter extends Emitter<EmitterValue>,
+		SpecificEmitter extends Emitter<any>, // eslint-disable-line @typescript-eslint/no-explicit-any
 		Key extends $.KeysMatching<Subclass, SpecificEmitter>
 	>(
 		eventName: Key,

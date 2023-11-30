@@ -3,7 +3,6 @@ import { Page } from '@robertakarobin/web/index.ts';
 import { route, router } from '../router.ts';
 import listItem from '../components/listitem.ts';
 import { state } from '../state.ts';
-import textbox from '../components/textbox.ts';
 
 const style =  `
 h1 {
@@ -35,16 +34,11 @@ export default class IndexPage extends Page {
 		state.subscribe((newState, oldState) => {
 			console.log(newState, oldState);
 		});
+
 		return {
 			message: input.message ?? ``,
 		};
 	}
-
-	// <ol>
-	// ${state.last.listItems.map(item => `
-	// 	<li>${listItem({ listItem: item })}</li>
-	// `).join(`\n`)}
-	// </ol>
 
 	template = () => `
 <div>
@@ -52,14 +46,16 @@ export default class IndexPage extends Page {
 
 <div id="${router.routes.homeJump1.hash.substring(1)}">Jump 1</div>
 
+<ol>
+	${state.last.listItems.map(item => `
+		<li>${listItem(item.uid).set(item).render()}</li>
+	`).join(`\n`)}
+</ol>
+
 <markdown>
 # Headline 1
 
 ## ${this.$.message}
-
-<div>${textbox().set({ maxlength: 10, value: `foo` }).render()}</div>
-
-<div>${textbox().set({ maxlength: 777 }).render()}</div>
 
 Lorem ipsum dolor <strong>sit amet</strong>, consectetur *adipiscing elit*, sed do _eiusmod tempor_ incididunt.
 
