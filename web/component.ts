@@ -88,12 +88,8 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		if (Component.persists.has(uid)) {
 			instance = Component.persists.get(uid)!;
 		}
-		const parser = new DOMParser();
-		const rendered = instance.template(instance.content);
-		const doc = parser.parseFromString(rendered, `text/html`);
-		const $replacement = doc.body.firstElementChild!;
-		$placeholder.replaceWith($replacement);
-		instance.setEl($replacement);
+
+		$placeholder.replaceWith(instance.renderCSR());
 	}
 
 	/**
@@ -279,6 +275,11 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 
 	onNotify(_instance: Component<any>) {} // eslint-disable-line @typescript-eslint/no-explicit-any
 
+	place() {
+		const key = Component.name;
+		return `<img aria-hidden="true" src="#" style="display:none" onerror="${key}.${Component.onPlace.name}('${this.uid}',this)" />`; // TODO1: (I think) this causes an unnecessary rerender on existing elements
+	}
+
 	/**
 	 * Outputs the template to a string
 	 * @param content Any content that should be injected into the template
@@ -289,12 +290,16 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		if (appContext === `build`) {
 			return this.renderSSG();
 		}
-		return this.renderCSR();
+		return this.place();
 	}
 
 	private renderCSR() {
-		const key = Component.name;
-		return `<img src="#" style="display:none" onerror="${key}.${Component.onPlace.name}('${this.uid}',this)" />`; // TODO1: (I think) this causes an unnecessary rerender on existing elements
+		const parser = new DOMParser();
+		const rendered = this.template(this.content);
+		const doc = parser.parseFromString(rendered, `text/html`);
+		const $replacement = doc.body.firstElementChild!;
+		this.setEl($replacement);
+		return $replacement;
 	}
 
 	private renderSSG() { // TODO3: This is unused on browser, so I originally had it in build.ts, but like it better here
@@ -320,11 +325,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	}
 
 	rerender() {
-		const parser = new DOMParser();
-		const doc = parser.parseFromString(this.template(this.content), `text/html`);
-		const $replacement = doc.body.firstElementChild!;
-		this.$el!.replaceWith($replacement);
-		this.setEl($replacement);
+		this.$el!.replaceWith(this.renderCSR());
 	}
 
 	/**

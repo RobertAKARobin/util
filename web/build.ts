@@ -216,7 +216,7 @@ export class Builder {
 			format: `esm`,
 			keepNames: true,
 			metafile: true,
-			minify: false,
+			minify: true,
 			outdir: this.serveDirAbs,
 			splitting: true,
 		});
