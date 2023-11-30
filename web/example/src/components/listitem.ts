@@ -5,9 +5,13 @@ import textbox from './textbox.ts';
 
 type ListItem = typeof state.last.listItems[number];
 
-export class ListItemComponent extends Component {
+export class ListItemComponent extends Component<ListItemComponent> {
 	accept(input: ListItem) {
 		return input;
+	}
+
+	onInput(event: Event, ...args: []) {
+		console.log(event, args);
 	}
 
 	template = () => `
@@ -16,7 +20,7 @@ export class ListItemComponent extends Component {
 	<button type="button">↓</button>
 	${textbox()
 		.set({ value: this.$.value })
-		.on(`state`, () => console.log(`ay`))
+		.on(`state`, this.bind(`onInput`))
 		.render()}
 </div>
 	`;

@@ -83,7 +83,7 @@ export class Router<Routes extends RouteMap> {
 
 				document.title = page.title;
 				$outlet.insertAdjacentHTML(`beforeend`, page.template());
-				page.setEl($outlet.firstElementChild!);
+				page._setEl($outlet.firstElementChild!);
 			}
 		}, { strong: true });
 	}

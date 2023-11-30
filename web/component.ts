@@ -66,7 +66,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 
 			const instance = new (this as unknown as Subclass)(args.uid);
 			instance.set(args as Record<string, string>);
-			instance.setEl($placeholder.nextElementSibling!);
+			instance._setEl($placeholder.nextElementSibling!);
 			$placeholder.remove();
 		}
 	}
@@ -83,7 +83,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 			const existing = Component.uidInstances.get(uid)!;
 			$placeholder.replaceWith(existing.$el!);
 		} else {
-			instance.setEl($placeholder.nextElementSibling!);
+			instance._setEl($placeholder.nextElementSibling!);
 			$placeholder.remove();
 		}
 	}
@@ -105,15 +105,31 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		};
 	}
 
+	/**
+	 * A helper to access the instance's `.state.last`
+	 */
 	get $() {
 		return this.state.last;
 	}
+	/**
+	 * The element to which this instance is bound
+	 */
 	$el: Element | undefined;
+	/**
+	 * This instance's subscriptions. This should keep subscriptions from being garbage-collected as long as the instance persists?
+	 */
+	protected readonly _subscriptions = new Set<Subscription<any>>(); // eslint-disable-line @typescript-eslint/no-explicit-any
+	/**
+	 * Holds the last arguments passed into the instance. TODO2: A more elegant way to do this?
+	 */
 	args: Component[`attributes`] = {};
 	/**
 	 * Properties that can be turned into HTML attributes with `.attrs()`
 	 */
 	attributes: Record<string, string | symbol | number | boolean> = {};
+	/**
+	 * @returns The instance's constructor
+	 */
 	get Ctor() {
 		return this.constructor as typeof Component;
 	}
@@ -127,16 +143,18 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	 * Not a static variable because a Component/Page may/may not want to be SSG based on certain conditions
 	*/
 	isSSG = true;
+	/**
+	 * Emits when the component is rendered
+	 */
 	readonly load = new Emitter<number>({ initial: 0 });
+	/**
+	 * Emits when the state changes
+	 */
 	readonly state = new Emitter<ReturnType<this[`accept`]>>({ initial: {} as ReturnType<this[`accept`]> });
 	/**
 	 * Warning: `style` should be defined as a static property, not an instance property
 	*/
 	private readonly style: void = undefined;
-	/**
-	 * This instance's subscriptions. This should keep subscriptions from being garbage-collected as long as the instance persists?
-	 */
-	protected readonly subscriptions = new Set<Subscription<any>>(); // eslint-disable-line @typescript-eslint/no-explicit-any
 
 	constructor(
 		readonly uid?: string
@@ -152,6 +170,21 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		}
 	}
 
+	_setEl($input: Element) {
+		if ($input === undefined || $input === null) {
+			throw new Error(`onRender: ${this.Ctor.name} #${this.uid} has no element`);
+		}
+		const $el = $input as BoundElement;
+		$el[Component.$elInstance] = this;
+		$el.setAttribute(Component.$elAttribute, this.Ctor.name);
+		this.$el = $el;
+		this.load.next(this.load.last + 1);
+	}
+
+	/**
+	 * @param input An object, the type of which defines the parameters the component should accept via `.set` when used in a template
+	 * @returns An object, the type of which defines the shape of the component's `.state`
+	 */
 	accept(input: Component[`attributes`]) { // eslint-disable-line @typescript-eslint/no-explicit-any
 		return input as any; // eslint-disable-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return
 	}
@@ -188,23 +221,27 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		Key extends $.KeysMatching<Subclass, SpecificEmitter>
 	>(
 		eventName: Key,
-		...[onEmit, options]: Parameters<SpecificEmitter[`subscribe`]>
+		callbackName: string,
 	) {
 		const emitter = (this as unknown as Subclass)[eventName] as SpecificEmitter;
-		const subscription = emitter.subscribe(onEmit, options);
-		this.subscriptions.add(subscription);
+		// const subscription = emitter.subscribe(onEmit, options);
+		// this.subscriptions.add(subscription);
 		return this;
 	}
 
+	/**
+	 * Outputs the template to a string
+	 * @param content Any content that should be injected into the template
+	 */
 	render(content: Parameters<this[`template`]>[0] = ``) {
 		Component.toPlace.set(this.uid, this);
 
 		const key = Component.name;
-		return `<img src="#" style="display:none" onerror="${key}.${Component.onPlace.name}('${this.uid}', this)" />${this.template(content)}`;
+		return `<img src="#" style="display:none" onerror="${key}.${Component.onPlace.name}('${this.uid}', this)" />${this.template(content)}`; // TODO1: (I think) this causes an unnecessary rerender on existing elements
 	}
 
 	/**
-	 * Set values on this Component's state
+	 * Sets values on this Component's state
 	 */
 	set(input: Parameters<this[`accept`]>[0]): this {
 		this.args = input;
@@ -213,17 +250,9 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		return this;
 	}
 
-	setEl($input: Element) {
-		if ($input === undefined || $input === null) {
-			throw new Error(`onRender: ${this.Ctor.name} #${this.uid} has no element`);
-		}
-		const $el = $input as BoundElement;
-		$el[Component.$elInstance] = this;
-		$el.setAttribute(Component.$elAttribute, this.Ctor.name);
-		this.$el = $el;
-		this.load.next(this.load.last + 1);
-	}
-
+	/**
+	 * Defines what is written into the document when this instance is rendered
+	 */
 	template(content: string = ``): string {
 		return content ?? ``;
 	}
