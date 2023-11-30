@@ -21,7 +21,8 @@ const globals = (appContext === `browser` ? window : global) as unknown as Windo
 	& { [key in typeof Component.toInitName]: ToInit; };
 
 export abstract class Component<Subclass extends Component = never> { // This generic lets `this.bind` work; without it `instance.bind` works but `this.bind` throws a type error
-	static readonly $elAttribute = `data-component`;
+	static readonly $elAttrType = `data-component`;
+	static readonly $elAttrUid = `data-uid`;
 	static readonly $elInstance = `instance`;
 	static readonly style: string | undefined;
 	static readonly subclasses = new Map<string, typeof Component>();
@@ -51,11 +52,11 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 
 		if (
 			typeof this.style === `string`
-			&& document.querySelector(`style[${this.$elAttribute}="${this.name}"]`) === null
+			&& document.querySelector(`style[${this.$elAttrType}="${this.name}"]`) === null
 		) {
 			const $style = document.createElement(`style`);
 			$style.textContent = this.style;
-			$style.setAttribute(Component.$elAttribute, this.name);
+			$style.setAttribute(Component.$elAttrType, this.name);
 			document.head.appendChild($style);
 		}
 
@@ -240,23 +241,28 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 			}
 			return arg;
 		}).join(`,`);
-		return `"this.closest('[${Component.$elAttribute}=${this.Ctor.name}]').${Component.$elInstance}.${methodName as string}(event,${argsString})"`;
+		return `"this.closest('[${Component.$elAttrType}=${this.Ctor.name}]').${Component.$elInstance}.${methodName as string}(event,${argsString})"`;
 	}
 
-	on<
+	notify<
 		SpecificEmitter extends Emitter<any>, // eslint-disable-line @typescript-eslint/no-explicit-any
 		Key extends $.KeysMatching<Subclass, SpecificEmitter>
 	>(
+		receiver: {
+			onNotify: Component<any>[`onNotify`]; // eslint-disable-line @typescript-eslint/no-explicit-any
+			uid?: Component<any>[`uid`]; // eslint-disable-line @typescript-eslint/no-explicit-any
+		},
 		eventName: Key,
-		callbackName: string,
 	) {
 		const emitter = (this as unknown as Subclass)[eventName] as SpecificEmitter;
-		// const subscription = emitter.subscribe(onEmit, options);
-		// this.subscriptions.add(subscription);
+		const subscription = emitter.subscribe(() => receiver.onNotify(this));
+		this._subscriptions.add(subscription);
 		return this;
 	}
 
 	onLoad() {}
+
+	onNotify(_instance: Component<any>) {} // eslint-disable-line @typescript-eslint/no-explicit-any
 
 	/**
 	 * Outputs the template to a string
@@ -292,7 +298,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 			const [content] = args;
 			let rendered = this.template(content);
 			rendered = rendered.replace(/^\s*<\w+/, match =>
-				`${match} ${Component.$elAttribute}="${this.Ctor.name}"`
+				`${match} ${Component.$elAttrType}="${this.Ctor.name}" ${Component.$elAttrUid}="${this.uid}"`
 			);
 			out += rendered;
 		}
@@ -315,7 +321,8 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		}
 		const $el = $input as BoundElement;
 		$el[Component.$elInstance] = this;
-		$el.setAttribute(Component.$elAttribute, this.Ctor.name);
+		$el.setAttribute(Component.$elAttrType, this.Ctor.name);
+		$el.setAttribute(Component.$elAttrUid, this.uid!);
 		this.$el = $el;
 		this.load.next(this.load.last + 1);
 		this.onLoad();
