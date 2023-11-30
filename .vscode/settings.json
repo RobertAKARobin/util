@@ -11,5 +11,9 @@
 		"typescript"
 	],
 	"typescript.tsdk": "node_modules/typescript/lib",
-	"typescript.enablePromptUseWorkspaceTsdk": true
+	"typescript.enablePromptUseWorkspaceTsdk": true,
+
+	"html-validate.validate": [
+		"html",
+	]
 }

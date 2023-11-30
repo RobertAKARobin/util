@@ -16,6 +16,7 @@
 
 ## TODO
 
+-	Don't use `Component.push` in `<script>`
 -	Add route helper
 -	Jump anchors
 -	Import from other file (ergo SVG)
