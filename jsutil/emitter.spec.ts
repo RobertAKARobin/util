@@ -92,4 +92,9 @@ export const spec = test(`Emitter`, $ => {
 	$.assert(x => x(emitter1Pipe.last) === 300);
 	$.log(() => emitter1.next(4));
 	$.assert(x => x(emitter1Pipe.last) === 400);
+
+	const initial = { foo: `bar` };
+	let emitterWithInitial: Emitter<typeof initial>;
+	$.log(() => emitterWithInitial = new Emitter({ initial }));
+	$.assert(x => x(emitterWithInitial.last) === initial);
 });

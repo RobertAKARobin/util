@@ -1,14 +1,16 @@
-import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
+import { appContext } from '../../context.ts';
+import { EntityStateEmitter } from '@robertakarobin/jsutil/entities.ts';
 
-const initial = {
-	listItems: [
-		{
-			uid: `test`,
-			value: `Hello`,
-		},
-	],
+export type ListItem = {
+	value: string;
 };
 
-export const state = new Emitter({
-	initial,
-});
+export const state = new EntityStateEmitter<ListItem>();
+
+if (appContext === `build`) {
+	state.add({
+		value: `hello`,
+	});
+} else {
+	state.next(state.last);
+}

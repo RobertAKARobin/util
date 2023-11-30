@@ -1,4 +1,5 @@
 import { Component } from '@robertakarobin/web/component.ts';
+import { EntityStateEmitter } from '@robertakarobin/jsutil/entities.ts';
 import fs from 'fs';
 
 import { suite, test } from '@robertakarobin/spec';
@@ -7,6 +8,7 @@ import { diff } from '@robertakarobin/spec/diff.ts';
 
 export const hasMarkdown = /<markdown>(.*?)<\/markdown>/gs;
 
+EntityStateEmitter.prototype.createId = ()  => `/UID/`;
 Component.createUid = () => `/UID/`;
 
 const read = (path: string) => fs.readFileSync(path, { encoding: `utf8` });
@@ -60,6 +62,6 @@ export const spec = suite(`@robertakarobin/web`,
 
 	test(`component`, $ => {
 		$.assert(x => x(new Widget().set({ message: `x` }).template()) === `<h1>x42</h1>`);
-		$.assert(x => x(widget().set({ message: `x` }).render()) === `<script src="data:text/javascript," onload="Component.push([this,'Widget',{message:'x',}])"></script><h1>x42</h1>`);
+		$.assert(x => x(widget().set({ message: `x` }).render()) === `<script src="data:text/javascript," onload="Component.push([this,'Widget',,{message:'x',}])"></script><h1>x42</h1>`);
 	}),
 );

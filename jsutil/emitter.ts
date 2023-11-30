@@ -59,7 +59,7 @@ export class Emitter<State> {
 		return subscription;
 	}
 
-	unsubscribe(subscription: WeakRef<OnEmit<State>>): void {
+	unsubscribe(subscription: WeakRef<OnEmit<State>> | OnEmit<State>): void {
 		this.subscriptions.delete(subscription);
 	}
 
@@ -81,7 +81,7 @@ export class EmitterCache<State> {
 
 	constructor(options: Partial<EmitterCacheOptions<State>> = {}) {
 		this.limit = options.limit ?? EmitterCacheOptionsDefault.limit;
-		if (`initial` in options) {
+		if (options.initial !== undefined) {
 			this.add(options.initial!);
 		}
 	}

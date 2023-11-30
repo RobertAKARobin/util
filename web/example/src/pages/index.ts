@@ -12,32 +12,21 @@ h1 {
 
 const colors = [`red`, `yellow`, `green`, `brown`, `scarlet`];
 
-export default class IndexPage extends Page {
+export default class IndexPage extends Page<IndexPage> {
 	static style = style;
-
-	listItemsById = state.pipe(({ listItems }) => {
-		type ListItem = typeof listItems[number];
-		return listItems.reduce((listItems, listItem, index) => {
-			listItems[listItem.uid] = {
-				...listItem,
-				index,
-			};
-			return listItems;
-		}, {} as Record<ListItem[`uid`], ListItem & { index: number; }>);
-	});
 
 	title = `Home page`;
 
 	accept(input: {
 		message: string;
 	}) {
-		state.subscribe((newState, oldState) => {
-			console.log(newState, oldState);
-		});
-
 		return {
 			message: input.message ?? ``,
 		};
+	}
+
+	addListItem() {
+		state.add({ value: `` });
 	}
 
 	template = () => `
@@ -47,9 +36,11 @@ export default class IndexPage extends Page {
 <div id="${router.routes.homeJump1.hash.substring(1)}">Jump 1</div>
 
 <ol>
-	${state.last.listItems.map(item => `
-		<li>${listItem(item.uid).set(item).render()}</li>
+	${state.entries.last.map(({ id, value }) => `
+		<li>${listItem(id).set({ value }).render()}</li>
 	`).join(`\n`)}
+
+	<li><button type="button" onclick=${this.bind(`addListItem`)}>Add</button></li>
 </ol>
 
 <markdown>

@@ -1,5 +1,6 @@
 import type * as $ from '@robertakarobin/jsutil/types.d.ts';
 import { Emitter, type Subscription } from '@robertakarobin/jsutil/emitter.ts';
+import { newUid } from '@robertakarobin/jsutil/index.ts';
 
 import { appContext } from './context.ts';
 
@@ -22,7 +23,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	static readonly style: string | undefined;
 	static readonly subclasses = new Map<string, typeof Component>();
 	static readonly toInit = globals[this.name] as unknown as Array<
-		[Element, typeof Component.name, Record<string, unknown>]
+		[Element, typeof Component.name, Component[`uid`], Record<string, unknown>]
 	>;
 	static readonly toPlace = new Map<Component[`uid`], Component>();
 	static readonly uidInstances = new Map<Component[`uid`], Component>();
@@ -32,7 +33,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	}
 
 	static createUid() {
-		return Math.random().toString(36).slice(-5); // TODO2: Better UID generator. Doesn't have to actually be unique, just unlikely to repeat within app
+		return newUid();
 	}
 
 	static init<
@@ -59,13 +60,13 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		this.toInit.splice(0, this.toInit.length); // Want to remove valid items from array. JS doesn't really have a good way to do that, so instead clearing and rebuilding the array
 		for (let index = 0, length = toInit.length; index < length; index += 1) {
 			const item = toInit[index];
-			const [$placeholder, componentName, args] = item;
+			const [$placeholder, componentName, uid, args] = item;
 			if (componentName !== this.name) {
 				this.toInit.push(item); // Persist not-yet-initialized components
 				continue;
 			}
 
-			const instance = new (this as unknown as Subclass)(args.uid);
+			const instance = new (this as unknown as Subclass)(uid);
 			instance.set(args as Record<string, string>);
 			instance._setEl($placeholder.nextElementSibling!);
 			$placeholder.remove();
@@ -82,11 +83,11 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 
 		if (Component.uidInstances.has(uid)) {
 			const existing = Component.uidInstances.get(uid)!;
-			$placeholder.replaceWith(existing.$el!);
+			$placeholder.nextElementSibling?.replaceWith(existing.$el!);
 		} else {
 			instance._setEl($placeholder.nextElementSibling!);
-			$placeholder.remove();
 		}
+		$placeholder.remove();
 	}
 
 	/**
@@ -164,13 +165,14 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	/**
 	* If true, a <script> tag will be inserted that allows this component to be dynamically rendered. Otherwise it will be rendered only once. TODO2: Preserve isCSR=false elements
 	*/
-	isCSR = true;
+	readonly isCSR: boolean = true;
 	/**
 	 * If true, if this is a Page it will be compiled into a static `.html` file at the route(s) used for this Page, which serves as a landing page for performance and SEO purposes.
 	 * If this is a Component it will be compiled into static HTML included in the landing page.
 	 * Not a static variable because a Component/Page may/may not want to be SSG based on certain conditions
 	*/
-	isSSG = true;
+	readonly isSSG: boolean = true;
+	readonly isUidPersisted: boolean = false;
 	/**
 	 * Emits when the component is rendered
 	 */
@@ -187,10 +189,11 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	constructor(
 		readonly uid?: string
 	) {
-		this.uid = uid?.toString() ?? Component.createUid();
+		this.uid = uid ?? Component.createUid();
 
 		if (uid !== undefined) {
-			Component.uidInstances.set(this.uid.toString(), this);
+			Component.uidInstances.set(this.uid, this);
+			this.isUidPersisted = true;
 		}
 
 		if (!Component.subclasses.has(this.Ctor.name)) {
@@ -207,6 +210,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		$el.setAttribute(Component.$elAttribute, this.Ctor.name);
 		this.$el = $el;
 		this.load.next(this.load.last + 1);
+		this.onLoad();
 	}
 
 	/**
@@ -257,6 +261,8 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		return this;
 	}
 
+	onLoad() {}
+
 	/**
 	 * Outputs the template to a string
 	 * @param content Any content that should be injected into the template
@@ -272,7 +278,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	private renderCSR(...args: Parameters<this[`template`]>) {
 		const [content] = args;
 		const key = Component.name;
-		return `<img src="#" style="display:none" onerror="${key}.${Component.onPlace.name}('${this.uid}', this)" />${this.template(content)}`; // TODO1: (I think) this causes an unnecessary rerender on existing elements
+		return `<img src="#" style="display:none" onerror="${key}.${Component.onPlace.name}('${this.uid}',this)" />${this.template(content)}`; // TODO1: (I think) this causes an unnecessary rerender on existing elements
 	}
 
 	private renderSSG(...args: Parameters<this[`template`]>) { // TODO3: This is unused on browser, so I originally had it in build.ts, but like it better here
@@ -285,7 +291,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		}
 		let out = ``;
 		if (this.isCSR) {
-			out += `<script src="data:text/javascript," onload="${Component.name}.push([this,'${this.Ctor.name}',${argsString}])"></script>`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
+			out += `<script src="data:text/javascript," onload="${Component.name}.push([this,'${this.Ctor.name}',${this.isUidPersisted ? `'${this.uid}'` : ``},${argsString}])"></script>`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
 		}
 		if (this.isSSG) {
 			const [content] = args;

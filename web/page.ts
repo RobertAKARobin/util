@@ -2,7 +2,7 @@ import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
 
 import { Component } from './component.ts';
 
-export abstract class Page extends Component {
+export abstract class Page<Subclass extends Page = never> extends Component<Subclass> {
 
 	/**
 	 * The current page of the application

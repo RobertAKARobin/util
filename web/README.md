@@ -16,6 +16,7 @@
 
 ## TODO
 
+-	Set absolute path for imports
 -	Don't use `Component.push` in `<script>`
 -	Add route helper
 -	Jump anchors
