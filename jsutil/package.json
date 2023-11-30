@@ -8,5 +8,5 @@
 		"test": "tsx run.ts"
 	},
 	"type": "module",
-	"version": "0.0.29"
+	"version": "0.0.31"
 }

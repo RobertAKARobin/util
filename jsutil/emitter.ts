@@ -6,6 +6,10 @@ type OnEmit<State> = (
 
 export type Subscription<State> = WeakRef<OnEmit<State>> | OnEmit<State>;
 
+type EmitterOptions<State> = EmitterCacheOptions & {
+	initial: State;
+};
+
 export class Emitter<State> {
 	/** @see {@link EmitterCache} */
 	readonly cache: EmitterCache<State>;
@@ -17,8 +21,11 @@ export class Emitter<State> {
 	/** A collection of all active subcriptions to this Emitter. */
 	readonly subscriptions = new Set<Subscription<State>>;
 
-	constructor(options: Partial<EmitterCacheOptions<State>> = {}) {
+	constructor(options: Partial<EmitterOptions<State>> = {}) {
 		this.cache = new EmitterCache<State>(options ?? {});
+		if (options.initial !== undefined) {
+			this.next(options.initial);
+		}
 	}
 
 	next(value: State): void {
@@ -38,6 +45,7 @@ export class Emitter<State> {
 
 	pipe<Output>(callback: (state: State) => Output) {
 		const emitter = new Emitter<Output>();
+		emitter.next(callback(this.last));
 		this.subscribe(state => emitter.next(callback(state)));
 		return emitter;
 	}
@@ -79,11 +87,8 @@ export class EmitterCache<State> {
 
 	private readonly memory: Array<State> = [];
 
-	constructor(options: Partial<EmitterCacheOptions<State>> = {}) {
-		this.limit = options.limit ?? EmitterCacheOptionsDefault.limit;
-		if (options.initial !== undefined) {
-			this.add(options.initial!);
-		}
+	constructor(options: Partial<EmitterCacheOptions> = {}) {
+		this.limit = options.limit ?? emitterCacheOptionsDefault.limit;
 	}
 
 	add(value: State): void {
@@ -99,10 +104,8 @@ export class EmitterCache<State> {
 	}
 }
 
-export type EmitterCacheOptions<State> = typeof EmitterCacheOptionsDefault & {
-	initial: State;
-};
-
-export const EmitterCacheOptionsDefault = {
+export const emitterCacheOptionsDefault = {
 	limit: 1,
 };
+
+export type EmitterCacheOptions = typeof emitterCacheOptionsDefault;

@@ -1,4 +1,3 @@
-import { appContext } from '@robertakarobin/web/context.ts';
 import { EntityStateEmitter } from '@robertakarobin/jsutil/entities.ts';
 
 export type ListItem = {
@@ -6,11 +5,3 @@ export type ListItem = {
 };
 
 export const state = new EntityStateEmitter<ListItem>();
-
-if (appContext === `build`) {
-	state.add({
-		value: `hello`,
-	});
-} else {
-	state.next(state.last);
-}
