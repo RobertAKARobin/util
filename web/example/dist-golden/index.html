@@ -12,24 +12,24 @@
 <body>
 	<nav>
 		<ul>
-			<li><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'error404',}])"></script><a data-component="AppRouteComponent" data-uid="/UID/" href="/404.html" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go error404</a></li>
-			<li><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'home',}])"></script><a data-component="AppRouteComponent" data-uid="/UID/" href="/" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go home</a></li>
-			<li><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'homeJump1',}])"></script><a data-component="AppRouteComponent" data-uid="/UID/" href="/#jump1" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go homeJump1</a></li>
-			<li><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'homeJump2',}])"></script><a data-component="AppRouteComponent" data-uid="/UID/" href="/#jump2" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go homeJump2</a></li>
-			<li><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'ssgNo',}])"></script><a data-component="AppRouteComponent" data-uid="/UID/" href="/ssg/no" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go ssgNo</a></li>
-			<li><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'ssgYes',}])"></script><a data-component="AppRouteComponent" data-uid="/UID/" href="/ssg/yes" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go ssgYes</a></li>
-			<li><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'ssgYesJump1',}])"></script><a data-component="AppRouteComponent" data-uid="/UID/" href="/ssg/yes/#jump1" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go ssgYesJump1</a></li>
-			<li><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'ssgYesJump2',}])"></script><a data-component="AppRouteComponent" data-uid="/UID/" href="/ssg/yes/#jump2" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go ssgYesJump2</a></li>
+			<li><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'error404',}])"></script><a data-component="AppRouteComponent" href="/404.html" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go error404</a></li>
+			<li><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'home',}])"></script><a data-component="AppRouteComponent" href="/" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go home</a></li>
+			<li><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'homeJump1',}])"></script><a data-component="AppRouteComponent" href="/#jump1" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go homeJump1</a></li>
+			<li><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'homeJump2',}])"></script><a data-component="AppRouteComponent" href="/#jump2" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go homeJump2</a></li>
+			<li><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'ssgNo',}])"></script><a data-component="AppRouteComponent" href="/ssg/no" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go ssgNo</a></li>
+			<li><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'ssgYes',}])"></script><a data-component="AppRouteComponent" href="/ssg/yes" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go ssgYes</a></li>
+			<li><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'ssgYesJump1',}])"></script><a data-component="AppRouteComponent" href="/ssg/yes/#jump1" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go ssgYesJump1</a></li>
+			<li><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'ssgYesJump2',}])"></script><a data-component="AppRouteComponent" href="/ssg/yes/#jump2" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go ssgYesJump2</a></li>
 		</ul>
 	</nav>
 	<main><script src="data:text/javascript," onload="toInit.push([this,'IndexPage',,{message:'This is a variable',}])"></script>
-		<div data-component="IndexPage" data-uid="/UID/">
+		<div data-component="IndexPage">
 			<h1>Hello world!</h1>
 			<div id="jump1">Jump 1</div>
 			<ol>
 				<li><script src="data:text/javascript," onload="toInit.push([this,'ListItemComponent','/UID/',{value:'hello',}])"></script>
 					<div data-component="ListItemComponent" data-uid="/UID/"> <button type="button">↑</button> <button type="button">↓</button> <script src="data:text/javascript," onload="toInit.push([this,'Textbox',,{value:'hello',}])"></script>
-						<div data-component="Textbox" data-uid="/UID/"> <input oninput="this.closest('[data-component=Textbox]').instance.handleInput(event,)" placeholder="Type here" type="text" maxlength="10" value="hello"> <span> 5 / 10 Remaining </span> </div>
+						<div data-component="Textbox"> <input oninput="this.closest('[data-component=Textbox]').instance.handleInput(event,)" placeholder="Type here" type="text" maxlength="10" value="hello"> <span> 5 / 10 Remaining </span> </div>
 					</div>
 				</li>
 				<li><button type="button" onclick="this.closest('[data-component=IndexPage]').instance.addListItem(event,)">Add</button></li>
@@ -38,7 +38,7 @@
 			<h2>This is a variable</h2>
 			<p>Lorem ipsum dolor <strong>sit amet</strong>, consectetur <em>adipiscing elit</em>, sed do <em>eiusmod tempor</em> incididunt.</p>
 			<p>Duis aute voluptate <a href="https://example.com">velit esse cillum</a> dolore /eu fugiat/ nulla pariatur.</p>
-			<p><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'home',}])"></script><a data-component="AppRouteComponent" data-uid="/UID/" href="/" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Link to homepage</a></p><button type="button" onclick="this.closest('[data-component=IndexPage]').instance.anchorlessRoute(event,)">Go to SSG Yes</button>
+			<p><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'home',}])"></script><a data-component="AppRouteComponent" href="/" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Link to homepage</a></p><button type="button" onclick="this.closest('[data-component=IndexPage]').instance.anchorlessRoute(event,)">Go to SSG Yes</button>
 			<h2>Headline 2</h2>
 			<blockquote>
 				<p>Excepteur sint occaecat <em>cupidatat</em> non proident.</p>

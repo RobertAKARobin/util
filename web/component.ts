@@ -298,7 +298,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 			const [content] = args;
 			let rendered = this.template(content);
 			rendered = rendered.replace(/^\s*<\w+/, match =>
-				`${match} ${Component.$elAttrType}="${this.Ctor.name}" ${Component.$elAttrUid}="${this.uid}"`
+				`${match} ${Component.$elAttrType}="${this.Ctor.name}"${this.isPersisted ? ` ${Component.$elAttrUid}="${this.uid}"` : ``}`
 			);
 			out += rendered;
 		}
