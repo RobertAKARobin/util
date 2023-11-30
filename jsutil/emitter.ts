@@ -1,4 +1,4 @@
-type OnEmit<State> = (
+export type OnEmit<State> = (
 	value: State,
 	previous: State,
 	subscription: Subscription<State>
@@ -6,7 +6,7 @@ type OnEmit<State> = (
 
 export type Subscription<State> = WeakRef<OnEmit<State>> | OnEmit<State>;
 
-type EmitterOptions<State> = EmitterCacheOptions & {
+export type EmitterOptions<State> = EmitterCacheOptions & {
 	initial: State;
 };
 

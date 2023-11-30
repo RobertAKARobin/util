@@ -1,5 +1,5 @@
 import type * as $ from '@robertakarobin/jsutil/types.d.ts';
-import { Emitter, type Subscription } from '@robertakarobin/jsutil/emitter.ts';
+import { Emitter, type OnEmit, type Subscription } from '@robertakarobin/jsutil/emitter.ts';
 import { newUid } from '@robertakarobin/jsutil/index.ts';
 
 import { appContext } from './context.ts';
@@ -266,14 +266,14 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		eventName: Key,
 	) {
 		const emitter = (this as unknown as Subclass)[eventName] as SpecificEmitter;
-		const subscription = emitter.subscribe(() => receiver.onNotify(this));
+		const subscription = emitter.subscribe((...args) => receiver.onNotify(this, ...args));
 		this._subscriptions.add(subscription);
 		return this;
 	}
 
 	onLoad() {}
 
-	onNotify(_instance: Component<any>) {} // eslint-disable-line @typescript-eslint/no-explicit-any
+	onNotify(_instance: Component<any>, ..._args: Parameters<OnEmit<any>>) {} // eslint-disable-line @typescript-eslint/no-explicit-any
 
 	place() {
 		const key = Component.name;

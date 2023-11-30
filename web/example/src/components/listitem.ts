@@ -1,7 +1,7 @@
 import { Component } from '@robertakarobin/web/index.ts';
 
 import { type ListItem, state } from '@src/state.ts';
-import textbox from '@src/components/textbox.ts';
+import textbox, { type Textbox } from '@src/components/textbox.ts';
 
 export class ListItemComponent extends Component<ListItemComponent> {
 	accept(input: ListItem) {
@@ -10,6 +10,12 @@ export class ListItemComponent extends Component<ListItemComponent> {
 
 	onLoad() {
 		state.upsert(this.uid!, this.$);
+	}
+
+	onNotify(textbox: Textbox) {
+		state.update(this.uid!, {
+			value: textbox.$.value,
+		});
 	}
 
 	template = () => `
