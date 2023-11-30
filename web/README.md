@@ -32,12 +32,12 @@
 
 ### WIP
 
+-	Components emit events
 -	Persist state for elements with UIDs?
 
 ### Done:
 
 -	Extract `window.` boilerplate to beginning of layout
--	Components emit events
 -	Automatically set HTML attributes
 -	Differentiate between weak/strong subscriptions
 -	Add config with HTML/CSS validator/formatter

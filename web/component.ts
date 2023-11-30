@@ -90,6 +90,33 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	}
 
 	/**
+	 * Serialize an object as a native JS value so that it can be included in `[on*]` attributes. TODO2: Use JSON5 or something robust
+	 */
+	static serialize(input: any): string { // eslint-disable-line @typescript-eslint/no-explicit-any
+		if (input === null || input === undefined) {
+			return ``;
+		}
+		if (Array.isArray(input)) {
+			return `[${input.map(Component.serialize).join(`,`)}]`;
+		}
+		if (typeof input === `object`) {
+			let out = ``;
+			for (const property in input) {
+				const value = input[property] as Record<string, unknown>; // eslint-disable-line @typescript-eslint/no-unsafe-member-access
+				out += `${property.replaceAll(`"`, `&quot;`)}:${Component.serialize(value)},`;
+			}
+			return `{${out}}`;
+		}
+		if (typeof input === `string`) {
+			const out = input
+				.replaceAll(`"`, `&quot;`)
+				.replaceAll(`'`, `\\'`);
+			return `'${out}'`;
+		}
+		return input.toString(); // eslint-disable-line
+	};
+
+	/**
 	 * Gets or creates the Component with the specified UID, if any
 	 */
 	static toFunction<Instance, Args extends Array<any>>( // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -234,11 +261,37 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	 * Outputs the template to a string
 	 * @param content Any content that should be injected into the template
 	 */
-	render(content: Parameters<this[`template`]>[0] = ``) {
+	render(...args: Parameters<this[`template`]>) {
 		Component.toPlace.set(this.uid, this);
+		if (appContext === `build`) {
+			return this.renderSSG(...args);
+		}
+		return this.renderCSR(...args);
+	}
 
+	private renderCSR(...args: Parameters<this[`template`]>) {
+		const [content] = args;
 		const key = Component.name;
 		return `<img src="#" style="display:none" onerror="${key}.${Component.onPlace.name}('${this.uid}', this)" />${this.template(content)}`; // TODO1: (I think) this causes an unnecessary rerender on existing elements
+	}
+
+	private renderSSG(...args: Parameters<this[`template`]>) { // TODO3: This is unused on browser, so I originally had it in build.ts, but like it better here
+		const argsString = Component.serialize(this.args);
+		const template = this.template().trim();
+		const hasOneRootElement = /^<(\w+).*<\/\1>$/s.test(template); // TODO2: False positive for e.g. <div>one</div> <div>two</div>
+		const isOneElement = /^<[^<>]+>$/s.test(template);
+		if (!hasOneRootElement && !isOneElement) {
+			throw new Error(`Template for ${this.Ctor.name} invalid: Component templates must have one root HTML element`);
+		}
+		let out = ``;
+		if (this.isCSR) {
+			out += `<script src="data:text/javascript," onload="${Component.name}.push([this,'${this.Ctor.name}',${argsString}])"></script>`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
+		}
+		if (this.isSSG) {
+			const [content] = args;
+			out += this.template(content);
+		}
+		return out;
 	}
 
 	/**

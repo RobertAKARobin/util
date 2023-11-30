@@ -45,51 +45,6 @@ const logBreak = () => console.log(``);
 
 const trimNewlines = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
 
-/**
- * Serialize an object as a native JS value so that it can be included in `on*` attributes. TODO2: Use JSON5 or something robust
- */
-function serialize(input: any): string { // eslint-disable-line @typescript-eslint/no-explicit-any
-	if (input === null || input === undefined) {
-		return ``;
-	}
-	if (Array.isArray(input)) {
-		return `[${input.map(serialize).join(`,`)}]`;
-	}
-	if (typeof input === `object`) {
-		let out = ``;
-		for (const property in input) {
-			const value = input[property] as Record<string, unknown>; // eslint-disable-line @typescript-eslint/no-unsafe-member-access
-			out += `${property.replaceAll(`"`, `&quot;`)}:${serialize(value)},`;
-		}
-		return `{${out}}`;
-	}
-	if (typeof input === `string`) {
-		const out = input
-			.replaceAll(`"`, `&quot;`)
-			.replaceAll(`'`, `\\'`);
-		return `'${out}'`;
-	}
-	return input.toString(); // eslint-disable-line
-};
-
-Component.prototype.render = function(content = ``) {
-	const argsString = serialize(this.args);
-	const template = this.template().trim();
-	const hasOneRootElement = /^<(\w+).*<\/\1>$/s.test(template); // TODO2: False positive for e.g. <div>one</div> <div>two</div>
-	const isOneElement = /^<[^<>]+>$/s.test(template);
-	if (!hasOneRootElement && !isOneElement) {
-		throw new Error(`Template for ${this.Ctor.name} invalid: Component templates must have one root HTML element`);
-	}
-	let out = ``;
-	if (this.isCSR) {
-		out += `<script src="data:text/javascript," onload="${Component.name}.push([this,'${this.Ctor.name}',${argsString}])"></script>`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
-	}
-	if (this.isSSG) {
-		out += this.template(content);
-	}
-	return out;
-};
-
 export class Builder {
 	readonly assetsServeDirAbs: string;
 	readonly assetsSrcDirAbs: string;
