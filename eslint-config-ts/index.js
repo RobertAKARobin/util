@@ -25,6 +25,11 @@ module.exports = {
 				"@typescript-eslint/array-type": [`error`, {
 					default: `generic`,
 				}],
+				"@typescript-eslint/ban-types": [`error`, {
+					types: {
+						Function: false,
+					},
+				}],
 				"@typescript-eslint/consistent-type-imports": [`error`, {
 					prefer: `type-imports`,
 				}],
