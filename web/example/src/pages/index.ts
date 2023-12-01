@@ -1,7 +1,7 @@
 import { Page } from '@robertakarobin/web/index.ts';
 
-import list, { ListComponent } from '@src/components/list.ts';
 import { route, router } from '@src/router.ts';
+import list from '@src/components/list.ts';
 import { state } from '@src/state.ts';
 
 const style =  `
@@ -23,17 +23,30 @@ export default class IndexPage extends Page<IndexPage> {
 	}) {
 		super(attributes);
 		this.message = message ?? ``;
-		state.subscribe(console.log);
+		state.subscribe(snapshot => console.log(JSON.stringify(snapshot, null, `\t`)));
 	}
 
-	addListItem() {
-		state.add({ value: `` });
-		console.log(this.find(ListComponent), this.findAll(ListComponent));
+	addAt(index: number) {
+		state.add({ value: `` }, index);
 		this.rerender();
 	}
 
 	anchorlessRoute() {
 		router.to(`ssgYes`);
+	}
+
+	move(id: string, increment: number) {
+		state.move(id, increment);
+		this.rerender();
+	}
+
+	remove(id: string) {
+		state.remove(id);
+		this.rerender();
+	}
+
+	set(id: string, value: string) {
+		state.update(id, { value });
 	}
 
 	template = () => `
@@ -43,11 +56,12 @@ export default class IndexPage extends Page<IndexPage> {
 <div id="${router.routes.homeJump1.hash.substring(1)}">Jump 1</div>
 
 ${list({ items: state.entries.last })
-	.on(`add`, () => this.addListItem())
-	.on(`update`, ({ id, value }) => state.update(id, { value }))
+	.on(`addAt`, index => this.addAt(index))
+	.on(`move`, ([id, increment]) => this.move(id, increment))
+	.on(`remove`, id => this.remove(id))
+	.on(`value`, ({ id, value }) => this.set(id, value))
 	.render()
 }
-
 <markdown>
 # Headline 1
 

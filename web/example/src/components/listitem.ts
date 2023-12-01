@@ -1,10 +1,12 @@
 import { Component } from '@robertakarobin/web/index.ts';
 import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
 
-import { state } from '@src/state.ts';
 import textbox from '@src/components/textbox.ts';
 
 export class ListItemComponent extends Component<ListItemComponent> {
+	add = new Emitter<void>();
+	move = new Emitter<number>();
+	remove = new Emitter<void>();
 	value = new Emitter<string>();
 
 	constructor({ value, ...attributes }: {
@@ -15,18 +17,21 @@ export class ListItemComponent extends Component<ListItemComponent> {
 		this.value.next(value);
 	}
 
-	onArrow(increment: number) {
-		state.move(this.id, increment);
+	onAdd() {
+		this.add.next();
 	}
 
-	onLoad() {
-		state.upsert(this.id, {
-			value: this.value.last,
-		});
+	onArrow(event: Event, increment: number) {
+		this.move.next(increment);
+	}
+
+	onRemove() {
+		this.remove.next();
 	}
 
 	template = () => `
 <div>
+	${this.id}
 	<button
 		onclick=${this.bind(`onArrow`, -1)}
 		type="button"
@@ -35,6 +40,14 @@ export class ListItemComponent extends Component<ListItemComponent> {
 		onclick=${this.bind(`onArrow`, 1)}
 		type="button"
 	>↓</button>
+	<button
+		type="button"
+		onclick=${this.bind(`onAdd`)}
+	>Add before</button></li>
+	<button
+		type="button"
+		onclick=${this.bind(`onRemove`)}
+	>Remove</button></li>
 	${textbox({ value: this.value.last })
 		.on(`value`, value => this.value.next(value))
 		.render()

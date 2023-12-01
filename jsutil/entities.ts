@@ -27,19 +27,21 @@ export class EntityStateEmitter<Type>
 		super(options);
 	}
 
-	add(input: Type, inputId?: string) {
+	add(input: Type, index?: number, inputId?: string) {
 		const id = inputId ?? this.createId();
-
+		const ids = [...this.last.ids];
+		if (index === undefined) {
+			ids.push(id);
+		} else {
+			ids.splice(index, 0, id);
+		}
 		this.next({
 			...this.last,
 			byId: {
 				...this.last.byId,
 				[id]: input,
 			},
-			ids: [
-				...this.last.ids,
-				id,
-			],
+			ids,
 		});
 
 		return id;
@@ -119,7 +121,7 @@ export class EntityStateEmitter<Type>
 		if (existing !== undefined) {
 			return this.update(id, value);
 		} else {
-			return this.add(value as Type, id);
+			return this.add(value as Type, undefined, id);
 		}
 	}
 }

@@ -12,9 +12,11 @@ export type List = Array<ListItem & {
 }>;
 
 export class ListComponent extends Component<ListComponent> {
-	add = new Emitter<void>();
+	addAt = new Emitter<number>();
 	items: List;
-	update = new Emitter<{ id: string; value: string; }>();
+	move = new Emitter<[string, number]>();
+	remove = new Emitter<string>();
+	value = new Emitter<{ id: string; value: string; }>();
 
 	constructor({ items, ...attributes }: {
 		items: List;
@@ -23,32 +25,17 @@ export class ListComponent extends Component<ListComponent> {
 		this.items = items;
 	}
 
-	onAdd() {
-		this.add.next();
-	}
-
-	onArrow(id: string, increment: number) {
-		console.log(increment);
-	}
-
-	onValue(id: string, value: string) {
-		console.log(id, value);
-	}
-
 	template = () => `
 <ol>
-	${this.items.map(({ id, value }) => `
+	${this.items.map(({ id, value }, index) => `
 		<li>${listItem({ id, value })
-			.on(`value`, value => this.update.next({ id, value }))
+			.on(`add`, () => this.addAt.next(index))
+			.on(`move`, increment => this.move.next([id, increment]))
+			.on(`remove`, () => this.remove.next(id))
+			.on(`value`, value => this.value.next({ id, value }))
 			.render()
 		}</li>
 	`).join(`\n`)}
-
-	<li>
-		<button
-			type="button"
-			onclick=${this.bind(`onAdd`)}
-		>Add</button></li>
 </ol>
 	`;
 }
