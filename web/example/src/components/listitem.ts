@@ -17,36 +17,24 @@ export class ListItem extends Component<ListItem> {
 		this.value.next(value);
 	}
 
-	onAdd() {
-		this.add.next();
-	}
-
-	onArrow(event: Event, increment: number) {
-		this.move.next(increment);
-	}
-
-	onRemove() {
-		this.remove.next();
-	}
-
 	template = () => `
 <div>
 	${this.id}
 	<button
-		onclick=${this.bind(`onArrow`, -1)}
+		onclick=${this.bind(`move`, -1)}
 		type="button"
 	>↑</button>
 	<button
-		onclick=${this.bind(`onArrow`, 1)}
+		onclick=${this.bind(`move`, 1)}
 		type="button"
 	>↓</button>
 	<button
 		type="button"
-		onclick=${this.bind(`onAdd`)}
+		onclick=${this.bind(`add`)}
 	>Add before</button></li>
 	<button
 		type="button"
-		onclick=${this.bind(`onRemove`)}
+		onclick=${this.bind(`remove`)}
 	>Remove</button></li>
 	${new Textbox({ value: this.value.last })
 		.on(`value`, value => this.value.next(value))

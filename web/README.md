@@ -16,8 +16,6 @@
 
 ## TODO
 
--	Be nice if .bind worked on emitters to
--	Really want to use static method to get instance so that I can just import class everywhere
 -	Import from other file (ergo SVG)
 
 -	Persist state for e.g. input elements
@@ -36,6 +34,8 @@
 
 ### Done:
 
+-	.bind works on emitters too
+-	Use constructor to create or get existing instance
 -	Components emit events
 -	Show `[data-component]` on build?
 -	Jump anchors

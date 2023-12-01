@@ -1,5 +1,5 @@
 import type * as $ from '@robertakarobin/jsutil/types.d.ts';
-import type { Emitter, OnEmit } from '@robertakarobin/jsutil/emitter.ts';
+import { Emitter, type OnEmit } from '@robertakarobin/jsutil/emitter.ts';
 import { newUid } from '@robertakarobin/jsutil/index.ts';
 
 import { appContext } from './context.ts';
@@ -131,14 +131,6 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	}
 
 	/**
-	 * @param input An object, the type of which defines the parameters the component should accept via `.set` when used in a template
-	 * @returns An object, the type of which defines the shape of the component's `.state`
-	 */
-	accept(input: Component[`attributes`]) { // eslint-disable-line @typescript-eslint/no-explicit-any
-		return input as any; // eslint-disable-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-return
-	}
-
-	/**
 	 * Returns the component's `.attributes` and the provided dict as HTML attributes
 	 */
 	attrs(input: Component[`attributes`] = {}) {
@@ -152,17 +144,23 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	 * Arguments must be strings or numbers since other data types can't really be written onto the DOM
 	 * @example `<button onclick=${this.bind(`onClick`, `4.99`)}>$4.99</button>`
 	 */
-	protected bind<Key extends $.KeysMatching<Subclass, (...args: any) => any>>( // eslint-disable-line @typescript-eslint/no-explicit-any
-		methodName: Key,
+	protected bind<
+		Key extends $.KeysMatching<Subclass, Emitter<any> | ((...args: any) => any)> // eslint-disable-line @typescript-eslint/no-explicit-any
+	>(
+		targetName: Key,
 		...args: Array<string | number> | []
 	) {
+		const target = this[targetName as keyof this] as Emitter<any> | Function; // eslint-disable-line @typescript-eslint/no-explicit-any
 		const argsString = args.map(arg => {
 			if (typeof arg === `string`) {
 				return `'${arg}'`;
 			}
 			return arg;
 		}).join(`,`);
-		return `"this.closest('[${Component.$elAttrType}=${this.Ctor.name}]').${Component.$elInstance}.${methodName as string}(event,${argsString})"`;
+		const out = target instanceof Emitter
+			? `.next(${argsString})`
+			: `(event,${argsString})`;
+		return `"this.closest('[${Component.$elAttrType}=${this.Ctor.name}]').${Component.$elInstance}.${targetName as string}${out}"`;
 	}
 
 	find<Subclass extends typeof Component>(
