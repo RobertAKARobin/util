@@ -12,6 +12,7 @@ export class List extends Component<List> {
 	value = new Emitter<{ id: string; value: string; }>();
 
 	constructor({ items, ...attributes }: {
+		id: string;
 		items: Type.List;
 	}) {
 		super(attributes);
@@ -21,12 +22,13 @@ export class List extends Component<List> {
 	template = () => `
 <ol>
 	${this.items.map(({ id, value }, index) => `
-		<li>${new ListItem({ id, value })
-			.on(`add`, () => this.addAt.next(index))
-			.on(`move`, increment => this.move.next([id, increment]))
-			.on(`remove`, () => this.remove.next(id))
-			.on(`value`, value => this.value.next({ id, value }))
-			.render()
+		<li>${
+			new ListItem({ id: `${this.id}-${id}`, value })
+				.on(`add`, () => this.addAt.next(index))
+				.on(`move`, increment => this.move.next([id, increment]))
+				.on(`remove`, () => this.remove.next(id))
+				.on(`value`, value => this.value.next({ id, value }))
+				.render()
 		}</li>
 	`).join(`\n`)}
 </ol>

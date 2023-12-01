@@ -190,7 +190,6 @@ export class Builder {
 					baseHref: this.baseHref,
 					body,
 					css,
-					loadScript: Component.ssgHolderScript,
 					mainCssPath: path.join(`/`, this.styleServeFileRel),
 					mainJsPath: path.join(`/`, this.scriptServeFileRel),
 					page,

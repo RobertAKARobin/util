@@ -8,59 +8,20 @@ type BoundElement = Element & {
 	[Component.$elInstance]: Component; // Attaching instances to Elements should prevent the instance from being garbage-collected until the Element is GCd
 };
 
-type DerivedComponent<Subclass extends Component> = {
-	new(...args: Array<any>): Subclass; // eslint-disable-line @typescript-eslint/no-explicit-any
-} & Pick<typeof Component, `init`>;
-
-type SsgHolder = Array<
-	[Element, typeof Component.name, Component[`id`]]
->;
-
 const globals = (appContext === `browser` ? window : global) as unknown as Window
-	& { [key in typeof Component.name]: typeof Component; }
-	& { [key in typeof Component.ssgHolderName]: SsgHolder; };
+	& { [key in typeof Component.name]: typeof Component; };
 
 export abstract class Component<Subclass extends Component = never> { // This generic lets `this.bind` work; without it `instance.bind` works but `this.bind` throws a type error
 	static readonly $elAttrId = `id`;
 	static readonly $elAttrType = `data-component`;
 	static readonly $elInstance = `instance`;
-	private static readonly instances = new Map<Component[`id`], Component>();
-	static readonly ssgHolderName = `ssgInstances`;
-	static readonly ssgHolderScript = `window.${Component.ssgHolderName}=window.${Component.ssgHolderName}||[];`;
-	private static readonly ssgsToConstruct = globals[this.ssgHolderName];
+	private static readonly persists = new Map<Component[`id`], Component>();
 	static readonly style: string | undefined;
 	static readonly subclasses = new Map<string, typeof Component>();
 	private static readonly toPlace = new Map<Component[`id`], Component>();
 
 	static {
 		globals[this.name] = this;
-	}
-
-	/**
-	 * Hydrate instances for all the SSG elements on the page when it loads
-	 */
-	static constructSsgs<
-		Instance extends Component,
-		Subclass extends DerivedComponent<Instance>
-	>() {
-		if (appContext !== `browser`) {
-			return;
-		}
-
-		const ssgsToConstruct = [...this.ssgsToConstruct];
-		this.ssgsToConstruct.splice(0, this.ssgsToConstruct.length); // Want to remove valid items from array. JS doesn't really have a good way to do that, so instead clearing and rebuilding the array
-		for (let index = 0, length = ssgsToConstruct.length; index < length; index += 1) {
-			const ssg = ssgsToConstruct[index];
-			const [$placeholder, componentName, id] = ssg;
-			if (componentName !== this.name) {
-				this.ssgsToConstruct.push(ssg); // Persist not-yet-initialized components
-				continue;
-			}
-
-			const instance = new (this as unknown as Subclass)(id);
-			instance.setEl($placeholder.nextElementSibling!);
-			$placeholder.remove();
-		}
 	}
 
 	static createUid() {
@@ -73,7 +34,6 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	static init() {
 		Component.subclasses.set(this.name, this);
 		this.setStyle();
-		this.constructSsgs();
 	}
 
 	static onPlace(id: Component[`id`], $placeholder: Element) {
@@ -84,39 +44,12 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 
 		Component.toPlace.delete(id);
 
-		if (Component.instances.has(id)) {
-			instance = Component.instances.get(id)!;
+		if (Component.persists.has(id)) {
+			instance = Component.persists.get(id)!;
 		}
 
 		$placeholder.replaceWith(instance.renderCSR());
 	}
-
-	/**
-	 * Serialize an object as a native JS value so that it can be included in `[on*]` attributes. TODO2: Use JSON5 or something robust
-	 */
-	static serialize(input: any): string { // eslint-disable-line @typescript-eslint/no-explicit-any
-		if (input === null || input === undefined) {
-			return ``;
-		}
-		if (Array.isArray(input)) {
-			return `[${input.map(Component.serialize).join(`,`)}]`;
-		}
-		if (typeof input === `object`) {
-			let out = ``;
-			for (const property in input) {
-				const value = input[property] as Record<string, unknown>; // eslint-disable-line @typescript-eslint/no-unsafe-member-access
-				out += `${property.replaceAll(`"`, `&quot;`)}:${Component.serialize(value)},`;
-			}
-			return `{${out}}`;
-		}
-		if (typeof input === `string`) {
-			const out = input
-				.replaceAll(`"`, `&quot;`)
-				.replaceAll(`'`, `\\'`);
-			return `'${out}'`;
-		}
-		return input.toString(); // eslint-disable-line
-	};
 
 	static setStyle() {
 		if (appContext !== `browser`) {
@@ -154,24 +87,44 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	* If true, a <script> tag will be inserted that allows this component to be dynamically rendered. Otherwise it will be rendered only once. TODO2: Preserve isCSR=false elements
 	*/
 	readonly isCSR: boolean = true;
+	isPersisted: boolean = false;
 	/**
 	 * If true, if this is a Page it will be compiled into a static `.html` file at the route(s) used for this Page, which serves as a landing page for performance and SEO purposes.
 	 * If this is a Component it will be compiled into static HTML included in the landing page.
 	 * Not a static variable because a Component/Page may/may not want to be SSG based on certain conditions
 	*/
-	readonly isPersisted: boolean = false;
 	readonly isSSG: boolean = true;
 	/**
 	 * Warning: `style` should be defined as a static property, not an instance property
 	*/
 	private readonly style: void = undefined;
+	/**
+	 * This keeps subscriptions from being garbage-collected while this instance exists
+	 */
+	private readonly subscriptions = new Set<OnEmit<any>>(); // eslint-disable-line @typescript-eslint/no-explicit-any
 
 	constructor({ id, ...attributes }: {
 		id?: string;
 	} = {}) {
 		this.attributes = attributes;
-		this.id = id ?? Component.createUid();
 
+		if (id !== undefined) {
+			this.id = id;
+
+			const existing = Component.persists.get(this.id);
+			if (existing) {
+				console.log(`${this.Ctor.name} ${this.id} found`);
+				return existing;
+			} else {
+				this.isPersisted = true;
+				console.log(`${this.Ctor.name} ${this.id} persisting`);
+				Component.persists.set(this.id, this);
+			}
+		} else {
+			this.id = Component.createUid();
+		}
+
+		console.log(`${this.Ctor.name} ${this.id} created`);
 		if (!Component.subclasses.has(this.Ctor.name)) {
 			this.Ctor.init();
 		}
@@ -212,7 +165,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		return `"this.closest('[${Component.$elAttrType}=${this.Ctor.name}]').${Component.$elInstance}.${methodName as string}(event,${argsString})"`;
 	}
 
-	find<Subclass extends DerivedComponent<Component>>(
+	find<Subclass extends typeof Component>(
 		subclass: Subclass, id?: Component[`id`]
 	) {
 		const $child: BoundElement = this.$el!.querySelector(id === undefined
@@ -222,7 +175,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		return $child.instance as InstanceType<Subclass>; // eslint-disable-line @typescript-eslint/no-unsafe-return
 	}
 
-	findAll<Subclass extends DerivedComponent<Component>>(
+	findAll<Subclass extends typeof Component>(
 		subclass: Subclass
 	) {
 		const $children = this.$el?.querySelectorAll(`[${Component.$elAttrType}=${subclass.name}]`);
@@ -242,7 +195,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		doWhat: OnEmit<Type>
 	) {
 		const emitter = (this as unknown as Subclass)[key] as Emitter<Type>;
-		emitter.subscribe(doWhat);
+		this.subscriptions.add(emitter.subscribe(doWhat));
 		return this;
 	}
 
@@ -284,7 +237,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		}
 		let out = template;
 		out = out.replace(/^\s*<\w+/, match =>
-			`${match} ${Component.$elAttrType}="${this.Ctor.name}" ${Component.$elAttrId}="${this.id}"`
+			`${match} ${Component.$elAttrType}="${this.Ctor.name}"${this.isPersisted ? ` ${Component.$elAttrId}="${this.id}"` : ``}`
 		);
 		return out;
 	}
