@@ -1,7 +1,7 @@
 import { Page } from '@robertakarobin/web/index.ts';
 
-import { route, router } from '@src/router.ts';
-import list from '@src/components/list.ts';
+import { Route, router } from '@src/router.ts';
+import { List } from '@src/components/list.ts';
 import { state } from '@src/state.ts';
 
 const style =  `
@@ -55,7 +55,7 @@ export default class IndexPage extends Page<IndexPage> {
 
 <div id="${router.routes.homeJump1.hash.substring(1)}">Jump 1</div>
 
-${list({ items: state.entries.last })
+${new List({ items: state.entries.last })
 	.on(`addAt`, index => this.addAt(index))
 	.on(`move`, ([id, increment]) => this.move(id, increment))
 	.on(`remove`, id => this.remove(id))
@@ -72,7 +72,7 @@ Lorem ipsum dolor <strong>sit amet</strong>, consectetur *adipiscing elit*, sed 
 Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ nulla pariatur.
 </markdown>
 
-<p>${route({ to: `home` }).render(`Link to homepage`)}</p>
+<p>${new Route({ to: `home` }).render(`Link to homepage`)}</p>
 
 <button type="button" onclick=${this.bind(`anchorlessRoute`)}>Go to SSG Yes</button>
 

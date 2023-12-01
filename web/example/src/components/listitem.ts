@@ -1,9 +1,9 @@
 import { Component } from '@robertakarobin/web/index.ts';
 import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
 
-import textbox from '@src/components/textbox.ts';
+import { Textbox } from '@src/components/textbox.ts';
 
-export class ListItemComponent extends Component<ListItemComponent> {
+export class ListItem extends Component<ListItem> {
 	add = new Emitter<void>();
 	move = new Emitter<number>();
 	remove = new Emitter<void>();
@@ -48,12 +48,10 @@ export class ListItemComponent extends Component<ListItemComponent> {
 		type="button"
 		onclick=${this.bind(`onRemove`)}
 	>Remove</button></li>
-	${textbox({ value: this.value.last })
+	${new Textbox({ value: this.value.last })
 		.on(`value`, value => this.value.next(value))
 		.render()
 	}
 </div>
 	`;
 }
-
-export default Component.toFunction(ListItemComponent);

@@ -156,12 +156,12 @@ export abstract class RouteComponent<
 }
 
 /**
- * Registers a component that can be used in place of `<a>` tags to navigate between app routes
+ * A component that can be used in place of `<a>` tags to navigate between app routes
  */
 export function routeComponent<Routes extends RouteMap>(
 	router: Router<Routes>
 ) {
-	class AppRouteComponent extends RouteComponent<Routes> {
+	return class AppRouteComponent extends RouteComponent<Routes> {
 		router = router;
 
 		constructor(
@@ -172,7 +172,5 @@ export function routeComponent<Routes extends RouteMap>(
 				router,
 			});
 		}
-	}
-
-	return Component.toFunction(AppRouteComponent);
+	};
 }

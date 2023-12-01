@@ -34,4 +34,4 @@ export const router: Router<typeof routeDefs> = new Router( // Have to declare r
 	}
 );
 
-export const route = routeComponent(router);
+export const Route = routeComponent(router);

@@ -1,25 +1,18 @@
 import { Component } from '@robertakarobin/web/index.ts';
 import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
 
-import listItem from './listitem.ts';
+import type * as Type from '@src/types.d.ts';
+import { ListItem } from './listitem.ts';
 
-export type ListItem = {
-	value: string;
-};
-
-export type List = Array<ListItem & {
-	id: string;
-}>;
-
-export class ListComponent extends Component<ListComponent> {
+export class List extends Component<List> {
 	addAt = new Emitter<number>();
-	items: List;
+	items: Type.List;
 	move = new Emitter<[string, number]>();
 	remove = new Emitter<string>();
 	value = new Emitter<{ id: string; value: string; }>();
 
 	constructor({ items, ...attributes }: {
-		items: List;
+		items: Type.List;
 	}) {
 		super(attributes);
 		this.items = items;
@@ -28,7 +21,7 @@ export class ListComponent extends Component<ListComponent> {
 	template = () => `
 <ol>
 	${this.items.map(({ id, value }, index) => `
-		<li>${listItem({ id, value })
+		<li>${new ListItem({ id, value })
 			.on(`add`, () => this.addAt.next(index))
 			.on(`move`, increment => this.move.next([id, increment]))
 			.on(`remove`, () => this.remove.next(id))
@@ -39,5 +32,3 @@ export class ListComponent extends Component<ListComponent> {
 </ol>
 	`;
 }
-
-export default Component.toFunction(ListComponent);

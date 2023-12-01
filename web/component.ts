@@ -135,23 +135,6 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	}
 
 	/**
-	 * Gets or creates the Component with the specified ID, if any
-	 */
-	static toFunction<Instance, Args extends Array<any>>( // eslint-disable-line @typescript-eslint/no-explicit-any
-		Constructor: new (...args: Args) => Instance
-	) { // Reveisit when/if Typescript supports generics in abstract statics https://github.com/microsoft/TypeScript/issues/34665
-		(Constructor as unknown as typeof Component).init();
-
-		return (...args: ConstructorParameters<typeof Constructor>) => {
-			const id = args[0] as Component[`id`];
-			const instance = id !== undefined && Component.instances.has(id)
-				? Component.instances.get(id)!
-				: new Constructor(...args);
-			return instance as Instance;
-		};
-	}
-
-	/**
 	 * The element to which this instance is bound
 	 */
 	$el: Element | undefined;

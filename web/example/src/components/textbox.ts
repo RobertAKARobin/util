@@ -4,6 +4,7 @@ import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
 import { types } from '@src/theme.ts';
 
 export class Textbox extends Component<Textbox> {
+
 	static style = `
 input {
 	${types.body}
@@ -14,6 +15,7 @@ input {
 	value = new Emitter<string>();
 
 	constructor({ maxlength, value, ...attributes }: {
+		id?: string;
 		maxlength?: number;
 		value?: string;
 	}) {
@@ -46,5 +48,3 @@ input {
 		</div>
 		`;
 }
-
-export default Component.toFunction(Textbox);
