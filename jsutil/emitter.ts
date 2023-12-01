@@ -38,6 +38,7 @@ export class Emitter<State> {
 			if (onEmit) {
 				onEmit(value, previous, subscription);
 			} else {
+				console.warn(`Subscription dead`);
 				this.subscriptions.delete(subscription);
 			}
 		}

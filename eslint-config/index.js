@@ -65,6 +65,7 @@ module.exports = {
 		"object-property-newline": [`error`, {
 			allowAllPropertiesOnSameLine: true,
 		}],
+		"prefer-spread": `off`,
 		"quote-props": [`error`, `consistent-as-needed`],
 		"quotes": [`error`, `backtick`],
 		"semi": [`error`, `always`],

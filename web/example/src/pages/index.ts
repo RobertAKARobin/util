@@ -30,25 +30,8 @@ export default class IndexPage extends Page<IndexPage> {
 		});
 	}
 
-	addAt(index: number) {
-		state.add({ value: `` }, index);
-
-	}
-
 	anchorlessRoute() {
 		router.to(`ssgYes`);
-	}
-
-	move(id: string, increment: number) {
-		state.move(id, increment);
-	}
-
-	remove(id: string) {
-		state.remove(id);
-	}
-
-	set(id: string, value: string) {
-		state.update(id, { value });
 	}
 
 	template = () => `
@@ -59,10 +42,10 @@ export default class IndexPage extends Page<IndexPage> {
 
 ${
 	new List({ id: `steve`, items: state.entries.last })
-		.on(`addAt`, index => this.addAt(index))
-		.on(`move`, ([id, increment]) => this.move(id, increment))
-		.on(`remove`, id => this.remove(id))
-		.on(`value`, ({ id, value }) => this.set(id, value))
+		.on(`addAt`, (_, index) => state.add({ value: `` }, index))
+		.on(`move`, (_, { id, increment }) => state.move(id, increment))
+		.on(`remove`, (_, id) => state.remove(id))
+		.on(`value`, (_, { id, value }) => state.update(id, { value }))
 		.render()
 }
 <markdown>

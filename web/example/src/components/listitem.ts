@@ -37,7 +37,7 @@ export class ListItem extends Component<ListItem> {
 		onclick=${this.bind(`remove`)}
 	>Remove</button></li>
 	${new Textbox({ value: this.value.last })
-		.on(`value`, value => this.value.next(value))
+		.on(`value`, (textbox, value) => textbox.closest(ListItem).value.next(value))
 		.render()
 	}
 </div>

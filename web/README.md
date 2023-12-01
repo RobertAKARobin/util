@@ -23,6 +23,7 @@
 -	Match routes with params
 -	Remove CSS from JS bundles
 -	Image preprocessing
+-	Decorators for actions?
 
 -	Set initial state values?
 -	Autocomplete CSS classes

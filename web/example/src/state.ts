@@ -8,4 +8,5 @@ if (appContext === `browser`) {
 	state.add({
 		value: `hello`,
 	});
+	state.subscribe(s => console.log(JSON.stringify(s, null, `\t`)));
 }

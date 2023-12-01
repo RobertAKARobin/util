@@ -7,7 +7,7 @@ import { ListItem } from './listitem.ts';
 export class List extends Component<List> {
 	addAt = new Emitter<number>();
 	items: Type.List;
-	move = new Emitter<[string, number]>();
+	move = new Emitter<{ id: string; increment: number; }>();
 	remove = new Emitter<string>();
 	value = new Emitter<{ id: string; value: string; }>();
 
@@ -24,10 +24,10 @@ export class List extends Component<List> {
 	${this.items.map(({ id, value }, index) => `
 		<li>${
 			new ListItem({ id: `${this.id}-${id}`, value })
-				.on(`add`, () => this.addAt.next(index))
-				.on(`move`, increment => this.move.next([id, increment]))
-				.on(`remove`, () => this.remove.next(id))
-				.on(`value`, value => this.value.next({ id, value }))
+				.on(`add`, item => item.closest(List).addAt.next(index))
+				.on(`move`, (item, increment) => item.closest(List).move.next({ id, increment }))
+				.on(`remove`, item => item.closest(List).remove.next(id))
+				.on(`value`, (item, value) => item.closest(List).value.next({ id, value }))
 				.render()
 		}</li>
 	`).join(`\n`)}

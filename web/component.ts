@@ -113,18 +113,18 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 
 			const existing = Component.persists.get(this.id);
 			if (existing) {
-				console.log(`${this.Ctor.name} ${this.id} found`);
+				// console.log(`${this.Ctor.name} ${this.id} found`);
 				return existing;
 			} else {
 				this.isPersisted = true;
-				console.log(`${this.Ctor.name} ${this.id} persisting`);
+				// console.log(`${this.Ctor.name} ${this.id} persisting`);
 				Component.persists.set(this.id, this);
 			}
 		} else {
 			this.id = Component.createUid();
 		}
 
-		console.log(`${this.Ctor.name} ${this.id} created`);
+		// console.log(`${this.Ctor.name} ${this.id} created`);
 		if (!Component.subclasses.has(this.Ctor.name)) {
 			this.Ctor.init();
 		}
@@ -163,37 +163,54 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		return `"this.closest('[${Component.$elAttrType}=${this.Ctor.name}]').${Component.$elInstance}.${targetName as string}${out}"`;
 	}
 
-	find<Subclass extends typeof Component>(
-		subclass: Subclass, id?: Component[`id`]
+	closest<Ancestor extends typeof Component>(
+		Ancestor: Ancestor
 	) {
-		const $child: BoundElement = this.$el!.querySelector(id === undefined
-			? `[${Component.$elAttrType}=${subclass.name}]`
-			: `[${Component.$elAttrId}=${id}]`
-		)!;
-		return $child.instance as InstanceType<Subclass>; // eslint-disable-line @typescript-eslint/no-unsafe-return
+		const $el = this.$el!.closest(`[${Component.$elAttrType}=${Ancestor.name}]`)!;
+		return ($el as BoundElement).instance as InstanceType<Ancestor>;
 	}
 
-	findAll<Subclass extends typeof Component>(
-		subclass: Subclass
+	find<Descendant extends typeof Component>(
+		Descendant: Descendant, id?: Component[`id`]
 	) {
-		const $children = this.$el?.querySelectorAll(`[${Component.$elAttrType}=${subclass.name}]`);
+		const $descendant: BoundElement = this.$el!.querySelector(id === undefined
+			? `[${Component.$elAttrType}=${Descendant.name}]`
+			: `[${Component.$elAttrId}=${id}]`
+		)!;
+		return $descendant.instance as InstanceType<Descendant>;
+	}
+
+	findAll<Descendant extends typeof Component>(
+		Descendant: Descendant
+	) {
+		const $children = this.$el?.querySelectorAll(`[${Component.$elAttrType}=${Descendant.name}]`);
 		if ($children === undefined) {
 			return [];
 		}
 		return Array.from($children).map(
 			$child => ($child as BoundElement).instance
-		) as Array<InstanceType<Subclass>> ; // eslint-disable-line @typescript-eslint/no-unsafe-return
+		) as Array<InstanceType<Descendant>>;
 	}
 
 	on<
-		Key extends $.KeysMatching<Subclass, Emitter<any>>, // eslint-disable-line @typescript-eslint/no-explicit-any
-		Type extends Subclass[Key] extends Emitter<infer T> ? T : never,
+		EmitterName extends $.KeysMatching<Subclass, Emitter<any>>, // eslint-disable-line @typescript-eslint/no-explicit-any
+		Trigger extends Subclass[EmitterName],
+		Type extends (
+			Trigger extends Emitter<infer T> ? T : never
+		)
 	>(
-		key: Key,
-		doWhat: OnEmit<Type>
+		emitterName: EmitterName,
+		doWhat: (
+			(emitter: this, ...args: Parameters<OnEmit<Type>>) => void
+		)
 	) {
-		const emitter = (this as unknown as Subclass)[key] as Emitter<Type>;
-		this.subscriptions.add(emitter.subscribe(doWhat));
+		const emitter = (this as {
+			[key in EmitterName]: Emitter<Type>
+		})[emitterName];
+
+		this.subscriptions.add(
+			emitter.subscribe((...args) => doWhat.call(null, this, ...args))
+		);
 		return this;
 	}
 
