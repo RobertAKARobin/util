@@ -53,6 +53,7 @@ Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ 
 </markdown>
 
 <p>${route({ to: `home` }).render(`Link to homepage`)}</p>
+<p>${route({ to: `error404` }).render(`Link to error`)}</p>
 
 <button type="button" onclick=${this.bind(`anchorlessRoute`)}>Go to SSG Yes</button>
 
