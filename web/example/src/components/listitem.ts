@@ -1,24 +1,26 @@
 import { Component } from '@robertakarobin/web/index.ts';
 
-import { type ListItem, state } from '@src/state.ts';
-import textbox, { type Textbox } from '@src/components/textbox.ts';
+import { state } from '@src/state.ts';
+import textbox from '@src/components/textbox.ts';
 
 export class ListItemComponent extends Component<ListItemComponent> {
-	accept(input: ListItem) {
-		return input;
+	value: string;
+
+	constructor({ value, ...attributes }: {
+		id: string;
+		value: string;
+	}) {
+		super(attributes);
+		this.value = value;
 	}
 
 	onArrow(increment: number) {
-		state.move(this.uid!, increment);
+		state.move(this.id, increment);
 	}
 
 	onLoad() {
-		state.upsert(this.uid!, this.state.last);
-	}
-
-	onNotify(textbox: Textbox) {
-		state.update(this.uid!, {
-			value: textbox.state.last.value,
+		state.upsert(this.id, {
+			value: this.value,
 		});
 	}
 
@@ -32,10 +34,7 @@ export class ListItemComponent extends Component<ListItemComponent> {
 		onclick=${this.bind(`onArrow`, 1)}
 		type="button"
 	>↓</button>
-	${textbox()
-		.notify(this, `state`)
-		.set({ value: this.state.last.value })
-		.render()}
+	${textbox({ value: this.value }).render()}
 </div>
 	`;
 }

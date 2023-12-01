@@ -1,5 +1,4 @@
 import type * as $ from '@robertakarobin/jsutil/types.d.ts';
-import { Emitter, type OnEmit, type Subscription } from '@robertakarobin/jsutil/emitter.ts';
 import { newUid } from '@robertakarobin/jsutil/index.ts';
 
 import { appContext } from './context.ts';
@@ -13,7 +12,7 @@ type DerivedComponent<Subclass extends Component> = {
 } & Pick<typeof Component, `init`>;
 
 type SsgHolder = Array<
-	[Element, typeof Component.name, Component[`uid`], Record<string, unknown>]
+	[Element, typeof Component.name, Component[`id`]]
 >;
 
 const globals = (appContext === `browser` ? window : global) as unknown as Window
@@ -21,16 +20,16 @@ const globals = (appContext === `browser` ? window : global) as unknown as Windo
 	& { [key in typeof Component.ssgHolderName]: SsgHolder; };
 
 export abstract class Component<Subclass extends Component = never> { // This generic lets `this.bind` work; without it `instance.bind` works but `this.bind` throws a type error
+	static readonly $elAttrId = `id`;
 	static readonly $elAttrType = `data-component`;
-	static readonly $elAttrUid = `data-uid`;
 	static readonly $elInstance = `instance`;
-	private static readonly persists = new Map<Component[`uid`], Component>();
+	private static readonly instances = new Map<Component[`id`], Component>();
 	static readonly ssgHolderName = `ssgInstances`;
 	static readonly ssgHolderScript = `window.${Component.ssgHolderName}=window.${Component.ssgHolderName}||[];`;
 	private static readonly ssgsToConstruct = globals[this.ssgHolderName];
 	static readonly style: string | undefined;
 	static readonly subclasses = new Map<string, typeof Component>();
-	private static readonly toPlace = new Map<Component[`uid`], Component>();
+	private static readonly toPlace = new Map<Component[`id`], Component>();
 
 	static {
 		globals[this.name] = this;
@@ -51,21 +50,20 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		this.ssgsToConstruct.splice(0, this.ssgsToConstruct.length); // Want to remove valid items from array. JS doesn't really have a good way to do that, so instead clearing and rebuilding the array
 		for (let index = 0, length = ssgsToConstruct.length; index < length; index += 1) {
 			const ssg = ssgsToConstruct[index];
-			const [$placeholder, componentName, uid, args] = ssg;
+			const [$placeholder, componentName, id] = ssg;
 			if (componentName !== this.name) {
 				this.ssgsToConstruct.push(ssg); // Persist not-yet-initialized components
 				continue;
 			}
 
-			const instance = new (this as unknown as Subclass)(uid);
-			instance.set(args as Record<string, string>);
+			const instance = new (this as unknown as Subclass)(id);
 			instance.setEl($placeholder.nextElementSibling!);
 			$placeholder.remove();
 		}
 	}
 
 	static createUid() {
-		return newUid();
+		return `i${newUid()}`; // [id] must begin with a letter
 	}
 
 	/**
@@ -77,16 +75,16 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		this.constructSsgs();
 	}
 
-	static onPlace(uid: Component[`uid`], $placeholder: Element) {
-		let instance = Component.toPlace.get(uid);
+	static onPlace(id: Component[`id`], $placeholder: Element) {
+		let instance = Component.toPlace.get(id);
 		if (instance === undefined) {
-			throw new Error(`onPlace: Could not find instance #${uid}`);
+			throw new Error(`onPlace: Could not find instance #${id}`);
 		}
 
-		Component.toPlace.delete(uid);
+		Component.toPlace.delete(id);
 
-		if (Component.persists.has(uid)) {
-			instance = Component.persists.get(uid)!;
+		if (Component.instances.has(id)) {
+			instance = Component.instances.get(id)!;
 		}
 
 		$placeholder.replaceWith(instance.renderCSR());
@@ -136,7 +134,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	}
 
 	/**
-	 * Gets or creates the Component with the specified UID, if any
+	 * Gets or creates the Component with the specified ID, if any
 	 */
 	static toFunction<Instance, Args extends Array<any>>( // eslint-disable-line @typescript-eslint/no-explicit-any
 		Constructor: new (...args: Args) => Instance
@@ -144,9 +142,9 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		(Constructor as unknown as typeof Component).init();
 
 		return (...args: ConstructorParameters<typeof Constructor>) => {
-			const uid = args[0] as Component[`uid`];
-			const instance = uid !== undefined && Component.persists.has(uid)
-				? Component.persists.get(uid)!
+			const id = args[0] as Component[`id`];
+			const instance = id !== undefined && Component.instances.has(id)
+				? Component.instances.get(id)!
 				: new Constructor(...args);
 			return instance as Instance;
 		};
@@ -156,14 +154,6 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	 * The element to which this instance is bound
 	 */
 	$el: Element | undefined;
-	/**
-	 * This instance's subscriptions. This should keep subscriptions from being garbage-collected as long as the instance persists?
-	 */
-	protected readonly _subscriptions = new Set<Subscription<any>>(); // eslint-disable-line @typescript-eslint/no-explicit-any
-	/**
-	 * Holds the last arguments passed into the instance. TODO2: A more elegant way to do this?
-	 */
-	args: Component[`attributes`] = {};
 	/**
 	 * Properties that can be turned into HTML attributes with `.attrs()`
 	*/
@@ -175,6 +165,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	get Ctor() {
 		return this.constructor as typeof Component;
 	}
+	readonly id: string;
 	/**
 	* If true, a <script> tag will be inserted that allows this component to be dynamically rendered. Otherwise it will be rendered only once. TODO2: Preserve isCSR=false elements
 	*/
@@ -187,27 +178,15 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	readonly isPersisted: boolean = false;
 	readonly isSSG: boolean = true;
 	/**
-	 * Emits when the component is rendered
-	 */
-	readonly load = new Emitter<number>({ initial: 0 });
-	/**
-	 * Emits when the state changes
-	 */
-	readonly state = new Emitter<ReturnType<this[`accept`]>>({ initial: {} as ReturnType<this[`accept`]> });
-	/**
 	 * Warning: `style` should be defined as a static property, not an instance property
 	*/
 	private readonly style: void = undefined;
 
-	constructor(
-		readonly uid?: string
-	) {
-		this.uid = uid ?? Component.createUid();
-
-		if (uid !== undefined) {
-			Component.persists.set(this.uid, this);
-			this.isPersisted = true;
-		}
+	constructor({ id, ...attributes }: {
+		id?: string;
+	} = {}) {
+		this.attributes = attributes;
+		this.id = id ?? Component.createUid();
 
 		if (!Component.subclasses.has(this.Ctor.name)) {
 			this.Ctor.init();
@@ -249,29 +228,11 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		return `"this.closest('[${Component.$elAttrType}=${this.Ctor.name}]').${Component.$elInstance}.${methodName as string}(event,${argsString})"`;
 	}
 
-	notify<
-		SpecificEmitter extends Emitter<any>, // eslint-disable-line @typescript-eslint/no-explicit-any
-		Key extends $.KeysMatching<Subclass, SpecificEmitter>
-	>(
-		receiver: {
-			onNotify: Component<any>[`onNotify`]; // eslint-disable-line @typescript-eslint/no-explicit-any
-			uid?: Component<any>[`uid`]; // eslint-disable-line @typescript-eslint/no-explicit-any
-		},
-		eventName: Key,
-	) {
-		const emitter = (this as unknown as Subclass)[eventName] as SpecificEmitter;
-		const subscription = emitter.subscribe((...args) => receiver.onNotify(this, ...args));
-		this._subscriptions.add(subscription);
-		return this;
-	}
-
 	onLoad() {}
-
-	onNotify(_instance: Component<any>, ..._args: Parameters<OnEmit<any>>) {} // eslint-disable-line @typescript-eslint/no-explicit-any
 
 	place() {
 		const key = Component.name;
-		return `<img aria-hidden="true" src="#" style="display:none" onerror="${key}.${Component.onPlace.name}('${this.uid}',this)" />`; // TODO1: (I think) this causes an unnecessary rerender on existing elements
+		return `<img aria-hidden="true" src="#" style="display:none" onerror="${key}.${Component.onPlace.name}('${this.id}',this)" />`; // TODO1: (I think) this causes an unnecessary rerender on existing elements
 	}
 
 	/**
@@ -280,7 +241,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	 */
 	render(content: string = ``) {
 		this.content = content;
-		Component.toPlace.set(this.uid, this);
+		Component.toPlace.set(this.id, this);
 		if (appContext === `build`) {
 			return this.renderSSG();
 		}
@@ -297,24 +258,16 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	}
 
 	private renderSSG() { // TODO3: This is unused on browser, so I originally had it in build.ts, but like it better here
-		const argsString = Component.serialize(this.args);
-		const template = this.template().trim();
+		const template = this.template(this.content).trim();
 		const hasOneRootElement = /^<(\w+).*<\/\1>$/s.test(template); // TODO2: False positive for e.g. <div>one</div> <div>two</div>
 		const isOneElement = /^<[^<>]+>$/s.test(template);
 		if (!hasOneRootElement && !isOneElement) {
 			throw new Error(`Template for ${this.Ctor.name} invalid: Component templates must have one root HTML element`);
 		}
-		let out = ``;
-		if (this.isCSR) {
-			out += `<script src="data:text/javascript," onload="${Component.ssgHolderName}.push([this,'${this.Ctor.name}',${this.isPersisted ? `'${this.uid}'` : ``},${argsString}])"></script>`; // Need an element that is valid HTML anywhere, will trigger an action when it is rendered, and can provide a reference to itself, its constructor type, and the instance's constructor args. TODO2: A less-bad way of passing arguments. Did it this way because it's the least-ugly way of serializing objects, but does output double-quotes so can't put it in the `onload` function without a lot of replacing
-		}
-		if (this.isSSG) {
-			let rendered = this.template(this.content);
-			rendered = rendered.replace(/^\s*<\w+/, match =>
-				`${match} ${Component.$elAttrType}="${this.Ctor.name}"${this.isPersisted ? ` ${Component.$elAttrUid}="${this.uid}"` : ``}`
-			);
-			out += rendered;
-		}
+		let out = template;
+		out = out.replace(/^\s*<\w+/, match =>
+			`${match} ${Component.$elAttrType}="${this.Ctor.name}" ${Component.$elAttrId}="${this.id}"`
+		);
 		return out;
 	}
 
@@ -322,26 +275,15 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		this.$el!.replaceWith(this.renderCSR());
 	}
 
-	/**
-	 * Sets values on this Component's state
-	 */
-	set(input: Parameters<this[`accept`]>[0]): this {
-		this.args = input;
-		const state = this.accept(input); // eslint-disable-line @typescript-eslint/no-unsafe-assignment
-		this.state.next(state); // eslint-disable-line @typescript-eslint/no-unsafe-argument
-		return this;
-	}
-
 	setEl($input: Element) {
 		if ($input === undefined || $input === null) {
-			throw new Error(`onRender: ${this.Ctor.name} #${this.uid} has no element`);
+			throw new Error(`onRender: ${this.Ctor.name} #${this.id} has no element`);
 		}
 		const $el = $input as BoundElement;
 		$el[Component.$elInstance] = this;
 		$el.setAttribute(Component.$elAttrType, this.Ctor.name);
-		$el.setAttribute(Component.$elAttrUid, this.uid!);
+		$el.setAttribute(Component.$elAttrId, this.id);
 		this.$el = $el;
-		this.load.next(this.load.last + 1);
 		this.onLoad();
 	}
 

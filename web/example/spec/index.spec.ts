@@ -24,14 +24,18 @@ const hasSSG = (page: string) =>
 	fs.existsSync(`dist/${page}.html`);
 
 class Widget extends Component {
+	message: string;
 	prop = 42;
-	accept(input: {
+
+	constructor({ message, ...attributes }: {
+		id?: string;
 		message: string;
 	}) {
-		return input;
+		super(attributes);
+		this.message = message;
 	}
 
-	template = () => `<h1>${this.state.last.message ?? ``}${this.prop}</h1>`;
+	template = () => `<h1>${this.message ?? ``}${this.prop}</h1>`;
 }
 
 const widget = Component.toFunction(Widget);
@@ -61,8 +65,8 @@ export const spec = suite(`@robertakarobin/web`,
 	}),
 
 	test(`component`, $ => {
-		$.assert(x => x(new Widget().set({ message: `x` }).template()) === `<h1>x42</h1>`);
-		$.assert(x => x(widget().set({ message: `x` }).render()) === `<script src="data:text/javascript," onload="toInit.push([this,'Widget',,{message:'x',}])"></script><h1 data-component="Widget">x42</h1>`);
-		$.assert(x => x(widget(`steve`).set({ message: `x` }).render()) === `<script src="data:text/javascript," onload="toInit.push([this,'Widget','steve',{message:'x',}])"></script><h1 data-component="Widget" data-uid="steve">x42</h1>`);
+		$.assert(x => x(new Widget({ message: `x` }).template()) === `<h1>x42</h1>`);
+		$.assert(x => x(widget({ message: `x` }).render()) === `<h1 data-component="Widget" id="/UID/">x42</h1>`);
+		$.assert(x => x(widget({ id: `steve`, message: `x` }).render()) === `<h1 data-component="Widget" id="steve">x42</h1>`);
 	}),
 );

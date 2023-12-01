@@ -23,7 +23,7 @@ export const router: Router<typeof routeDefs> = new Router( // Have to declare r
 			case this.routes.home.pathname:
 			case this.routes.homeJump1.pathname:
 			case this.routes.homeJump2.pathname:
-				return new indexPage().set({ message: `This is a variable` });
+				return new indexPage({ message: `This is a variable` });
 			case this.routes.ssgNo.pathname:
 				return new (await import(`@src/pages/ssg-no.ts`)).default();
 			case this.routes.ssgYes.pathname:

@@ -5,24 +5,24 @@
 	<title>Error 404</title>
 	<base href="/">
 	<meta name="viewport" content="width=device-width, initial-scale=1"> <script src="/script.js" type="module"></script>
-	<link rel="stylesheet" href="/styles.css"> <script>window.toInit=window.toInit||[];</script>
+	<link rel="stylesheet" href="/styles.css"> <script>window.ssgInstances=window.ssgInstances||[];</script>
 </head>
 
 <body>
 	<nav>
 		<ul>
-			<li><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'error404',}])"></script><a data-component="AppRouteComponent" href="/404.html" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go error404</a></li>
-			<li><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'home',}])"></script><a data-component="AppRouteComponent" href="/" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go home</a></li>
-			<li><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'homeJump1',}])"></script><a data-component="AppRouteComponent" href="/#jump1" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go homeJump1</a></li>
-			<li><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'homeJump2',}])"></script><a data-component="AppRouteComponent" href="/#jump2" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go homeJump2</a></li>
-			<li><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'ssgNo',}])"></script><a data-component="AppRouteComponent" href="/ssg/no" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go ssgNo</a></li>
-			<li><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'ssgYes',}])"></script><a data-component="AppRouteComponent" href="/ssg/yes" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go ssgYes</a></li>
-			<li><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'ssgYesJump1',}])"></script><a data-component="AppRouteComponent" href="/ssg/yes/#jump1" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go ssgYesJump1</a></li>
-			<li><script src="data:text/javascript," onload="toInit.push([this,'AppRouteComponent',,{to:'ssgYesJump2',}])"></script><a data-component="AppRouteComponent" href="/ssg/yes/#jump2" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go ssgYesJump2</a></li>
+			<li><a data-component="AppRouteComponent" id="/UID/" href="/404.html" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go error404</a></li>
+			<li><a data-component="AppRouteComponent" id="/UID/" href="/" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go home</a></li>
+			<li><a data-component="AppRouteComponent" id="/UID/" href="/#jump1" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go homeJump1</a></li>
+			<li><a data-component="AppRouteComponent" id="/UID/" href="/#jump2" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go homeJump2</a></li>
+			<li><a data-component="AppRouteComponent" id="/UID/" href="/ssg/no" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go ssgNo</a></li>
+			<li><a data-component="AppRouteComponent" id="/UID/" href="/ssg/yes" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go ssgYes</a></li>
+			<li><a data-component="AppRouteComponent" id="/UID/" href="/ssg/yes/#jump1" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go ssgYesJump1</a></li>
+			<li><a data-component="AppRouteComponent" id="/UID/" href="/ssg/yes/#jump2" onclick="this.closest('[data-component=AppRouteComponent]').instance.onClick(event,)">Go ssgYesJump2</a></li>
 		</ul>
 	</nav>
-	<main><script src="data:text/javascript," onload="toInit.push([this,'ErrorPage',,{}])"></script>
-		<div data-component="ErrorPage">
+	<main>
+		<div data-component="ErrorPage" id="/UID/">
 			<h1>404 page :(</h1>
 		</div>
 	</main>

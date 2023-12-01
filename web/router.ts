@@ -125,20 +125,21 @@ export class Router<Routes extends RouteMap> {
 export abstract class RouteComponent<
 	Routes extends RouteMap
 > extends Component<RouteComponent<Routes>> {
+	readonly href: string;
+	readonly isAbsolute: boolean;
+	readonly route: URL;
+	readonly routeName: keyof Routes;
 	abstract readonly router: Router<Routes>;
 
-	accept({ to, ...attributes }: {
+	constructor({ to, router, ...attributes }: {
+		router: Router<Routes>;
 		to: keyof Routes;
 	}) {
-		this.attributes = attributes;
-		const route = this.router.routes[to];
-		const isAbsolute = route.origin !== this.router.baseHref.origin;
-		return {
-			href: isAbsolute ? route.href : `${route.pathname}${route.hash ?? ``}`,
-			isAbsolute,
-			route,
-			routeName: to,
-		};
+		super(attributes);
+		this.routeName = to;
+		this.route = router.routes[to];
+		this.isAbsolute = this.route.origin !== router.baseHref.origin;
+		this.href = this.isAbsolute ? this.route.href : `${this.route.pathname}${this.route.hash ?? ``}`;
 	}
 
 	onClick(event: MouseEvent) {
@@ -146,11 +147,11 @@ export abstract class RouteComponent<
 			return;
 		}
 		event.preventDefault();
-		this.router.to(this.state.last.routeName);
+		this.router.to(this.routeName);
 	}
 
 	template = (content: string = ``) => {
-		return `<a href="${this.state.last.href}" onclick=${this.bind(`onClick`)}>${content}</a>`;
+		return `<a href="${this.href}" onclick=${this.bind(`onClick`)}>${content}</a>`;
 	};
 }
 
@@ -162,6 +163,15 @@ export function routeComponent<Routes extends RouteMap>(
 ) {
 	class AppRouteComponent extends RouteComponent<Routes> {
 		router = router;
+
+		constructor(
+			args: Omit<ConstructorParameters<typeof RouteComponent<Routes>>[0], `router`>
+		) {
+			super({
+				...args,
+				router,
+			});
+		}
 	}
 
 	return Component.toFunction(AppRouteComponent);

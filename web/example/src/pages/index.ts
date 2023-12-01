@@ -1,7 +1,7 @@
 import { Page } from '@robertakarobin/web/index.ts';
 
 import { route, router } from '@src/router.ts';
-import listItem from '@src/components/listitem.ts';
+import list from '@src/components/list.ts';
 import { state } from '@src/state.ts';
 
 const style =  `
@@ -15,14 +15,14 @@ const colors = [`red`, `yellow`, `green`, `brown`, `scarlet`];
 export default class IndexPage extends Page<IndexPage> {
 	static style = style;
 
+	message: string;
 	title = `Home page`;
 
-	accept(input: {
-		message: string;
+	constructor({ message, ...attributes }: {
+		message?: string;
 	}) {
-		return {
-			message: input.message ?? ``,
-		};
+		super(attributes);
+		this.message = message ?? ``;
 	}
 
 	addListItem() {
@@ -40,28 +40,19 @@ export default class IndexPage extends Page<IndexPage> {
 
 <div id="${router.routes.homeJump1.hash.substring(1)}">Jump 1</div>
 
-<ol>
-	${state.entries.last.map(({ id, value }) => `
-		<li>${listItem(id)
-			.set({ value })
-			.render()
-		}</li>
-	`).join(`\n`)}
-
-	<li><button type="button" onclick=${this.bind(`addListItem`)}>Add</button></li>
-</ol>
+${list({ items: state.entries.last }).render()}
 
 <markdown>
 # Headline 1
 
-## ${this.state.last.message}
+## ${this.message}
 
 Lorem ipsum dolor <strong>sit amet</strong>, consectetur *adipiscing elit*, sed do _eiusmod tempor_ incididunt.
 
 Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ nulla pariatur.
 </markdown>
 
-<p>${route().set({ to: `home` }).render(`Link to homepage`)}</p>
+<p>${route({ to: `home` }).render(`Link to homepage`)}</p>
 
 <button type="button" onclick=${this.bind(`anchorlessRoute`)}>Go to SSG Yes</button>
 
