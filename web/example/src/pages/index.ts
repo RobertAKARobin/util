@@ -40,7 +40,10 @@ export default class IndexPage extends Page<IndexPage> {
 
 <div id="${router.routes.homeJump1.hash.substring(1)}">Jump 1</div>
 
-${list({ items: state.entries.last }).render()}
+${list({ items: state.entries.last })
+	.on(`update`, ({ id, value }) => state.update(id, { value }))
+	.render()
+}
 
 <markdown>
 # Headline 1
@@ -53,7 +56,6 @@ Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ 
 </markdown>
 
 <p>${route({ to: `home` }).render(`Link to homepage`)}</p>
-<p>${route({ to: `error404` }).render(`Link to error`)}</p>
 
 <button type="button" onclick=${this.bind(`anchorlessRoute`)}>Go to SSG Yes</button>
 

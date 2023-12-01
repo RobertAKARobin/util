@@ -1,4 +1,5 @@
 import type * as $ from '@robertakarobin/jsutil/types.d.ts';
+import type { Emitter, OnEmit } from '@robertakarobin/jsutil/emitter.ts';
 import { newUid } from '@robertakarobin/jsutil/index.ts';
 
 import { appContext } from './context.ts';
@@ -226,6 +227,18 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 			return arg;
 		}).join(`,`);
 		return `"this.closest('[${Component.$elAttrType}=${this.Ctor.name}]').${Component.$elInstance}.${methodName as string}(event,${argsString})"`;
+	}
+
+	on<
+		Key extends $.KeysMatching<Subclass, Emitter<any>>, // eslint-disable-line @typescript-eslint/no-explicit-any
+		Type extends Subclass[Key] extends Emitter<infer T> ? T : never,
+	>(
+		key: Key,
+		doWhat: OnEmit<Type>
+	) {
+		const emitter = (this as unknown as Subclass)[key] as Emitter<Type>;
+		emitter.subscribe(doWhat);
+		return this;
 	}
 
 	onLoad() {}

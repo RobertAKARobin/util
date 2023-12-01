@@ -1,6 +1,5 @@
 {
 	"dependencies": {
-		"@robertakarobin/jsutil": "^0.0.34",
 		"@robertakarobin/web": "file:../"
 	},
 	"devDependencies": {

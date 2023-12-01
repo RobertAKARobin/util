@@ -1,17 +1,18 @@
 import { Component } from '@robertakarobin/web/index.ts';
+import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
 
 import { state } from '@src/state.ts';
 import textbox from '@src/components/textbox.ts';
 
 export class ListItemComponent extends Component<ListItemComponent> {
-	value: string;
+	value = new Emitter<string>();
 
 	constructor({ value, ...attributes }: {
 		id: string;
 		value: string;
 	}) {
 		super(attributes);
-		this.value = value;
+		this.value.next(value);
 	}
 
 	onArrow(increment: number) {
@@ -20,7 +21,7 @@ export class ListItemComponent extends Component<ListItemComponent> {
 
 	onLoad() {
 		state.upsert(this.id, {
-			value: this.value,
+			value: this.value.last,
 		});
 	}
 
@@ -34,7 +35,10 @@ export class ListItemComponent extends Component<ListItemComponent> {
 		onclick=${this.bind(`onArrow`, 1)}
 		type="button"
 	>↓</button>
-	${textbox({ value: this.value }).render()}
+	${textbox({ value: this.value.last })
+		.on(`value`, value => this.value.next(value))
+		.render()
+	}
 </div>
 	`;
 }
