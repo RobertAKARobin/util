@@ -16,6 +16,7 @@
 
 ## TODO
 
+-	Really want to use static method to get instance so that I can just import class everywhere
 -	Import from other file (ergo SVG)
 
 -	Persist state for e.g. input elements

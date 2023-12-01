@@ -12,6 +12,7 @@ export type List = Array<ListItem & {
 }>;
 
 export class ListComponent extends Component<ListComponent> {
+	add = new Emitter<void>();
 	items: List;
 	update = new Emitter<{ id: string; value: string; }>();
 
@@ -22,8 +23,8 @@ export class ListComponent extends Component<ListComponent> {
 		this.items = items;
 	}
 
-	addListItem(input: ListItem) {
-		console.log(input);
+	onAdd() {
+		this.add.next();
 	}
 
 	onArrow(id: string, increment: number) {
@@ -43,7 +44,11 @@ export class ListComponent extends Component<ListComponent> {
 		}</li>
 	`).join(`\n`)}
 
-	<li><button type="button" onclick=${this.bind(`addListItem`)}>Add</button></li>
+	<li>
+		<button
+			type="button"
+			onclick=${this.bind(`onAdd`)}
+		>Add</button></li>
 </ol>
 	`;
 }

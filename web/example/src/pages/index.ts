@@ -1,7 +1,7 @@
 import { Page } from '@robertakarobin/web/index.ts';
 
+import list, { ListComponent } from '@src/components/list.ts';
 import { route, router } from '@src/router.ts';
-import list from '@src/components/list.ts';
 import { state } from '@src/state.ts';
 
 const style =  `
@@ -23,10 +23,12 @@ export default class IndexPage extends Page<IndexPage> {
 	}) {
 		super(attributes);
 		this.message = message ?? ``;
+		state.subscribe(console.log);
 	}
 
 	addListItem() {
 		state.add({ value: `` });
+		console.log(this.find(ListComponent), this.findAll(ListComponent));
 		this.rerender();
 	}
 
@@ -41,6 +43,7 @@ export default class IndexPage extends Page<IndexPage> {
 <div id="${router.routes.homeJump1.hash.substring(1)}">Jump 1</div>
 
 ${list({ items: state.entries.last })
+	.on(`add`, () => this.addListItem())
 	.on(`update`, ({ id, value }) => state.update(id, { value }))
 	.render()
 }

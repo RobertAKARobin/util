@@ -229,6 +229,28 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		return `"this.closest('[${Component.$elAttrType}=${this.Ctor.name}]').${Component.$elInstance}.${methodName as string}(event,${argsString})"`;
 	}
 
+	find<Subclass extends DerivedComponent<Component>>(
+		subclass: Subclass, id?: Component[`id`]
+	) {
+		const $child: BoundElement = this.$el!.querySelector(id === undefined
+			? `[${Component.$elAttrType}=${subclass.name}]`
+			: `[${Component.$elAttrId}=${id}]`
+		)!;
+		return $child.instance as InstanceType<Subclass>; // eslint-disable-line @typescript-eslint/no-unsafe-return
+	}
+
+	findAll<Subclass extends DerivedComponent<Component>>(
+		subclass: Subclass
+	) {
+		const $children = this.$el?.querySelectorAll(`[${Component.$elAttrType}=${subclass.name}]`);
+		if ($children === undefined) {
+			return [];
+		}
+		return Array.from($children).map(
+			$child => ($child as BoundElement).instance
+		) as Array<InstanceType<Subclass>> ; // eslint-disable-line @typescript-eslint/no-unsafe-return
+	}
+
 	on<
 		Key extends $.KeysMatching<Subclass, Emitter<any>>, // eslint-disable-line @typescript-eslint/no-explicit-any
 		Type extends Subclass[Key] extends Emitter<infer T> ? T : never,
