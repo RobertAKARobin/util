@@ -1,7 +1,8 @@
 {
 	"deno.enable": false,
 	"eslint.options": {
-		"extensions": [".js", ".json", ".ts"]
+		"extensions": [".js", ".json", ".ts"],
+		"resolvePluginsRelativeTo": "./eslint-config-ts"
 	},
 	"eslint.enable": true,
 	"eslint.validate": [

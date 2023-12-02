@@ -5,11 +5,9 @@
 		"@robertakarobin/jsutil": "file:./jsutil",
 		"@robertakarobin/spec": "file:./spec",
 		"@robertakarobin/web": "file:./web",
-		"@types/clean-css": "^4.2.11",
-		"diff": "^5.1.0",
 		"husky": "^8.0.3",
 		"npm-check-updates": "^16.14.11",
-		"tsx": "^4.4.0"
+		"tsx": "^4.6.1"
 	},
 	"files": [
 		".gitignore",
@@ -30,5 +28,5 @@
 		"test": "npm run spec && npm run test --prefix web/example"
 	},
 	"type": "module",
-	"version": "0.0.185"
+	"version": "0.0.186"
 }

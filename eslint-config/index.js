@@ -1,8 +1,6 @@
 // Not using Prettier because too much of a PITA, especially when supporting .astro files and VSCode
-// TODO3: Stylelistic rules are deprecated. Migrate to Prettier when it's less of a PITA: https://typescript-eslint.io/rules/comma-dangle/
 // TODO3: Rule for requiring parens around ternaries
 // TODO3: Enforce single (double?) quotes on object properties
-// TODO2: Move to eslint-stylistic: https://eslint.style/guide/migration#when-should-i-migrate
 module.exports = {
 	ignorePatterns: [
 		`**/dist/*`,
@@ -14,27 +12,49 @@ module.exports = {
 		{
 			files: `*.json`,
 			rules: {
-				"comma-dangle": [`error`, `never`],
-				"indent": [`error`, `tab`, {
-					SwitchCase: 1,
-				}],
-				"max-len": `off`,
-				"quote-props": [`error`, `consistent`],
-				"quotes": [`error`, `double`],
-				"semi": `off`,
+				"@stylistic/comma-dangle": [`error`, `never`],
+				"@stylistic/indent": [`error`, `tab`],
+				"@stylistic/max-len": `off`,
+				"@stylistic/quote-props": [`error`, `consistent`],
+				"@stylistic/quotes": [`error`, `double`],
+				"@stylistic/semi": `off`,
 			},
 		},
 	],
 	plugins: [
+		`@stylistic`,
 		`eslint-plugin-import`,
 		`eslint-plugin-import-newlines`,
 		`eslint-plugin-import-quotes`,
 	],
 	rules: {
-		"arrow-parens": [`error`, `as-needed`],
-		"arrow-spacing": `error`,
-		"brace-style": [`error`, `1tbs`],
-		"comma-dangle": [`error`, `always-multiline`],
+		"@stylistic/arrow-parens": [`error`, `as-needed`],
+		"@stylistic/arrow-spacing": `error`,
+		"@stylistic/brace-style": [`error`, `1tbs`],
+		"@stylistic/comma-dangle": [`error`, `always-multiline`],
+		"@stylistic/key-spacing": [`error`, {
+			afterColon: true,
+			beforeColon: false,
+			mode: `strict`,
+		}],
+		"@stylistic/max-len": [`warn`, {
+			code: 100,
+			ignoreComments: true,
+			ignoreRegExpLiterals: false,
+			ignoreStrings: false,
+			ignoreTemplateLiterals: true,
+		}],
+		"@stylistic/object-curly-spacing": [`error`, `always`],
+		"@stylistic/object-property-newline": [`error`, {
+			allowAllPropertiesOnSameLine: true,
+		}],
+		"@stylistic/quote-props": [`error`, `consistent-as-needed`],
+		"@stylistic/quotes": [`error`, `backtick`],
+		"@stylistic/semi": [`error`, `always`],
+		"@stylistic/space-before-blocks": [`error`, `always`],
+		"@stylistic/space-in-parens": [`error`],
+		"@stylistic/space-infix-ops": [`error`],
+
 		"curly": [`error`, `all`],
 		"eqeqeq": `error`,
 		"import-newlines/enforce": [`error`, {
@@ -46,29 +66,10 @@ module.exports = {
 			SwitchCase: 1,
 			ignoredNodes: [`TemplateLiteral *`],
 		}],
-		"key-spacing": [`error`, {
-			afterColon: true,
-			beforeColon: false,
-			mode: `strict`,
-		}],
-		"max-len": [`warn`, {
-			code: 100,
-			ignoreComments: true,
-			ignoreRegExpLiterals: false,
-			ignoreStrings: false,
-			ignoreTemplateLiterals: true,
-		}],
 		"no-unused-vars": [`warn`, {
 			argsIgnorePattern: `^_`,
 		}],
-		"object-curly-spacing": [`error`, `always`],
-		"object-property-newline": [`error`, {
-			allowAllPropertiesOnSameLine: true,
-		}],
 		"prefer-spread": `off`,
-		"quote-props": [`error`, `consistent-as-needed`],
-		"quotes": [`error`, `backtick`],
-		"semi": [`error`, `always`],
 		"sort-imports": [`error`, {
 			allowSeparatedGroups: true,
 			ignoreCase: true,
@@ -76,8 +77,5 @@ module.exports = {
 		"sort-keys": [`error`, `asc`, {
 			allowLineSeparatedGroups: true,
 		}],
-		"space-before-blocks": [`error`, `always`],
-		"space-in-parens": [`error`],
-		"space-infix-ops": [`error`],
 	},
 };
