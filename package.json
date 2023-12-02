@@ -1,12 +1,4 @@
 {
-	"dependencies": {
-		"@robertakarobin/csslint": "^0.0.1",
-		"@robertakarobin/eslint-config-ts": "^0.0.1",
-		"@robertakarobin/spec": "^0.0.1",
-		"@robertakarobin/web": "^0.0.1",
-		"diff": "^5.1.0",
-		"esbuild": "^0.19.7"
-	},
 	"devDependencies": {
 		"@robertakarobin/csslint": "file:./csslint",
 		"@robertakarobin/eslint-config-ts": "file:./eslint-config-ts",
@@ -14,6 +6,7 @@
 		"@robertakarobin/spec": "file:./spec",
 		"@robertakarobin/web": "file:./web",
 		"@types/clean-css": "^4.2.11",
+		"diff": "^5.1.0",
 		"husky": "^8.0.3",
 		"npm-check-updates": "^16.14.11",
 		"tsx": "^4.4.0"

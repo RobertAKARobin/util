@@ -18,7 +18,7 @@
 	"scripts": {
 		"build": "tsx ./bin/build.ts",
 		"prepublishOnly": "npm run build",
-		"test": "tsx ./spec/run.ts"
+		"test": "tsx ./example/spec/run.ts"
 	},
 	"type": "module",
 	"version": "0.0.26"
