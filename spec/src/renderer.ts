@@ -12,7 +12,7 @@ const match = {
 export class SpecRenderer<
 	RenderOptions extends {
 		showTiming: boolean;
-	}
+	},
 > {
 	readonly renderOptions = <RenderOptions>{
 		showTiming: true,

@@ -177,7 +177,7 @@ export function toKeys<Key extends string | number | symbol, Fill>(
 
 export function traverseMap<
 	PropertyName extends string,
-	Target extends Record<PropertyName, Target>
+	Target extends Record<PropertyName, Target>,
 >(
 	input: Target,
 	propertyName: PropertyName,

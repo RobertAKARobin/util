@@ -269,7 +269,7 @@ export class Builder {
 
 	formatMarkdown(input: string): string | Promise<string> {
 		const isMarkdown = [`<markdown>`, `</markdown>`];
-		const isJsTemplate = ['${', '}']; // eslint-disable-line quotes
+		const isJsTemplate = [`\${`, `}`]; // eslint-disable-line quotes
 		const jsChunks: Array<string> = [];
 		const tokens = stringMates(input, [
 			isMarkdown,
@@ -292,7 +292,7 @@ export class Builder {
 					}
 					return marked(contents, { async: false, gfm: true }) as string;
 				}
-				jsChunks.push('${' + contents + '}'); // eslint-disable-line quotes
+				jsChunks.push(`\${` + contents + `}`); // eslint-disable-line quotes
 				return `/%%/`; // TODO3: Use a better placeholder
 			});
 		}

@@ -123,7 +123,7 @@ export class Router<Routes extends RouteMap> {
  * Use in place of `<a>` to link to a different path/page
  */
 export abstract class RouteComponent<
-	Routes extends RouteMap
+	Routes extends RouteMap,
 > extends Component<RouteComponent<Routes>> {
 	readonly href: string;
 	readonly isAbsolute: boolean;

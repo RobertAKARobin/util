@@ -24,8 +24,9 @@
 	"scripts": {
 		"build": "npm run build --prefix web/example",
 		"dev": "npm run dev --prefix web/example",
+		"lint": "eslint .",
 		"spec": "tsx index.spec.ts",
-		"test": "npm run spec && npm run test --prefix web/example"
+		"test": "npm run lint && npm run spec && npm run test --prefix web/example"
 	},
 	"type": "module",
 	"version": "0.0.186"

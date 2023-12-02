@@ -145,7 +145,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	 * @example `<button onclick=${this.bind(`onClick`, `4.99`)}>$4.99</button>`
 	 */
 	protected bind<
-		Key extends $.KeysMatching<Subclass, Emitter<any> | ((...args: any) => any)> // eslint-disable-line @typescript-eslint/no-explicit-any
+		Key extends $.KeysMatching<Subclass, Emitter<any> | ((...args: any) => any)>, // eslint-disable-line @typescript-eslint/no-explicit-any
 	>(
 		targetName: Key,
 		...args: Array<string | number> | []
@@ -197,7 +197,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		Trigger extends Subclass[EmitterName],
 		Type extends (
 			Trigger extends Emitter<infer T> ? T : never
-		)
+		),
 	>(
 		emitterName: EmitterName,
 		doWhat: (

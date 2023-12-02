@@ -6,6 +6,8 @@
 		"!**/.*.js*",
 		"**/dist/*",
 		"**/dist-golden/*",
-		"**/tmp/*"
+		"**/node_modules/*",
+		"**/tmp/*",
+		"**/package-lock.json"
 	]
 }
