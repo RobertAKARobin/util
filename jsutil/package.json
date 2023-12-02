@@ -1,6 +1,8 @@
 {
 	"devDependencies": {
-		"@robertakarobin/spec": "^0.0.10"
+		"@types/diff": "^5.0.8",
+		"diff": "^5.1.0",
+		"tsx": "^4.6.2"
 	},
 	"main": "index.ts",
 	"name": "@robertakarobin/jsutil",
@@ -8,5 +10,5 @@
 		"test": "tsx run.ts"
 	},
 	"type": "module",
-	"version": "0.0.35"
+	"version": "0.0.37"
 }

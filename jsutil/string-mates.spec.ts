@@ -1,4 +1,4 @@
-import { test } from '@robertakarobin/spec';
+import { test } from './spec/index.ts';
 
 import { stringMates as mates, type TagResult } from './string-mates.ts';
 

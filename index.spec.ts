@@ -1,7 +1,7 @@
-import { run, suite, test } from '@robertakarobin/spec';
+import { run, suite, test } from '@robertakarobin/jsutil/spec';
 
 import * as JSUtil from './jsutil/index.spec.ts';
-import * as SpecLib from '@robertakarobin/spec/index.spec.ts';
+import * as SpecLib from '@robertakarobin/jsutil/spec/index.spec.ts';
 
 export const spec = suite(`@robertakarobin/util`, {},
 	test(`@robertakarobin/jsutil`, async $ => {

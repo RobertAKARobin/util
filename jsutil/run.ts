@@ -1,4 +1,4 @@
-import { print } from '@robertakarobin/spec';
+import { print } from './spec/index.ts';
 
 import * as Meta from './index.spec.ts';
 

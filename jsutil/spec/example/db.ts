@@ -1,4 +1,4 @@
-import * as $ from '@robertakarobin/jsutil';
+import * as $ from '../../index.ts';
 
 type DBRecord = {
 	id: number;

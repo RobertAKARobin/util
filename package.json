@@ -3,8 +3,6 @@
 		"@robertakarobin/csslint": "file:./csslint",
 		"@robertakarobin/eslint-config-ts": "file:./eslint-config-ts",
 		"@robertakarobin/jsutil": "file:./jsutil",
-		"@robertakarobin/spec": "file:./spec",
-		"@robertakarobin/web": "file:./web",
 		"husky": "^8.0.3",
 		"npm-check-updates": "^16.14.11",
 		"tsx": "^4.6.1"
@@ -26,7 +24,7 @@
 		"dev": "npm run dev --prefix web/example",
 		"lint": "eslint .",
 		"spec": "tsx index.spec.ts",
-		"test": "npm run lint && npm run spec && npm run test --prefix web/example"
+		"test": "npm run lint && npm run spec"
 	},
 	"type": "module",
 	"version": "0.0.186"
