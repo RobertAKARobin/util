@@ -24,10 +24,10 @@ export class List extends Component<List> {
 	${this.items.map(({ id, value }, index) => `
 		<li>${
 			new ListItem({ id: `${this.id}-${id}`, value })
-				.on(`add`, item => item.closest(List).addAt.next(index))
-				.on(`move`, (item, increment) => item.closest(List).move.next({ id, increment }))
-				.on(`remove`, item => item.closest(List).remove.next(id))
-				.on(`value`, (item, value) => item.closest(List).value.next({ id, value }))
+				.on(`add`, (value, item) => item.closest(List).addAt.next(index))
+				.on(`move`, (increment, item) => item.closest(List).move.next({ id, increment }))
+				.on(`remove`, (value, item) => item.closest(List).remove.next(id))
+				.on(`value`, (value, item) => item.closest(List).value.next({ id, value }))
 				.render()
 		}</li>
 	`).join(`\n`)}

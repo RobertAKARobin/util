@@ -201,7 +201,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	>(
 		emitterName: EmitterName,
 		doWhat: (
-			(emitter: this, ...args: Parameters<OnEmit<Type>>) => void
+			(value: Type, instance: this) => void
 		)
 	) {
 		const emitter = (this as {
@@ -209,7 +209,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		})[emitterName];
 
 		this.subscriptions.add(
-			emitter.subscribe((...args) => doWhat.call(null, this, ...args))
+			emitter.subscribe(next => doWhat.call(null, next, this))
 		);
 		return this;
 	}
@@ -271,6 +271,11 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		$el.setAttribute(Component.$elAttrId, this.id);
 		this.$el = $el;
 		this.onLoad();
+	}
+
+	tap(doWhat: (instance: this) => void) {
+		doWhat(this);
+		return this;
 	}
 
 	/**

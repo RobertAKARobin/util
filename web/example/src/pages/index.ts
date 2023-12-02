@@ -42,10 +42,10 @@ export default class IndexPage extends Page<IndexPage> {
 
 ${
 	new List({ id: `steve`, items: state.entries.last })
-		.on(`addAt`, (_, index) => state.add({ value: `` }, index))
-		.on(`move`, (_, { id, increment }) => state.move(id, increment))
-		.on(`remove`, (_, id) => state.remove(id))
-		.on(`value`, (_, { id, value }) => state.update(id, { value }))
+		.on(`addAt`, index => state.add({ value: `` }, index))
+		.on(`move`, ({ id, increment }) => state.move(id, increment))
+		.on(`remove`, id => state.remove(id))
+		.on(`value`, ({ id, value }) => state.update(id, { value }))
 		.render()
 }
 <markdown>
