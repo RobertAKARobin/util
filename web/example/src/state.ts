@@ -1,4 +1,4 @@
-import { appContext } from '@robertakarobin/web/context.ts';
+import { appContext } from '@robertakarobin/jsutil/context.ts';
 import { EntityStateEmitter } from '@robertakarobin/jsutil/entities.ts';
 
 import type * as Type from '@src/types.d.ts';

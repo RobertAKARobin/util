@@ -1,4 +1,4 @@
-import { run } from '@robertakarobin/spec';
+import { run } from '@robertakarobin/jsutil/spec';
 
 import * as Web from './index.spec.ts';
 
