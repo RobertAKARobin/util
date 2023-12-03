@@ -1,4 +1,5 @@
 import * as $ from '@robertakarobin/jsutil';
+import { type Resolver, type Router } from '@robertakarobin/jsutil/router.ts';
 import { stringMates, type TagResult } from '@robertakarobin/jsutil/string-mates.ts';
 import esbuild from 'esbuild';
 import fs from 'fs';
@@ -7,13 +8,9 @@ import jsBeautify from 'js-beautify';
 import { marked } from 'marked';
 import path from 'path';
 
-import {
-	Component,
-	type Page,
-	type RouteMap,
-	type Router,
-} from './index.ts';
+import { Component } from './component.ts';
 import { defaultLayout } from './layout.ts';
+import { type Page } from './page.ts';
 
 export type LayoutArgs = {
 	baseHref: string;
@@ -137,20 +134,20 @@ export class Builder {
 
 	async buildRoutes() {
 		header(`Building routes`);
-		const { router } = (
+		const { resolver, router } = (
 			await bustCache(this.routerSrcFileAbs)
-		) as { router: Router<RouteMap>; };
-
-		const routeNames = Object.keys(router.routes);
+		) as {
+			resolver: Resolver<Page>;
+			router: Router<never>;
+		};
 
 		await $.promiseConsecutive(
-			routeNames.map(routeName => async() => {
+			Object.entries(router.routes).map(([routeName, route]) => async() => {
 				Component.subclasses.clear();
 
-				const routePath = router.routes[routeName];
-				log(`${routeName.toString()}: ${routePath.pathname}`);
+				log(`${routeName.toString()}: ${route.pathname}`);
 
-				const page = await router.resolve(routePath);
+				const page = await resolver.resolve(route);
 				if (page === undefined) {
 					console.warn(`Route '${routeName.toString()}' does not resolve to a page. Skipping...`);
 					logBreak();
@@ -163,7 +160,7 @@ export class Builder {
 					return;
 				}
 
-				let serveFileRel = routePath.pathname;
+				let serveFileRel = route.pathname;
 				serveFileRel = serveFileRel
 					.replace(/^\//, ``)
 					.replace(hasHash, ``);
@@ -195,7 +192,7 @@ export class Builder {
 					mainJsPath: path.join(`/`, this.scriptServeFileRel),
 					page,
 					routeCssPath: typeof routeCssPath === `string` ? path.join(`/`, routeCssPath) : undefined,
-					routePath: path.join(`/`, routePath.pathname),
+					routePath: path.join(`/`, route.pathname),
 				});
 				log(local(serveFileAbs));
 				fs.writeFileSync(serveFileAbs, html);

@@ -3,7 +3,7 @@ import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
 
 import { types } from '@src/theme.ts';
 
-export class Textbox extends Component<Textbox> {
+export class Textbox extends Component<{ value?: string; }> {
 
 	static style = `
 input {
@@ -14,14 +14,13 @@ input {
 	maxlength: number;
 	value = new Emitter<string>();
 
-	constructor({ maxlength, value, ...attributes }: {
+	constructor(args: {
 		id?: string;
 		maxlength?: number;
 		value?: string;
 	}) {
-		super(attributes);
-		this.maxlength = maxlength ?? 10;
-		this.value.next(value ?? ``);
+		super(args);
+		this.maxlength = args.maxlength ?? 10;
 	}
 
 	handleInput(event: Event) {
@@ -41,7 +40,6 @@ input {
 				placeholder="Type here"
 				type="text"
 				value="${this.value.last}"
-				${this.attrs()}
 			>
 
 			<span>${this.remaining()}</span>

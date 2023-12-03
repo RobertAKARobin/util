@@ -1,8 +1,9 @@
-import { buildRoutes, routeComponent, Router } from '@robertakarobin/web/router.ts';
+import { Resolver, type Route, Router } from '@robertakarobin/jsutil/router.ts';
+import { RouteComponent } from '@robertakarobin/web/router.ts';
 
-import indexPage from '@src/pages/index.ts';
+import { IndexPage } from '@src/pages/index.ts';
 
-export const routes = buildRoutes({
+export const router = new Router({
 	error404: `/404.html`,
 	home: `/`,
 	homeJump1: `/#jump1`,
@@ -13,24 +14,24 @@ export const routes = buildRoutes({
 	ssgYesJump2: `/ssg/yes/#jump2`,
 });
 
-export const router = new Router( // Have to declare routeDefs separately or Typescript gets crabby about circular references
-	routes,
+export const { routes } = router;
 
-	async function(route, routes) {
-		switch (route.pathname) {
-			case routes.home.pathname:
-			case routes.homeJump1.pathname:
-			case routes.homeJump2.pathname:
-				return new indexPage({ message: `This is a variable` });
-			case routes.ssgNo.pathname:
-				return new (await import(`@src/pages/ssg-no.ts`)).default();
-			case routes.ssgYes.pathname:
-			case routes.ssgYesJump1.pathname:
-			case routes.ssgYesJump2.pathname:
-				return new (await import(`@src/pages/ssg-yes.ts`)).default();
-		}
-		return new (await import(`@src/pages/error.ts`)).default();
+export const resolver = new Resolver(router, async(route: Route) => {
+	switch (route) {
+		case routes.home:
+		case routes.homeJump1:
+		case routes.homeJump2:
+			return new IndexPage({ message: `This is a variable` });
+		case routes.ssgNo:
+			return new (await import(`@src/pages/ssg-no.ts`)).NoSSGPage();
+		case routes.ssgYes:
+		case routes.ssgYesJump1:
+		case routes.ssgYesJump2:
+			return new (await import(`@src/pages/ssg-yes.ts`)).YesSSGPage();
 	}
-);
+	return new (await import(`@src/pages/error.ts`)).ErrorPage();
+});
 
-export const Route = routeComponent(router);
+export class RouteTo extends RouteComponent {
+	router = router;
+}

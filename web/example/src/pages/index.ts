@@ -1,6 +1,6 @@
 import { Page } from '@robertakarobin/web/index.ts';
 
-import { Route, router } from '@src/router.ts';
+import { router, routes, RouteTo } from '@src/router.ts';
 import { List } from '@src/components/list.ts';
 import { state } from '@src/state.ts';
 
@@ -31,14 +31,14 @@ export class IndexPage extends Page {
 	}
 
 	anchorlessRoute() {
-		router.to(`ssgYes`);
+		router.next(routes.ssgYes);
 	}
 
 	template = () => `
 <div>
 <h1>Hello world!</h1>
 
-<div id="${router.routes.homeJump1.hash.substring(1)}">Jump 1</div>
+<div id="${routes.homeJump1.idAttr}">Jump 1</div>
 
 <markdown>
 # Headline 1
@@ -50,7 +50,7 @@ Lorem ipsum dolor <strong>sit amet</strong>, consectetur *adipiscing elit*, sed 
 Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ nulla pariatur.
 </markdown>
 
-<p>${new Route({ to: `asf` }).render(`Link to homepage`)}</p>
+<p>${new RouteTo(routes.home).render(`Link to homepage`)}</p>
 
 <button type="button" onclick=${this.bind(`anchorlessRoute`)}>Go to SSG Yes</button>
 
@@ -74,6 +74,6 @@ Joseph's coat was ${colors.join(` and `)}.
 1.	ut aliquip ex
 </markdown>
 
-<div id="${router.routes.homeJump2.hash.substring(1)}">Jump 2</div>
+<div id="${routes.homeJump2.idAttr}">Jump 2</div>
 </div>`;
 }

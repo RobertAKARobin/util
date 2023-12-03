@@ -1,10 +1,9 @@
+import { suite, test } from '@robertakarobin/jsutil/spec/index.ts';
 import { Component } from '@robertakarobin/web/component.ts';
+import { diff } from '@robertakarobin/jsutil/spec/diff.ts';
 import { EntityStateEmitter } from '@robertakarobin/jsutil/entities.ts';
+
 import fs from 'fs';
-
-import { suite, test } from '@robertakarobin/spec';
-import { diff } from '@robertakarobin/spec/diff.ts';
-
 
 export const hasMarkdown = /<markdown>(.*?)<\/markdown>/gs;
 

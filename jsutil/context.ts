@@ -12,4 +12,4 @@ export const appContext: AppContext = typeof window !== `undefined`
 
 export const baseHref = appContext === `browser`
 	? new URL(document.baseURI)
-	: new URL(`https://example.com`);
+	: new URL(process.env.baseURI as string || `https://example.com`);

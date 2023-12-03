@@ -1,12 +1,10 @@
-import { Route, router } from '@src/router.ts';
+import { routes, RouteTo } from '@src/router.ts';
 
 export default () => `
 <ul>
-	${Object.keys(router.routes).map(routeName => `
+	${Object.entries(routes).map(([routeName, route]) => `
 		<li>${
-			new Route({
-				to: routeName as keyof typeof router.routes,
-			}).render(`Go ${routeName}`)
+			new RouteTo(route).render(`Go ${routeName}`)
 		}</li>
 	`).join(``)}
 </ul>

@@ -1,20 +1,20 @@
 import { Component } from '@robertakarobin/web/index.ts';
 import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
 
+import type * as Type from '@src/types.d.ts';
 import { Textbox } from '@src/components/textbox.ts';
 
-export class ListItem extends Component<ListItem> {
+export class ListItem extends Component<Type.ListItem> {
 	add = new Emitter<void>();
 	move = new Emitter<number>();
 	remove = new Emitter<void>();
 	value = new Emitter<string>();
 
-	constructor({ value, ...attributes }: {
+	constructor(args: {
 		id: string;
 		value: string;
 	}) {
-		super(attributes);
-		this.value.next(value);
+		super(args);
 	}
 
 	template = () => `
@@ -38,7 +38,7 @@ export class ListItem extends Component<ListItem> {
 	>Remove</button></li>
 	${
 		new Textbox({ value: this.value.last })
-			.on(`value`, (value, item) => item.closest(ListItem).value.next(value))
+			// .on(`value`, (value, item) => item.closest(ListItem).value.next(value))
 			.render()
 	}
 </div>

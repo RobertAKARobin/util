@@ -4,8 +4,13 @@ import { Emitter } from './emitter.ts';
 export class Route extends URL {
 	readonly idAttr: string;
 	readonly isExternal: boolean;
-	constructor(...args: ConstructorParameters<typeof URL>) {
-		super(...args);
+	constructor(...[input]: ConstructorParameters<typeof URL>) {
+		const url = input instanceof URL
+			? input
+			: input.startsWith(`/`)
+				? input.substring(1)
+				: input;
+		super(url, baseHref);
 		this.isExternal = this.origin !== baseHref.origin;
 		this.idAttr = this.hash.substring(1);
 	}
@@ -13,81 +18,80 @@ export class Route extends URL {
 
 export type RouteMap = Record<string, string>;
 
-export type Routes<RouteMap_ extends RouteMap = never> = Record<keyof RouteMap_, Route>;
+export class Router<RouteMap_ extends RouteMap = any> extends Emitter<Route> { // eslint-disable-line @typescript-eslint/no-explicit-any
+	readonly routes = {} as Record<keyof RouteMap_, Route>;
 
-export function buildRoutes<RouteMap_ extends RouteMap>(
-	routes: RouteMap_
-): Routes<RouteMap_> {
-	const output = {} as Record<keyof RouteMap_, Route>;
-	for (const key in routes) {
-		const routeName: keyof RouteMap_ = key;
-		let routePath = routes[routeName] as string;
-		routePath = routePath.startsWith(`/`) ? routePath.substring(1) : routePath;
-		const route: Route = new Route(baseHref.href + routePath);
-		output[routeName] = route;
-	}
-	return output;
-}
+	constructor(routes: RouteMap_) {
+		super();
 
-export class Router<
-	Routes_ extends Routes,
-	View,
-> {
-	readonly route = new Emitter<Route>();
-
-	constructor(
-		readonly routes: Routes_,
-		readonly resolve: (route: Route, routes: Routes_) => View | Promise<View>,
-	) {
-		this.route.subscribe((to, from) => {
-			void this.onNav({ from, to });
-		}, { strong: true });
+		for (const key in routes) {
+			this.routes[key] = new Route(routes[key]);
+		}
 
 		if (appContext === `browser`) {
 			window.onpopstate = () => { // Popstate is fired only by performing a browser action on the current document, e.g. back, forward, or hashchange
 				const newRoute = new Route(window.location.href);
-				this.route.next(newRoute);
+				this.next(newRoute);
 			};
 
 			window.onhashchange = () => { // Hashchange is fired _after_ popstate
 				const newRoute = new Route(window.location.href);
-				this.route.next(newRoute);
+				this.next(newRoute);
 			};
 		}
 	}
+}
 
-	private async onNav(nav: { from?: Route; to: Route; }) {
-		if (nav.to.pathname !== nav.from?.pathname) { // On new page
-			const view = await this.resolve(nav.to, this.routes);
-			await this.render(view, nav.to);
-			window.history.pushState({}, ``, this.route.last.pathname); // Setting the hash here causes the jumpanchor to not be activated for some reason
-			if (this.route.last.hash.length > 0) {
-				location.hash = this.route.last.hash;
+export class Resolver<View> extends Emitter<View> {
+	constructor(
+		readonly router: Router<never>,
+		readonly resolve: (to: Route, from?: Route) => View | Promise<View>
+	) {
+		super();
+
+		router.subscribe(async(to, from) => {
+			if (to.pathname !== from?.pathname) { // On new page
+				this.next(await this.resolve(to, from));
+				return;
 			}
-			return;
-		}
 
-		if (nav.to.href === nav.from?.href) { // On no change
-			return;
-		}
-
-		if (nav.to.origin !== nav.from?.origin) { // On external
-			location.href = nav.to.href;
-			return;
-		}
-
-		if (nav.to.hash !== nav.from?.hash) { // On same page with new hash
-			location.hash = nav.to.hash;
-			if (this.route.last.hash.length === 0) {
-				window.history.replaceState({}, ``, this.route.last.pathname); // Turns out `location.hash = ''` will still set a hash of `#`. So, if going from a path with hash to path without hash, we'll need to handle the hash differently
+			if (to.href === from?.href) { // On no change
+				return;
 			}
-		}
+
+			if (to.origin !== from?.origin) { // On external
+				location.href = to.href;
+				return;
+			}
+
+			if (to.hash !== from?.hash) { // On same page with new hash
+				location.hash = to.hash;
+				if (to.hash.length === 0) {
+					window.history.replaceState({}, ``, to.pathname); // Turns out `location.hash = ''` will still set a hash of `#`. So, if going from a path with hash to path without hash, we'll need to handle the hash differently
+				}
+			}
+		}, { strong: true });
 	}
+}
 
-	render: (view: View, route: Route) => void | Promise<void> = () => undefined;
+export class Renderer<View> extends Emitter<void> {
+	constructor(
+		readonly resolver: Resolver<View>,
+		readonly render: (
+			newView: View,
+			oldView: View,
+			newRoute: Route,
+		) => void | Promise<void>
+	) {
+		super();
 
-	to(routeName: keyof Routes_) {
-		const route = this.routes[routeName];
-		this.route.next(route);
+		resolver.subscribe(async(newView, oldView) => {
+			const to = this.resolver.router.last;
+			await this.render(newView, oldView, this.resolver.router.last);
+			window.history.pushState({}, ``, to.pathname); // Setting the hash here causes the jumpanchor to not be activated for some reason
+			if (to.hash.length > 0) {
+				location.hash = to.hash;
+			}
+		}, { strong: true });
 	}
 }

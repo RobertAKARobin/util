@@ -96,14 +96,11 @@ export abstract class Component<State = any> extends Emitter<State> { // eslint-
 	 * This keeps subscriptions from being garbage-collected while this instance exists
 	 */
 
-	constructor({ id, ...initialState }:
-		& { id?: string; }
-		& State
-	) {
-		super(initialState);
+	constructor(args: { id?: string; } & State) {
+		super({ initial: args });
 
-		if (id !== undefined) {
-			this.id = id;
+		if (args.id !== undefined) {
+			this.id = args.id;
 
 			const existing = Component.persists.get(this.id);
 			if (existing) {
