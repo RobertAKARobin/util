@@ -19,6 +19,10 @@ export class IndexPage extends Page<{ message?: string; }> {
 		router.next(routes.ssgYes);
 	}
 
+	// ${
+	// 	new List({ id: `mylist`, items: state.entries.last }).render()
+	// }
+
 	template = () => `
 <div>
 <h1>Hello world!</h1>

@@ -45,7 +45,7 @@ export class Router<RouteMap_ extends RouteMap = any> extends Emitter<Route> { /
 export class Resolver<View> extends Emitter<View> {
 	constructor(
 		readonly router: Router<never>,
-		readonly resolve: (to: Route, from?: Route) => View | Promise<View>
+		readonly resolve: (to: Route, from?: Route) => Promise<View>,
 	) {
 		super();
 
@@ -84,6 +84,13 @@ export class Renderer<View> extends Emitter<void> {
 		) => void | Promise<void>
 	) {
 		super();
+
+		const landingRoute = new Route(location.href);
+		resolver.resolve(landingRoute)
+			.then(view => {
+				void this.render(view, undefined as View, landingRoute);
+			})
+			.catch(console.error);
 
 		resolver.subscribe(async(newView, oldView) => {
 			const to = this.resolver.router.last;

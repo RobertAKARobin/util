@@ -10,7 +10,7 @@ const globals = (appContext === `browser` ? window : global) as unknown as Windo
 	& { [key in typeof Component.name]: typeof Component; };
 
 export abstract class Component<State = any> extends Emitter<State> { // eslint-disable-line @typescript-eslint/no-explicit-any
-	static readonly $elAttrId = `id`;
+	static readonly $elAttrId = `data-id`;
 	static readonly $elAttrType = `data-component`;
 	static readonly $elInstance = `instance`;
 	private static readonly persists = new Map<Component[`id`], Component>();

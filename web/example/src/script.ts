@@ -7,6 +7,10 @@ const $nav = document.querySelector(`nav`)!;
 $nav.innerHTML = nav();
 
 const $main = document.querySelector(`main`)!;
-new Renderer(resolver, view => {
-	$main.innerHTML = view.render();
+new Renderer(resolver, (view, oldView) => {
+	if (oldView === undefined) {
+		view.$el = $main;
+	} else {
+		$main.innerHTML = view.render();
+	}
 });
