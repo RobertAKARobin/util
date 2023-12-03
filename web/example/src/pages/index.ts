@@ -12,7 +12,7 @@ h1 {
 
 const colors = [`red`, `yellow`, `green`, `brown`, `scarlet`];
 
-export default class IndexPage extends Page<IndexPage> {
+export class IndexPage extends Page {
 	static style = style;
 
 	message: string;
@@ -23,11 +23,11 @@ export default class IndexPage extends Page<IndexPage> {
 	}) {
 		super(attributes);
 		this.message = message ?? ``;
-		state.entries.subscribe(entries => {
-			const list = this.find(List);
-			list.items = entries;
-			list.rerender();
-		});
+		// state.entries.subscribe(entries => {
+		// 	const list = this.find(List);
+		// 	list.items = entries;
+		// 	list.rerender();
+		// });
 	}
 
 	anchorlessRoute() {
@@ -40,14 +40,6 @@ export default class IndexPage extends Page<IndexPage> {
 
 <div id="${router.routes.homeJump1.hash.substring(1)}">Jump 1</div>
 
-${
-	new List({ id: `steve`, items: state.entries.last })
-		.on(`addAt`, index => state.add({ value: `` }, index))
-		.on(`move`, ({ id, increment }) => state.move(id, increment))
-		.on(`remove`, id => state.remove(id))
-		.on(`value`, ({ id, value }) => state.update(id, { value }))
-		.render()
-}
 <markdown>
 # Headline 1
 
@@ -58,7 +50,7 @@ Lorem ipsum dolor <strong>sit amet</strong>, consectetur *adipiscing elit*, sed 
 Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ nulla pariatur.
 </markdown>
 
-<p>${new Route({ to: `home` }).render(`Link to homepage`)}</p>
+<p>${new Route({ to: `asf` }).render(`Link to homepage`)}</p>
 
 <button type="button" onclick=${this.bind(`anchorlessRoute`)}>Go to SSG Yes</button>
 

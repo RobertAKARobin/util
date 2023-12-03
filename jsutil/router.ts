@@ -13,11 +13,11 @@ export class Route extends URL {
 
 export type RouteMap = Record<string, string>;
 
-export type Routes<RouteMap_ extends RouteMap> = Record<keyof RouteMap_, Route>;
+export type Routes<RouteMap_ extends RouteMap = never> = Record<keyof RouteMap_, Route>;
 
-export function routes<RouteMap_ extends RouteMap>(
+export function buildRoutes<RouteMap_ extends RouteMap>(
 	routes: RouteMap_
-): Record<keyof RouteMap_, URL> {
+): Routes<RouteMap_> {
 	const output = {} as Record<keyof RouteMap_, Route>;
 	for (const key in routes) {
 		const routeName: keyof RouteMap_ = key;
@@ -30,15 +30,14 @@ export function routes<RouteMap_ extends RouteMap>(
 }
 
 export class Router<
-	RouteMap_ extends RouteMap,
+	Routes_ extends Routes,
 	View,
 > {
 	readonly route = new Emitter<Route>();
 
 	constructor(
-		readonly routes: Routes<RouteMap_>,
-		readonly resolve: (route: Route) => View | Promise<View>,
-		readonly render: (view: View, route: Route) => void | Promise<void>
+		readonly routes: Routes_,
+		readonly resolve: (route: Route, routes: Routes_) => View | Promise<View>,
 	) {
 		this.route.subscribe((to, from) => {
 			void this.onNav({ from, to });
@@ -59,7 +58,7 @@ export class Router<
 
 	private async onNav(nav: { from?: Route; to: Route; }) {
 		if (nav.to.pathname !== nav.from?.pathname) { // On new page
-			const view = await this.resolve(nav.to);
+			const view = await this.resolve(nav.to, this.routes);
 			await this.render(view, nav.to);
 			window.history.pushState({}, ``, this.route.last.pathname); // Setting the hash here causes the jumpanchor to not be activated for some reason
 			if (this.route.last.hash.length > 0) {
@@ -85,7 +84,9 @@ export class Router<
 		}
 	}
 
-	to(routeName: keyof RouteMap_) {
+	render: (view: View, route: Route) => void | Promise<void> = () => undefined;
+
+	to(routeName: keyof Routes_) {
 		const route = this.routes[routeName];
 		this.route.next(route);
 	}

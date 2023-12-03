@@ -1,23 +1,18 @@
-import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
+import { appContext } from '@robertakarobin/jsutil/context.ts';
 
 import { Component } from './component.ts';
 
-export abstract class Page<Subclass extends Page = never> extends Component<Subclass> {
-
-	/**
-	 * The current page of the application
-	 */
-	static current = new Emitter<Page>({
-		limit: 0,
-	});
+export abstract class Page extends Component {
 
 	title: string = ``;
 
 	constructor(input: {
+		id?: string;
 		title?: string;
 	} = {}) {
-		super();
-
-		this.title = input.title ?? this.title;
+		super(input);
+		if (appContext === `browser`) {
+			document.title = this.title;
+		}
 	}
 }

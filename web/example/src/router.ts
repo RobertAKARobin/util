@@ -1,8 +1,8 @@
-import { routeComponent, Router } from '@robertakarobin/web/index.ts';
+import { buildRoutes, routeComponent, Router } from '@robertakarobin/web/router.ts';
 
 import indexPage from '@src/pages/index.ts';
 
-const routeDefs = {
+export const routes = buildRoutes({
 	error404: `/404.html`,
 	home: `/`,
 	homeJump1: `/#jump1`,
@@ -11,26 +11,25 @@ const routeDefs = {
 	ssgYes: `/ssg/yes`,
 	ssgYesJump1: `/ssg/yes/#jump1`,
 	ssgYesJump2: `/ssg/yes/#jump2`,
-};
+});
 
-export const router: Router<typeof routeDefs> = new Router( // Have to declare routeDefs separately or Typescript gets crabby about circular references
-	routeDefs,
+export const router = new Router( // Have to declare routeDefs separately or Typescript gets crabby about circular references
+	routes,
 
-	async function(url) {
-		switch (url.pathname) {
-			case this.routes.error404.pathname:
-				return new (await import(`@src/pages/error.ts`)).default();
-			case this.routes.home.pathname:
-			case this.routes.homeJump1.pathname:
-			case this.routes.homeJump2.pathname:
+	async function(route, routes) {
+		switch (route.pathname) {
+			case routes.home.pathname:
+			case routes.homeJump1.pathname:
+			case routes.homeJump2.pathname:
 				return new indexPage({ message: `This is a variable` });
-			case this.routes.ssgNo.pathname:
+			case routes.ssgNo.pathname:
 				return new (await import(`@src/pages/ssg-no.ts`)).default();
-			case this.routes.ssgYes.pathname:
-			case this.routes.ssgYesJump1.pathname:
-			case this.routes.ssgYesJump2.pathname:
+			case routes.ssgYes.pathname:
+			case routes.ssgYesJump1.pathname:
+			case routes.ssgYesJump2.pathname:
 				return new (await import(`@src/pages/ssg-yes.ts`)).default();
 		}
+		return new (await import(`@src/pages/error.ts`)).default();
 	}
 );
 

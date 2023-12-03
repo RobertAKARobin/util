@@ -129,22 +129,22 @@ export abstract class Component<State = any> extends Emitter<State> { // eslint-
 	 * Arguments must be strings or numbers since other data types can't really be written onto the DOM
 	 * @example `<button onclick=${this.bind(`onClick`, `4.99`)}>$4.99</button>`
 	 */
-	// protected bind<Key extends $.KeysMatching<this, Function>>(
-	// 	targetName: Key,
-	// 	...args: Array<string | number> | []
-	// ) {
-	// 	const target = this[targetName as keyof this] as Function;
-	// 	const argsString = args.map(arg => {
-	// 		if (typeof arg === `string`) {
-	// 			return `'${arg}'`;
-	// 		}
-	// 		return arg;
-	// 	}).join(`,`);
-	// 	const out = target instanceof Emitter
-	// 		? `.next(${argsString})`
-	// 		: `(event,${argsString})`;
-	// 	return `"this.closest('[${Component.$elAttrType}=${this.Ctor.name}]').${Component.$elInstance}.${targetName as string}${out}"`;
-	// }
+	protected bind(
+		targetName: keyof this,
+		...args: Array<string | number> | []
+	) {
+		const target = this[targetName] as Function;
+		const argsString = args.map(arg => {
+			if (typeof arg === `string`) {
+				return `'${arg}'`;
+			}
+			return arg;
+		}).join(`,`);
+		const out = target instanceof Emitter
+			? `.next(${argsString})`
+			: `(event,${argsString})`;
+		return `"this.closest('[${Component.$elAttrType}=${this.Ctor.name}]').${Component.$elInstance}.${targetName as string}${out}"`;
+	}
 
 	closest<Ancestor extends typeof Component>(
 		Ancestor: Ancestor

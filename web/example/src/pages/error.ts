@@ -1,6 +1,6 @@
 import { Page } from '@robertakarobin/web/index.ts';
 
-export default class ErrorPage extends Page {
+export class ErrorPage extends Page {
 	title = `Error 404`;
 	template = () => `
 <div>

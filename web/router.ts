@@ -1,14 +1,12 @@
-import type { RouteMap, Router } from '@robertakarobin/jsutil/router.ts';
+import type { RouteMap, Router, Routes } from '@robertakarobin/jsutil/router.ts';
+export { buildRoutes, Router } from '@robertakarobin/jsutil/router.ts';
 
 import { Component } from './component.ts';
 
 /**
  * Use in place of `<a>` to link to a different path/page
  */
-export abstract class RouteComponent<
-	RouteMap_ extends RouteMap,
-	Router_ extends Router<RouteMap_, never>,
-> extends Component<{ to: keyof RouteMap_; }> {
+export abstract class RouteComponent extends Component<{ to: keyof RouteMap_; }> {
 	get route() {
 		return this.router.routes[this.last.to];
 	}
@@ -30,10 +28,8 @@ export abstract class RouteComponent<
 		this.router.to(this.last.to);
 	}
 
-	template = (content: string = ``) => {
-		// onclick=${this.bind(`onClick`)}
-		return `<a href="${this.route.href}">${content}</a>`;
-	};
+	template = (content: string = ``) =>
+		`<a href="${this.route.href}" onclick=${this.bind(`onClick`)}>${content}</a>`;
 }
 
 /**
@@ -44,8 +40,6 @@ export function routeComponent<
 	Router_ extends Router<RouteMap_, never>,
 >(router: Router_) {
 	return class AppRouteComponent extends RouteComponent<RouteMap_, Router_> {
-		router = router;
-
 		constructor(args: Omit<
 			ConstructorParameters<typeof RouteComponent<RouteMap_, Router_>>[0],
 			`router`
