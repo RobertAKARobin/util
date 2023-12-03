@@ -1,8 +1,6 @@
-import type * as $ from '@robertakarobin/jsutil/types.d.ts';
-import { Emitter, type OnEmit } from '@robertakarobin/jsutil/emitter.ts';
+import { appContext } from '@robertakarobin/jsutil/context.ts';
+import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
 import { newUid } from '@robertakarobin/jsutil/index.ts';
-
-import { appContext } from './context.ts';
 
 type BoundElement = Element & {
 	[Component.$elInstance]: Component; // Attaching instances to Elements should prevent the instance from being garbage-collected until the Element is GCd
@@ -11,7 +9,7 @@ type BoundElement = Element & {
 const globals = (appContext === `browser` ? window : global) as unknown as Window
 	& { [key in typeof Component.name]: typeof Component; };
 
-export abstract class Component<Subclass extends Component = never> { // This generic lets `this.bind` work; without it `instance.bind` works but `this.bind` throws a type error
+export abstract class Component<State = any> extends Emitter<State> { // eslint-disable-line @typescript-eslint/no-explicit-any
 	static readonly $elAttrId = `id`;
 	static readonly $elAttrType = `data-component`;
 	static readonly $elInstance = `instance`;
@@ -71,11 +69,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	 * The element to which this instance is bound
 	 */
 	$el: Element | undefined;
-	/**
-	 * Properties that can be turned into HTML attributes with `.attrs()`
-	*/
-	attributes: Record<string, string | symbol | number | boolean> = {};
-	content: string | undefined;
+	content = ``;
 	/**
 	 * @returns The instance's constructor
 	 */
@@ -101,12 +95,12 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	/**
 	 * This keeps subscriptions from being garbage-collected while this instance exists
 	 */
-	private readonly subscriptions = new Set<OnEmit<any>>(); // eslint-disable-line @typescript-eslint/no-explicit-any
 
-	constructor({ id, ...attributes }: {
-		id?: string;
-	} = {}) {
-		this.attributes = attributes;
+	constructor({ id, ...initialState }:
+		& { id?: string; }
+		& State
+	) {
+		super(initialState);
 
 		if (id !== undefined) {
 			this.id = id;
@@ -114,7 +108,7 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 			const existing = Component.persists.get(this.id);
 			if (existing) {
 				// console.log(`${this.Ctor.name} ${this.id} found`);
-				return existing;
+				return existing as this;
 			} else {
 				this.isPersisted = true;
 				// console.log(`${this.Ctor.name} ${this.id} persisting`);
@@ -131,37 +125,26 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 	}
 
 	/**
-	 * Returns the component's `.attributes` and the provided dict as HTML attributes
-	 */
-	attrs(input: Component[`attributes`] = {}) {
-		return Object.entries({ ...this.attributes, ...input })
-			.map(([key, value]) => `${key}="${String(value)}"`)
-			.join(` `);
-	}
-
-	/**
 	 * Returns a JavaScript string that can be assigned to an HTML event attribute to call the given method with the given arguments
 	 * Arguments must be strings or numbers since other data types can't really be written onto the DOM
 	 * @example `<button onclick=${this.bind(`onClick`, `4.99`)}>$4.99</button>`
 	 */
-	protected bind<
-		Key extends $.KeysMatching<Subclass, Emitter<any> | ((...args: any) => any)>, // eslint-disable-line @typescript-eslint/no-explicit-any
-	>(
-		targetName: Key,
-		...args: Array<string | number> | []
-	) {
-		const target = this[targetName as keyof this] as Emitter<any> | Function; // eslint-disable-line @typescript-eslint/no-explicit-any
-		const argsString = args.map(arg => {
-			if (typeof arg === `string`) {
-				return `'${arg}'`;
-			}
-			return arg;
-		}).join(`,`);
-		const out = target instanceof Emitter
-			? `.next(${argsString})`
-			: `(event,${argsString})`;
-		return `"this.closest('[${Component.$elAttrType}=${this.Ctor.name}]').${Component.$elInstance}.${targetName as string}${out}"`;
-	}
+	// protected bind<Key extends $.KeysMatching<this, Function>>(
+	// 	targetName: Key,
+	// 	...args: Array<string | number> | []
+	// ) {
+	// 	const target = this[targetName as keyof this] as Function;
+	// 	const argsString = args.map(arg => {
+	// 		if (typeof arg === `string`) {
+	// 			return `'${arg}'`;
+	// 		}
+	// 		return arg;
+	// 	}).join(`,`);
+	// 	const out = target instanceof Emitter
+	// 		? `.next(${argsString})`
+	// 		: `(event,${argsString})`;
+	// 	return `"this.closest('[${Component.$elAttrType}=${this.Ctor.name}]').${Component.$elInstance}.${targetName as string}${out}"`;
+	// }
 
 	closest<Ancestor extends typeof Component>(
 		Ancestor: Ancestor
@@ -190,28 +173,6 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		return Array.from($children).map(
 			$child => ($child as BoundElement).instance
 		) as Array<InstanceType<Descendant>>;
-	}
-
-	on<
-		EmitterName extends $.KeysMatching<Subclass, Emitter<any>>, // eslint-disable-line @typescript-eslint/no-explicit-any
-		Trigger extends Subclass[EmitterName],
-		Type extends (
-			Trigger extends Emitter<infer T> ? T : never
-		),
-	>(
-		emitterName: EmitterName,
-		doWhat: (
-			(value: Type, instance: this) => void
-		)
-	) {
-		const emitter = (this as {
-			[key in EmitterName]: Emitter<Type>
-		})[emitterName];
-
-		this.subscriptions.add(
-			emitter.subscribe(next => doWhat.call(null, next, this))
-		);
-		return this;
 	}
 
 	onLoad() {}
@@ -271,11 +232,6 @@ export abstract class Component<Subclass extends Component = never> { // This ge
 		$el.setAttribute(Component.$elAttrId, this.id);
 		this.$el = $el;
 		this.onLoad();
-	}
-
-	tap(doWhat: (instance: this) => void) {
-		doWhat(this);
-		return this;
 	}
 
 	/**

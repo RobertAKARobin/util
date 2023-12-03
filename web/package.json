@@ -1,6 +1,5 @@
 {
 	"dependencies": {
-		"@robertakarobin/jsutil": "0.0.35",
 		"esbuild": "^0.19.8",
 		"glob": "^10.3.10",
 		"js-beautify": "^1.14.11",
@@ -9,6 +8,7 @@
 	"devDependencies": {
 		"@robertakarobin/csslint": "^0.0.3",
 		"@robertakarobin/htmlvalidate": "^0.0.2",
+		"@robertakarobin/jsutil": "file:../jsutil",
 		"@types/js-beautify": "^1.14.3",
 		"html-validate": "^8.7.3"
 	},

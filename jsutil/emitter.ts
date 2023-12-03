@@ -10,7 +10,7 @@ export type EmitterOptions<State> = EmitterCacheOptions & {
 	initial: State;
 };
 
-export class Emitter<State> {
+export class Emitter<State = void> {
 	/** @see {@link EmitterCache} */
 	readonly cache: EmitterCache<State>;
 
@@ -28,7 +28,7 @@ export class Emitter<State> {
 		}
 	}
 
-	next(value: State): void {
+	next(value: State) {
 		const previous = this.last;
 		this.cache.add(value);
 		for (const subscription of this.subscriptions.values()) {
@@ -42,6 +42,7 @@ export class Emitter<State> {
 				this.subscriptions.delete(subscription);
 			}
 		}
+		return this;
 	}
 
 	pipe<Output>(callback: (state: State) => Output) {
@@ -68,12 +69,14 @@ export class Emitter<State> {
 		return subscription;
 	}
 
-	unsubscribe(subscription: WeakRef<OnEmit<State>> | OnEmit<State>): void {
+	unsubscribe(subscription: WeakRef<OnEmit<State>> | OnEmit<State>) {
 		this.subscriptions.delete(subscription);
+		return this;
 	}
 
-	unsubscribeAll(): void {
+	unsubscribeAll() {
 		this.subscriptions.clear();
+		return this;
 	}
 }
 
@@ -92,16 +95,17 @@ export class EmitterCache<State> {
 		this.limit = options.limit ?? emitterCacheOptionsDefault.limit;
 	}
 
-	add(value: State): void {
+	add(value: State) {
 		return this.addMany([value]);
 	}
 
-	addMany(values: Array<State>): void {
+	addMany(values: Array<State>) {
 		if (this.limit <= 0) {
 			return;
 		}
 		this.memory.unshift(...values);
 		this.memory.splice(this.limit);
+		return this;
 	}
 }
 

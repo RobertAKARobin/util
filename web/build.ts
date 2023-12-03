@@ -9,8 +9,6 @@ import path from 'path';
 
 import {
 	Component,
-	hasExtension,
-	hasHash,
 	type Page,
 	type RouteMap,
 	type Router,
@@ -35,6 +33,9 @@ const bustCache = (pathname: string) => {
 	const url = new URL(`file:///${pathname}?v=${Date.now() + performance.now()}`); // URL is necessary for running on Windows
 	return import(url.toString());
 };
+
+export const hasExtension = /\.\w+$/;
+export const hasHash = /#.*$/;
 
 const header = (input: string) => console.log(`...${input}...\n`);
 
