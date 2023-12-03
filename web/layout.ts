@@ -7,7 +7,7 @@ export const defaultLayout = (input: LayoutArgs) => `
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>${input.page.title}</title>
+		<title>${input.page.last.title}</title>
 		<base href="${input.baseHref}">
 
 		${typeof input.meta === `string`

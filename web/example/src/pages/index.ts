@@ -12,23 +12,8 @@ h1 {
 
 const colors = [`red`, `yellow`, `green`, `brown`, `scarlet`];
 
-export class IndexPage extends Page {
+export class IndexPage extends Page<{ message?: string; }> {
 	static style = style;
-
-	message: string;
-	title = `Home page`;
-
-	constructor({ message, ...attributes }: {
-		message?: string;
-	}) {
-		super(attributes);
-		this.message = message ?? ``;
-		// state.entries.subscribe(entries => {
-		// 	const list = this.find(List);
-		// 	list.items = entries;
-		// 	list.rerender();
-		// });
-	}
 
 	anchorlessRoute() {
 		router.next(routes.ssgYes);
@@ -43,7 +28,7 @@ export class IndexPage extends Page {
 <markdown>
 # Headline 1
 
-## ${this.message}
+## ${this.last.message}
 
 Lorem ipsum dolor <strong>sit amet</strong>, consectetur *adipiscing elit*, sed do _eiusmod tempor_ incididunt.
 

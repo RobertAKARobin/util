@@ -21,15 +21,24 @@ export const resolver = new Resolver(router, async(route: Route) => {
 		case routes.home:
 		case routes.homeJump1:
 		case routes.homeJump2:
-			return new IndexPage({ message: `This is a variable` });
+			return new IndexPage({
+				message: `This is a variable`,
+				title: `Home page`,
+			});
 		case routes.ssgNo:
-			return new (await import(`@src/pages/ssg-no.ts`)).NoSSGPage();
+			return new (await import(`@src/pages/ssg-no.ts`)).NoSSGPage({
+				title: `No SSG page`,
+			});
 		case routes.ssgYes:
 		case routes.ssgYesJump1:
 		case routes.ssgYesJump2:
-			return new (await import(`@src/pages/ssg-yes.ts`)).YesSSGPage();
+			return new (await import(`@src/pages/ssg-yes.ts`)).YesSSGPage({
+				title: `SSG yes`,
+			});
 	}
-	return new (await import(`@src/pages/error.ts`)).ErrorPage();
+	return new (await import(`@src/pages/error.ts`)).ErrorPage({
+		title: `Error 404`,
+	});
 });
 
 export class RouteTo extends RouteComponent {

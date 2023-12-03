@@ -127,7 +127,7 @@ export abstract class Component<State = any> extends Emitter<State> { // eslint-
 	 * @example `<button onclick=${this.bind(`onClick`, `4.99`)}>$4.99</button>`
 	 */
 	protected bind(
-		targetName: keyof this,
+		targetName: keyof this, // TODO2: Narrow this to be specifically a method name
 		...args: Array<string | number> | []
 	) {
 		const target = this[targetName] as Function;
