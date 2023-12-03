@@ -2,24 +2,29 @@ import { appContext } from '@robertakarobin/jsutil/context.ts';
 import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
 import { newUid } from '@robertakarobin/jsutil/index.ts';
 
-type BoundElement = Element & {
+export type BoundElement = Element & {
 	[Component.$elInstance]: Component; // Attaching instances to Elements should prevent the instance from being garbage-collected until the Element is GCd
 };
 
-const globals = (appContext === `browser` ? window : global) as unknown as Window
-	& { [key in typeof Component.name]: typeof Component; };
+export const globals = (appContext === `browser` ? window : global) as unknown as Window
+	& { [key in typeof Component.name]: typeof Component; }
+	& { [key in typeof Component.unhydratedInstancesName]: Map<Component[`id`], Component> }
+	& { [key in typeof Component.unhydratedDataName]: Record<Component[`id`], object> };
 
-export abstract class Component<State = any> extends Emitter<State> { // eslint-disable-line @typescript-eslint/no-explicit-any
+export class Component<State = any> extends Emitter<State> { // eslint-disable-line @typescript-eslint/no-explicit-any
 	static readonly $elAttrId = `data-id`;
 	static readonly $elAttrType = `data-component`;
 	static readonly $elInstance = `instance`;
 	private static readonly persists = new Map<Component[`id`], Component>();
+	private static readonly renderOrder = new Set<Component>();
 	static readonly style: string | undefined;
 	static readonly subclasses = new Map<string, typeof Component>();
-	private static readonly toPlace = new Map<Component[`id`], Component>();
+	static readonly unhydratedDataName = `unhydratedArgs`;
+	static readonly unhydratedInstancesName = `unhydratedInstances`; // Reusing this for both the <script> and the global variable
 
 	static {
 		globals[this.name] = this;
+		globals[Component.unhydratedInstancesName] = new Map();
 	}
 
 	static createUid() {
@@ -32,21 +37,6 @@ export abstract class Component<State = any> extends Emitter<State> { // eslint-
 	static init() {
 		Component.subclasses.set(this.name, this);
 		this.setStyle();
-	}
-
-	static onPlace(id: Component[`id`], $placeholder: Element) {
-		let instance = Component.toPlace.get(id);
-		if (instance === undefined) {
-			throw new Error(`onPlace: Could not find instance #${id}`);
-		}
-
-		Component.toPlace.delete(id);
-
-		if (Component.persists.has(id)) {
-			instance = Component.persists.get(id)!;
-		}
-
-		$placeholder.replaceWith(instance.renderCSR());
 	}
 
 	static setStyle() {
@@ -68,7 +58,7 @@ export abstract class Component<State = any> extends Emitter<State> { // eslint-
 	/**
 	 * The element to which this instance is bound
 	 */
-	$el: Element | undefined;
+	$els = new Set<WeakRef<BoundElement>>();
 	content = ``;
 	/**
 	 * @returns The instance's constructor
@@ -143,91 +133,109 @@ export abstract class Component<State = any> extends Emitter<State> { // eslint-
 		return `"this.closest('[${Component.$elAttrType}=${this.Ctor.name}]').${Component.$elInstance}.${targetName as string}${out}"`;
 	}
 
-	closest<Ancestor extends typeof Component>(
-		Ancestor: Ancestor
-	) {
-		const $el = this.$el!.closest(`[${Component.$elAttrType}=${Ancestor.name}]`)!;
-		return ($el as BoundElement).instance as InstanceType<Ancestor>;
+	closest(Ancestor: string): Element;
+	closest<Ancestor extends typeof Component>(Ancestor: Ancestor): Ancestor;
+	closest<Ancestor extends typeof Component>(Ancestor: Ancestor | string) {
+		const selector = typeof Ancestor === `string`
+			? Ancestor
+			: `[${Component.$elAttrType}=${Ancestor.name}]`;
+
+		for (const ref of this.$els) {
+			const $el = ref.deref();
+			if ($el === undefined) {
+				this.$els.delete(ref);
+				continue;
+			}
+
+			const $match = $el.closest(selector);
+			if ($match) {
+				if (typeof Ancestor === `string`) {
+					return $match;
+				}
+				return ($match as BoundElement).instance;
+			}
+		}
 	}
 
-	find<Descendant extends typeof Component>(
-		Descendant: Descendant, id?: Component[`id`]
-	) {
-		const $descendant: BoundElement = this.$el!.querySelector(id === undefined
-			? `[${Component.$elAttrType}=${Descendant.name}]`
-			: `[${Component.$elAttrId}=${id}]`
-		)!;
-		return $descendant.instance as InstanceType<Descendant>;
+	find(Descendant: string): Element;
+	find<Descendant extends typeof Component>(Descendant: Descendant): Descendant;
+	find<Descendant extends typeof Component>(Descendant: Descendant | string) {
+		const selector = typeof Descendant === `string`
+			? Descendant
+			: `[${Component.$elAttrType}=${Descendant.name}]`;
+
+		for (const ref of this.$els) {
+			const $el = ref.deref();
+			if ($el === undefined) {
+				this.$els.delete(ref);
+				continue;
+			}
+
+			const $match = $el.closest(selector);
+			if ($match) {
+				if (typeof Descendant === `string`) {
+					return $match;
+				}
+				return ($match as BoundElement).instance;
+			}
+		}
 	}
 
+	findAll(Descendant: string): Array<BoundElement>;
 	findAll<Descendant extends typeof Component>(
 		Descendant: Descendant
-	) {
-		const $children = this.$el?.querySelectorAll(`[${Component.$elAttrType}=${Descendant.name}]`);
-		if ($children === undefined) {
-			return [];
+	): Array<InstanceType<Descendant>>;
+	findAll<Descendant extends typeof Component>(Descendant: Descendant | string) {
+		const selector = typeof Descendant === `string`
+			? Descendant
+			: `[${Component.$elAttrType}=${Descendant.name}]`;
+
+		const descendants = [];
+
+		for (const ref of this.$els) {
+			const $el = ref.deref();
+			if ($el === undefined) {
+				this.$els.delete(ref);
+				continue;
+			}
+
+			const $descendants = $el.querySelectorAll(selector);;
+			if (typeof Descendant === `string`) {
+				descendants.push(...Array.from($descendants));
+				continue;
+			}
+
+			for (const $descendant of $descendants as NodeListOf<BoundElement>) {
+				descendants.push($descendant.instance as InstanceType<Descendant>);
+			}
 		}
-		return Array.from($children).map(
-			$child => ($child as BoundElement).instance
-		) as Array<InstanceType<Descendant>>;
+		return descendants;
 	}
 
 	onLoad() {}
-
-	place() {
-		const key = Component.name;
-		return `<img aria-hidden="true" src="#" style="display:none" onerror="${key}.${Component.onPlace.name}('${this.id}',this)" />`; // TODO1: (I think) this causes an unnecessary rerender on existing elements
-	}
 
 	/**
 	 * Outputs the template to a string
 	 * @param content Any content that should be injected into the template
 	 */
 	render(content: string = ``) {
-		this.content = content;
-		Component.toPlace.set(this.id, this);
-		if (appContext === `build`) {
-			return this.renderSSG();
-		}
-		return this.place();
-	}
-
-	private renderCSR() {
-		const parser = new DOMParser();
-		const rendered = this.template(this.content);
-		const doc = parser.parseFromString(rendered, `text/html`);
-		const $replacement = doc.body.firstElementChild!;
-		this.setEl($replacement);
-		return $replacement;
-	}
-
-	private renderSSG() { // TODO3: This is unused on browser, so I originally had it in build.ts, but like it better here
-		const template = this.template(this.content).trim();
-		const hasOneRootElement = /^<(\w+).*<\/\1>$/s.test(template); // TODO2: False positive for e.g. <div>one</div> <div>two</div>
-		const isOneElement = /^<[^<>]+>$/s.test(template);
-		if (!hasOneRootElement && !isOneElement) {
-			throw new Error(`Template for ${this.Ctor.name} invalid: Component templates must have one root HTML element`);
-		}
-		let out = template;
-		out = out.replace(/^\s*<\w+/, match =>
-			`${match} ${Component.$elAttrType}="${this.Ctor.name}"${this.isPersisted ? ` ${Component.$elAttrId}="${this.id}"` : ``}`
-		);
-		return out;
+		Component.renderOrder.add(this);
+		return this.template(content);
 	}
 
 	rerender() {
-		this.$el!.replaceWith(this.renderCSR());
+		Component.renderOrder.clear();
+		const parser = new DOMParser();
+		const rendered = this.template();
+		const doc = parser.parseFromString(rendered, `text/html`);
 	}
 
 	setEl($input: Element) {
-		if ($input === undefined || $input === null) {
-			throw new Error(`onRender: ${this.Ctor.name} #${this.id} has no element`);
-		}
 		const $el = $input as BoundElement;
 		$el[Component.$elInstance] = this;
 		$el.setAttribute(Component.$elAttrType, this.Ctor.name);
 		$el.setAttribute(Component.$elAttrId, this.id);
-		this.$el = $el;
+		this.$els.add(new WeakRef($el));
 		this.onLoad();
 	}
 

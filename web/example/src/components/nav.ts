@@ -1,6 +1,6 @@
 import { routes, RouteTo } from '@src/router.ts';
 
-export default () => `
+export const nav = () => `
 <ul>
 	${Object.entries(routes).map(([routeName, route]) => `
 		<li>${

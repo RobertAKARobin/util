@@ -19,15 +19,14 @@ export class IndexPage extends Page<{ message?: string; }> {
 		router.next(routes.ssgYes);
 	}
 
-	// ${
-	// 	new List({ id: `mylist`, items: state.entries.last }).render()
-	// }
-
 	template = () => `
-<div>
 <h1>Hello world!</h1>
 
 <div id="${routes.homeJump1.idAttr}">Jump 1</div>
+
+${
+	new List({ id: `mylist`, items: state.entries.last }).render()
+}
 
 <markdown>
 # Headline 1
@@ -64,5 +63,7 @@ Joseph's coat was ${colors.join(` and `)}.
 </markdown>
 
 <div id="${routes.homeJump2.idAttr}">Jump 2</div>
-</div>`;
+`;
 }
+
+IndexPage.init();

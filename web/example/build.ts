@@ -1,6 +1,6 @@
 import { Builder } from '@robertakarobin/web/build.ts';
 
-import nav from './src/components/nav.ts';
+import { nav } from './src/components/nav.ts';
 
 class CustomBuilder extends Builder {
 	async formatHtml(...[input]: Parameters<Builder[`formatHtml`]>) {

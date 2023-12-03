@@ -1,12 +1,14 @@
-import * as $ from '@robertakarobin/jsutil';
+import * as $ from '@robertakarobin/jsutil/index.ts';
 import { type Resolver, type Router } from '@robertakarobin/jsutil/router.ts';
 import { stringMates, type TagResult } from '@robertakarobin/jsutil/string-mates.ts';
 import esbuild from 'esbuild';
 import fs from 'fs';
 import { glob } from 'glob';
 import jsBeautify from 'js-beautify';
+import { JSDOM } from 'jsdom';
 import { marked } from 'marked';
 import path from 'path';
+import { serialize } from '@robertakarobin/jsutil/serialize.ts';
 
 import { Component } from './component.ts';
 import { defaultLayout } from './layout.ts';
@@ -43,6 +45,19 @@ const log = (...args: Array<string>) => console.log(args.join(`\n`));
 const logBreak = () => console.log(``);
 
 const trimNewlines = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
+
+const componentArgs = new Map<Component[`id`], unknown>();
+
+Component.prototype.render = function(content: string = ``) {
+	const rendered = this.template(content);
+	const doc = new JSDOM(rendered);
+	for (const $child of doc.window.document.body.children) {
+		$child.setAttribute(Component.$elAttrType, this.Ctor.name);
+		$child.setAttribute(Component.$elAttrId, this.id);
+	}
+	componentArgs.set(this.id, this.last);
+	return doc.window.document.body.innerHTML;
+};
 
 export class Builder {
 	readonly assetsServeDirAbs: string;
@@ -144,6 +159,7 @@ export class Builder {
 		await $.promiseConsecutive(
 			Object.entries(router.routes).map(([routeName, route]) => async() => {
 				Component.subclasses.clear();
+				componentArgs.clear();
 
 				log(`${routeName.toString()}: ${route.pathname}`);
 
@@ -154,11 +170,14 @@ export class Builder {
 					return;
 				}
 
-				const body = page.render(``); // Populates subclasses used on page
-				if (page === undefined || !page.isSSG) {
+				let body = page.render(``); // Populates subclasses used on page
+				if (page === undefined) {
 					logBreak();
 					return;
 				}
+
+				const argsObject = Object.fromEntries(componentArgs);
+				body += `<script id="${Component.unhydratedDataName}" src="data:text/javascript," onload="${Component.unhydratedDataName}=${serialize(argsObject)}"></script>`;
 
 				let serveFileRel = route.pathname;
 				serveFileRel = serveFileRel
