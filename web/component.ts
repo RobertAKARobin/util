@@ -8,7 +8,6 @@ export type BoundElement = Element & {
 
 export const globals = (appContext === `browser` ? window : global) as unknown as Window
 	& { [key in typeof Component.name]: typeof Component; }
-	& { [key in typeof Component.unhydratedInstancesName]: Map<Component[`id`], Component> }
 	& { [key in typeof Component.unhydratedDataName]: Record<Component[`id`], object> };
 
 export class Component<State = any> extends Emitter<State> { // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -16,16 +15,16 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	static readonly $elAttrType = `data-component`; // TODO1: Consolidate; use CSS [attr*=_type@]
 	static readonly $elInstance = `instance`;
 	static currentParent: Component;
+	static readonly hydratedInstances = new Map<Component[`id`], Component>();
 	static NodeFilter: typeof NodeFilter;
+	static rootParent: Component;
 	static readonly style: string | undefined;
 	static readonly subclasses = new Map<string, typeof Component>();
+	static readonly unhydrated$Els = new Map<Component[`id`], Element>();
 	static readonly unhydratedDataName = `unhydratedArgs`;
-	static readonly unhydratedInstancesName = `unhydratedInstances`; // Reusing this for both the <script> and the global variable
-	static readonly unplaced = new Map<Component[`id`], Component>();
 
 	static {
 		globals[this.name] = this;
-		globals[Component.unhydratedInstancesName] = new Map();
 
 		if (appContext === `browser`) {
 			Component.NodeFilter = window.NodeFilter;
@@ -113,8 +112,11 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 			this.id = args?.id ?? Component.createId();
 		} else {
 			this.parent = Component.currentParent;
-			this.id = `${this.parent.id}_${args?.id ?? this.parent.childIndex++}`;
-			const existing = this.parent.children.get(this.id);
+			this.id = args?.id ?? `${this.parent.id}_${this.parent.childIndex++}`;
+			const existing = (
+				this.parent.children.get(this.id)
+				?? Component.hydratedInstances.get(this.id)
+			);
 			if (existing) {
 				existing.next(args);
 				return existing;
@@ -122,8 +124,6 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 
 			this.parent.children.set(this.id, this);
 		}
-
-		console.log(`${this.Ctor.name} ${this.id}`);
 
 		if (appContext === `build` && args) {
 			globals[Component.unhydratedDataName][this.id] = args;
@@ -211,20 +211,19 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	}
 
 	hydrate($root: Element) {
-		const unhydratedInstances = globals[Component.unhydratedInstancesName];
-		unhydratedInstances.clear();
+		Component.currentParent = Component.rootParent = Component.rootParent ?? new Component();
 
 		const unhydratedArgs = globals[Component.unhydratedDataName];
 
-		const hydratedInstances = new Map<Component[`id`], Component>();
+		const hydratedInstances = Component.hydratedInstances;
+		hydratedInstances.clear();
 
 		const $firstOfThisType = $root.querySelector(`[${Component.$elAttrType}=${this.Ctor.name}]`);
 		if ($firstOfThisType) {
 			const id = $firstOfThisType.getAttribute(Component.$elAttrId)!;
 			this.id = id;
+			this.setEl($firstOfThisType);
 			hydratedInstances.set(this.id, this);
-			this.render();
-			$firstOfThisType.replaceWith(this.$el!);
 		}
 
 		const $els = $root.querySelectorAll(`[${Component.$elAttrType}]`);
@@ -232,24 +231,26 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 			const id = $el.getAttribute(Component.$elAttrId)!;
 
 			let instance = hydratedInstances.get(id);
+			if (instance === this) {
+				continue;
+			}
 			if (instance === undefined) {
 				const constructorName = $el.getAttribute(Component.$elAttrType)!;
 				const Constructor = Component.subclasses.get(constructorName)!;
 				const args = unhydratedArgs[id];
 				delete unhydratedArgs[id];
-				instance = new Constructor(args);
+				instance = new Constructor({ ...args, id });
 				hydratedInstances.set(id, instance);
 			}
 
-			$el[Component.$elInstance] = instance;
-			instance.$el = $el;
+			instance.setEl($el);
 		}
 
 		document.getElementById(Component.unhydratedDataName)?.remove();
 	}
 
 	on() {
-		this.subscribe(console.log);
+		this.subscribe(console.log, { strong: true });
 		return this;
 	}
 

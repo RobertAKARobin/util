@@ -4,6 +4,8 @@ import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
 import type * as Type from '@src/types.d.ts';
 import { Textbox } from '@src/components/textbox.ts';
 
+Textbox.init();
+
 export class ListItem extends Component<Type.ListItem> {
 	add = new Emitter<void>();
 	move = new Emitter<number>();

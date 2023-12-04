@@ -44,3 +44,5 @@ export const resolver = new Resolver(router, async(route: Route) => {
 export class RouteTo extends RouteComponent {
 	router = router;
 }
+
+RouteTo.init();

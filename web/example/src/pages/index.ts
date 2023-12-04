@@ -4,6 +4,8 @@ import { router, routes, RouteTo } from '@src/router.ts';
 import { List } from '@src/components/list.ts';
 import { state } from '@src/state.ts';
 
+List.init();
+
 const style =  `
 h1 {
 	color: red;
@@ -65,5 +67,3 @@ Joseph's coat was ${colors.join(` and `)}.
 </div>
 `;
 }
-
-IndexPage.init();

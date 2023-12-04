@@ -4,6 +4,8 @@ import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
 import type * as Type from '@src/types.d.ts';
 import { ListItem } from './listitem.ts';
 
+ListItem.init();
+
 export class List extends Component<{ items: Type.List; }> {
 	addAt = new Emitter<number>();
 	move = new Emitter<{ id: string; increment: number; }>();
