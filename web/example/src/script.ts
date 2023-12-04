@@ -11,7 +11,6 @@ new Renderer(resolver, (view, oldView) => {
 		nav.hydrate($nav);
 		view.hydrate($main);
 	} else {
-		view.setEl(oldView.$el as Element);
-		// view.rerender();
+		oldView.$el?.replaceWith(view.rerender());
 	}
 });

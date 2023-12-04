@@ -5,9 +5,9 @@ import { Nav } from './src/components/nav.ts';
 let nav: string;
 
 class CustomBuilder extends Builder {
-	formatBody(doc: Document) {
-		nav = new Nav().render(``, true).body.innerHTML;
-		return super.formatBody(doc);
+	formatBody($_root: Element) {
+		nav = new Nav().rerender().outerHTML;
+		return super.formatBody($_root);
 	}
 
 	async formatHtml(...[input]: Parameters<Builder[`formatHtml`]>) {

@@ -191,8 +191,7 @@ export class Builder {
 					return;
 				}
 
-				const doc = page.render(``, true);
-				let body = this.formatBody(doc);
+				let body = this.formatBody(page.rerender());
 
 				const componentArgs = globals[Component.unhydratedDataName];
 				body += `<script id="${Component.unhydratedDataName}" src="data:text/javascript," onload="${Component.unhydratedDataName}=${serialize(componentArgs)}"></script>`;
@@ -272,8 +271,8 @@ export class Builder {
 
 	cleanup(): void | Promise<void> {}
 
-	formatBody(doc: Document) {
-		return doc.body.innerHTML;
+	formatBody($root: Element) {
+		return $root.outerHTML;
 	}
 
 	formatCss(input: string): string | Promise<string> {

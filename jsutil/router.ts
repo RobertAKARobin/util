@@ -22,9 +22,7 @@ export class Router<RouteMap_ extends RouteMap = any> extends Emitter<Route> { /
 	readonly routes = {} as Record<keyof RouteMap_, Route>;
 
 	constructor(routes: RouteMap_) {
-		super(
-			appContext === `browser` ? { initial: new Route(location.href) } : undefined
-		);
+		super();
 
 		for (const key in routes) {
 			this.routes[key] = new Route(routes[key]);
@@ -52,12 +50,12 @@ export class Resolver<View> extends Emitter<View> {
 		super();
 
 		router.subscribe(async(to, from) => {
-			if (to.pathname !== from?.pathname) { // On new page
-				this.next(await this.resolve(to, from));
+			if (to.href === from?.href) { // On no change
 				return;
 			}
 
-			if (to.href === from?.href) { // On no change
+			if (to.pathname !== from?.pathname) { // On new page
+				this.next(await this.resolve(to, from));
 				return;
 			}
 
@@ -89,10 +87,12 @@ export class Renderer<View> extends Emitter<void> {
 
 		resolver.subscribe(async(newView, oldView) => {
 			const to = this.resolver.router.last;
-			await this.render(newView, oldView, this.resolver.router.last);
-			window.history.pushState({}, ``, to.pathname); // Setting the hash here causes the jumpanchor to not be activated for some reason
-			if (to.hash.length > 0) {
-				location.hash = to.hash;
+			await this.render(newView, oldView, to);
+			if (oldView !== undefined) {
+				window.history.pushState({}, ``, to.pathname); // Setting the hash here causes the jumpanchor to not be activated for some reason
+				if (to.hash.length > 0) {
+					location.hash = to.hash;
+				}
 			}
 		}, { strong: true });
 

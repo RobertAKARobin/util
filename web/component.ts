@@ -224,6 +224,7 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 			this.id = id;
 			hydratedInstances.set(this.id, this);
 			this.render();
+			$firstOfThisType.replaceWith(this.$el!);
 		}
 
 		const $els = $root.querySelectorAll(`[${Component.$elAttrType}]`);
@@ -252,9 +253,7 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 		return this;
 	}
 
-	render(content?: string): string;
-	render(content: string, root: true): Document;
-	render(content: string = ``, root = false) {
+	render(content: string = ``) {
 		this.content = content;
 
 		const ownParent = Component.currentParent;
@@ -286,11 +285,12 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 			$placeholder.parentNode?.removeChild($placeholder);
 		}
 
-		if (root) {
-			return doc;
-		} else {
-			return `<!--${this.id}-->`;
-		}
+		return `<!--${this.id}-->`;
+	}
+
+	rerender() {
+		this.render();
+		return this.$el!;
 	}
 
 	setEl($input: Element) {
