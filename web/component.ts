@@ -15,6 +15,7 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	static readonly $elAttrType = `data-component`; // TODO1: Consolidate; use CSS [attr*=_type@]
 	static readonly $elInstance = `instance`;
 	static currentParent: Component;
+	static instances = new Map<Component[`id`], Component>();
 	static NodeFilter: typeof NodeFilter;
 	static rootParent: Component;
 	static readonly style: string | undefined;
@@ -76,7 +77,6 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	 */
 	$el: BoundElement | undefined;
 	childIndex = 0;
-	children = new Map<Component[`id`], Component>();
 	content = ``;
 	/**
 	 * @returns The instance's constructor
@@ -112,13 +112,13 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 		} else {
 			this.parent = Component.currentParent;
 			this.id = args?.id ?? `${this.parent.id}_${this.parent.childIndex++}`;
-			const existing = this.parent.children.get(this.id);
+			const existing = Component.instances.get(this.id);
 			if (existing) {
 				existing.next(args);
 				return existing;
 			}
 
-			this.parent.children.set(this.id, this);
+			Component.instances.set(this.id, this);
 		}
 
 		if (appContext === `build` && args) {
@@ -211,12 +211,9 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 
 		const unhydratedArgs = globals[Component.unhydratedDataName];
 
-		const $firstOfThisType = $root.querySelector(`[${Component.$elAttrType}=${this.Ctor.name}]`);
-		if ($firstOfThisType) {
-			const id = $firstOfThisType.getAttribute(Component.$elAttrId)!;
-			this.id = id;
-			this.setEl($firstOfThisType);
-		}
+		const $el = $root.querySelector(`[${Component.$elAttrType}="${this.Ctor.name}"]`)!;
+		this.id = $el.getAttribute(Component.$elAttrId)!; // This has already been instantiated at this point, so need to overwrite its ID
+		this.setEl($el);
 
 		const $els = $root.querySelectorAll(`[${Component.$elAttrType}]`);
 		for (const $el of Array.from($els) as Array<BoundElement>) {
@@ -224,21 +221,26 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 			if (id === this.id) {
 				continue;
 			}
-
 			const constructorName = $el.getAttribute(Component.$elAttrType)!;
 			const Constructor = Component.subclasses.get(constructorName)!;
 			const args = unhydratedArgs[id];
 			delete unhydratedArgs[id];
 			const instance = new Constructor({ ...args, id });
 			instance.setEl($el);
+			Component.instances.set(id, instance);
 		}
 
 		document.getElementById(Component.unhydratedDataName)?.remove();
+
+		this.rerender();
+		$el.replaceWith(this.$el!);
 	}
 
-	on() {
-		console.log(this.id);
-		this.subscribe(console.log, { strong: true });
+	on<Key extends keyof State>(
+		key: Key,
+		doWhat: (value: State[Key], self: this) => void
+	) {
+		this.subscribe(value => doWhat(value[key], this));
 		return this;
 	}
 
@@ -261,10 +263,7 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 			if (id === null) {
 				continue;
 			}
-			const instance = this.children.get(id);
-			if (instance === undefined) {
-				continue;
-			}
+			const instance = Component.instances.get(id)!;
 
 			if ($placeholder.nextSibling) {
 				$placeholder.parentNode?.insertBefore(instance.$el!, $placeholder.nextSibling);
