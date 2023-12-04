@@ -1,13 +1,13 @@
 import { Builder } from '@robertakarobin/web/build.ts';
 
-import { nav } from './src/components/nav.ts';
+import { Nav } from './src/components/nav.ts';
 
 class CustomBuilder extends Builder {
 	async formatHtml(...[input]: Parameters<Builder[`formatHtml`]>) {
 		return await super.formatHtml({
 			...input,
 			body: `
-				<nav>${nav()}</nav>
+				<nav>${new Nav().template()}</nav>
 				<main>${input.body}</main>
 			`,
 		});

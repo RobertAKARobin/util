@@ -20,6 +20,7 @@ export class IndexPage extends Page<{ message?: string; }> {
 	}
 
 	template = () => `
+<div>
 <h1>Hello world!</h1>
 
 <div id="${routes.homeJump1.idAttr}">Jump 1</div>
@@ -63,6 +64,7 @@ Joseph's coat was ${colors.join(` and `)}.
 </markdown>
 
 <div id="${routes.homeJump2.idAttr}">Jump 2</div>
+</div>
 `;
 }
 

@@ -48,15 +48,11 @@ const trimNewlines = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
 
 const componentArgs = new Map<Component[`id`], unknown>();
 
-Component.prototype.render = function(content: string = ``) {
-	const rendered = this.template(content);
-	const doc = new JSDOM(rendered);
-	for (const $child of doc.window.document.body.children) {
-		$child.setAttribute(Component.$elAttrType, this.Ctor.name);
-		$child.setAttribute(Component.$elAttrId, this.id);
-	}
-	componentArgs.set(this.id, this.last);
-	return doc.window.document.body.innerHTML;
+
+Component.parse = function(input: string) {
+	const dom = new JSDOM(input);
+	Component.NodeFilter = dom.window.NodeFilter;
+	return dom.window.document;
 };
 
 export class Builder {
@@ -170,11 +166,9 @@ export class Builder {
 					return;
 				}
 
-				let body = page.render(``); // Populates subclasses used on page
-				if (page === undefined) {
-					logBreak();
-					return;
-				}
+				Component.instances.clear();
+				page.rerender(); // Populates subclasses used on page
+				let body = page.$el?.outerHTML;
 
 				const argsObject = Object.fromEntries(componentArgs);
 				body += `<script id="${Component.unhydratedDataName}" src="data:text/javascript," onload="${Component.unhydratedDataName}=${serialize(argsObject)}"></script>`;

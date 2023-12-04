@@ -1,6 +1,5 @@
 import { appContext } from '@robertakarobin/jsutil/context.ts';
 import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
-import { newUid } from '@robertakarobin/jsutil/index.ts';
 
 export type BoundElement = Element & {
 	[Component.$elInstance]: Component; // Attaching instances to Elements should prevent the instance from being garbage-collected until the Element is GCd
@@ -11,24 +10,36 @@ export const globals = (appContext === `browser` ? window : global) as unknown a
 	& { [key in typeof Component.unhydratedInstancesName]: Map<Component[`id`], Component> }
 	& { [key in typeof Component.unhydratedDataName]: Record<Component[`id`], object> };
 
+type ComponentParent = Pick<Component, `childCount` | `CtorName` | `id`>;
+
+let currentParent: ComponentParent;
+
 export class Component<State = any> extends Emitter<State> { // eslint-disable-line @typescript-eslint/no-explicit-any
 	static readonly $elAttrId = `data-id`;
-	static readonly $elAttrType = `data-component`;
+	static readonly $elAttrType = `data-component`; // TODO1: Consolidate; use CSS [attr*=_type@]
 	static readonly $elInstance = `instance`;
-	private static readonly persists = new Map<Component[`id`], Component>();
-	private static readonly renderOrder = new Set<Component>();
+	static readonly instances = new Map<Component[`id`], Component>();
+	static NodeFilter: typeof NodeFilter;
 	static readonly style: string | undefined;
 	static readonly subclasses = new Map<string, typeof Component>();
 	static readonly unhydratedDataName = `unhydratedArgs`;
 	static readonly unhydratedInstancesName = `unhydratedInstances`; // Reusing this for both the <script> and the global variable
+	static readonly unplaced = new Map<Component[`id`], Component>();
 
 	static {
 		globals[this.name] = this;
 		globals[Component.unhydratedInstancesName] = new Map();
+		if (appContext === `browser`) {
+			Component.NodeFilter = window.NodeFilter;
+		}
 	}
 
-	static createUid() {
-		return `i${newUid()}`; // [id] must begin with a letter
+	static commentIterator(doc: Document) {
+		return doc.createNodeIterator(
+			doc.body,
+			Component.NodeFilter.SHOW_COMMENT,
+			() => Component.NodeFilter.FILTER_ACCEPT
+		);
 	}
 
 	/**
@@ -37,6 +48,11 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	static init() {
 		Component.subclasses.set(this.name, this);
 		this.setStyle();
+	}
+
+	static parse(input: string) {
+		const parser = new DOMParser();
+		return parser.parseFromString(input, `text/html`);
 	}
 
 	static setStyle() {
@@ -58,7 +74,8 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	/**
 	 * The element to which this instance is bound
 	 */
-	$els = new Set<WeakRef<BoundElement>>();
+	$el: BoundElement | undefined;
+	childCount: number = -1;
 	content = ``;
 	/**
 	 * @returns The instance's constructor
@@ -66,12 +83,14 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	get Ctor() {
 		return this.constructor as typeof Component;
 	}
-	readonly id: string;
+	get CtorName() {
+		return this.Ctor.name;
+	}
+	id: string = ``;
 	/**
 	* If true, a <script> tag will be inserted that allows this component to be dynamically rendered. Otherwise it will be rendered only once. TODO2: Preserve isCSR=false elements
 	*/
 	readonly isCSR: boolean = true;
-	isPersisted: boolean = false;
 	/**
 	 * If true, if this is a Page it will be compiled into a static `.html` file at the route(s) used for this Page, which serves as a landing page for performance and SEO purposes.
 	 * If this is a Component it will be compiled into static HTML included in the landing page.
@@ -86,26 +105,31 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	constructor(args?: { id?: string; } & State) {
 		super({ initial: args });
 
-		if (args?.id !== undefined) {
-			this.id = args.id;
-
-			const existing = Component.persists.get(this.id);
-			if (existing) {
-				// console.log(`${this.Ctor.name} ${this.id} found`);
-				return existing as this;
-			} else {
-				this.isPersisted = true;
-				// console.log(`${this.Ctor.name} ${this.id} persisting`);
-				Component.persists.set(this.id, this);
-			}
-		} else {
-			this.id = Component.createUid();
+		if (currentParent === undefined) {
+			currentParent = {
+				CtorName: ``,
+				childCount: 0,
+				id: ``,
+			};
 		}
 
-		// console.log(`${this.Ctor.name} ${this.id} created`);
+		if (args?.id !== undefined) {
+			const existing = Component.instances.get(args.id);
+			if (existing) {
+				return existing;
+			}
+			this.id = args.id;
+		} else {
+			this.id = `${currentParent.id ? `${currentParent.id}_` : ``}${currentParent.childCount++}_${this.CtorName}`;
+		}
+
+
 		if (!Component.subclasses.has(this.Ctor.name)) {
 			this.Ctor.init();
 		}
+
+		Component.unplaced.set(this.id, this);
+		Component.instances.set(this.id, this);
 	}
 
 	/**
@@ -137,20 +161,12 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 			? Ancestor
 			: `[${Component.$elAttrType}=${Ancestor.name}]`;
 
-		for (const ref of this.$els) {
-			const $el = ref.deref();
-			if ($el === undefined) {
-				this.$els.delete(ref);
-				continue;
+		const $match = this.$el?.closest(selector);
+		if ($match) {
+			if (typeof Ancestor === `string`) {
+				return $match;
 			}
-
-			const $match = $el.closest(selector);
-			if ($match) {
-				if (typeof Ancestor === `string`) {
-					return $match;
-				}
-				return ($match as BoundElement).instance;
-			}
+			return ($match as BoundElement).instance;
 		}
 	}
 
@@ -161,20 +177,12 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 			? Descendant
 			: `[${Component.$elAttrType}=${Descendant.name}]`;
 
-		for (const ref of this.$els) {
-			const $el = ref.deref();
-			if ($el === undefined) {
-				this.$els.delete(ref);
-				continue;
+		const $match = this.$el?.closest(selector);
+		if ($match) {
+			if (typeof Descendant === `string`) {
+				return $match;
 			}
-
-			const $match = $el.closest(selector);
-			if ($match) {
-				if (typeof Descendant === `string`) {
-					return $match;
-				}
-				return ($match as BoundElement).instance;
-			}
+			return ($match as BoundElement).instance;
 		}
 	}
 
@@ -189,23 +197,18 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 
 		const descendants = [];
 
-		for (const ref of this.$els) {
-			const $el = ref.deref();
-			if ($el === undefined) {
-				this.$els.delete(ref);
-				continue;
-			}
-
-			const $descendants = $el.querySelectorAll(selector);;
-			if (typeof Descendant === `string`) {
-				descendants.push(...Array.from($descendants));
-				continue;
-			}
-
+		const $descendants = this.$el?.querySelectorAll(selector);
+		if ($descendants === undefined) {
+			return;
+		}
+		if (typeof Descendant === `string`) {
+			descendants.push(...Array.from($descendants));
+		} else {
 			for (const $descendant of $descendants as NodeListOf<BoundElement>) {
 				descendants.push($descendant.instance as InstanceType<Descendant>);
 			}
 		}
+
 		return descendants;
 	}
 
@@ -238,39 +241,60 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 				hydratedInstances.set(id, instance);
 			}
 
-			instance.setEl($el);
 			$el[Component.$elInstance] = instance;
+			instance.$el = $el;
 		}
 
 		document.getElementById(Component.unhydratedDataName)?.remove();
 		globals[Component.unhydratedDataName] = {};
 	}
 
-	onLoad() {}
-
-	/**
-	 * Outputs the template to a string
-	 * @param content Any content that should be injected into the template
-	 */
 	render(content: string = ``) {
-		Component.renderOrder.add(this);
-		return this.template(content);
+		this.content = content;
+
+		const ownParent = currentParent;
+		this.childCount = 0;
+		currentParent = this;
+		const rendered = this.template(content ?? this.content);
+		const doc = Component.parse(rendered);
+		if (doc.body.children.length > 1) {
+			throw new Error();
+		}
+
+		this.setEl(doc.body.children[0] as BoundElement);
+
+		currentParent = ownParent;
+		return `<!--${this.id}-->`;
 	}
 
 	rerender() {
-		Component.renderOrder.clear();
-		const parser = new DOMParser();
-		const rendered = this.template();
-		const doc = parser.parseFromString(rendered, `text/html`);
+		Component.unplaced.clear();
+
+		const doc = Component.parse(this.template(this.content));
+		const iterator = Component.commentIterator(doc);
+		let $placeholder: Node | null | undefined;
+		while ($placeholder = iterator.nextNode()) {
+			const id = $placeholder.textContent;
+			if (id === null) {
+				continue;
+			}
+			const instance = Component.unplaced.get(id);
+			if (instance === undefined) {
+				continue;
+			}
+			$placeholder.parentNode?.replaceChild(instance.$el!, $placeholder);
+			Component.unplaced.delete(id);
+		}
+		this.$el?.replaceWith(doc.body.children[0]);
+		this.setEl(doc.body.children[0]);
 	}
 
 	setEl($input: Element) {
 		const $el = $input as BoundElement;
-		$el[Component.$elInstance] = this;
-		$el.setAttribute(Component.$elAttrType, this.Ctor.name);
-		$el.setAttribute(Component.$elAttrId, this.id);
-		this.$els.add(new WeakRef($el));
-		this.onLoad();
+		this.$el = $el;
+		this.$el.setAttribute(Component.$elAttrType, this.CtorName);
+		this.$el.setAttribute(Component.$elAttrId, this.id);
+		this.$el[Component.$elInstance] = this;
 	}
 
 	/**

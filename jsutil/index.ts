@@ -55,10 +55,12 @@ export function delay(
 export function fromKeys<Value>(
 	keys: Array<string>,
 	input: Record<string, Value>,
-	_options: typeof fromKeys[`options`] = fromKeys.options,
+	options: {
+		assertAll: boolean;
+	} = {
+		assertAll: true,
+	}
 ) {
-	const options = { ...fromKeys.options, ..._options };
-
 	if (options.assertAll) {
 		const delimeter = `;`;
 		const inputKeys = Object.keys(input).sort().join(delimeter);
@@ -76,9 +78,6 @@ export function fromKeys<Value>(
 		}
 	});
 }
-fromKeys.options = {
-	assertAll: true as boolean,
-};
 
 export function isDefinedAndSame(a: unknown, b:unknown): boolean {
 	return (

@@ -4,9 +4,6 @@ import { EntityStateEmitter } from '@robertakarobin/jsutil/entities.ts';
 import type * as Type from '@src/types.d.ts';
 
 export const state = new EntityStateEmitter<Type.ListItem>();
-if (appContext === `browser`) {
-	state.add({
-		value: `hello`,
-	});
-	state.subscribe(s => console.log(JSON.stringify(s, null, `\t`)));
-}
+state.add({
+	value: `hello`,
+});
