@@ -1,4 +1,4 @@
-import { appContext, baseHref } from './context.ts';
+import { appContext, baseHref, defaultBaseUrl } from './context.ts';
 import { Emitter } from './emitter.ts';
 
 export class Route extends URL {
@@ -61,7 +61,7 @@ export class Resolver<View> extends Emitter<View> {
 				return;
 			}
 
-			if (to.origin !== from?.origin) { // On external
+			if (to.origin !== baseHref.origin && to.origin !== defaultBaseUrl.origin) { // On external
 				location.href = to.href;
 				return;
 			}

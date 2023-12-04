@@ -10,6 +10,10 @@ export const appContext: AppContext = typeof window !== `undefined`
 	? `browser`
 	: `build`;
 
+export const defaultBaseUrl = new URL(`https://a.a`);
+
 export const baseHref = appContext === `browser`
 	? new URL(document.baseURI)
-	: new URL(process.env.baseURI as string || `https://example.com`);
+	: process.env.baseURI === undefined
+		? defaultBaseUrl
+		: new URL(process.env.baseURI);
