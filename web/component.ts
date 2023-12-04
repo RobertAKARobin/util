@@ -1,5 +1,6 @@
 import { appContext } from '@robertakarobin/jsutil/context.ts';
 import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
+import { newUid } from '@robertakarobin/jsutil/index.ts';
 
 export type BoundElement = Element & {
 	[Component.$elInstance]: Component; // Attaching instances to Elements should prevent the instance from being garbage-collected until the Element is GCd
@@ -15,7 +16,6 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	static readonly $elAttrType = `data-component`; // TODO1: Consolidate; use CSS [attr*=_type@]
 	static readonly $elInstance = `instance`;
 	static currentParent: Component;
-	static readonly instances = new Map<Component[`id`], Component>();
 	static NodeFilter: typeof NodeFilter;
 	static readonly style: string | undefined;
 	static readonly subclasses = new Map<string, typeof Component>();
@@ -34,8 +34,6 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 		if (appContext === `browser`) {
 			Component.NodeFilter = window.NodeFilter;
 		}
-
-		Component.currentParent = new Component({ id: `` });
 	}
 
 	static commentIterator(doc: Document) {
@@ -44,6 +42,10 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 			Component.NodeFilter.SHOW_COMMENT,
 			() => Component.NodeFilter.FILTER_ACCEPT
 		);
+	}
+
+	static createId() {
+		return newUid();
 	}
 
 	/**
@@ -79,7 +81,8 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	 * The element to which this instance is bound
 	 */
 	$el: BoundElement | undefined;
-	childCount: number = 0;
+	childIndex = 0;
+	children = new Map<Component[`id`], Component>();
 	content = ``;
 	/**
 	 * @returns The instance's constructor
@@ -91,13 +94,13 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 		return this.Ctor.name;
 	}
 	id: string = ``;
-	private isRerendering = false;
 	/**
 	 * If true, if this is a Page it will be compiled into a static `.html` file at the route(s) used for this Page, which serves as a landing page for performance and SEO purposes.
 	 * If this is a Component it will be compiled into static HTML included in the landing page.
 	 * Not a static variable because a Component/Page may/may not want to be SSG based on certain conditions
 	*/
 	readonly isSSG: boolean = true;
+	parent: Component | undefined;
 	/**
 	 * Warning: `style` should be defined as a static property, not an instance property
 	*/
@@ -106,24 +109,27 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	constructor(args?: { id?: string; } & State) {
 		super({ initial: args });
 
-		this.id = args?.id ?? `${Component.currentParent.id ? `${Component.currentParent.id}_` : ``}${Component.currentParent.childCount++}_${this.CtorName}`;
+		if (!Component.subclasses.has(this.Ctor.name)) {
+			this.Ctor.init();
+		}
 
-		const existing = Component.instances.get(this.id);
-		if (existing) {
-			existing.next(args);
-			return existing;
+		if (Component.currentParent === undefined) {
+			this.id = args?.id ?? Component.createId();
+		} else {
+			this.parent = Component.currentParent;
+			this.id = `${this.parent.id}_${args?.id ?? this.parent.childIndex++}`;
+			const existing = this.parent.children.get(this.id);
+			if (existing) {
+				existing.next(args);
+				return existing;
+			}
+
+			this.parent.children.set(this.id, this);
 		}
 
 		if (appContext === `build` && args) {
 			globals[Component.unhydratedDataName][this.id] = args;
 		}
-
-		if (!Component.subclasses.has(this.Ctor.name)) {
-			this.Ctor.init();
-		}
-
-		Component.unplaced.set(this.id, this);
-		Component.instances.set(this.id, this);
 	}
 
 	/**
@@ -243,35 +249,25 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 		document.getElementById(Component.unhydratedDataName)?.remove();
 	}
 
-	render(content: string = ``) {
+	on() {
+		this.subscribe(console.log);
+		return this;
+	}
+
+	render(content?: string): string;
+	render(content: string, root: true): Document;
+	render(content: string = ``, root = false) {
 		this.content = content;
 
 		const ownParent = Component.currentParent;
-		this.isRerendering = ownParent.isRerendering;
-		this.childCount = 0;
 		Component.currentParent = this;
+		Component.currentParent.childIndex = 0;
 
 		const doc = Component.parse(this.template(content ?? this.content));
-		if (doc.body.children.length > 1) {
-			throw new Error();
-		}
-
 		this.setEl(doc.body.children[0] as BoundElement);
 
-		const html = this.isRerendering
-			? `<!--${this.id}-->`
-			: this.$el?.outerHTML;
-
-		this.isRerendering = false;
 		Component.currentParent = ownParent;
-		return html;
-	}
 
-	rerender() {
-		this.isRerendering = true;
-		Component.unplaced.clear();
-
-		const doc = Component.parse(this.template(this.content));
 		const iterator = Component.commentIterator(doc);
 		let $placeholder: Node | null | undefined;
 		while ($placeholder = iterator.nextNode()) {
@@ -279,18 +275,24 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 			if (id === null) {
 				continue;
 			}
-			const instance = Component.unplaced.get(id);
+			const instance = this.children.get(id);
 			if (instance === undefined) {
 				continue;
 			}
-			$placeholder.parentNode?.replaceChild(instance.$el!, $placeholder);
-			Component.unplaced.delete(id);
+
+			if ($placeholder.nextSibling) {
+				$placeholder.parentNode?.insertBefore(instance.$el!, $placeholder.nextSibling);
+			} else {
+				$placeholder.parentNode?.appendChild(instance.$el!);
+			}
+			$placeholder.parentNode?.removeChild($placeholder);
 		}
 
-		const $el = doc.body.children[0];
-		this.$el?.replaceWith($el);
-		this.setEl($el);
-		this.isRerendering = false;
+		if (root) {
+			return doc;
+		} else {
+			return `<!--${this.id}-->`;
+		}
 	}
 
 	setEl($input: Element) {

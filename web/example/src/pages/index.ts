@@ -25,9 +25,7 @@ export class IndexPage extends Page<{ message?: string; }> {
 
 <div id="${routes.homeJump1.idAttr}">Jump 1</div>
 
-${
-	new List({ id: `mylist`, items: state.entries.last }).render()
-}
+${new List({ id: `mylist`, items: state.entries.last }).render()}
 
 <markdown>
 # Headline 1

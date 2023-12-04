@@ -177,8 +177,6 @@ export class Builder {
 				fs.mkdirSync(serveDirAbs, { recursive: true });
 
 				Component.subclasses.clear();
-				Component.instances.clear();
-				Component.currentParent = new Component({ id: `` });
 
 				const page = await resolver.resolve(route);
 				if (!page.isSSG) {
@@ -193,7 +191,8 @@ export class Builder {
 					return;
 				}
 
-				let body = page.render();
+				const doc = page.render(``, true);
+				let body = doc.body.innerHTML;
 
 				const componentArgs = globals[Component.unhydratedDataName];
 				body += `<script id="${Component.unhydratedDataName}" src="data:text/javascript," onload="${Component.unhydratedDataName}=${serialize(componentArgs)}"></script>`;
