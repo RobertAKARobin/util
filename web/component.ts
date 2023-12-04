@@ -10,9 +10,7 @@ export const globals = (appContext === `browser` ? window : global) as unknown a
 	& { [key in typeof Component.unhydratedInstancesName]: Map<Component[`id`], Component> }
 	& { [key in typeof Component.unhydratedDataName]: Record<Component[`id`], object> };
 
-type ComponentParent = Pick<Component, `childCount` | `CtorName` | `id`>;
-
-let currentParent: ComponentParent;
+let currentParent: Component;
 
 export class Component<State = any> extends Emitter<State> { // eslint-disable-line @typescript-eslint/no-explicit-any
 	static readonly $elAttrId = `data-id`;
@@ -29,9 +27,16 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	static {
 		globals[this.name] = this;
 		globals[Component.unhydratedInstancesName] = new Map();
+
+		if (appContext === `build`) {
+			globals[Component.unhydratedDataName] = {};
+		}
+
 		if (appContext === `browser`) {
 			Component.NodeFilter = window.NodeFilter;
 		}
+
+		currentParent = new Component({ id: `` });
 	}
 
 	static commentIterator(doc: Document) {
@@ -91,6 +96,7 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	* If true, a <script> tag will be inserted that allows this component to be dynamically rendered. Otherwise it will be rendered only once. TODO2: Preserve isCSR=false elements
 	*/
 	readonly isCSR: boolean = true;
+	private isRerendering = false;
 	/**
 	 * If true, if this is a Page it will be compiled into a static `.html` file at the route(s) used for this Page, which serves as a landing page for performance and SEO purposes.
 	 * If this is a Component it will be compiled into static HTML included in the landing page.
@@ -105,14 +111,6 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	constructor(args?: { id?: string; } & State) {
 		super({ initial: args });
 
-		if (currentParent === undefined) {
-			currentParent = {
-				CtorName: ``,
-				childCount: 0,
-				id: ``,
-			};
-		}
-
 		if (args?.id !== undefined) {
 			const existing = Component.instances.get(args.id);
 			if (existing) {
@@ -120,9 +118,14 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 			}
 			this.id = args.id;
 		} else {
-			this.id = `${currentParent.id ? `${currentParent.id}_` : ``}${currentParent.childCount++}_${this.CtorName}`;
+			if (currentParent !== undefined) { // Should only ever be undefined on init
+				this.id = `${currentParent.id ? `${currentParent.id}_` : ``}${currentParent.childCount++}_${this.CtorName}`;
+			}
 		}
 
+		if (appContext === `build` && args) {
+			globals[Component.unhydratedDataName][this.id] = args;
+		}
 
 		if (!Component.subclasses.has(this.Ctor.name)) {
 			this.Ctor.init();
@@ -222,8 +225,8 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 
 		const $firstOfThisType = $root.querySelector(`[${Component.$elAttrType}=${this.Ctor.name}]`);
 		if ($firstOfThisType) {
-			const id = $firstOfThisType.getAttribute(Component.$elAttrId);
-			Object.assign(this, { id }); // ID is readonly, but we want to override it here
+			const id = $firstOfThisType.getAttribute(Component.$elAttrId)!;
+			this.id = id;
 			hydratedInstances.set(this.id, this);
 			this.render();
 		}
@@ -237,6 +240,7 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 				const constructorName = $el.getAttribute(Component.$elAttrType)!;
 				const Constructor = Component.subclasses.get(constructorName)!;
 				const args = unhydratedArgs[id];
+				delete unhydratedArgs[id];
 				instance = new Constructor(args);
 				hydratedInstances.set(id, instance);
 			}
@@ -246,28 +250,34 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 		}
 
 		document.getElementById(Component.unhydratedDataName)?.remove();
-		globals[Component.unhydratedDataName] = {};
 	}
 
 	render(content: string = ``) {
 		this.content = content;
 
 		const ownParent = currentParent;
+		this.isRerendering = ownParent.isRerendering;
 		this.childCount = 0;
 		currentParent = this;
-		const rendered = this.template(content ?? this.content);
-		const doc = Component.parse(rendered);
+
+		const doc = Component.parse(this.template(content ?? this.content));
 		if (doc.body.children.length > 1) {
 			throw new Error();
 		}
 
 		this.setEl(doc.body.children[0] as BoundElement);
 
+		const html = this.isRerendering
+			? `<!--${this.id}-->`
+			: this.$el?.outerHTML;
+
+		this.isRerendering = false;
 		currentParent = ownParent;
-		return `<!--${this.id}-->`;
+		return html;
 	}
 
 	rerender() {
+		this.isRerendering = true;
 		Component.unplaced.clear();
 
 		const doc = Component.parse(this.template(this.content));
@@ -287,6 +297,7 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 		}
 		this.$el?.replaceWith(doc.body.children[0]);
 		this.setEl(doc.body.children[0]);
+		this.isRerendering = false;
 	}
 
 	setEl($input: Element) {

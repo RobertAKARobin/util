@@ -31,11 +31,11 @@ export class ListItem extends Component<Type.ListItem> {
 	<button
 		type="button"
 		onclick=${this.bind(`add`)}
-	>Add before</button></li>
+	>Add before</button>
 	<button
 		type="button"
 		onclick=${this.bind(`remove`)}
-	>Remove</button></li>
+	>Remove</button>
 	${
 		new Textbox({ value: this.value.last })
 			// .on(`value`, (value, item) => item.closest(ListItem).value.next(value))

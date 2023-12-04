@@ -7,7 +7,7 @@ class CustomBuilder extends Builder {
 		return await super.formatHtml({
 			...input,
 			body: `
-				<nav>${new Nav().template()}</nav>
+				<nav>${new Nav().render()}</nav>
 				<main>${input.body}</main>
 			`,
 		});

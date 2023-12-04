@@ -10,7 +10,7 @@ import { marked } from 'marked';
 import path from 'path';
 import { serialize } from '@robertakarobin/jsutil/serialize.ts';
 
-import { Component } from './component.ts';
+import { Component, globals } from './component.ts';
 import { defaultLayout } from './layout.ts';
 import { type Page } from './page.ts';
 
@@ -45,8 +45,6 @@ const log = (...args: Array<string>) => console.log(args.join(`\n`));
 const logBreak = () => console.log(``);
 
 const trimNewlines = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
-
-const componentArgs = new Map<Component[`id`], unknown>();
 
 
 Component.parse = function(input: string) {
@@ -155,10 +153,11 @@ export class Builder {
 		await $.promiseConsecutive(
 			Object.entries(router.routes).map(([routeName, route]) => async() => {
 				Component.subclasses.clear();
-				componentArgs.clear();
+
 
 				log(`${routeName.toString()}: ${route.pathname}`);
 
+				const componentArgs = globals[Component.unhydratedDataName];
 				const page = await resolver.resolve(route);
 				if (page === undefined) {
 					console.warn(`Route '${routeName.toString()}' does not resolve to a page. Skipping...`);
@@ -167,11 +166,11 @@ export class Builder {
 				}
 
 				Component.instances.clear();
-				page.rerender(); // Populates subclasses used on page
-				let body = page.$el?.outerHTML;
+				let body = page.render();
 
-				const argsObject = Object.fromEntries(componentArgs);
-				body += `<script id="${Component.unhydratedDataName}" src="data:text/javascript," onload="${Component.unhydratedDataName}=${serialize(argsObject)}"></script>`;
+				body += `<script id="${Component.unhydratedDataName}" src="data:text/javascript," onload="${Component.unhydratedDataName}=${serialize(componentArgs)}"></script>`;
+
+				globals[Component.unhydratedDataName] = {};
 
 				let serveFileRel = route.pathname;
 				serveFileRel = serveFileRel

@@ -26,7 +26,7 @@ export function serialize(input: unknown): string {
 				let out = ``;
 				for (const property in input) {
 					const value = input[property as keyof typeof input] as Record<string, unknown>; // eslint-disable-line @typescript-eslint/no-unsafe-member-access
-					out += `${property.replaceAll(`"`, `&quot;`)}:${iterate(value)},`;
+					out += `'${property.replaceAll(`"`, `&quot;`)}':${iterate(value)},`;
 				}
 				return `{${out}}`;
 			}
