@@ -22,7 +22,9 @@ export class Router<RouteMap_ extends RouteMap = any> extends Emitter<Route> { /
 	readonly routes = {} as Record<keyof RouteMap_, Route>;
 
 	constructor(routes: RouteMap_) {
-		super();
+		super(
+			appContext === `browser` ? { initial: new Route(location.href) } : undefined
+		);
 
 		for (const key in routes) {
 			this.routes[key] = new Route(routes[key]);
@@ -66,7 +68,7 @@ export class Resolver<View> extends Emitter<View> {
 
 			if (to.hash !== from?.hash) { // On same page with new hash
 				location.hash = to.hash;
-				if (to.hash.length === 0) {
+				if (to.hash?.length === 0) {
 					window.history.replaceState({}, ``, to.pathname); // Turns out `location.hash = ''` will still set a hash of `#`. So, if going from a path with hash to path without hash, we'll need to handle the hash differently
 				}
 			}
@@ -85,13 +87,6 @@ export class Renderer<View> extends Emitter<void> {
 	) {
 		super();
 
-		const landingRoute = new Route(location.href);
-		resolver.resolve(landingRoute)
-			.then(view => {
-				void this.render(view, undefined as View, landingRoute);
-			})
-			.catch(console.error);
-
 		resolver.subscribe(async(newView, oldView) => {
 			const to = this.resolver.router.last;
 			await this.render(newView, oldView, this.resolver.router.last);
@@ -100,5 +95,10 @@ export class Renderer<View> extends Emitter<void> {
 				location.hash = to.hash;
 			}
 		}, { strong: true });
+
+		const landingRoute = new Route(location.href);
+		resolver.resolve(landingRoute)
+			.then(view => this.resolver.next(view))
+			.catch(console.error);
 	}
 }

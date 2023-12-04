@@ -82,14 +82,11 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	 * Warning: `style` should be defined as a static property, not an instance property
 	*/
 	private readonly style: void = undefined;
-	/**
-	 * This keeps subscriptions from being garbage-collected while this instance exists
-	 */
 
-	constructor(args: { id?: string; } & State) {
+	constructor(args?: { id?: string; } & State) {
 		super({ initial: args });
 
-		if (args.id !== undefined) {
+		if (args?.id !== undefined) {
 			this.id = args.id;
 
 			const existing = Component.persists.get(this.id);
@@ -210,6 +207,43 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 			}
 		}
 		return descendants;
+	}
+
+	hydrate($root: Element) {
+		const unhydratedInstances = globals[Component.unhydratedInstancesName];
+		unhydratedInstances.clear();
+
+		const unhydratedArgs = globals[Component.unhydratedDataName];
+
+		const hydratedInstances = new Map<Component[`id`], Component>();
+
+		const $firstOfThisType = $root.querySelector(`[${Component.$elAttrType}=${this.Ctor.name}]`);
+		if ($firstOfThisType) {
+			const id = $firstOfThisType.getAttribute(Component.$elAttrId);
+			Object.assign(this, { id }); // ID is readonly, but we want to override it here
+			hydratedInstances.set(this.id, this);
+			this.render();
+		}
+
+		const $els = $root.querySelectorAll(`[${Component.$elAttrType}]`);
+		for (const $el of Array.from($els) as Array<BoundElement>) {
+			const id = $el.getAttribute(Component.$elAttrId)!;
+
+			let instance = hydratedInstances.get(id);
+			if (instance === undefined) {
+				const constructorName = $el.getAttribute(Component.$elAttrType)!;
+				const Constructor = Component.subclasses.get(constructorName)!;
+				const args = unhydratedArgs[id];
+				instance = new Constructor(args);
+				hydratedInstances.set(id, instance);
+			}
+
+			instance.setEl($el);
+			$el[Component.$elInstance] = instance;
+		}
+
+		document.getElementById(Component.unhydratedDataName)?.remove();
+		globals[Component.unhydratedDataName] = {};
 	}
 
 	onLoad() {}

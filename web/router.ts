@@ -16,10 +16,9 @@ export abstract class RouteComponent<Router_ extends Router = Router> extends Co
 		this.router.next(this.last);
 	}
 
-	template = (content: string = ``) => {
-		return `<a
-			href="${this.last.isExternal ? this.last.href : `${this.last.pathname}${this.last.hash}`}"
-			onclick=${this.bind(`onClick`)}
-		>${content}</a>`;
-	};
+	template = (content: string = ``) => `
+	<a
+		href="${this.last.isExternal ? this.last.href : `${this.last.pathname}${this.last.hash}`}"
+		onclick=${this.bind(`onClick`)}
+	>${content}</a>`;
 }
