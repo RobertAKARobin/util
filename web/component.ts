@@ -290,8 +290,10 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 			$placeholder.parentNode?.replaceChild(instance.$el!, $placeholder);
 			Component.unplaced.delete(id);
 		}
-		this.$el?.replaceWith(doc.body.children[0]);
-		this.setEl(doc.body.children[0]);
+
+		const $el = doc.body.children[0];
+		this.$el?.replaceWith($el);
+		this.setEl($el);
 		this.isRerendering = false;
 	}
 
