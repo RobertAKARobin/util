@@ -180,7 +180,7 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 			? Descendant
 			: `[${Component.$elAttrType}=${Descendant.name}]`;
 
-		const $match = this.$el?.closest(selector);
+		const $match = this.$el?.querySelector(selector);
 		if ($match) {
 			if (typeof Descendant === `string`) {
 				return $match;
