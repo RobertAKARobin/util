@@ -1,4 +1,4 @@
-import type { Route, Router } from '@robertakarobin/jsutil/router.ts';
+import { Route, type Router } from '@robertakarobin/jsutil/router.ts';
 
 import { Component } from './component.ts';
 
@@ -7,6 +7,10 @@ import { Component } from './component.ts';
  */
 export abstract class RouteComponent<Router_ extends Router = Router> extends Component<Route> {
 	abstract readonly router: Router_;
+
+	constructor(args: Route & ConstructorParameters<typeof Component>[0]) {
+		super(typeof args === `string` ? new Route(args) : args);
+	}
 
 	onClick(event: MouseEvent) {
 		if (event.metaKey || event.ctrlKey) { // Allow opening in new tab

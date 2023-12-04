@@ -17,21 +17,21 @@ export const router = new Router({
 export const { routes } = router;
 
 export const resolver = new Resolver(router, async(route: Route) => {
-	switch (route.href) {
-		case routes.home.href:
-		case routes.homeJump1.href:
-		case routes.homeJump2.href:
+	switch (route.pathname) {
+		case routes.home.pathname:
+		case routes.homeJump1.pathname:
+		case routes.homeJump2.pathname:
 			return new IndexPage({
 				message: `This is a variable`,
 				title: `Home page`,
 			});
-		case routes.ssgNo.href:
+		case routes.ssgNo.pathname:
 			return new (await import(`@src/pages/ssg-no.ts`)).NoSSGPage({
 				title: `No SSG page`,
 			});
-		case routes.ssgYes.href:
-		case routes.ssgYesJump1.href:
-		case routes.ssgYesJump2.href:
+		case routes.ssgYes.pathname:
+		case routes.ssgYesJump1.pathname:
+		case routes.ssgYesJump2.pathname:
 			return new (await import(`@src/pages/ssg-yes.ts`)).YesSSGPage({
 				title: `SSG yes`,
 			});
