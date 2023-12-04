@@ -181,6 +181,12 @@ export class Builder {
 				Component.currentParent = new Component({ id: `` });
 
 				const page = await resolver.resolve(route);
+				if (!page.isSSG) {
+					console.warn(`Route '${routeName.toString()}' is not SSG. Skipping...`);
+					logBreak();
+					return;
+				}
+
 				if (page === undefined) {
 					console.warn(`Route '${routeName.toString()}' does not resolve to a page. Skipping...`);
 					logBreak();

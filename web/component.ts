@@ -91,10 +91,6 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 		return this.Ctor.name;
 	}
 	id: string = ``;
-	/**
-	* If true, a <script> tag will be inserted that allows this component to be dynamically rendered. Otherwise it will be rendered only once. TODO2: Preserve isCSR=false elements
-	*/
-	readonly isCSR: boolean = true;
 	private isRerendering = false;
 	/**
 	 * If true, if this is a Page it will be compiled into a static `.html` file at the route(s) used for this Page, which serves as a landing page for performance and SEO purposes.
