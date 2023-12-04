@@ -46,7 +46,6 @@ const logBreak = () => console.log(``);
 
 const trimNewlines = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
 
-
 Component.parse = function(input: string) {
 	const dom = new JSDOM(input);
 	Component.NodeFilter = dom.window.NodeFilter;
@@ -177,6 +176,7 @@ export class Builder {
 				fs.mkdirSync(serveDirAbs, { recursive: true });
 
 				Component.subclasses.clear();
+				globals[Component.unhydratedDataName] = {};
 
 				const page = await resolver.resolve(route);
 				if (!page.isSSG) {
@@ -192,7 +192,7 @@ export class Builder {
 				}
 
 				const doc = page.render(``, true);
-				let body = doc.body.innerHTML;
+				let body = this.formatBody(doc);
 
 				const componentArgs = globals[Component.unhydratedDataName];
 				body += `<script id="${Component.unhydratedDataName}" src="data:text/javascript," onload="${Component.unhydratedDataName}=${serialize(componentArgs)}"></script>`;
@@ -221,6 +221,7 @@ export class Builder {
 					routeCssPath: typeof routeCssPath === `string` ? path.join(`/`, routeCssPath) : undefined,
 					routePath: path.join(`/`, route.pathname),
 				});
+
 				log(local(serveFileAbs));
 				fs.writeFileSync(serveFileAbs, html);
 				logBreak();
@@ -270,6 +271,10 @@ export class Builder {
 	}
 
 	cleanup(): void | Promise<void> {}
+
+	formatBody(doc: Document) {
+		return doc.body.innerHTML;
+	}
 
 	formatCss(input: string): string | Promise<string> {
 		let css = input;

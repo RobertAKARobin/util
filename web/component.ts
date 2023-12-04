@@ -27,10 +27,6 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 		globals[this.name] = this;
 		globals[Component.unhydratedInstancesName] = new Map();
 
-		if (appContext === `build`) {
-			globals[Component.unhydratedDataName] = {};
-		}
-
 		if (appContext === `browser`) {
 			Component.NodeFilter = window.NodeFilter;
 		}
@@ -126,6 +122,8 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 
 			this.parent.children.set(this.id, this);
 		}
+
+		console.log(`${this.Ctor.name} ${this.id}`);
 
 		if (appContext === `build` && args) {
 			globals[Component.unhydratedDataName][this.id] = args;
