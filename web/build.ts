@@ -150,27 +150,11 @@ export class Builder {
 			router: Router<never>;
 		};
 
+		const builtRoutes = new Set<string>();
+
 		await $.promiseConsecutive(
 			Object.entries(router.routes).map(([routeName, route]) => async() => {
-				Component.subclasses.clear();
-
-
 				log(`${routeName.toString()}: ${route.pathname}`);
-
-				const componentArgs = globals[Component.unhydratedDataName];
-				const page = await resolver.resolve(route);
-				if (page === undefined) {
-					console.warn(`Route '${routeName.toString()}' does not resolve to a page. Skipping...`);
-					logBreak();
-					return;
-				}
-
-				Component.instances.clear();
-				let body = page.render();
-
-				body += `<script id="${Component.unhydratedDataName}" src="data:text/javascript," onload="${Component.unhydratedDataName}=${serialize(componentArgs)}"></script>`;
-
-				globals[Component.unhydratedDataName] = {};
 
 				let serveFileRel = route.pathname;
 				serveFileRel = serveFileRel
@@ -179,9 +163,35 @@ export class Builder {
 				if (!hasExtension.test(serveFileRel)) {
 					serveFileRel = path.join(serveFileRel, `index.html`);
 				}
+
+				if (builtRoutes.has(serveFileRel)) {
+					console.log(`Route '${routeName.toString()}' matches already-built route. Skipping...`);
+					logBreak();
+					return;
+				}
+
+				builtRoutes.add(serveFileRel);
+
 				const serveFileAbs = path.join(this.serveDirAbs, serveFileRel);
 				const serveDirAbs = path.dirname(serveFileAbs);
 				fs.mkdirSync(serveDirAbs, { recursive: true });
+
+				Component.subclasses.clear();
+				Component.instances.clear();
+				Component.currentParent = new Component({ id: `` });
+
+				const page = await resolver.resolve(route);
+				if (page === undefined) {
+					console.warn(`Route '${routeName.toString()}' does not resolve to a page. Skipping...`);
+					logBreak();
+					return;
+				}
+
+				let body = page.render();
+
+				const componentArgs = globals[Component.unhydratedDataName];
+				body += `<script id="${Component.unhydratedDataName}" src="data:text/javascript," onload="${Component.unhydratedDataName}=${serialize(componentArgs)}"></script>`;
+				globals[Component.unhydratedDataName] = {};
 
 				let routeCssPath: string | undefined = undefined;
 				let css = Array.from(Component.subclasses.values())

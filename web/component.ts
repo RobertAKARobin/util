@@ -10,12 +10,11 @@ export const globals = (appContext === `browser` ? window : global) as unknown a
 	& { [key in typeof Component.unhydratedInstancesName]: Map<Component[`id`], Component> }
 	& { [key in typeof Component.unhydratedDataName]: Record<Component[`id`], object> };
 
-let currentParent: Component;
-
 export class Component<State = any> extends Emitter<State> { // eslint-disable-line @typescript-eslint/no-explicit-any
 	static readonly $elAttrId = `data-id`;
 	static readonly $elAttrType = `data-component`; // TODO1: Consolidate; use CSS [attr*=_type@]
 	static readonly $elInstance = `instance`;
+	static currentParent: Component;
 	static readonly instances = new Map<Component[`id`], Component>();
 	static NodeFilter: typeof NodeFilter;
 	static readonly style: string | undefined;
@@ -36,7 +35,7 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 			Component.NodeFilter = window.NodeFilter;
 		}
 
-		currentParent = new Component({ id: `` });
+		Component.currentParent = new Component({ id: `` });
 	}
 
 	static commentIterator(doc: Document) {
@@ -80,7 +79,7 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	 * The element to which this instance is bound
 	 */
 	$el: BoundElement | undefined;
-	childCount: number = -1;
+	childCount: number = 0;
 	content = ``;
 	/**
 	 * @returns The instance's constructor
@@ -111,16 +110,12 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	constructor(args?: { id?: string; } & State) {
 		super({ initial: args });
 
-		if (args?.id !== undefined) {
-			const existing = Component.instances.get(args.id);
-			if (existing) {
-				return existing;
-			}
-			this.id = args.id;
-		} else {
-			if (currentParent !== undefined) { // Should only ever be undefined on init
-				this.id = `${currentParent.id ? `${currentParent.id}_` : ``}${currentParent.childCount++}_${this.CtorName}`;
-			}
+		this.id = args?.id ?? `${Component.currentParent.id ? `${Component.currentParent.id}_` : ``}${Component.currentParent.childCount++}_${this.CtorName}`;
+
+		const existing = Component.instances.get(this.id);
+		if (existing) {
+			existing.next(args);
+			return existing;
 		}
 
 		if (appContext === `build` && args) {
@@ -255,10 +250,10 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	render(content: string = ``) {
 		this.content = content;
 
-		const ownParent = currentParent;
+		const ownParent = Component.currentParent;
 		this.isRerendering = ownParent.isRerendering;
 		this.childCount = 0;
-		currentParent = this;
+		Component.currentParent = this;
 
 		const doc = Component.parse(this.template(content ?? this.content));
 		if (doc.body.children.length > 1) {
@@ -272,7 +267,7 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 			: this.$el?.outerHTML;
 
 		this.isRerendering = false;
-		currentParent = ownParent;
+		Component.currentParent = ownParent;
 		return html;
 	}
 
