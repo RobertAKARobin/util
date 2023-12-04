@@ -15,7 +15,6 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	static readonly $elAttrType = `data-component`; // TODO1: Consolidate; use CSS [attr*=_type@]
 	static readonly $elInstance = `instance`;
 	static currentParent: Component;
-	static readonly hydratedInstances = new Map<Component[`id`], Component>();
 	static NodeFilter: typeof NodeFilter;
 	static rootParent: Component;
 	static readonly style: string | undefined;
@@ -113,10 +112,7 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 		} else {
 			this.parent = Component.currentParent;
 			this.id = args?.id ?? `${this.parent.id}_${this.parent.childIndex++}`;
-			const existing = (
-				this.parent.children.get(this.id)
-				?? Component.hydratedInstances.get(this.id)
-			);
+			const existing = this.parent.children.get(this.id);
 			if (existing) {
 				existing.next(args);
 				return existing;
@@ -215,34 +211,25 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 
 		const unhydratedArgs = globals[Component.unhydratedDataName];
 
-		const hydratedInstances = Component.hydratedInstances;
-		hydratedInstances.clear();
-
 		const $firstOfThisType = $root.querySelector(`[${Component.$elAttrType}=${this.Ctor.name}]`);
 		if ($firstOfThisType) {
 			const id = $firstOfThisType.getAttribute(Component.$elAttrId)!;
 			this.id = id;
 			this.setEl($firstOfThisType);
-			hydratedInstances.set(this.id, this);
 		}
 
 		const $els = $root.querySelectorAll(`[${Component.$elAttrType}]`);
 		for (const $el of Array.from($els) as Array<BoundElement>) {
 			const id = $el.getAttribute(Component.$elAttrId)!;
-
-			let instance = hydratedInstances.get(id);
-			if (instance === this) {
+			if (id === this.id) {
 				continue;
 			}
-			if (instance === undefined) {
-				const constructorName = $el.getAttribute(Component.$elAttrType)!;
-				const Constructor = Component.subclasses.get(constructorName)!;
-				const args = unhydratedArgs[id];
-				delete unhydratedArgs[id];
-				instance = new Constructor({ ...args, id });
-				hydratedInstances.set(id, instance);
-			}
 
+			const constructorName = $el.getAttribute(Component.$elAttrType)!;
+			const Constructor = Component.subclasses.get(constructorName)!;
+			const args = unhydratedArgs[id];
+			delete unhydratedArgs[id];
+			const instance = new Constructor({ ...args, id });
 			instance.setEl($el);
 		}
 
@@ -250,6 +237,7 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	}
 
 	on() {
+		console.log(this.id);
 		this.subscribe(console.log, { strong: true });
 		return this;
 	}
