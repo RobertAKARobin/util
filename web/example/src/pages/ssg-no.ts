@@ -1,4 +1,4 @@
-import { Page } from '@robertakarobin/web/index.ts';
+import { Page } from '@robertakarobin/web/page.ts';
 
 export class NoSSGPage extends Page {
 	isSSG = false;

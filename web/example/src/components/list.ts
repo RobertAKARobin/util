@@ -1,4 +1,4 @@
-import { Component } from '@robertakarobin/web/index.ts';
+import { Component } from '@robertakarobin/web/component.ts';
 
 import type * as Type from '@src/types.d.ts';
 import { ListItem } from './listitem.ts';

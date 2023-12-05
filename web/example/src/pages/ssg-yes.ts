@@ -1,4 +1,4 @@
-import { Page } from '@robertakarobin/web/index.ts';
+import { Page } from '@robertakarobin/web/page.ts';
 
 import { routes } from '@src/router.ts';
 
