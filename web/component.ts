@@ -10,9 +10,9 @@ export const globals = (appContext === `browser` ? window : global) as unknown a
 	& { [key in typeof Component.name]: typeof Component; }
 	& { [key in typeof Component.unhydratedDataName]: Record<Component[`id`], object> };
 
-export class Component<State = any> extends Emitter<State> { // eslint-disable-line @typescript-eslint/no-explicit-any
+export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	static readonly $elAttrId = `data-id`;
-	static readonly $elAttrType = `data-component`; // TODO1: Consolidate; use CSS [attr*=_type@]
+	static readonly $elAttrType = `data-component`;
 	static readonly $elInstance = `instance`;
 	static currentParent: Component;
 	static Document: Document;
@@ -21,7 +21,6 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	static rootParent: Component;
 	static readonly style: string | undefined;
 	static readonly subclasses = new Map<string, typeof Component>();
-	static readonly unhydrated$Els = new Map<Component[`id`], Element>();
 	static readonly unhydratedDataName = `unhydratedArgs`;
 
 	static {
@@ -116,12 +115,12 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 		} else {
 			this.parent = Component.currentParent;
 			this.id = id ?? `${this.parent.id}_${this.parent.childIndex++}`;
-			const existing = Component.instances.get(this.id);
-			if (existing) {
+			const existing = Component.instances.get(this.id) as Component<State>;
+			if (existing !== undefined) {
 				return existing;
 			}
 
-			Component.instances.set(this.id, this);
+			Component.instances.set(this.id, this as Component);
 		}
 	}
 
@@ -247,7 +246,7 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 		this.content = content;
 
 		const ownParent = Component.currentParent;
-		Component.currentParent = this;
+		Component.currentParent = this as Component;
 		Component.currentParent.childIndex = 0;
 
 		const doc = Component.parse(this.template(content ?? this.content));
@@ -301,7 +300,7 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 		this.$el = $el;
 		this.$el.setAttribute(Component.$elAttrType, this.CtorName);
 		this.$el.setAttribute(Component.$elAttrId, this.id);
-		this.$el[Component.$elInstance] = this;
+		this.$el[Component.$elInstance] = this as Component;
 		this.setAttrs();
 	}
 
