@@ -39,6 +39,10 @@ export const defaultLayout = (input: LayoutArgs) => `
 			? `<script>${input.loadScript}</script>`
 			: ``
 		}
+
+		${[...input.Component.subclasses.values()].map(Subclass => /* These keep Component.ts from loading the CSS twice; see Componet.setStyle */`
+			<style ${Subclass.$elAttrType}="${Subclass.name}"></style>
+		`).join(``)}
 	</head>
 
 	${typeof input.body === `string`

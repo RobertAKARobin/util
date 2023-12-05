@@ -15,6 +15,7 @@ import { defaultLayout } from './layout.ts';
 import { type Page } from './page.ts';
 
 export type LayoutArgs = {
+	Component: typeof Component;
 	baseHref: string;
 	body?: string;
 	css?: string;
@@ -107,7 +108,7 @@ export class Builder {
 		this.baseDirAbs = input.baseDirAbs ?? process.cwd();
 		this.serveDirAbs = path.join(this.baseDirAbs, input.serveDirRel ?? `./dist`);
 		this.srcRawDirAbs = path.join(this.baseDirAbs, input.srcRawDirRel ?? `./src`);
-		this.srcDirAbs = path.join(this.baseDirAbs, input.srcTmpDirRel ?? `./tmp`);
+		this.srcDirAbs = path.join(this.baseDirAbs, input.srcTmpDirRel ?? `./tmp`); // Copying the TS source to `/tmp` is necessary because we want to compile Markdown _before_ we build the JS source. Otherwise we'd be sending Markdown to the browser, and we'd rather send valid HTML and not need to load a Markdown parser
 
 		this.assetsSrcDirRel = input.assetsSrcDirRel ?? `./assets`;
 		this.assetsSrcDirAbs = path.join(this.baseDirAbs, this.assetsSrcDirRel);
@@ -226,6 +227,7 @@ export class Builder {
 				}
 
 				const html = await this.formatHtml({
+					Component,
 					baseHref: this.baseHref,
 					body,
 					css,
