@@ -4,7 +4,7 @@
 		"noEmit": true,
 		"noEmitOnError": true,
 		"paths": {
-			"@src/*": ["src/*"]
+			"@src/*": ["tmp/*", "src/*"]
 		}
 	},
 	"extends": [

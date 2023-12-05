@@ -3,6 +3,7 @@ import { type Resolver, type Router } from '@robertakarobin/jsutil/router.ts';
 import { stringMates, type TagResult } from '@robertakarobin/jsutil/string-mates.ts';
 import esbuild from 'esbuild';
 import fs from 'fs';
+import { glob } from 'glob';
 import jsBeautify from 'js-beautify';
 import { JSDOM } from 'jsdom';
 import { marked } from 'marked';
@@ -83,6 +84,7 @@ export class Builder {
 	readonly scriptSrcFileRel: string;
 	readonly serveDirAbs: string;
 	readonly srcDirAbs: string;
+	readonly srcRawDirAbs: string;
 	readonly styleServeFileRel: string;
 	readonly stylesServeFileAbs: string;
 	readonly stylesSrcFileAbs: string;
@@ -95,6 +97,7 @@ export class Builder {
 		scriptSrcFileRel: string;
 		serveDirRel: string;
 		srcRawDirRel: string;
+		srcTmpDirRel: string;
 		styleServeFileRel: string;
 		vendorServeFileName: string;
 		vendorSrcFileAbs: string;
@@ -103,7 +106,8 @@ export class Builder {
 
 		this.baseDirAbs = input.baseDirAbs ?? process.cwd();
 		this.serveDirAbs = path.join(this.baseDirAbs, input.serveDirRel ?? `./dist`);
-		this.srcDirAbs = path.join(this.baseDirAbs, input.srcRawDirRel ?? `./src`);
+		this.srcRawDirAbs = path.join(this.baseDirAbs, input.srcRawDirRel ?? `./src`);
+		this.srcDirAbs = path.join(this.baseDirAbs, input.srcTmpDirRel ?? `./tmp`);
 
 		this.assetsSrcDirRel = input.assetsSrcDirRel ?? `./assets`;
 		this.assetsSrcDirAbs = path.join(this.baseDirAbs, this.assetsSrcDirRel);
@@ -127,9 +131,15 @@ export class Builder {
 		fs.rmSync(this.serveDirAbs, { force: true, recursive: true });
 		fs.mkdirSync(this.serveDirAbs);
 
+		fs.rmSync(this.srcDirAbs, { force: true, recursive: true });
+		fs.cpSync(this.srcRawDirAbs, this.srcDirAbs, { force: true, recursive: true });
+
+		await this.buildTSSource();
 		this.buildAssets();
 		await this.buildStyles();
 		await this.buildRoutes();
+
+		fs.rmSync(this.srcDirAbs, { force: true, recursive: true });
 
 		await this.cleanup();
 
@@ -199,8 +209,7 @@ export class Builder {
 					return;
 				}
 
-				const doc = page.rerender();
-				let body = await this.formatBody(doc); // TODO3: This converts some characters to HTML character codes, e.g. `\n>` on a newline becomes `\n&gt;`. That breaks blockquotes in Markdown.
+				let body = this.formatBody(page.rerender());
 
 				const componentArgs = globals[Component.unhydratedDataName];
 				body += `<script id="${Component.unhydratedDataName}" src="data:text/javascript," onload="${Component.unhydratedDataName}=${serialize(componentArgs)}"></script>`;
@@ -261,10 +270,24 @@ export class Builder {
 		logBreak();
 	}
 
+	async buildTSSource() {
+		header(`Formatting TS source files`);
+		const tsSrcsAbs = await glob(`${this.srcDirAbs}/**/*.ts`, { absolute: true });
+		for (const tsSrcAbs of tsSrcsAbs) {
+			const tsSrc = fs.readFileSync(tsSrcAbs, { encoding: `utf8` });
+			const tsSrcModified = await this.formatTSSource(tsSrc);
+			if (tsSrc !== tsSrcModified) {
+				log(local(tsSrcAbs));
+			}
+			fs.writeFileSync(tsSrcAbs, tsSrcModified);
+		}
+		logBreak();
+	}
+
 	cleanup(): void | Promise<void> {}
 
-	async formatBody($root: Element) {
-		return await this.formatMarkdown($root.outerHTML);
+	formatBody($root: Element) {
+		return $root.outerHTML;
 	}
 
 	formatCss(input: string): string | Promise<string> {
@@ -290,7 +313,7 @@ export class Builder {
 
 	formatMarkdown(input: string): string | Promise<string> {
 		const isMarkdown = [`<markdown>`, `</markdown>`];
-		const isJsTemplate = [`\${`, `}`];
+		const isJsTemplate = [`\${`, `}`]; // eslint-disable-line quotes
 		const jsChunks: Array<string> = [];
 		const tokens = stringMates(input, [
 			isMarkdown,
@@ -306,21 +329,21 @@ export class Builder {
 				if (typeof item === `string`) {
 					return item;
 				}
-				let contents = parse(item.contents).flat().join(``);
+				const contents = parse(item.contents).flat().join(``);
 				if (item.tags === isMarkdown) {
 					if (contents.indexOf(`\n`) < 0) {
 						return marked.parseInline(contents, { async: false, gfm: true }) as string;
 					}
-					const indentLevel = contents.match(/^.*?\n(\s+)/)?.[1].length;
-					if (indentLevel !== undefined) {
-						contents = contents.replace(/\n\s{0,indentLevel}/g, ``);
-					}
 					return marked(contents, { async: false, gfm: true }) as string;
 				}
-				jsChunks.push(`\${` + contents + `}`);
+				jsChunks.push(`\${` + contents + `}`); // eslint-disable-line quotes
 				return `/%%/`; // TODO3: Use a better placeholder
 			});
 		}
+	}
+
+	formatTSSource(input: string): string | Promise<string> {
+		return this.formatMarkdown(input);
 	}
 
 	serve(options: (esbuild.ServeOptions) = {}) {
