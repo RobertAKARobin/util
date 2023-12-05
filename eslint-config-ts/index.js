@@ -83,8 +83,17 @@ module.exports = {
 				"@typescript-eslint/unbound-method": [`warn`, {
 					ignoreStatic: true,
 				}],
+				"no-restricted-imports": [`error`, {
+					patterns: [
+						{
+							group: [`../*`],
+							message: `Don't use relative paths to import from parent containers. Use TSConfig to set up path aliases instead.`,
+						},
+					],
+				}],
 				"typescript-sort-keys/interface": `error`,
 				"typescript-sort-keys/string-enum": `error`,
+
 			},
 		},
 	],
