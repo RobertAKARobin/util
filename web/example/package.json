@@ -16,7 +16,7 @@
 		"lint:html": "html-validate dist",
 		"lint:ts": "eslint .",
 		"spec": "tsx spec/run.ts",
-		"test": "tsc -p tsconfig.json && npm run spec && npm run lint"
+		"test": "rm -rf example/tmp && tsc -p tsconfig.json && npm run spec && npm run lint"
 	},
 	"type": "module"
 }

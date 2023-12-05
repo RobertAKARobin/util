@@ -9,10 +9,12 @@ export type EntityState<Type> = {
 export class EntityStateEmitter<Type extends object>
 	extends Emitter<EntityState<Type>> {
 
-	entries = this.pipe(({ ids, byId }) => ids.map(id => ({
-		...byId[id],
-		id,
-	})));
+	entries = this.pipe(({ ids, byId }) => ({
+		byIndex: ids.map(id => ({
+			...byId[id],
+			id,
+		})),
+	}));
 
 	constructor(
 		...[initial, actions, options]: ConstructorParameters<typeof Emitter<EntityState<Type>>>

@@ -1,5 +1,5 @@
 export type OnEmit<
-	State extends object,
+	State extends Record<string, unknown>,
 	Source extends Emitter<State> = Emitter<State>,
 > = (
 	value: State,
@@ -13,14 +13,21 @@ export type OnEmit<
 ) => unknown;
 
 export type Subscription<
-	State extends object,
+	State extends Record<string, unknown>,
 	Source extends Emitter<State> = Emitter<State>,
 > = WeakRef<OnEmit<State, Source>> | OnEmit<State, Source>;
 
+type EmitterOptions = EmitterCacheOptions & {
+	isReplace: boolean;
+};
+
 export class Emitter<
-	State extends object = Record<string, never>,
+	State extends Record<string, unknown> = Record<string, unknown>,
 	Actions extends Record<string, (...args: Array<any>) => Partial<State>> = any, // eslint-disable-line @typescript-eslint/no-explicit-any
 > {
+	get $() {
+		return this.value;
+	}
 	readonly actions = {} as {
 		[ActionName in keyof Actions]: (...args: Parameters<Actions[ActionName]>) => this;
 	};
@@ -32,15 +39,20 @@ export class Emitter<
 		action: string | undefined;
 		update: Partial<State>;
 	}>;
-	readonly subscriptions = new Set<Subscription<State, this>>;
+	/**
+	 * If true, will overwrite the current value, instead of merging in the update. Important when the value is an object with methods, not just a dict.
+	 */
+	isReplace: boolean;
+	readonly subscriptions = new Set<Subscription<State>>();
 	value: State;
 
 	constructor(
 		initial?: State,
 		actions = {} as Actions,
-		options: Partial<EmitterCacheOptions> = {}
+		options: Partial<EmitterOptions> = {}
 	) {
 		this.cache = new EmitterCache(options ?? {});
+		this.isReplace = options.isReplace ?? false;
 		this.value = initial as unknown as State; // Want value to possibly be undefined without needing to add null checks everywhere
 		for (const actionName in actions) {
 			const action = actions[actionName];
@@ -53,12 +65,13 @@ export class Emitter<
 		}
 	}
 
-	pipe<Output extends object>(callback: (state: State) => Output) {
-		const initial = callback(this.value);
+	pipe<Output extends Record<string, unknown>>(callback: (state: State) => Output) { // eslint-disable-line @typescript-eslint/no-explicit-any
+		const initial = callback(this.$);
 		const emitter = new Emitter<Output>(initial);
 		this.subscribe(updatedState => emitter.set(callback(updatedState)));
 		return emitter;
 	}
+
 	set(update: Partial<State>, options: Partial<{
 		action: string;
 		isReplace: boolean;
@@ -67,17 +80,17 @@ export class Emitter<
 			action: options?.action,
 			update,
 		});
-		const previous = this.value;
-		const updated = options?.isReplace === true
+		const previous = this.$;
+		const updated = (this.isReplace || options?.isReplace === true)
 			? update as State
-			: { ...(this.value ?? {}), ...update } as State;
+			: { ...(this.$ ?? {}), ...update } as State;
 		this.value = updated;
 		for (const subscription of this.subscriptions.values()) {
 			const onEmit = subscription instanceof WeakRef
 				? subscription.deref()
 				: subscription;
 			if (onEmit) {
-				onEmit(this.value, {
+				onEmit(this.$, {
 					action: options?.action,
 					emitter: this,
 					previous,
@@ -96,11 +109,11 @@ export class Emitter<
 	 * @param options.isStrong If false, will create a subscription that may be garbage-collected. Default false.
 	 */
 	subscribe(
-		onEmit: OnEmit<State, this>,
+		onEmit: OnEmit<State>,
 		options: {
 			isStrong?: boolean;
 		} = {}
-	): OnEmit<State, this> {
+	): OnEmit<State> {
 		const subscription = onEmit;
 		this.subscriptions.add(options.isStrong === true
 			? subscription
@@ -111,7 +124,7 @@ export class Emitter<
 		/* emitter.update(emitter.actions.poo(32)); */
 	}
 
-	unsubscribe(subscription: WeakRef<OnEmit<State, this>> | OnEmit<State, this>) {
+	unsubscribe(subscription: WeakRef<OnEmit<State>> | OnEmit<State>) {
 		this.subscriptions.delete(subscription);
 		return this;
 	}

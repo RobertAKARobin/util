@@ -1,5 +1,5 @@
 import { Resolver, type Route, Router } from '@robertakarobin/jsutil/router.ts';
-import { RouteComponent } from '@robertakarobin/web/router.ts';
+import { LinkComponent } from '@robertakarobin/web/router.ts';
 
 import { IndexPage } from '@src/pages/index.ts';
 
@@ -21,28 +21,28 @@ export const resolver = new Resolver(router, async(route: Route) => {
 		case routes.home.pathname:
 		case routes.homeJump1.pathname:
 		case routes.homeJump2.pathname:
-			return new IndexPage({
+			return new IndexPage().set({
 				message: `This is a variable`,
 				title: `Home page`,
 			});
 		case routes.ssgNo.pathname:
-			return new (await import(`@src/pages/ssg-no.ts`)).NoSSGPage({
+			return new (await import(`@src/pages/ssg-no.ts`)).NoSSGPage().set({
 				title: `No SSG page`,
 			});
 		case routes.ssgYes.pathname:
 		case routes.ssgYesJump1.pathname:
 		case routes.ssgYesJump2.pathname:
-			return new (await import(`@src/pages/ssg-yes.ts`)).YesSSGPage({
+			return new (await import(`@src/pages/ssg-yes.ts`)).YesSSGPage().set({
 				title: `SSG yes`,
 			});
 	}
-	return new (await import(`@src/pages/error.ts`)).ErrorPage({
+	return new (await import(`@src/pages/error.ts`)).ErrorPage().set({
 		title: `Error 404`,
 	});
 });
 
-export class RouteTo extends RouteComponent {
+export class Link extends LinkComponent {
 	router = router;
 }
 
-RouteTo.init();
+Link.init();

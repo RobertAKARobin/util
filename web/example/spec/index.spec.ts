@@ -8,7 +8,7 @@ import fs from 'fs';
 export const hasMarkdown = /<markdown>(.*?)<\/markdown>/gs;
 
 EntityStateEmitter.prototype.createId = ()  => `/UID/`;
-Component.createUid = () => `/UID/`;
+Component.createId = () => `/UID/`;
 
 const read = (path: string) => fs.readFileSync(path, { encoding: `utf8` });
 
@@ -22,19 +22,13 @@ const distMatchesGolden = (path: string) =>
 const hasSSG = (page: string) =>
 	fs.existsSync(`dist/${page}.html`);
 
-class Widget extends Component {
-	message: string;
-	prop = 42;
-
-	constructor({ message, ...attributes }: {
-		id?: string;
-		message: string;
-	}) {
-		super(attributes);
-		this.message = message;
+type WidgetType = { message: string; prop: number; };
+class Widget extends Component<WidgetType> {
+	constructor(...args: ConstructorParameters<typeof Component<WidgetType>>) {
+		super(...args);
+		this.set({ prop: 42 });
 	}
-
-	template = () => `<h1>${this.message ?? ``}${this.prop}</h1>`;
+	template = () => `<h1>${this.value.message ?? ``}${this.value.prop}</h1>`;
 }
 
 export const spec = suite(`@robertakarobin/web`,
@@ -62,8 +56,8 @@ export const spec = suite(`@robertakarobin/web`,
 	}),
 
 	test(`component`, $ => {
-		$.assert(x => x(new Widget({ message: `x` }).template()) === `<h1>x42</h1>`);
-		$.assert(x => x(new Widget({ message: `x` }).render()) === `<h1 data-component="Widget">x42</h1>`);
-		$.assert(x => x(new Widget({ id: `widget`, message: `x` }).render()) === `<h1 data-component="Widget" data-id="widget">x42</h1>`);
+		$.assert(x => x(new Widget().set({ message: `x` }).template()) === `<h1>x42</h1>`);
+		$.assert(x => x(new Widget().set({ message: `x` }).template()) === `<h1>x42</h1>`);
+		$.assert(x => x(new Widget(`id`).set({ message: `x` }).template()) === `<h1>x42</h1>`);
 	}),
 );

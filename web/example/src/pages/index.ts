@@ -1,6 +1,6 @@
 import { Page } from '@robertakarobin/web/index.ts';
 
-import { router, routes, RouteTo } from '@src/router.ts';
+import { Link, router, routes } from '@src/router.ts';
 import { List } from '@src/components/list.ts';
 import { state } from '@src/state.ts';
 
@@ -14,11 +14,11 @@ h1 {
 
 const colors = [`red`, `yellow`, `green`, `brown`, `scarlet`];
 
-export class IndexPage extends Page<{ message?: string; }> {
+export class IndexPage extends Page<{ message: string; }> {
 	static style = style;
 
 	anchorlessRoute() {
-		router.next(routes.ssgYes);
+		router.to(routes.ssgYes);
 	}
 
 	template = () => `
@@ -27,19 +27,19 @@ export class IndexPage extends Page<{ message?: string; }> {
 
 <div id="${routes.homeJump1.idAttr}">Jump 1</div>
 
-${new List({ id: `mylist`, items: state.entries.last }).render()}
+${new List(`mylist`).set({ items: state.entries.$.byIndex }).render()}
 
 <markdown>
 # Headline 1
 
-## ${this.last.message}
+## ${this.value.message}
 
 Lorem ipsum dolor <strong>sit amet</strong>, consectetur *adipiscing elit*, sed do _eiusmod tempor_ incididunt.
 
 Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ nulla pariatur.
 </markdown>
 
-<p>${new RouteTo(routes.home).render(`Link to homepage`)}</p>
+<p>${new Link().to(routes.home).render(`Link to homepage`)}</p>
 
 <button type="button" onclick=${this.bind(`anchorlessRoute`)}>Go to SSG Yes</button>
 
@@ -66,4 +66,4 @@ Joseph's coat was ${colors.join(` and `)}.
 <div id="${routes.homeJump2.idAttr}">Jump 2</div>
 </div>
 `;
-}
+};

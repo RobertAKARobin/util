@@ -51,6 +51,15 @@ Component.parse = function(input: string) {
 	Component.NodeFilter = dom.window.NodeFilter;
 	return dom.window.document;
 };
+Component.setStyle = function() {};
+const superSet = Component.prototype.set; // eslint-disable-line @typescript-eslint/unbound-method
+Component.prototype.set = function(...[update, ...args]: Parameters<Component[`set`]>) {
+	globals[Component.unhydratedDataName][this.id] = {
+		...globals[Component.unhydratedDataName][this.id],
+		...update,
+	};
+	return superSet.call(this, update, ...args);
+};
 
 export class Builder {
 	readonly assetsServeDirAbs: string;

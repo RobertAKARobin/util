@@ -10,7 +10,7 @@ export const globals = (appContext === `browser` ? window : global) as unknown a
 	& { [key in typeof Component.name]: typeof Component; }
 	& { [key in typeof Component.unhydratedDataName]: Record<Component[`id`], object> };
 
-export class Component<State = any> extends Emitter<State> { // eslint-disable-line @typescript-eslint/no-explicit-any
+export class Component<State extends Record<string, any> = any> extends Emitter<State> { // eslint-disable-line @typescript-eslint/no-explicit-any
 	static readonly $elAttrId = `data-id`;
 	static readonly $elAttrType = `data-component`; // TODO1: Consolidate; use CSS [attr*=_type@]
 	static readonly $elInstance = `instance`;
@@ -57,10 +57,6 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	}
 
 	static setStyle() {
-		if (appContext !== `browser`) {
-			return;
-		}
-
 		if (
 			typeof this.style === `string`
 			&& document.querySelector(`style[${this.$elAttrType}="${this.name}"]`) === null
@@ -100,29 +96,27 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	*/
 	private readonly style: void = undefined;
 
-	constructor(args?: { id?: string; } & State) {
-		super({ initial: args });
+	constructor(
+		id?: Component[`id`],
+		...args: ConstructorParameters<typeof Emitter<State>>
+	) {
+		super(...args);
 
 		if (!Component.subclasses.has(this.Ctor.name)) {
 			this.Ctor.init();
 		}
 
 		if (Component.currentParent === undefined) {
-			this.id = args?.id ?? Component.createId();
+			this.id = id ?? Component.createId();
 		} else {
 			this.parent = Component.currentParent;
-			this.id = args?.id ?? `${this.parent.id}_${this.parent.childIndex++}`;
+			this.id = id ?? `${this.parent.id}_${this.parent.childIndex++}`;
 			const existing = Component.instances.get(this.id);
 			if (existing) {
-				existing.next(args);
 				return existing;
 			}
 
 			Component.instances.set(this.id, this);
-		}
-
-		if (appContext === `build` && args) {
-			globals[Component.unhydratedDataName][this.id] = args;
 		}
 	}
 
@@ -225,7 +219,7 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 			const Constructor = Component.subclasses.get(constructorName)!;
 			const args = unhydratedArgs[id];
 			delete unhydratedArgs[id];
-			const instance = new Constructor({ ...args, id });
+			const instance = new Constructor(id).set(args);
 			instance.setEl($el);
 			Component.instances.set(id, instance);
 		}
