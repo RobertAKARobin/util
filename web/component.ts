@@ -68,10 +68,11 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 		}
 	}
 
+	$el: BoundElement | undefined;
+	attributes = {} as Record<string, string | number>;
 	/**
 	 * The element to which this instance is bound
 	 */
-	$el: BoundElement | undefined;
 	childIndex = 0;
 	content = ``;
 	/**
@@ -275,12 +276,29 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 		return this.$el!;
 	}
 
+	/**
+	 * Sets and/or places the component's HTML attributes
+	 */
+	setAttrs(input?: Component[`attributes`]) {
+		if (input !== undefined) {
+			this.attributes = input;
+		}
+		if (this.$el) {
+			for (const attributeName in this.attributes) {
+				const value = this.attributes[attributeName];
+				this.$el.setAttribute(attributeName, value.toString());
+			}
+		}
+		return this;
+	}
+
 	setEl($input: Element) {
 		const $el = $input as BoundElement;
 		this.$el = $el;
 		this.$el.setAttribute(Component.$elAttrType, this.CtorName);
 		this.$el.setAttribute(Component.$elAttrId, this.id);
 		this.$el[Component.$elInstance] = this;
+		this.setAttrs();
 	}
 
 	/**

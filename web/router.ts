@@ -1,6 +1,8 @@
-import { Route, type Router } from '@robertakarobin/jsutil/router.ts';
+import { Renderer, Resolver, Route, Router } from '@robertakarobin/jsutil/router.ts';
 
 import { Component } from './component.ts';
+
+export { Renderer, Resolver, Route, Router };
 
 /**
  * Use in place of `<a>` to link to a different path/page
