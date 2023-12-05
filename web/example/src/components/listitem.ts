@@ -1,11 +1,10 @@
 import { Component } from '@robertakarobin/web/index.ts';
 
-import type * as Type from '@src/types.d.ts';
 import { Textbox } from '@src/components/textbox.ts';
 
 Textbox.init();
 
-export class ListItem extends Component<Type.ListItem> {
+export class ListItem extends Component<string> {
 	template = () => `
 <div>
 	${this.id}
@@ -22,7 +21,7 @@ export class ListItem extends Component<Type.ListItem> {
 		type="button"
 	>Remove</button>
 	${new Textbox()
-		.set({ value: this.value.value })
+		.set({ value: this.value })
 		.on(`value`, console.log)
 		.render()}
 </div>

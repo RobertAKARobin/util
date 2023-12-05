@@ -10,7 +10,7 @@ export const globals = (appContext === `browser` ? window : global) as unknown a
 	& { [key in typeof Component.name]: typeof Component; }
 	& { [key in typeof Component.unhydratedDataName]: Record<Component[`id`], object> };
 
-export class Component<State extends Record<string, any> = any> extends Emitter<State> { // eslint-disable-line @typescript-eslint/no-explicit-any
+export class Component<State = any> extends Emitter<State> { // eslint-disable-line @typescript-eslint/no-explicit-any
 	static readonly $elAttrId = `data-id`;
 	static readonly $elAttrType = `data-component`; // TODO1: Consolidate; use CSS [attr*=_type@]
 	static readonly $elInstance = `instance`;

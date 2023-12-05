@@ -18,7 +18,7 @@ export class IndexPage extends Page<{ message: string; }> {
 	static style = style;
 
 	anchorlessRoute() {
-		router.to(routes.ssgYes);
+		router.set(routes.ssgYes);
 	}
 
 	template = () => `
@@ -27,7 +27,7 @@ export class IndexPage extends Page<{ message: string; }> {
 
 <div id="${routes.homeJump1.idAttr}">Jump 1</div>
 
-${new List(`mylist`).set({ items: state.entries.$.byIndex }).render()}
+${new List(`mylist`).set(state.entries.$).render()}
 
 <markdown>
 # Headline 1

@@ -2,6 +2,4 @@ export type ListItem = {
 	value: string;
 };
 
-export type List = Array<ListItem & {
-	id: string;
-}>;
+export type List = Array<ListItem>;

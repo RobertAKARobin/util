@@ -1,5 +1,5 @@
 export type OnEmit<
-	State extends Record<string, unknown>,
+	State,
 	Source extends Emitter<State> = Emitter<State>,
 > = (
 	value: State,
@@ -13,7 +13,7 @@ export type OnEmit<
 ) => unknown;
 
 export type Subscription<
-	State extends Record<string, unknown>,
+	State,
 	Source extends Emitter<State> = Emitter<State>,
 > = WeakRef<OnEmit<State, Source>> | OnEmit<State, Source>;
 
@@ -22,7 +22,7 @@ type EmitterOptions = EmitterCacheOptions & {
 };
 
 export class Emitter<
-	State extends Record<string, unknown> = Record<string, unknown>,
+	State,
 	Actions extends Record<string, (...args: Array<any>) => Partial<State>> = any, // eslint-disable-line @typescript-eslint/no-explicit-any
 > {
 	get $() {
@@ -65,10 +65,12 @@ export class Emitter<
 		}
 	}
 
-	pipe<Output extends Record<string, unknown>>(callback: (state: State) => Output) { // eslint-disable-line @typescript-eslint/no-explicit-any
-		const initial = callback(this.$);
+	pipe<Output>(callback: (state: State) => Output) { // eslint-disable-line @typescript-eslint/no-explicit-any
+		const initial = callback(this.value);
 		const emitter = new Emitter<Output>(initial);
-		this.subscribe(updatedState => emitter.set(callback(updatedState)));
+		this.subscribe(updatedState => {
+			return emitter.set(callback(updatedState));
+		});
 		return emitter;
 	}
 
@@ -80,17 +82,35 @@ export class Emitter<
 			action: options?.action,
 			update,
 		});
-		const previous = this.$;
-		const updated = (this.isReplace || options?.isReplace === true)
-			? update as State
-			: { ...(this.$ ?? {}), ...update } as State;
-		this.value = updated;
+		const previous = this.value;
+		if (this.isReplace || options?.isReplace === true) {
+			this.value = update as State;
+		} else {
+			if (
+				previous === null // Turns out `typeof null` is `object` :(
+				|| (typeof previous === `object` && typeof update === `object`)
+			) {
+				if (Array.isArray(previous) && Array.isArray(update)) {
+					this.value = [
+						...previous as [],
+						...(update as unknown as []),
+					] as State;
+				} else {
+					this.value = {
+						...previous,
+						...update,
+					};
+				}
+			} else {
+				this.value = update as State;
+			}
+		}
 		for (const subscription of this.subscriptions.values()) {
 			const onEmit = subscription instanceof WeakRef
 				? subscription.deref()
 				: subscription;
 			if (onEmit) {
-				onEmit(this.$, {
+				onEmit(this.value, {
 					action: options?.action,
 					emitter: this,
 					previous,

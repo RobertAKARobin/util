@@ -14,7 +14,7 @@ export abstract class LinkComponent<Router_ extends Router = Router> extends Com
 			return;
 		}
 		event.preventDefault();
-		this.router.to(this.$);
+		this.router.set(this.$);
 	}
 
 	template = (content: string = ``) => `
