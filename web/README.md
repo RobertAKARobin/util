@@ -27,7 +27,6 @@
 
 -	Set initial state values?
 -	Autocomplete CSS classes
--	Template/CSS prefix
 -	VS plugin for CSS
 -	VS plugin for HTML
 
@@ -35,6 +34,7 @@
 
 ### Done:
 
+-	Template/CSS prefix
 -	.bind works on emitters too
 -	Use constructor to create or get existing instance
 -	Components emit events

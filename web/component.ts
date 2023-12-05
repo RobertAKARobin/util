@@ -15,6 +15,7 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	static readonly $elAttrType = `data-component`; // TODO1: Consolidate; use CSS [attr*=_type@]
 	static readonly $elInstance = `instance`;
 	static currentParent: Component;
+	static Document: Document;
 	static instances = new Map<Component[`id`], Component>();
 	static NodeFilter: typeof NodeFilter;
 	static rootParent: Component;
@@ -28,6 +29,7 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 
 		if (appContext === `browser`) {
 			Component.NodeFilter = window.NodeFilter;
+			Component.Document = window.document;
 		}
 	}
 
@@ -59,12 +61,14 @@ export class Component<State = any> extends Emitter<State> { // eslint-disable-l
 	static setStyle() {
 		if (
 			typeof this.style === `string`
-			&& document.querySelector(`style[${this.$elAttrType}="${this.name}"]`) === null
+			&& Component.Document.querySelector(`style[${this.$elAttrType}='${this.name}']`) === null
 		) {
-			const $style = document.createElement(`style`);
-			$style.textContent = this.style;
+			const $style = Component.Document.createElement(`style`);
+			let css = this.style;
+			css = css.replace(/::?host/g, `[${this.$elAttrType}='${this.name}']`);
+			$style.textContent = css;
 			$style.setAttribute(Component.$elAttrType, this.name);
-			document.head.appendChild($style);
+			Component.Document.head.appendChild($style);
 		}
 	}
 

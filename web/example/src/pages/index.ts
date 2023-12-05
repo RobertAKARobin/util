@@ -7,7 +7,7 @@ import { state } from '@src/state.ts';
 List.init();
 
 const style =  `
-h1 {
+:host h1 {
 	color: red;
 }
 `;
