@@ -1,42 +1,89 @@
-export type OnEmit<State> = (
+export type OnEmit<
+	State extends object,
+	Source extends Emitter<State> = Emitter<State>,
+> = (
 	value: State,
-	previous: State,
-	subscription: Subscription<State>
+	meta: {
+		action: string | undefined;
+		emitter: Source;
+		previous: State;
+		subscription: Subscription<State, Source>;
+		update: Partial<State>;
+	}
 ) => unknown;
 
-export type Subscription<State> = WeakRef<OnEmit<State>> | OnEmit<State>;
+export type Subscription<
+	State extends object,
+	Source extends Emitter<State> = Emitter<State>,
+> = WeakRef<OnEmit<State, Source>> | OnEmit<State, Source>;
 
-export type EmitterOptions<State> = EmitterCacheOptions & {
-	initial: State;
-};
+export class Emitter<
+	State extends object = Record<string, never>,
+	Actions extends Record<string, (...args: Array<any>) => Partial<State>> = any, // eslint-disable-line @typescript-eslint/no-explicit-any
+> {
+	readonly actions = {} as {
+		[ActionName in keyof Actions]: (...args: Parameters<Actions[ActionName]>) => this;
+	};
+	/**
+	 * A collection of all active subcriptions to this Emitter.
+	 * @see {@link EmitterCache}
+	 */
+	readonly cache: EmitterCache<{
+		action: string | undefined;
+		update: Partial<State>;
+	}>;
+	readonly subscriptions = new Set<Subscription<State, this>>;
+	value: State;
 
-export class Emitter<State = void> {
-	/** @see {@link EmitterCache} */
-	readonly cache: EmitterCache<State>;
-
-	get last() {
-		return this.cache?.list?.[0];
-	}
-
-	/** A collection of all active subcriptions to this Emitter. */
-	readonly subscriptions = new Set<Subscription<State>>;
-
-	constructor(options: Partial<EmitterOptions<State>> = {}) {
-		this.cache = new EmitterCache<State>(options ?? {});
-		if (options.initial !== undefined) {
-			this.next(options.initial);
+	constructor(
+		initial?: State,
+		actions = {} as Actions,
+		options: Partial<EmitterCacheOptions> = {}
+	) {
+		this.cache = new EmitterCache(options ?? {});
+		this.value = initial as unknown as State; // Want value to possibly be undefined without needing to add null checks everywhere
+		for (const actionName in actions) {
+			const action = actions[actionName];
+			const wrappedAction = (
+				...args: Parameters<typeof action>
+			) => this.set(action(...args), {
+				action: actionName,
+			});
+			this.actions[actionName] = wrappedAction;
 		}
 	}
 
-	next(value: State) {
-		const previous = this.last;
-		this.cache.add(value);
+	pipe<Output extends object>(callback: (state: State) => Output) {
+		const initial = callback(this.value);
+		const emitter = new Emitter<Output>(initial);
+		this.subscribe(updatedState => emitter.set(callback(updatedState)));
+		return emitter;
+	}
+	set(update: Partial<State>, options: Partial<{
+		action: string;
+		isReplace: boolean;
+	}> = {}): this {
+		this.cache.add({
+			action: options?.action,
+			update,
+		});
+		const previous = this.value;
+		const updated = options?.isReplace === true
+			? update as State
+			: { ...(this.value ?? {}), ...update } as State;
+		this.value = updated;
 		for (const subscription of this.subscriptions.values()) {
 			const onEmit = subscription instanceof WeakRef
 				? subscription.deref()
 				: subscription;
 			if (onEmit) {
-				onEmit(value, previous, subscription);
+				onEmit(this.value, {
+					action: options?.action,
+					emitter: this,
+					previous,
+					subscription,
+					update,
+				});
 			} else {
 				console.warn(`Subscription dead`);
 				this.subscriptions.delete(subscription);
@@ -45,31 +92,26 @@ export class Emitter<State = void> {
 		return this;
 	}
 
-	pipe<Output>(callback: (state: State) => Output) {
-		const emitter = new Emitter<Output>();
-		emitter.next(callback(this.last));
-		this.subscribe(state => emitter.next(callback(state)));
-		return emitter;
-	}
-
 	/**
-	 * @param options.strong If false, will create a subscription that may be garbage-collected. Default false.
+	 * @param options.isStrong If false, will create a subscription that may be garbage-collected. Default false.
 	 */
 	subscribe(
-		onEmit: OnEmit<State>,
+		onEmit: OnEmit<State, this>,
 		options: {
-			strong?: boolean;
+			isStrong?: boolean;
 		} = {}
-	): OnEmit<State> {
+	): OnEmit<State, this> {
 		const subscription = onEmit;
-		this.subscriptions.add(options.strong === true
+		this.subscriptions.add(options.isStrong === true
 			? subscription
 			: new WeakRef(subscription)
 		);
 		return subscription;
+
+		/* emitter.update(emitter.actions.poo(32)); */
 	}
 
-	unsubscribe(subscription: WeakRef<OnEmit<State>> | OnEmit<State>) {
+	unsubscribe(subscription: WeakRef<OnEmit<State, this>> | OnEmit<State, this>) {
 		this.subscriptions.delete(subscription);
 		return this;
 	}

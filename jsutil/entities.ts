@@ -6,7 +6,7 @@ export type EntityState<Type> = {
 	ids: Array<string>;
 };
 
-export class EntityStateEmitter<Type>
+export class EntityStateEmitter<Type extends object>
 	extends Emitter<EntityState<Type>> {
 
 	entries = this.pipe(({ ids, byId }) => ids.map(id => ({
@@ -15,30 +15,29 @@ export class EntityStateEmitter<Type>
 	})));
 
 	constructor(
-		...[input]: ConstructorParameters<typeof Emitter<EntityState<Type>>>
+		...[initial, actions, options]: ConstructorParameters<typeof Emitter<EntityState<Type>>>
 	) {
-		const options: typeof input = {
-			...input,
-			initial: input?.initial ?? {
+		super(
+			initial ?? {
 				byId: {},
 				ids: [],
 			},
-		};
-		super(options);
+			actions,
+			options,
+		);
 	}
 
 	add(input: Type, index?: number, inputId?: string) {
 		const id = inputId ?? this.createId();
-		const ids = [...this.last.ids];
+		const ids = [...this.value.ids];
 		if (index === undefined) {
 			ids.push(id);
 		} else {
 			ids.splice(index, 0, id);
 		}
-		this.next({
-			...this.last,
+		this.set({
 			byId: {
-				...this.last.byId,
+				...this.value.byId,
 				[id]: input,
 			},
 			ids,
@@ -52,48 +51,44 @@ export class EntityStateEmitter<Type>
 	}
 
 	fromEnd(offset: number = 0) {
-		return this.last.ids[this.last.ids.length - offset - 1];
+		return this.value.ids[this.value.ids.length - offset - 1];
 	}
 
 	get(id: string) {
-		return this.last.byId[id];
+		return this.value.byId[id];
 	}
 
 	indexOf(id: string) {
-		return this.last.ids.indexOf(id);
+		return this.value.ids.indexOf(id);
 	}
 
 	length() {
-		return this.last.ids.length;
+		return this.value.ids.length;
 	}
 
 	move(id: string, distance: number) {
-		const oldIndex = this.last.ids.indexOf(id);
+		const oldIndex = this.value.ids.indexOf(id);
 		return this.moveTo(id, oldIndex + distance);
 	}
 
 	moveTo(id: string, newIndex: number) {
-		const ids = [...this.last.ids];
+		const ids = [...this.value.ids];
 		const oldIndex = ids.indexOf(id);
 		ids.splice(oldIndex, 1);
 		ids.splice(newIndex, 0, id);
-		this.next({
-			...this.last,
-			ids,
-		});
+		this.set({ ids });
 		return ids;
 	}
 
 	remove(id: string) {
-		const byId = { ...this.last.byId };
+		const byId = { ...this.value.byId };
 		delete byId[id];
 
-		const ids = [...this.last.ids];
-		const idIndex = this.last.ids.indexOf(id);
+		const ids = [...this.value.ids];
+		const idIndex = this.value.ids.indexOf(id);
 		ids.splice(idIndex, 1);
 
-		this.next({
-			...this.last,
+		this.set({
 			byId,
 			ids,
 		});
@@ -101,14 +96,13 @@ export class EntityStateEmitter<Type>
 
 	update(id: string, value: Partial<Type>) {
 		const updated = {
-			...this.last.byId[id],
+			...this.value.byId[id],
 			...value,
 		};
 
-		this.next({
-			...this.last,
+		this.set({
 			byId: {
-				...this.last.byId,
+				...this.value.byId,
 				[id]: updated,
 			},
 		});
@@ -117,7 +111,7 @@ export class EntityStateEmitter<Type>
 	}
 
 	upsert(id: string, value: Partial<Type>) {
-		const existing = this.last.byId[id];
+		const existing = this.value.byId[id];
 		if (existing !== undefined) {
 			return this.update(id, value);
 		} else {
