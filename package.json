@@ -5,7 +5,7 @@
 		"@robertakarobin/jsutil": "file:./jsutil",
 		"husky": "^8.0.3",
 		"npm-check-updates": "^16.14.11",
-		"tsx": "^4.6.1"
+		"tsx": "^4.6.2"
 	},
 	"files": [
 		".gitignore",
