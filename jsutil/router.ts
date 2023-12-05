@@ -46,7 +46,7 @@ export class Resolver<View> extends Emitter<View> {
 
 	constructor(
 		readonly router: Router<never>,
-		readonly resolve: (to: Route, from?: Route) => Promise<View>,
+		readonly resolve: (to: Route, from?: Route) => View | Promise<View>,
 	) {
 		super();
 
@@ -98,8 +98,13 @@ export class Renderer<View> extends Emitter<View> {
 		}, { isStrong: true });
 
 		const landingRoute = new Route(location.href);
-		resolver.resolve(landingRoute)
-			.then(view => this.resolver.set(view))
-			.catch(console.error);
+		const toRender = resolver.resolve(landingRoute);
+		if (toRender instanceof Promise) {
+			toRender
+				.then(view => this.resolver.set(view))
+				.catch(console.error);
+		} else {
+			this.resolver.set(toRender);
+		}
 	}
 }

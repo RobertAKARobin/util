@@ -22,7 +22,7 @@ export class ListItem extends Component<string> {
 	>Remove</button>
 	${new Textbox()
 		.set({ value: this.value })
-		.on(`value`, console.log)
+		// .on(`value`, console.log)
 		.render()}
 </div>
 	`;

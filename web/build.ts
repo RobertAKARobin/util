@@ -54,10 +54,16 @@ Component.parse = function(input: string) {
 Component.setStyle = function() {};
 const superSet = Component.prototype.set; // eslint-disable-line @typescript-eslint/unbound-method
 Component.prototype.set = function(...[update, ...args]: Parameters<Component[`set`]>) {
-	globals[Component.unhydratedDataName][this.id] = {
-		...globals[Component.unhydratedDataName][this.id],
-		...update,
-	};
+	const value = globals[Component.unhydratedDataName][this.id];
+	const isSpreadable = typeof update === `object` && update !== null && !Array.isArray(update);
+	if (isSpreadable) {
+		globals[Component.unhydratedDataName][this.id] = {
+			...value,
+			...update,
+		};
+	} else {
+		globals[Component.unhydratedDataName][this.id] = update;
+	}
 	return superSet.call(this, update, ...args);
 };
 
