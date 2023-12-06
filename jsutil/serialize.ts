@@ -10,8 +10,11 @@ export function serialize(input: unknown): string {
 	return result;
 
 	function iterate(input: unknown): string { // eslint-disable-line @typescript-eslint/no-explicit-any
-		if (input === null || input === undefined) {
+		if (input === undefined) {
 			return ``;
+		}
+		if (input === null) {
+			return `null`;
 		}
 		if (Array.isArray(input)) {
 			return `[${input.map(iterate).join(`,`)}]`;
@@ -24,9 +27,22 @@ export function serialize(input: unknown): string {
 			const toString = input.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
 			if (toString === `[object Object]`) {
 				let out = ``;
-				for (const property in input) {
-					const value = input[property as keyof typeof input] as Record<string, unknown>; // eslint-disable-line @typescript-eslint/no-unsafe-member-access
-					out += `'${property.replaceAll(`"`, `&quot;`)}':${iterate(value)},`;
+				const inputObject = input as Record<string, unknown>;
+				const propertyNames = Object.keys(inputObject);
+				const lastPropertyName = propertyNames[propertyNames.length - 1]; // Properties in JS dicts don't _have_ to be ordered, but always are
+				for (let propertyName of propertyNames) {
+					const value = inputObject[propertyName];
+					if (value === undefined) {
+						continue;
+					}
+					if (!/^\w\w*$/.test(propertyName)) {
+						propertyName = `'${propertyName}'`;
+						propertyName = propertyName.replaceAll(`"`, `&quot;`);
+					}
+					out += `${propertyName}:${iterate(value)}`;
+					if (propertyName !== lastPropertyName) {
+						out += `,`;
+					}
 				}
 				return `{${out}}`;
 			}
