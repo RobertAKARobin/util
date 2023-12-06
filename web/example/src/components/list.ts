@@ -3,9 +3,11 @@ import { Component } from '@robertakarobin/web/component.ts';
 import type * as Type from '@src/types.d.ts';
 import { ListItem } from './listitem.ts';
 
-ListItem.init();
-
 export class List extends Component<Type.List> {
+	static {
+		this.init();
+	}
+
 	isReplace = true;
 
 	template = () => `

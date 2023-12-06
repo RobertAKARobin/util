@@ -17,15 +17,14 @@
 ## TODO
 
 -	Add isHydrated option
+-	Hydrate with out `.init`
 
 -	Import from other file (ergo SVG)
 
--	Persist state for e.g. input elements
-
 -	Match routes with params
+-	Jump anchors on landing page get overwritten; shouldn't, on static pages
 -	Remove CSS from JS bundles
 -	Image preprocessing
--	Decorators for actions?
 
 -	Set initial state values?
 -	Autocomplete CSS classes

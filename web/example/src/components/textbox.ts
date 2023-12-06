@@ -15,6 +15,10 @@ input {
 }
 	`;
 
+	static {
+		this.init();
+	}
+
 	constructor(...[id, initial, ...args]: ConstructorParameters<typeof Component<TextboxType>>) {
 		super(
 			id,

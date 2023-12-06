@@ -41,6 +41,10 @@ export const resolver = new Resolver(router, async(route: Route) => {
 });
 
 export class Link extends LinkComponent {
+	static {
+		this.init();
+	}
+
 	router = router;
 }
 

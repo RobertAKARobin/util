@@ -5,6 +5,10 @@ import { Textbox } from '@src/components/textbox.ts';
 Textbox.init();
 
 export class ListItem extends Component<string> {
+	static {
+		this.init();
+	}
+
 	template = () => `
 <div>
 	${this.id}
