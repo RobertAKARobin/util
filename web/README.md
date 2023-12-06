@@ -16,8 +16,10 @@
 
 ## TODO
 
+-	If class is added to element, the class should be appended to existing classes
+
 -	Add isHydrated option
--	Hydrate with out `.init`
+-	Hydrate without `.init`?
 
 -	Import from other file (ergo SVG)
 
