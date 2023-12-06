@@ -1,5 +1,4 @@
 import * as $ from '@robertakarobin/jsutil/index.ts';
-import { type Resolver, type Router } from '@robertakarobin/jsutil/router.ts';
 import { stringMates, type TagResult } from '@robertakarobin/jsutil/string-mates.ts';
 import esbuild from 'esbuild';
 import fs from 'fs';
@@ -11,6 +10,7 @@ import path from 'path';
 import { serialize } from '@robertakarobin/jsutil/serialize.ts';
 
 import { Component, globals } from './component.ts';
+import { hasExtension, type Resolver, type Router } from './router.ts';
 import { defaultLayout } from './layout.ts';
 import { type Page } from './page.ts';
 
@@ -33,9 +33,6 @@ const bustCache = (pathname: string) => {
 	const url = new URL(`file:///${pathname}?v=${Date.now() + performance.now()}`); // URL is necessary for running on Windows
 	return import(url.toString());
 };
-
-export const hasExtension = /\.\w+$/;
-export const hasHash = /#.*$/;
 
 const header = (input: string) => console.log(`...${input}...\n`);
 
@@ -77,6 +74,7 @@ export class Builder {
 	readonly assetsSrcDirRel: string;
 	readonly baseDirAbs: string;
 	readonly baseHref: string;
+	minify: boolean;
 	readonly routerSrcFileAbs: string;
 	readonly routerSrcFileRel: string;
 	readonly scriptServeFileAbs: string;
@@ -95,6 +93,7 @@ export class Builder {
 		assetsSrcDirRel: string;
 		baseDirAbs: string;
 		baseHref: string;
+		minify: boolean;
 		routerSrcFileRel: string;
 		scriptSrcFileRel: string;
 		serveDirRel: string;
@@ -127,6 +126,8 @@ export class Builder {
 		this.styleServeFileRel = input.styleServeFileRel ?? `./styles.css`;
 		this.stylesSrcFileAbs = path.join(this.srcDirAbs, `${this.styleServeFileRel}.ts`);
 		this.stylesServeFileAbs = path.join(this.serveDirAbs, this.styleServeFileRel);
+
+		this.minify = input.minify ?? true;
 	}
 
 	async build(input: { serve?: boolean; } = {}) {
@@ -174,14 +175,13 @@ export class Builder {
 			Object.entries(router.routes).map(([routeName, route]) => async() => {
 				log(`${routeName.toString()}: ${route.pathname}`);
 
-				let serveFileRel = route.pathname;
-				serveFileRel = serveFileRel
-					.replace(/^\//, ``)
-					.replace(hasHash, ``);
-				if (!hasExtension.test(serveFileRel)) {
-					serveFileRel = path.join(serveFileRel, `index.html`);
+				const url = new URL(route);
+				url.hash = ``;
+				if (!hasExtension.test(url.pathname)) {
+					url.pathname += `index.html`;
 				}
 
+				const serveFileRel = url.pathname;
 				if (builtRoutes.has(serveFileRel)) {
 					console.log(`Route '${routeName.toString()}' matches already-built route. Skipping...`);
 					logBreak();
@@ -260,7 +260,7 @@ export class Builder {
 			format: `esm`,
 			keepNames: true,
 			metafile: true,
-			minify: false,
+			minify: this.minify,
 			outdir: this.serveDirAbs,
 			splitting: true,
 		});

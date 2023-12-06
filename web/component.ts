@@ -1,6 +1,7 @@
-import { appContext } from '@robertakarobin/jsutil/context.ts';
 import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
 import { newUid } from '@robertakarobin/jsutil/index.ts';
+
+import { appContext } from './context.ts';
 
 export type BoundElement = Element & {
 	[Component.$elInstance]: Component; // Attaching instances to Elements should prevent the instance from being garbage-collected until the Element is GCd

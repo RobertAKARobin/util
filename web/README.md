@@ -36,6 +36,7 @@
 
 ### Done:
 
+-	Add minify as build option
 -	Template/CSS prefix
 -	.bind works on emitters too
 -	Use constructor to create or get existing instance

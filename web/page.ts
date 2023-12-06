@@ -1,5 +1,4 @@
-import { appContext } from '@robertakarobin/jsutil/context.ts';
-
+import { appContext } from './context.ts';
 import { Component } from './component.ts';
 
 type PageType = {
