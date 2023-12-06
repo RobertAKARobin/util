@@ -69,9 +69,7 @@ Component.prototype.set = function(...[update, ...args]: Parameters<Component[`s
 };
 
 export class Builder {
-	readonly assetsServeDirAbs: string;
-	readonly assetsSrcDirAbs: string;
-	readonly assetsSrcDirRel: string;
+	readonly assetsSrcDirRel: string | Array<string>;
 	readonly baseDirAbs: string;
 	readonly baseHref: string;
 	minify: boolean;
@@ -90,7 +88,7 @@ export class Builder {
 	readonly stylesSrcFileAbs: string;
 
 	constructor(input: Partial<{
-		assetsSrcDirRel: string;
+		assetsSrcDirRel: string | Array<string>;
 		baseDirAbs: string;
 		baseHref: string;
 		minify: boolean;
@@ -111,8 +109,6 @@ export class Builder {
 		this.srcDirAbs = path.join(this.baseDirAbs, input.srcTmpDirRel ?? `./tmp`); // Copying the TS source to `/tmp` is necessary because we want to compile Markdown _before_ we build the JS source. Otherwise we'd be sending Markdown to the browser, and we'd rather send valid HTML and not need to load a Markdown parser
 
 		this.assetsSrcDirRel = input.assetsSrcDirRel ?? `./assets`;
-		this.assetsSrcDirAbs = path.join(this.baseDirAbs, this.assetsSrcDirRel);
-		this.assetsServeDirAbs = path.join(this.serveDirAbs, this.assetsSrcDirRel);
 
 		this.routerSrcFileRel = input.routerSrcFileRel ?? `./router.ts`;
 		this.routerSrcFileAbs = path.join(this.srcDirAbs, this.routerSrcFileRel);
@@ -153,9 +149,16 @@ export class Builder {
 
 	buildAssets() {
 		header(`Building assets`);
-		if (fs.existsSync(this.assetsSrcDirAbs)) {
-			log(local(this.assetsServeDirAbs));
-			fs.cpSync(this.assetsSrcDirAbs, this.assetsServeDirAbs, { recursive: true });
+		const assetsSrcDirRels = typeof this.assetsSrcDirRel === `string`
+			?	[this.assetsSrcDirRel]
+			:	this.assetsSrcDirRel;
+		for (const assetsSrcDirRel of assetsSrcDirRels) {
+			const assetsSrcDirAbs = path.join(this.baseDirAbs, assetsSrcDirRel);
+			const assetsServeDirAbs = path.join(this.serveDirAbs, assetsSrcDirRel);
+			if (fs.existsSync(assetsSrcDirAbs)) {
+				log(local(assetsServeDirAbs));
+				fs.cpSync(assetsSrcDirAbs, assetsServeDirAbs, { recursive: true });
+			}
 		}
 		logBreak();
 	}
