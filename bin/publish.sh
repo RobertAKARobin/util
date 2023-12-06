@@ -7,7 +7,7 @@ function dowhat {
 	ncu
 	npm install
 	if [[ -z $(npm diff) ]]; then
-		return
+		return 1
 	fi
 
 	npm version patch

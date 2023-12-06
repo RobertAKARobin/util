@@ -14,10 +14,8 @@
 	"main": "./dist/index.js",
 	"name": "@robertakarobin/web",
 	"scripts": {
-		"build": "tsx ./bin/build.ts",
-		"prepublishOnly": "npm run build",
 		"test": "tsx ./example/spec/run.ts"
 	},
 	"type": "module",
-	"version": "0.0.26"
+	"version": "0.0.28"
 }
