@@ -16,6 +16,8 @@
 
 ## TODO
 
+-	Add isHydrated option
+
 -	Import from other file (ergo SVG)
 
 -	Persist state for e.g. input elements

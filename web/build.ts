@@ -47,14 +47,15 @@ const logBreak = () => console.log(``);
 
 const trimNewlines = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
 
-const tempDoc = new JSDOM();
-Component.Document = tempDoc.window.document;
+globalThis.NodeFilter = new JSDOM().window.NodeFilter;
 
 Component.parse = function(input: string) {
 	const dom = new JSDOM(input);
-	Component.NodeFilter = dom.window.NodeFilter;
 	return dom.window.document;
 };
+
+Component.setStyle = function() {};
+
 const superSet = Component.prototype.set; // eslint-disable-line @typescript-eslint/unbound-method
 Component.prototype.set = function(...[update, ...args]: Parameters<Component[`set`]>) {
 	const value = globals[Component.unhydratedDataName][this.id];
@@ -195,7 +196,6 @@ export class Builder {
 
 				Component.subclasses.clear();
 				globals[Component.unhydratedDataName] = {};
-				tempDoc.window.document.head.innerHTML = ``;
 
 				const page = await resolver.resolve(route);
 				if (!page.isSSG) {
@@ -217,7 +217,10 @@ export class Builder {
 				globals[Component.unhydratedDataName] = {};
 
 				let routeCssPath: string | undefined = undefined;
-				let css = tempDoc.window.document.head.textContent!;
+				let css = [...Component.subclasses.values()] // I was using JSDOM to let Component build <style> tags and just getting the contents of those, but it had trouble with more modern CSS additions like nested & selectors
+					.map(Subclass => (Subclass.style ?? ``))
+					.join(`\n`)
+					.trim();
 				if (css.length > 0) {
 					css = await this.formatCss(css);
 					routeCssPath = `${serveFileRel}.css`;

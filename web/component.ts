@@ -15,9 +15,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	static readonly $elAttrType = `data-component`;
 	static readonly $elInstance = `instance`;
 	static currentParent: Component;
-	static Document: Document;
 	static instances = new Map<Component[`id`], Component>();
-	static NodeFilter: typeof NodeFilter;
 	static rootParent: Component;
 	static readonly style: string | undefined;
 	static readonly subclasses = new Map<string, typeof Component>();
@@ -25,18 +23,13 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 
 	static {
 		globals[this.name] = this;
-
-		if (appContext === `browser`) {
-			Component.NodeFilter = window.NodeFilter;
-			Component.Document = window.document;
-		}
 	}
 
 	static commentIterator(doc: Document) {
 		return doc.createNodeIterator(
 			doc.body,
-			Component.NodeFilter.SHOW_COMMENT,
-			() => Component.NodeFilter.FILTER_ACCEPT
+			NodeFilter.SHOW_COMMENT,
+			() => NodeFilter.FILTER_ACCEPT
 		);
 	}
 
@@ -49,6 +42,9 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	 */
 	static init() {
 		Component.subclasses.set(this.name, this);
+		Object.assign(this, {
+			style: this.style?.replace(/::?host/g, `[${this.$elAttrType}='${this.name}']`),
+		});
 		this.setStyle();
 	}
 
@@ -60,14 +56,12 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	static setStyle() {
 		if (
 			typeof this.style === `string`
-			&& Component.Document.querySelector(`style[${this.$elAttrType}='${this.name}']`) === null
+			&& document.querySelector(`style[${this.$elAttrType}='${this.name}']`) === null
 		) {
-			const $style = Component.Document.createElement(`style`);
-			let css = this.style;
-			css = css.replace(/::?host/g, `[${this.$elAttrType}='${this.name}']`);
-			$style.textContent = css;
+			const $style = document.createElement(`style`);
+			$style.textContent = this.style;
 			$style.setAttribute(Component.$elAttrType, this.name);
-			Component.Document.head.appendChild($style);
+			document.head.appendChild($style);
 		}
 	}
 
