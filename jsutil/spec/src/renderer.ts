@@ -1,4 +1,5 @@
-import * as $ from '../../index.ts';
+import type * as $ from '../../types.d.ts';
+import { roundTo } from '../../roundTo.ts';
 
 import type * as Type from './types.d.ts';
 import { specStepStatuses } from './runner.ts';
@@ -81,7 +82,7 @@ export class SpecRenderer<
 		result: Type.AssertionResult,
 		parentPrefix: string,
 		_inputOptions: Partial<RenderOptions> = {},
-	): $.Type.Nested<string> {
+	): $.Nested<string> {
 		const indicator = this.statusIndicators[result.status];
 		const prefix = `${indicator} ${parentPrefix}${this.typeIndicators.assertion}${result.indexAtDefinition + 1} ${indicator}`;
 
@@ -126,7 +127,7 @@ export class SpecRenderer<
 			title = title.replace(valueWrapperMatcher, (_, value) => `(${value})`);
 		}
 
-		const out: $.Type.Nested<string> = [
+		const out: $.Nested<string> = [
 			`${prefix} ${title}`,
 		];
 
@@ -162,7 +163,7 @@ export class SpecRenderer<
 		result: Type.SuiteResult | Type.TestResult,
 		parentPrefix: string,
 		inputOptions: Partial<RenderOptions> = {},
-	): $.Type.Nested<string> {
+	): $.Nested<string> {
 		const prefix = `${parentPrefix}${this.typeIndicators[result.type]}${result.indexAtDefinition + 1}`;
 		const options = {
 			...this.renderOptions,
@@ -171,7 +172,7 @@ export class SpecRenderer<
 
 		const indicator = this.statusIndicators[result.status];
 		return [
-			`  ${prefix} ${indicator} ${result.title}${options.showTiming ? ` <${$.roundTo(result.timeEnd - result.timeBegin, 2)}ms>` : ``}`,
+			`  ${prefix} ${indicator} ${result.title}${options.showTiming ? ` <${roundTo(result.timeEnd - result.timeBegin, 2)}ms>` : ``}`,
 			result.iterations.length > 1
 				? result.iterations.map(iteration =>
 					this.renderSuiteOrTestIteration(iteration, prefix, options)
@@ -185,7 +186,7 @@ export class SpecRenderer<
 		result: Type.SuiteIterationResult | Type.TestIterationResult,
 		parentPrefix: string,
 		inputOptions: Partial<RenderOptions> = {},
-	): $.Type.Nested<string> {
+	): $.Nested<string> {
 		const prefix = `${parentPrefix}${this.typeIndicators[result.type]}${result.indexAtDefinition + 1}`;
 		const options = {
 			...this.renderOptions,
@@ -194,7 +195,7 @@ export class SpecRenderer<
 
 		const indicator = this.statusIndicators[result.status];
 		return [
-			`  ${prefix} ${indicator}${options.showTiming ? ` <${$.roundTo(result.timeEnd - result.timeBegin, 2)}ms>` : ``}`,
+			`  ${prefix} ${indicator}${options.showTiming ? ` <${roundTo(result.timeEnd - result.timeBegin, 2)}ms>` : ``}`,
 			result.children.map(child =>
 				this.renderSuiteOrTestIterationChild(child, prefix, options)
 			),

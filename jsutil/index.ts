@@ -133,11 +133,6 @@ export async function promiseConsecutive<Value>(
 	return out;
 }
 
-export function roundTo(input: number, places = 2) {
-	const factor = Math.pow(10, places);
-	return Math.round(input * factor) / factor;
-}
-
 export function sleep(time: number) {
 	return delay(() => undefined, time);
 }
