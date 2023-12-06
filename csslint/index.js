@@ -24,7 +24,7 @@ module.exports = {
 		"no-descending-specificity": null,
 		"order/properties-alphabetical-order": true,
 		"property-no-vendor-prefix": null,
-		"selector-class-pattern": null,
+		"selector-class-pattern": /^(?:[-_]?[a-zA-Z0-9]+){1,}$/,
 		"selector-pseudo-class-no-unknown": null,
 		"stylistic/color-hex-case": `lower`,
 		"stylistic/indentation": `tab`,
