@@ -1,5 +1,6 @@
 import { appContext } from './context.ts';
 import { Component } from './component.ts';
+export { html, css } from '@robertakarobin/jsutil/template.ts';
 
 type PageType = {
 	title: string;

@@ -10,5 +10,5 @@
 		"test": "tsx run.ts"
 	},
 	"type": "module",
-	"version": "0.0.39"
+	"version": "0.0.41"
 }

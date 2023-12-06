@@ -1,7 +1,7 @@
 import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
 
 import { appContext, baseHref, defaultBaseUrl } from './context.ts';
-import { Component } from './component.ts';
+import { Component, html } from './component.ts';
 
 export const hasExtension = /\.\w+$/;
 
@@ -128,7 +128,7 @@ export abstract class LinkComponent<Router_ extends Router = Router> extends Com
 		this.router.set(this.$);
 	}
 
-	template = (content: string = ``) => `
+	template = (content: string = ``) => html`
 	<a
 		href="${this.$.isExternal ? this.$.href : `${this.$.pathname}${this.$.hash}`}"
 		onclick=${this.bind(`onClick`)}

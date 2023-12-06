@@ -6,4 +6,5 @@ export const spec = suite(`@robertakarobin/js`, {},
 	(await import(`./entities.spec.ts`)).spec,
 	(await import(`./serialize.spec.ts`)).spec,
 	(await import(`./string-mates.spec.ts`)).spec,
+	(await import(`./template.spec.ts`)).spec,
 );

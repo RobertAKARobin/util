@@ -1,5 +1,6 @@
 import { Emitter } from '@robertakarobin/jsutil/emitter.ts';
 import { newUid } from '@robertakarobin/jsutil/index.ts';
+export { html, css } from '@robertakarobin/jsutil/template.ts';
 
 import { appContext } from './context.ts';
 
