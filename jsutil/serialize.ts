@@ -30,17 +30,18 @@ export function serialize(input: unknown): string {
 				const inputObject = input as Record<string, unknown>;
 				const propertyNames = Object.keys(inputObject);
 				const lastPropertyName = propertyNames[propertyNames.length - 1]; // Properties in JS dicts don't _have_ to be ordered, but always are
-				for (let propertyName of propertyNames) {
-					const value = inputObject[propertyName];
+				for (const key of propertyNames) {
+					const value = inputObject[key];
 					if (value === undefined) {
 						continue;
 					}
-					if (!/^\w\w*$/.test(propertyName)) {
+					let propertyName = key;
+					if (!/^[a-zA-Z\$_]\w*$/.test(propertyName)) {
 						propertyName = `'${propertyName}'`;
 						propertyName = propertyName.replaceAll(`"`, `&quot;`);
 					}
 					out += `${propertyName}:${iterate(value)}`;
-					if (propertyName !== lastPropertyName) {
+					if (key !== lastPropertyName) {
 						out += `,`;
 					}
 				}
