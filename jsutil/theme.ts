@@ -42,6 +42,10 @@ export class CssTheme<
 	 */
 	readonly typeClasses: string;
 	/**
+	 * The names of this theme's typefaces as CSS class names, e.g. `type-h1`;
+	 */
+	readonly typeClassNames: Record<keyof Typefaces, string>;
+	/**
 	 * A map of the styles for this theme's typefaces. Each includes a `--varName` CSS variable, so that when a typeface is used as a mixin the name of the original type can be found for referencein the compiled code.
 	 */
 	readonly types = {} as Typefaces;
@@ -80,6 +84,13 @@ export class CssTheme<
 		this.varsDeclarations = this.toCssVariables(this.val);
 
 		const typefaces = input.types || {} as Record<string, string>;
+
+		const typeNames = Object.keys(typefaces);
+		this.typeClassNames = typeNames.reduce((typeNames, typeName: keyof Typefaces) => {
+			typeNames[typeName] = `type-${typeName as string}`;;
+			return typeNames;
+		}, {} as Record<keyof Typefaces, string>);
+
 		const typeClasses = [] as Array<string>;
 		for (const typeName in typefaces) {
 			const typeStyles = typefaces[typeName];
@@ -88,7 +99,7 @@ export class CssTheme<
 				${typeStyles}
 			`;
 			typeClasses.push(`
-				.type-${typeName} {
+				.${this.typeClassNames[typeName]} {
 					${typeStyles}
 				}
 			`);
