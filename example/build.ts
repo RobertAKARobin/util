@@ -31,6 +31,8 @@ class CustomBuilder extends Builder {
 	}
 }
 
-const builder = new CustomBuilder();
+const builder = new CustomBuilder({
+	minify: false,
+});
 
 await builder.build({ serve: process.argv.includes(`--serve`) });

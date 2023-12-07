@@ -9,7 +9,7 @@ export type BoundElement = Element & {
 
 export const globals = (appContext === `browser` ? window : global) as unknown as Window
 	& { [key in typeof Component.name]: typeof Component; }
-	& { [key in typeof Component.unhydratedDataName]: Record<Component[`id`], object> };
+	& { [key in typeof Component.unhydratedArgsName]: Record<Component[`id`], object> };
 
 export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	static readonly $elAttrId = `data-id`;
@@ -20,18 +20,10 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	static rootParent: Component;
 	static readonly style: string | undefined;
 	static readonly subclasses = new Map<string, typeof Component>();
-	static readonly unhydratedDataName = `unhydratedArgs`;
+	static readonly unhydratedArgsName = `unhydratedArgs`;
 
 	static {
 		globals[this.name] = this;
-	}
-
-	static commentIterator(doc: Document) {
-		return doc.createNodeIterator(
-			doc.body,
-			NodeFilter.SHOW_COMMENT,
-			() => NodeFilter.FILTER_ACCEPT
-		);
 	}
 
 	static createId() {
@@ -44,7 +36,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	static init() {
 		Component.subclasses.set(this.name, this);
 		Object.assign(this, {
-			style: this.style?.replace(/::?host/g, `[${this.$elAttrType}='${this.name}']`),
+			style: this.style?.replace(/::?host/g, `[${this.$elAttrType}='${this.name}']`), // style is readonly; just override it here
 		});
 		this.setStyle();
 	}
@@ -55,9 +47,6 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	}
 
 	static setStyle() {
-		if (appContext !== `browser`) {
-			return;
-		}
 		if (
 			typeof this.style === `string`
 			&& document.querySelector(`style[${this.$elAttrType}='${this.name}']`) === null
@@ -81,9 +70,6 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	 */
 	get Ctor() {
 		return this.constructor as typeof Component;
-	}
-	get CtorName() {
-		return this.Ctor.name;
 	}
 	id: string = ``;
 	/**
@@ -113,13 +99,14 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		} else {
 			this.parent = Component.currentParent;
 			this.id = id ?? `${this.parent.id}_${this.parent.childIndex++}`;
-			const existing = Component.instances.get(this.id) as Component<State>;
-			if (existing !== undefined) {
-				return existing;
-			}
-
-			Component.instances.set(this.id, this as Component);
 		}
+
+		const existing = Component.instances.get(this.id) as Component<State>;
+		if (existing !== undefined) {
+			return existing;
+		}
+
+		Component.instances.set(this.id, this as Component);
 	}
 
 	/**
@@ -205,7 +192,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	hydrate($root: Element) {
 		Component.currentParent = Component.rootParent = Component.rootParent ?? new Component();
 
-		const unhydratedArgs = globals[Component.unhydratedDataName];
+		const unhydratedArgs = globals[Component.unhydratedArgsName];
 
 		const $el = $root.querySelector(`[${Component.$elAttrType}="${this.Ctor.name}"]`)!;
 		this.id = $el.getAttribute(Component.$elAttrId)!; // This has already been instantiated at this point, so need to overwrite its ID
@@ -226,7 +213,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 			Component.instances.set(id, instance);
 		}
 
-		document.getElementById(Component.unhydratedDataName)?.remove();
+		document.getElementById(Component.unhydratedArgsName)?.remove();
 
 		this.rerender();
 		$el.replaceWith(this.$el!);
@@ -252,7 +239,11 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 
 		Component.currentParent = ownParent;
 
-		const iterator = Component.commentIterator(doc);
+		const iterator = doc.createNodeIterator(
+			doc.body,
+			NodeFilter.SHOW_COMMENT,
+			() => NodeFilter.FILTER_ACCEPT,
+		);
 		let $placeholder: Node | null | undefined;
 		while ($placeholder = iterator.nextNode()) {
 			const id = $placeholder.textContent;
@@ -296,7 +287,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	setEl($input: Element) {
 		const $el = $input as BoundElement;
 		this.$el = $el;
-		this.$el.setAttribute(Component.$elAttrType, this.CtorName);
+		this.$el.setAttribute(Component.$elAttrType, this.Ctor.name);
 		this.$el.setAttribute(Component.$elAttrId, this.id);
 		this.$el[Component.$elInstance] = this as Component;
 		this.setAttrs();

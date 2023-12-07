@@ -1,8 +1,6 @@
 import { appContext, baseHref, defaultBaseUrl } from '@robertakarobin/util/context.ts';
 import { Emitter } from '@robertakarobin/util/emitter.ts';
 
-import { Component, html } from './component.ts';
-
 export const hasExtension = /\.\w+$/;
 
 export class Route extends URL {
@@ -45,6 +43,9 @@ export class Router<RouteMap_ extends RouteMap = any> extends Emitter<Route> { /
 	}
 }
 
+/**
+ * Code that runs when the resolved route changes.
+ */
 export class Resolver<View> extends Emitter<View> {
 	isReplace = true;
 
@@ -102,41 +103,13 @@ export class Renderer<View> extends Emitter<View> {
 		}, { isStrong: true });
 
 		const landingRoute = new Route(location.href);
-		const toRender = resolver.resolve(landingRoute);
-		if (toRender instanceof Promise) {
-			toRender
+		const landingView = resolver.resolve(landingRoute);
+		if (landingView instanceof Promise) {
+			landingView
 				.then(view => this.resolver.set(view))
 				.catch(console.error);
 		} else {
-			this.resolver.set(toRender);
+			this.resolver.set(landingView);
 		}
-	}
-}
-
-/**
- * Use in place of `<a>` to link to a different path/page
- */
-export abstract class LinkComponent<Router_ extends Router = Router> extends Component<Route> {
-	isReplace = true;
-	abstract readonly router: Router_;
-
-	onClick(event: MouseEvent) {
-		if (event.metaKey || event.ctrlKey) { // Allow opening in new tab
-			return;
-		}
-		event.preventDefault();
-		this.router.set(this.$);
-	}
-
-	template = (content: string = ``) => html`
-	<a
-		href="${this.$.isExternal ? this.$.href : `${this.$.pathname}${this.$.hash}`}"
-		onclick=${this.bind(`onClick`)}
-	>${content}</a>
-	`;
-
-	to(route: Route) {
-		this.set(typeof route === `string` ? new Route(route) : route);
-		return this;
 	}
 }

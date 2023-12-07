@@ -6,12 +6,14 @@ import { Component } from '@robertakarobin/web/component.ts';
 
 import fs from 'fs';
 
+let id = 0;
+EntityStateEmitter.prototype.createId = Component.createId = () => { // Easy to strip out with RegEx
+	return `/UID${++id}/`;
+};
+
 export const hasMarkdown = /<markdown>(.*?)<\/markdown>/gs;
 
-EntityStateEmitter.prototype.createId = ()  => `/UID/`;
-Component.createId = () => `/UID/`;
-
-const read = (path: string) => fs.readFileSync(path, { encoding: `utf8` });
+const read = (path: string) => fs.readFileSync(path, { encoding: `utf8` }).replace(/\/UID\d+\//g, `/UID/`); // Note that this will make it look like some IDs are repeated
 
 const dist = (path: string) => read(`dist/${path}`);
 const golden = (path: string) => read(`dist-golden/${path}`);

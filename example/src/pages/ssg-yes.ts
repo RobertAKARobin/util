@@ -10,6 +10,8 @@ h1 {
 
 export class YesSSGPage extends Page {
 	static style = style;
+
+	isSSG = true;
 	template = () => `
 <div>
 	<h1>SSG yes</h1>

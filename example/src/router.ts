@@ -1,4 +1,5 @@
-import { LinkComponent, Resolver, type Route, Router } from '@robertakarobin/web/router.ts';
+import { Resolver, type Route, Router } from '@robertakarobin/web/router.ts';
+import { LinkComponent } from '@robertakarobin/web/link.ts';
 
 import { IndexPage } from '@src/pages/index.ts';
 
@@ -47,5 +48,3 @@ export class Link extends LinkComponent {
 
 	router = router;
 }
-
-Link.init();

@@ -14,21 +14,6 @@ import { serialize } from '@robertakarobin/util/serialize.ts';
 import { Component, globals, type Page } from './component.ts';
 import { hasExtension, type Resolver, type Router } from './router.ts';
 
-export type LayoutArgs = {
-	Component: typeof Component;
-	baseHref: string;
-	body?: string;
-	css?: string;
-	head?: string;
-	loadScript?: string;
-	mainCssPath: string;
-	mainJsPath: string;
-	meta?: string;
-	page: Page;
-	routeCssPath?: string;
-	routePath: string;
-};
-
 const bustCache = (pathname: string) => {
 	const url = new URL(`file:///${pathname}?v=${Date.now() + performance.now()}`); // URL is necessary for running on Windows
 	return import(url.toString());
@@ -55,15 +40,15 @@ Component.setStyle = function() {};
 
 const superSet = Component.prototype.set; // eslint-disable-line @typescript-eslint/unbound-method
 Component.prototype.set = function(...[update, ...args]: Parameters<Component[`set`]>) {
-	const value = globals[Component.unhydratedDataName][this.id];
+	const value = globals[Component.unhydratedArgsName][this.id];
 	const isSpreadable = typeof update === `object` && update !== null && !Array.isArray(update);
 	if (isSpreadable) {
-		globals[Component.unhydratedDataName][this.id] = {
+		globals[Component.unhydratedArgsName][this.id] = {
 			...value,
 			...update,
 		};
 	} else {
-		globals[Component.unhydratedDataName][this.id] = update;
+		globals[Component.unhydratedArgsName][this.id] = update;
 	}
 	return superSet.call(this, update, ...args);
 };
@@ -198,7 +183,7 @@ export class Builder {
 				fs.mkdirSync(serveDirAbs, { recursive: true });
 
 				Component.subclasses.clear();
-				globals[Component.unhydratedDataName] = {};
+				globals[Component.unhydratedArgsName] = {};
 
 				const page = await resolver.resolve(route);
 				if (!page.isSSG) {
@@ -215,9 +200,9 @@ export class Builder {
 
 				let body = this.formatBody(page.rerender());
 
-				const componentArgs = globals[Component.unhydratedDataName];
-				body += `<script id="${Component.unhydratedDataName}" src="data:text/javascript," onload="${Component.unhydratedDataName}=${serialize(componentArgs)}"></script>`;
-				globals[Component.unhydratedDataName] = {};
+				const componentArgs = globals[Component.unhydratedArgsName];
+				body += `<script id="${Component.unhydratedArgsName}" src="data:text/javascript," onload="${Component.unhydratedArgsName}=${serialize(componentArgs)}"></script>`;
+				globals[Component.unhydratedArgsName] = {};
 
 				let routeCssPath: string | undefined = undefined;
 				let css = [...Component.subclasses.values()] // I was using JSDOM to let Component build <style> tags and just getting the contents of those, but it had trouble with more modern CSS additions like nested & selectors
@@ -308,7 +293,7 @@ export class Builder {
 		return css;
 	}
 
-	formatHtml(input: LayoutArgs): string | Promise<string> {
+	formatHtml(...[input]: Parameters<typeof defaultLayout>): string | Promise<string> {
 		let html = defaultLayout(input);
 		html = trimNewlines(html);
 		html = jsBeautify.html(html, {
@@ -376,7 +361,20 @@ export class Builder {
 /**
  * The default layout used to render static HTML files for SSG routes
  */
-export const defaultLayout = (input: LayoutArgs) => `
+export const defaultLayout = (input: {
+	Component: typeof Component;
+	baseHref: string;
+	body?: string;
+	css?: string;
+	head?: string;
+	loadScript?: string;
+	mainCssPath: string;
+	mainJsPath: string;
+	meta?: string;
+	page: Page;
+	routeCssPath?: string;
+	routePath: string;
+}) => `
 <!DOCTYPE html>
 <html lang="en">
 	<head>
