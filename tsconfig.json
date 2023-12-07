@@ -1,7 +1,16 @@
 {
 	"compilerOptions": {
-		"baseUrl": "."
+		"baseUrl": ".",
+		"composite": true,
+		"outDir": "dist",
+		"paths": {
+			"@util/*": ["./*"]
+		},
+		"rootDir": "."
 	},
+	"exclude": [
+		"example"
+	],
 	"extends": [
 		"@robertakarobin/eslint-config-ts"
 	]

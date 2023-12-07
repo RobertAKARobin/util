@@ -2,14 +2,13 @@
 	"compilerOptions": {
 		"allowImportingTsExtensions": true,
 		"allowJs": true,
-		"baseUrl": ".",
+		"emitDeclarationOnly": true,
 		"experimentalDecorators": true,
 		"lib": ["ESNext", "DOM"],
 		"module": "NodeNext",
 		"moduleResolution": "NodeNext",
-		"noEmit": true,
+		"noEmit": false,
 		"noEmitOnError": true,
-		"outDir": "dist",
 		"resolveJsonModule": true,
 		"strict": true,
 		"target": "ESNext"

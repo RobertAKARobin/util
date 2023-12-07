@@ -1,0 +1,23 @@
+{
+	"compilerOptions": {
+		"baseUrl": ".",
+		"noEmit": true,
+		"noEmitOnError": true,
+		"paths": {
+			"@src/*": ["tmp/*", "src/*"]
+		}
+	},
+	"extends": [
+		"@robertakarobin/eslint-config-ts"
+	],
+	"include": [
+		"build.ts",
+		"spec/**/*.ts",
+		"src/**/*.ts"
+	],
+	"references": [
+		{
+			"path": "../"
+		}
+	]
+}

@@ -1,15 +1,13 @@
-import { run, suite, test } from '@robertakarobin/jsutil/spec';
+import { print, suite } from './spec/index.ts';
 
-import * as JSUtil from './jsutil/index.spec.ts';
-import * as SpecLib from './jsutil/spec/index.spec.ts';
-
-export const spec = suite(`@robertakarobin/util`, {},
-	test(`@robertakarobin/jsutil`, async $ => {
-		const results = await JSUtil.spec({});
-		$.assert(x => x(results.status) === `pass`);
-	}),
-
-	SpecLib.spec,
+export const spec = suite(`@robertakarobin/js`, {},
+	(await import(`./spec/index.spec.ts`)).spec,
+	(await import(`./emitter.spec.ts`)).spec,
+	(await import(`./entities.spec.ts`)).spec,
+	(await import(`./keyframes.spec.ts`)).spec,
+	(await import(`./serialize.spec.ts`)).spec,
+	(await import(`./string-mates.spec.ts`)).spec,
+	(await import(`./template.spec.ts`)).spec,
 );
 
-run(await spec({}), { verbose: true });
+print(await spec({}));

@@ -20,11 +20,11 @@
 		"url": "https://github.com/RobertAKARobin/util"
 	},
 	"scripts": {
-		"build": "npm run build --prefix web/example",
-		"dev": "npm run dev --prefix web/example",
+		"build": "npm run build --prefix example",
+		"dev": "npm run dev --prefix example",
 		"lint": "eslint .",
 		"prepare": "husky install",
-		"spec": "tsx index.spec.ts && npm run test --prefix web/example",
+		"spec": "tsx index.spec.ts",
 		"test": "npm run lint && npm run spec"
 	},
 	"type": "module",
