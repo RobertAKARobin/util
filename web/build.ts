@@ -6,8 +6,9 @@ import { JSDOM } from 'jsdom';
 import { marked } from 'marked';
 import path from 'path';
 
-import * as $ from '@robertakarobin/util/index.ts';
+import type * as $ from '@robertakarobin/util/types.d.ts';
 import { stringMates, type TagResult } from '@robertakarobin/util/string-mates.ts';
+import { promiseConsecutive } from '@robertakarobin/util/promiseConsecutive.ts';
 import { serialize } from '@robertakarobin/util/serialize.ts';
 
 import { Component, globals, type Page } from './component.ts';
@@ -173,7 +174,7 @@ export class Builder {
 
 		const builtRoutes = new Set<string>();
 
-		await $.promiseConsecutive(
+		await promiseConsecutive(
 			Object.entries(router.routes).map(([routeName, route]) => async() => {
 				log(`${routeName.toString()}: ${route.pathname}`);
 
@@ -331,7 +332,7 @@ export class Builder {
 			.join(``)
 			.replace(/\/%%\//g, () => jsChunks.shift()!);
 
-		function parse(input: Array<string | TagResult>): $.Type.Nested<string> {
+		function parse(input: Array<string | TagResult>): $.Nested<string> {
 			return input.map(item => {
 				if (typeof item === `string`) {
 					return item;

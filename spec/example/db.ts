@@ -1,4 +1,4 @@
-import * as $ from '../../index.ts';
+import { sleep } from '../../sleep.ts';
 
 type DBRecord = {
 	id: number;
@@ -25,7 +25,7 @@ export class DB {
 	 * Fake network latency
 	 */
 	static async latency() {
-		return $.sleep(10 * Math.random());
+		return sleep(10 * Math.random());
 	}
 
 	get isConnected() {

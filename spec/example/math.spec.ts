@@ -1,4 +1,4 @@
-import * as $ from '../../index.ts';
+import { tryCatch } from '../../tryCatch.ts';
 
 import { suite, test } from '../index.ts';
 
@@ -63,7 +63,7 @@ export const specs = suite(`Math`,
 			assert(x => x(args.x) === x(args.a));
 			assert(x => (x(args.x) / x(args.y)) === (x(args.a) / x(args.y)));
 			const throwMe = () => doThrow(new Error(`This error will be caught.`));
-			assert(x => x($.tryCatch(throwMe)) instanceof x(Error));
+			assert(x => x(tryCatch(throwMe)) instanceof x(Error));
 		}),
 
 		test(`by zero`, ({ args, assert }) => {
@@ -102,7 +102,7 @@ export const expected = `
   s1s4t1 • by int
 • s1s4t1a1 • (args.x)===(args.a)
 • s1s4t1a2 • (args.x)/(args.y)===(args.a)/(args.y)
-• s1s4t1a3 • ($.tryCatch(throwMe))instanceof (Error)
+• s1s4t1a3 • (tryCatch(throwMe))instanceof (Error)
   s1s4t2 • by zero
 • s1s4t2a1 • (args.a)/0===(Infinity)
   s1t5 X multiplication

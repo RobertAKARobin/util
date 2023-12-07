@@ -1,16 +1,8 @@
+// TODO3: Extract all these out to own files for better tree-shaking
+
 import type * as Type from './types.d.ts';
 
 export type { Type };
-
-export function arrayToEnum<Value extends string>(
-	input: Array<Value>,
-) {
-	return input.reduce((output, value, index) => {
-		(output as Record<Value, number>)[value] = index;
-		(output as Record<number, Value>)[index] = value;
-		return output;
-	}, {} as Record<Value, number> & Record<number, Value>);
-}
 
 export function debounce(
 	callback: () => void,
@@ -37,15 +29,6 @@ export function defineSetter<Target, PropertyName extends keyof Target>(
 			target[propertyName] = value;
 		},
 	};
-}
-
-export function delay(
-	callback: () => unknown,
-	time: number,
-) {
-	return new Promise(resolve => {
-		setTimeout(() => resolve(callback()), time);
-	});
 }
 
 /**
@@ -91,25 +74,6 @@ export function isPrimitive(val: unknown): boolean {
 	return (typeof val === `object` ? false : (typeof val !== `function`));
 }
 
-type nTimesCallback<Value> = (
-	nil: undefined,
-	index: number,
-) => Value;
-export function nTimes<Value>(
-	number: number,
-	contents?:
-		| Value
-		| nTimesCallback<Value>,
-): Array<Value> {
-	if (contents === null || contents === undefined) {
-		return Array.from(Array(number)) as Array<Value>;
-	}
-	if (typeof contents === `function`) {
-		return Array.from(Array(number), contents as nTimesCallback<Value>);
-	}
-	return Array(number).fill(contents) as Array<Value>;
-}
-
 export function omit<Source, Keys extends Array<keyof Source>>(
 	source: Source,
 	...keys: Keys
@@ -119,22 +83,6 @@ export function omit<Source, Keys extends Array<keyof Source>>(
 		delete output[key];
 	}
 	return output as Omit<Source, Keys[number]>;
-}
-
-export async function promiseConsecutive<Value>(
-	inputs: Array<(soFar: Array<Value>, index: number) => Promise<Value>>
-): Promise<Array<Value>> {
-	const out: Array<Value> = [];
-	// TODO3: Use `for await..of` instead?
-	await inputs.reduce(async(previous, input, index) => {
-		await previous;
-		out.push(await input(out, index));
-	}, Promise.resolve());
-	return out;
-}
-
-export function sleep(time: number) {
-	return delay(() => undefined, time);
 }
 
 export function throttle(
@@ -183,42 +131,6 @@ export function traverseMap<
 		current = current[propertyName];
 	}
 	return ancestors;
-}
-
-export function tryCatch<Result>(
-	callback: () => (Result extends Promise<unknown> ? never : Result),
-): Result | Error;
-export function tryCatch<Result, DefaultIfError>(
-	callback: () => (Result extends Promise<unknown> ? never : Result),
-	defaultIfError: DefaultIfError,
-): Result | DefaultIfError;
-export function tryCatch<Result>(
-	callback: () => Result,
-): Result | Promise<Error>;
-export function tryCatch<Result, DefaultIfError>(
-	callback: () => Result,
-	defaultIfError: DefaultIfError,
-): Result | Promise<DefaultIfError>;
-export function tryCatch<Result, DefaultIfError>(
-	callback: () => Result,
-	defaultIfError?: DefaultIfError
-) {
-	try {
-		const result = callback();
-		if (result instanceof Promise) {
-			if (typeof defaultIfError === `undefined`) {
-				return result.catch((error: Error) => error) as Result | Promise<Error>;
-			}
-			return result.catch(() => defaultIfError) as Result | Promise<DefaultIfError>;
-		} else {
-			return result;
-		}
-	} catch (error: unknown) {
-		if (typeof defaultIfError === `undefined`) {
-			return error as Error;
-		}
-		return defaultIfError;
-	}
 }
 
 export function newUid() {

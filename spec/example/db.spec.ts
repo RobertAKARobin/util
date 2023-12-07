@@ -1,4 +1,4 @@
-import * as $ from '../../index.ts';
+import { tryCatch } from '../../tryCatch.ts';
 
 import { suite, test } from '../index.ts';
 import { DB } from './db.ts';
@@ -17,7 +17,7 @@ export const specs = suite(`DB`, {},
 		test(`#disconnect`, ({ args, assert }) => {
 			args.db.disconnect();
 			assert(x => x(args.db.isConnected) === false);
-			assert(x => x($.tryCatch(args.db.disconnect)) instanceof Error); // eslint-disable-line @typescript-eslint/unbound-method
+			assert(x => x(tryCatch(args.db.disconnect)) instanceof Error); // eslint-disable-line @typescript-eslint/unbound-method
 		}),
 
 		test(`create and delete`, async({ args, assert, log }) => {
@@ -29,11 +29,11 @@ export const specs = suite(`DB`, {},
 			await assert(() => args.db.has(record.id));
 
 			log(`can only delete once`);
-			const doDelete = () => $.tryCatch(() => args.db.delete(record.id));
+			const doDelete = () => tryCatch(() => args.db.delete(record.id));
 			await assert(async x => typeof (x(await doDelete())) === `undefined`);
 			await assert(async x => x(await doDelete()) instanceof Error);
 
-			const hasRecord2 = () => $.tryCatch(() => args.db.has(record.id));
+			const hasRecord2 = () => tryCatch(() => args.db.has(record.id));
 			await assert(async x => x(await hasRecord2()) === false);
 
 			await assert(async x => !(await x(args.db.getIds())).includes(record.id));
@@ -53,7 +53,7 @@ export const expected = `
   s1s2 • when connected
   s1s2t1 • #disconnect
 • s1s2t1a1 • (args.db.isConnected)===false
-• s1s2t1a2 • ($.tryCatch(args.db.disconnect))instanceof Error
+• s1s2t1a2 • (tryCatch(args.db.disconnect))instanceof Error
   s1s2t2 • create and delete
 • s1s2t2a1 • (record.name)===\`alice\`
 • s1s2t2a2 • (await (args.db.getIds())).includes((record.id))

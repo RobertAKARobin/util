@@ -1,4 +1,7 @@
-import * as $ from '../../index.ts';
+import type * as $ from '../../types.d.ts';
+import { arrayToEnum } from '../../arrayToEnum.ts';
+import { nTimes } from '../../nTimes.ts';
+import { promiseConsecutive } from '../../promiseConsecutive.ts';
 
 import type * as Type from './types.d.ts';
 
@@ -15,7 +18,7 @@ export const specStepStatuses = [
 	`fail`,
 ] as const;
 
-export const SpecStepStatus = $.arrayToEnum([ ...specStepStatuses ]);
+export const SpecStepStatus = arrayToEnum([ ...specStepStatuses ]);
 
 export const specStepTiming = [
 	`concurrent`,
@@ -44,8 +47,8 @@ export class SpecRunner {
 		assertion: (valueWrap: typeof Type.AssertionValueWrap) => Promise<boolean>
 	): Promise<Type.AssertionResult>;
 	assert(
-		assertion: (valueWrap: typeof Type.AssertionValueWrap) => $.Type.PromiseMaybe<boolean>
-	): $.Type.PromiseMaybe<Type.AssertionResult> {
+		assertion: (valueWrap: typeof Type.AssertionValueWrap) => $.PromiseMaybe<boolean>
+	): $.PromiseMaybe<Type.AssertionResult> {
 		const result: Type.AssertionResult = {
 			contents: assertion.toString(),
 			indexAtDefinition: NaN,
@@ -92,8 +95,8 @@ export class SpecRunner {
 	log(message: () => Promise<unknown>): Promise<Type.SpecLog>;
 	log(message: string): Type.SpecLog;
 	log(
-		message: string | (() => $.Type.PromiseMaybe<unknown>)
-	): $.Type.PromiseMaybe<Type.SpecLog> {
+		message: string | (() => $.PromiseMaybe<unknown>)
+	): $.PromiseMaybe<Type.SpecLog> {
 		const logResult = () => ({
 			message: (typeof message === `string` ? message : message.toString()),
 			time: this.getTime(),
@@ -152,7 +155,7 @@ export class SpecRunner {
 				? () => options.args!(inheritedArgs) // eslint-disable-line
 				: () => ({ ...inheritedArgs });
 
-			const iterations = $.nTimes(
+			const iterations = nTimes(
 				isNaN(options.iterations as number) ? 1 : options.iterations as number,
 				(_nil, index) => () => this.suiteIteration({
 					args,
@@ -163,7 +166,7 @@ export class SpecRunner {
 			);
 
 			result.iterations = (result.timing === `consecutive`
-				? await $.promiseConsecutive(iterations)
+				? await promiseConsecutive(iterations)
 				: await Promise.all(iterations.map(iteration => iteration()))
 			);
 
@@ -185,7 +188,7 @@ export class SpecRunner {
 	}
 
 	async suiteIteration<Args>(input: {
-		args: () => $.Type.PromiseMaybe<Args>;
+		args: () => $.PromiseMaybe<Args>;
 		children: Array<
 			(args: Args, index: number) => Promise<Type.SuiteResult | Type.TestResult>
 		>;
@@ -203,7 +206,7 @@ export class SpecRunner {
 		};
 
 		result.children = (input.timing === `consecutive`
-			? await $.promiseConsecutive(
+			? await promiseConsecutive(
 				input.children.map(child => async(_nil, index) => child(await input.args(), index))
 			)
 			: await Promise.all(
@@ -245,7 +248,7 @@ export class SpecRunner {
 				type: `test`,
 			};
 
-			const iterations = $.nTimes(
+			const iterations = nTimes(
 				isNaN(options.iterations as number) ? 1 : options.iterations as number,
 				(_nil, index) => () => this.testIteration<Args>({
 					args,
@@ -255,7 +258,7 @@ export class SpecRunner {
 			);
 
 			result.iterations = (result.timing === `consecutive`
-				? await $.promiseConsecutive(iterations)
+				? await promiseConsecutive(iterations)
 				: await Promise.all(iterations.map(iteration => iteration()))
 			);
 
