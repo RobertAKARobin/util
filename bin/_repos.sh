@@ -1,1 +1,1 @@
-repos=(jsutil eslint-config eslint-config-ts htmlvalidate web web/example)
+repos=(csslint eslint-config eslint-config-ts htmlvalidate ssg example)
