@@ -1,11 +1,7 @@
 {
 	"compilerOptions": {
 		"baseUrl": ".",
-		"lib": ["DOM", "DOM.Iterable", "ESNext"],
 		"outDir": "dist",
-		"paths": {
-			"@util/*": ["./*"]
-		},
 		"rootDir": "."
 	},
 	"exclude": [
