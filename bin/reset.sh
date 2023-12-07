@@ -1,5 +1,7 @@
 source "$(dirname "$0")/_repos.sh"
 
+local root=$(pwd)
+
 function dowhat {
 	local repo=$1
 	cd $repo
@@ -9,8 +11,5 @@ function dowhat {
 
 for repo in ${repos[@]}; do
 	dowhat $repo
-	cd ..
+	cd $root
 done
-
-dowhat .
-npx husky install

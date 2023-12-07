@@ -1,6 +1,7 @@
 {
 	"compilerOptions": {
 		"baseUrl": ".",
+		"noEmit": true,
 		"noEmitOnError": true,
 		"paths": {
 			"@src/*": ["tmp/*", "src/*"]

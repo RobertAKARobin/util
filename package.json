@@ -1,19 +1,13 @@
 {
 	"devDependencies": {
-		"@robertakarobin/csslint": "file:./csslint",
-		"@robertakarobin/eslint-config-ts": "file:./eslint-config-ts",
-		"@robertakarobin/jsutil": "file:./jsutil",
+		"@robertakarobin/csslint": "^0.0.8",
+		"@robertakarobin/eslint-config-ts": "^0.0.21",
+		"@types/diff": "^5.0.9",
+		"diff": "^5.1.0",
 		"husky": "^8.0.3",
 		"npm-check-updates": "^16.14.11",
 		"tsx": "^4.6.2"
 	},
-	"files": [
-		".gitignore",
-		".nvmrc",
-		"index.spec.ts",
-		"README.md",
-		"tsconfig.json"
-	],
 	"name": "@robertakarobin/util",
 	"repository": {
 		"type": "git",
@@ -28,5 +22,5 @@
 		"test": "npm run lint && npm run spec && npm run test --prefix example"
 	},
 	"type": "module",
-	"version": "0.0.189"
+	"version": "0.0.194"
 }
