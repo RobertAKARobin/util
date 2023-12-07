@@ -11,7 +11,7 @@
 		"./eslint-config-ts",
 		"./example",
 		"./htmlvalidate",
-		"./ssg"
+		"./web"
 	],
 	"extends": [
 		"@robertakarobin/eslint-config-ts"

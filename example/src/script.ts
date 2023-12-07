@@ -1,4 +1,4 @@
-import { Renderer } from '@robertakarobin/util/router.ts';
+import { Renderer } from '@robertakarobin/web/router.ts';
 
 import { Nav } from '@src/components/nav.ts';
 import { resolver } from '@src/router.ts';

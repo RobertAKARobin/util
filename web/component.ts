@@ -1,8 +1,7 @@
-import { Emitter } from './emitter.ts';
-import { newUid } from './index.ts';
-export { html, css } from './template.ts';
-
-import { appContext } from './context.ts';
+import { Emitter } from '@robertakarobin/util/emitter.ts';
+import { newUid } from '@robertakarobin/util/index.ts';
+export { html, css } from '@robertakarobin/util/template.ts';
+import { appContext } from '@robertakarobin/util/context.ts';
 
 export type BoundElement = Element & {
 	[Component.$elInstance]: Component; // Attaching instances to Elements should prevent the instance from being garbage-collected until the Element is GCd
@@ -56,6 +55,9 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	}
 
 	static setStyle() {
+		if (appContext !== `browser`) {
+			return;
+		}
 		if (
 			typeof this.style === `string`
 			&& document.querySelector(`style[${this.$elAttrType}='${this.name}']`) === null

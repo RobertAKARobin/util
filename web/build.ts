@@ -7,10 +7,11 @@ import { marked } from 'marked';
 import path from 'path';
 
 import * as $ from '@robertakarobin/util/index.ts';
-import { Component, globals, type Page } from '@robertakarobin/util/component.ts';
-import { hasExtension, type Resolver, type Router } from '@robertakarobin/util/router.ts';
 import { stringMates, type TagResult } from '@robertakarobin/util/string-mates.ts';
 import { serialize } from '@robertakarobin/util/serialize.ts';
+
+import { Component, globals, type Page } from './component.ts';
+import { hasExtension, type Resolver, type Router } from './router.ts';
 
 export type LayoutArgs = {
 	Component: typeof Component;

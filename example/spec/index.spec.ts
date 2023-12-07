@@ -1,7 +1,8 @@
 import { suite, test } from '@robertakarobin/util/spec/index.ts';
-import { Component } from '@robertakarobin/util/component.ts';
 import { diff } from '@robertakarobin/util/spec/diff.ts';
 import { EntityStateEmitter } from '@robertakarobin/util/entities.ts';
+
+import { Component } from '@robertakarobin/web/component.ts';
 
 import fs from 'fs';
 

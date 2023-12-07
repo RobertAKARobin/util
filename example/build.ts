@@ -1,6 +1,6 @@
 import { execSync } from 'child_process';
 
-import { Builder } from '@robertakarobin/ssg/index.ts';
+import { Builder } from '@robertakarobin/web/build.ts';
 
 import { Nav } from './src/components/nav.ts';
 

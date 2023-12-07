@@ -1,4 +1,4 @@
-import { LinkComponent, Resolver, type Route, Router } from '@robertakarobin/util/router.ts';
+import { LinkComponent, Resolver, type Route, Router } from '@robertakarobin/web/router.ts';
 
 import { IndexPage } from '@src/pages/index.ts';
 
