@@ -1,1 +1,1 @@
-repos=(csslint eslint-config eslint-config-ts htmlvalidate ssg example)
+repos=(eslint-config eslint-config-ts csslint htmlvalidate ssg example)
