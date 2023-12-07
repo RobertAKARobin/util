@@ -25,7 +25,7 @@
 		"lint": "eslint .",
 		"prepare": "husky install",
 		"spec": "tsx index.spec.ts",
-		"test": "npm run lint && npm run spec"
+		"test": "npm run lint && npm run spec && npm run test --prefix example"
 	},
 	"type": "module",
 	"version": "0.0.187"

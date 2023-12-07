@@ -6,11 +6,11 @@ import { JSDOM } from 'jsdom';
 import { marked } from 'marked';
 import path from 'path';
 
-import * as $ from '@util/index.ts';
-import { Component, globals, type Page } from '@util/component.ts';
-import { hasExtension, type Resolver, type Router } from '@util/router.ts';
-import { stringMates, type TagResult } from '@util/string-mates.ts';
-import { serialize } from '@util/serialize.ts';
+import * as $ from '@robertakarobin/util/index.ts';
+import { Component, globals, type Page } from '@robertakarobin/util/component.ts';
+import { hasExtension, type Resolver, type Router } from '@robertakarobin/util/router.ts';
+import { stringMates, type TagResult } from '@robertakarobin/util/string-mates.ts';
+import { serialize } from '@robertakarobin/util/serialize.ts';
 
 export type LayoutArgs = {
 	Component: typeof Component;

@@ -2,9 +2,10 @@
 	"compilerOptions": {
 		"allowImportingTsExtensions": true,
 		"allowJs": true,
+		"declaration": true,
 		"emitDeclarationOnly": true,
 		"experimentalDecorators": true,
-		"lib": ["ESNext", "DOM"],
+		"lib": ["ESNext", "DOM", "DOM.Iterable"],
 		"module": "NodeNext",
 		"moduleResolution": "NodeNext",
 		"noEmit": false,

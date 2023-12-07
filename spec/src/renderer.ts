@@ -1,5 +1,5 @@
-import type * as $ from '@util/types.d.ts';
-import { roundTo } from '@util/roundTo.ts';
+import type * as $ from '../../types.d.ts';
+import { roundTo } from '../../roundTo.ts';
 
 import type * as Type from './types.d.ts';
 import { specStepStatuses } from './runner.ts';

@@ -185,14 +185,14 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 
 		const descendants = [];
 
-		const $descendants = this.$el?.querySelectorAll(selector);
+		const $descendants = this.$el?.querySelectorAll(selector) as NodeListOf<BoundElement>;
 		if ($descendants === undefined) {
 			return;
 		}
 		if (typeof Descendant === `string`) {
 			descendants.push(...Array.from($descendants));
 		} else {
-			for (const $descendant of $descendants as NodeListOf<BoundElement>) {
+			for (const $descendant of $descendants) {
 				descendants.push($descendant.instance as InstanceType<Descendant>);
 			}
 		}

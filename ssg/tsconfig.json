@@ -1,0 +1,13 @@
+{
+	"compilerOptions": {
+		"baseUrl": ".",
+		"outDir": "dist",
+		"rootDir": "."
+	},
+	"exclude": [
+		"dist"
+	],
+	"extends": [
+		"@robertakarobin/eslint-config-ts"
+	]
+}
