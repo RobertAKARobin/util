@@ -1,5 +1,8 @@
 module.exports = {
-	extends: `stylelint-config-standard`,
+	extends: [
+		`stylelint-config-standard`,
+		`stylelint-stylistic/config`,
+	],
 	overrides: [
 		{
 			customSyntax: `postcss-html`,
