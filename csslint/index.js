@@ -19,6 +19,7 @@ module.exports = {
 		"comment-empty-line-before": null,
 		"font-family-name-quotes": `always-unless-keyword`,
 		"font-family-no-missing-generic-family-keyword": null,
+		"keyframes-name-pattern": null,
 		"max-empty-lines": null,
 		"max-line-length": null,
 		"no-descending-specificity": null,
