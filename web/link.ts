@@ -1,5 +1,5 @@
 import { Component, html } from './component.ts';
-import { Route, type Router } from './router.ts';
+import { type Route, type Router } from './router.ts';
 
 // I put this in its own file instead of in router.ts so that Router can be used with or without importing Components
 
@@ -25,19 +25,14 @@ export abstract class LinkComponent<Router_ extends Router = Router> extends Com
 	>${content}</a>
 	`;
 
-	to(route: Route) {
-		this.set(typeof route === `string` ? new Route(route) : route);
-		return this;
+	to(
+		routeName: keyof this[`router`][`routes`],
+		content: string = ``,
+		attributes: Record<string, string> = {}
+	) {
+		return this
+			.set(this.router.routes[routeName])
+			.setAttrs(attributes)
+			.render(content);
 	}
 }
-
-// export function linkTo(
-// 	routeName: keyof typeof routes,
-// 	content: string = ``,
-// 	attributes: Record<string, string> = {}
-// ) {
-// 	return new Link()
-// 		.set(routes[routeName])
-// 		.setAttrs(attributes)
-// 		.render(content);
-// }

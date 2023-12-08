@@ -12,7 +12,9 @@ export class Nav extends Component {
 		<ul>
 			${Object.entries(routes).map(([routeName, route]) => `
 				<li>${
-					new Link().to(route).render(`Go ${routeName}`)
+					new Link()
+						.set(route)
+						.render(`Go ${routeName}`)
 				}</li>
 			`).join(``)}
 		</ul>

@@ -39,7 +39,7 @@ Lorem ipsum dolor <strong>sit amet</strong>, consectetur *adipiscing elit*, sed 
 Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ nulla pariatur.
 </markdown>
 
-<p>${new Link().to(routes.home).render(`Link to homepage`)}</p>
+<p>${new Link().to(`ssgYes`, `Link to SSG Yes`)}</p>
 
 <button type="button" onclick=${this.bind(`anchorlessRoute`)}>Go to SSG Yes</button>
 
