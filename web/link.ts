@@ -30,3 +30,14 @@ export abstract class LinkComponent<Router_ extends Router = Router> extends Com
 		return this;
 	}
 }
+
+// export function linkTo(
+// 	routeName: keyof typeof routes,
+// 	content: string = ``,
+// 	attributes: Record<string, string> = {}
+// ) {
+// 	return new Link()
+// 		.set(routes[routeName])
+// 		.setAttrs(attributes)
+// 		.render(content);
+// }

@@ -1,10 +1,11 @@
-import { Page } from '@robertakarobin/web/component.ts';
+import { BasePage } from './_page.ts';
 
-export class NoSSGPage extends Page {
+export class NoSSGPage extends BasePage {
 	isSSG = false;
 	title = `SSG no`;
-	template = () => `
-<div>
+	template = () => super.template(`
+<main>
 	<h1>SSG no</h1>
-</div>`;
+</main>
+`);
 }

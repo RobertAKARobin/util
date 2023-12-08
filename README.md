@@ -77,11 +77,12 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ## TODO
 
+-	Don't require script
+-	CSS class mapping
+-	Declare CSS variables inline
 -	If class is added to element, the class should be appended to existing classes
-
 -	Add isHydrated option
 -	Hydrate without `.init`?
-
 -	Import from other file (ergo SVG)
 
 -	Match routes with params

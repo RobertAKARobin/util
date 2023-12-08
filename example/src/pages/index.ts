@@ -1,6 +1,6 @@
-import { Page } from '@robertakarobin/web/component.ts';
 
 import { Link, router, routes } from '@src/router.ts';
+import { BasePage } from './_page.ts';
 import { List } from '@src/components/list.ts';
 import { state } from '@src/state.ts';
 
@@ -14,15 +14,15 @@ const style =  `
 
 const colors = [`red`, `yellow`, `green`, `brown`, `scarlet`];
 
-export class IndexPage extends Page<{ message: string; }> {
+export class IndexPage extends BasePage<{ message: string; }> {
 	static style = style;
 
 	anchorlessRoute() {
 		router.set(routes.ssgYes);
 	}
 
-	template = () => `
-<div>
+	template = () => super.template(`
+<main>
 <h1>Hello world!</h1>
 
 <div id="${routes.homeJump1.idAttr}">Jump 1</div>
@@ -64,6 +64,6 @@ Joseph's coat was ${colors.join(` and `)}.
 </markdown>
 
 <div id="${routes.homeJump2.idAttr}">Jump 2</div>
-</div>
-`;
+</main>
+`);
 };

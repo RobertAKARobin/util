@@ -189,12 +189,14 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		return descendants;
 	}
 
-	hydrate($root: Element) {
+	hydrate($root: Element = document.body) {
 		Component.currentParent = Component.rootParent = Component.rootParent ?? new Component();
 
 		const unhydratedArgs = globals[Component.unhydratedArgsName];
 
-		const $el = $root.querySelector(`[${Component.$elAttrType}="${this.Ctor.name}"]`)!;
+		const $el = $root.getAttribute(Component.$elAttrType) === this.Ctor.name
+			? $root
+			: $root.querySelector(`[${Component.$elAttrType}="${this.Ctor.name}"]`)!;
 		this.id = $el.getAttribute(Component.$elAttrId)!; // This has already been instantiated at this point, so need to overwrite its ID
 		this.setEl($el);
 
@@ -235,7 +237,10 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		Component.currentParent.childIndex = 0;
 
 		const doc = Component.parse(this.template(content ?? this.content));
-		this.setEl(doc.body.children[0] as BoundElement);
+		const $el = this instanceof Page
+			?	doc.body as unknown as BoundElement
+			: doc.body.children[0] as BoundElement;
+		this.setEl($el);
 
 		Component.currentParent = ownParent;
 

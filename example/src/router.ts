@@ -1,8 +1,6 @@
 import { Resolver, type Route, Router } from '@robertakarobin/web/router.ts';
 import { LinkComponent } from '@robertakarobin/web/link.ts';
 
-import { IndexPage } from '@src/pages/index.ts';
-
 export const router = new Router({
 	error404: `/404.html`,
 	home: `/`,
@@ -21,7 +19,7 @@ export const resolver = new Resolver(router, async(route: Route) => {
 		case routes.home.pathname:
 		case routes.homeJump1.pathname:
 		case routes.homeJump2.pathname:
-			return new IndexPage().set({
+			return new (await import(`@src/pages/index.ts`)).IndexPage().set({
 				message: `This is a variable`,
 				title: `Home page`,
 			});

@@ -1,9 +1,9 @@
-[data-component='IndexPage'] h1 {
-	color: red;
-}
-
 input {
 	--typeface-name: 'body';
 	font-family: monospace;
 	font-size: 24px;
+}
+
+[data-component='IndexPage'] h1 {
+	color: red;
 }

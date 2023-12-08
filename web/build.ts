@@ -198,10 +198,10 @@ export class Builder {
 					return;
 				}
 
-				let body = this.formatBody(page.rerender());
+				const body = this.formatBody(page.rerender());
 
 				const componentArgs = globals[Component.unhydratedArgsName];
-				body += `<script id="${Component.unhydratedArgsName}" src="data:text/javascript," onload="${Component.unhydratedArgsName}=${serialize(componentArgs)}"></script>`;
+				const unhydratedArgs = `<script id="${Component.unhydratedArgsName}" src="data:text/javascript," onload="${Component.unhydratedArgsName}=${serialize(componentArgs)}"></script>`;
 				globals[Component.unhydratedArgsName] = {};
 
 				let routeCssPath: string | undefined = undefined;
@@ -222,6 +222,7 @@ export class Builder {
 					baseHref: this.baseHref,
 					body,
 					css,
+					head: unhydratedArgs,
 					mainCssPath: path.join(`/`, this.styleServeFileRel),
 					mainJsPath: path.join(`/`, this.scriptServeFileRel),
 					page,
@@ -417,7 +418,7 @@ export const defaultLayout = (input: {
 	</head>
 
 	${typeof input.body === `string`
-		? `<body>${input.body}</body>`
+		? input.body
 		: ``
 	}
 </html>

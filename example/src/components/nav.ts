@@ -7,12 +7,15 @@ export class Nav extends Component {
 		this.init();
 	}
 
-	template = () => `<ul>
-		${Object.entries(routes).map(([routeName, route]) => `
-			<li>${
-				new Link().to(route).render(`Go ${routeName}`)
-			}</li>
-		`).join(``)}
-	</ul>
+	template = () => `
+	<nav>
+		<ul>
+			${Object.entries(routes).map(([routeName, route]) => `
+				<li>${
+					new Link().to(route).render(`Go ${routeName}`)
+				}</li>
+			`).join(``)}
+		</ul>
+	</nav>
 	`;
 }
