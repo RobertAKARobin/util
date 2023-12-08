@@ -25,7 +25,7 @@ h1 {
 	--typeface-name: 'h1';
 	color: darkgreen;
 
-	@media (width >=600px) and (width < 1000px) {
+	@media (width > 600px) and (width < 999px) {
 		color: orange !important;
 	}
 }

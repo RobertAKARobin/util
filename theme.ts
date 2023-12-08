@@ -109,8 +109,8 @@ export class CssTheme<
 
 		for (const bpName in breakpoints) {
 			const bpSize = breakpoints[bpName];
-			this.bp.lessThan[bpName] = `(width < ${bpSize}px)`;
-			this.bp.moreThan[bpName] = `(width >= ${bpSize}px)`;
+			this.bp.lessThan[bpName] = `(width < ${bpSize - 1}px)`;
+			this.bp.moreThan[bpName] = `(width > ${bpSize}px)`; // TODO3: Had `>=`, but jsBeautify kept removing the space after it which made stylelint fail
 		}
 	}
 

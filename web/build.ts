@@ -290,6 +290,8 @@ export class Builder {
 		css = jsBeautify.css(css, {
 			end_with_newline: true, // TODO2: Once we're using editorconfig, use the `--editorconfig` option
 			indent_with_tabs: true,
+			space_around_combinator: true,
+			space_around_selector_separator: true,
 		});
 		return css;
 	}
