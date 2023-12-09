@@ -14,12 +14,12 @@ Rules that we haven't found lint rules for yet:
 
 -	Use the global namespace when calling global variables. This makes it clearer where the variable is coming from.
 
-    Yes:
-    ```js
-    window.location
-    ```
+	Yes:
+	```js
+	window.location
+	```
 
-    No:
-    ```js
-    location
-    ```
+	No:
+	```js
+	location
+	```
