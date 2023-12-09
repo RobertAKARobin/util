@@ -9,11 +9,8 @@
 		"jsdom": "^23.0.1",
 		"marked": "^11.0.0"
 	},
-	"devDependencies": {
-		"@robertakarobin/eslint-config-ts": "^0.0.21"
-	},
 	"name": "@robertakarobin/web",
 	"scripts": {},
 	"type": "module",
-	"version": "0.0.44"
+	"version": "0.0.45"
 }

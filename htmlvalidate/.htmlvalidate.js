@@ -3,6 +3,6 @@ module.exports = {
 		`html-validate:recommended`,
 	],
 	rules: {
-		"no-inline-style": `off`,
+		'no-inline-style': `off`,
 	},
 };

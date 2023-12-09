@@ -1,7 +1,7 @@
 {
 	"devDependencies": {
-		"@robertakarobin/csslint": "^0.0.8",
-		"@robertakarobin/eslint-config-ts": "^0.0.21",
+		"@robertakarobin/csslint": "file:./csslint",
+		"@robertakarobin/eslint-config-ts": "file:./eslint-config-ts",
 		"@types/diff": "^5.0.9",
 		"diff": "^5.1.0",
 		"husky": "^8.0.3",
@@ -22,5 +22,5 @@
 		"test": "npm run lint && npm run spec && npm run test --prefix example"
 	},
 	"type": "module",
-	"version": "0.0.198"
+	"version": "0.0.199"
 }
