@@ -1,6 +1,6 @@
 import { BasePage } from './_page.ts';
 
-import { routes } from '@src/router.ts';
+import { router } from '@src/router.ts';
 
 const style = `
 h1 {
@@ -16,9 +16,9 @@ export class YesSSGPage extends BasePage {
 <main>
 	<h1>SSG yes</h1>
 
-	<div id="${routes.ssgYesJump1.idAttr}">Jump 1</div>
+	<div id="${router.hashes.ssgYesJump1}">Jump 1</div>
 
-	<div id="${routes.ssgYesJump2.idAttr}">Jump 2</div>
+	<div id="${router.hashes.ssgYesJump2}">Jump 2</div>
 </main>
 `);
 }

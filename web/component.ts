@@ -1,7 +1,7 @@
 import { Emitter } from '@robertakarobin/util/emitter.ts';
 import { newUid } from '@robertakarobin/util/index.ts';
 export { html, css } from '@robertakarobin/util/template.ts';
-import { appContext } from '@robertakarobin/util/context.ts';
+import { appContext, baseUrl } from '@robertakarobin/util/context.ts';
 
 export type BoundElement = Element & {
 	[Component.$elInstance]: Component; // Attaching instances to Elements should prevent the instance from being garbage-collected until the Element is GCd
@@ -263,6 +263,27 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 				$placeholder.parentNode?.appendChild(instance.$el!);
 			}
 			$placeholder.parentNode?.removeChild($placeholder);
+		}
+
+		if (Component.currentParent === Component.rootParent) { // Keep this from running unnecessarily for all descendant components
+			const $links = $el.querySelectorAll(`a`);
+			for (const $link of $links) {
+				const href = $link.getAttribute(`href`)!;
+				let url: URL;
+				try {
+					url = new URL(href, baseUrl);
+				} catch {
+					continue;
+				}
+				if (url.origin !== baseUrl.origin) {
+					if ($link.getAttribute(`rel`) === null) {
+						$link.setAttribute(`rel`, `noopener`);
+					}
+					if ($link.getAttribute(`target`) === null) {
+						$link.setAttribute(`target`, `_blank`);
+					}
+				}
+			}
 		}
 
 		return `<!--${this.id}-->`;

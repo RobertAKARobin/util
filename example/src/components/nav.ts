@@ -1,6 +1,6 @@
 import { Component } from '@robertakarobin/web/component.ts';
 
-import { Link, routes } from '@src/router.ts';
+import { paths } from '@src/router.ts';
 
 export class Nav extends Component {
 	static {
@@ -10,12 +10,10 @@ export class Nav extends Component {
 	template = () => `
 	<nav>
 		<ul>
-			${Object.entries(routes).map(([routeName, route]) => `
-				<li>${
-					new Link()
-						.set(route)
-						.render(`Go ${routeName}`)
-				}</li>
+			${Object.entries(paths).map(([routeName, route]) => `
+				<li>
+					<a href="${route}">Go ${routeName}</a>
+				</li>
 			`).join(``)}
 		</ul>
 	</nav>

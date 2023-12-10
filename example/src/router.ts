@@ -1,8 +1,8 @@
-import { Resolver, type Route, Router } from '@robertakarobin/web/router.ts';
-import { LinkComponent } from '@robertakarobin/web/link.ts';
+import { Resolver, Router } from '@robertakarobin/web/router.ts';
 
 export const router = new Router({
 	error404: `/404.html`,
+	external: `https://example.com`,
 	home: `/`,
 	homeJump1: `/#jump1`,
 	homeJump2: `/#jump2`,
@@ -12,24 +12,24 @@ export const router = new Router({
 	ssgYesJump2: `/ssg/yes/#jump2`,
 });
 
-export const { routes } = router;
+export const { paths, hashes, urls } = router;
 
-export const resolver = new Resolver(router, async(route: Route) => {
+export const resolver = new Resolver(router, async(route: URL) => {
 	switch (route.pathname) {
-		case routes.home.pathname:
-		case routes.homeJump1.pathname:
-		case routes.homeJump2.pathname:
+		case paths.home:
+		case paths.homeJump1:
+		case paths.homeJump2:
 			return new (await import(`@src/pages/index.ts`)).IndexPage().set({
 				message: `This is a variable`,
 				title: `Home page`,
 			});
-		case routes.ssgNo.pathname:
+		case paths.ssgNo:
 			return new (await import(`@src/pages/ssg-no.ts`)).NoSSGPage().set({
 				title: `No SSG page`,
 			});
-		case routes.ssgYes.pathname:
-		case routes.ssgYesJump1.pathname:
-		case routes.ssgYesJump2.pathname:
+		case paths.ssgYes:
+		case paths.ssgYesJump1:
+		case paths.ssgYesJump2:
 			return new (await import(`@src/pages/ssg-yes.ts`)).YesSSGPage().set({
 				title: `SSG yes`,
 			});
@@ -38,11 +38,3 @@ export const resolver = new Resolver(router, async(route: Route) => {
 		title: `Error 404`,
 	});
 });
-
-export class Link extends LinkComponent {
-	static {
-		this.init();
-	}
-
-	router = router;
-}

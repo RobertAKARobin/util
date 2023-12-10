@@ -1,45 +1,86 @@
-import { appContext, baseHref, defaultBaseUrl } from '@robertakarobin/util/context.ts';
+import { appContext, baseUrl, defaultBaseUrl } from '@robertakarobin/util/context.ts';
 import { Emitter } from '@robertakarobin/util/emitter.ts';
 
 export const hasExtension = /\.\w+$/;
 
-export class Route extends URL {
-	readonly idAttr: string;
-	readonly isExternal: boolean;
-	constructor(...[input]: ConstructorParameters<typeof URL>) {
-		super(input, baseHref);
-		if (!hasExtension.test(this.pathname)) {
-			if (!this.pathname.endsWith(`/`)) {
-				this.pathname += `/`;
-			}
-		}
-		this.isExternal = this.origin !== baseHref.origin;
-		this.idAttr = this.hash.substring(1);
-	}
-};
-
 export type RouteMap = Record<string, string>;
 
-export class Router<RouteMap_ extends RouteMap = any> extends Emitter<Route> { // eslint-disable-line @typescript-eslint/no-explicit-any
+export class Router<RouteMap_ extends RouteMap = Record<string, never>> extends Emitter<URL> {
+	readonly hashes = {} as Record<keyof RouteMap_, string>;
 	isReplace = true;
-	readonly routes = {} as Record<keyof RouteMap_, Route>;
+	readonly paths = {} as Record<keyof RouteMap_, string>;
+	readonly urls = {} as Record<keyof RouteMap_, URL>;
 
 	constructor(routes: RouteMap_) {
 		super();
 
 		for (const key in routes) {
-			this.routes[key] = new Route(routes[key]);
+			const path = routes[key] as string;
+
+			const url = new URL(path, baseUrl);
+			this.urls[key] = url;
+
+			this.hashes[key] = url.hash.substring(1);
+			if (!hasExtension.test(url.pathname)) {
+				if (!url.pathname.endsWith(`/`)) {
+					url.pathname += `/`;
+				}
+			}
+
+			if (url.origin === baseUrl.origin) {
+				this.paths[key] = `${url.pathname}${url.hash}`;
+			} else {
+				this.paths[key] = url.href;
+			}
 		}
 
 		if (appContext === `browser`) {
 			window.onpopstate = () => { // Popstate is fired only by performing a browser action on the current document, e.g. back, forward, or hashchange
-				this.set(new Route(window.location.href));
+				this.set(new URL(window.location.href));
 			};
 
 			window.onhashchange = () => { // Hashchange is fired _after_ popstate
-				this.set(new Route(window.location.href));
+				this.set(new URL(window.location.href));
 			};
+
+			document.addEventListener(`click`, event => {
+				const $target = event.target as HTMLElement;
+				const $link = $target.closest(`a`);
+
+				if ($link === null) {
+					return;
+				}
+
+				const href = $link.getAttribute(`href`);
+
+				if (href === null) {
+					return;
+				}
+
+				if (event.metaKey || event.ctrlKey) { // Allow opening in new tab
+					return;
+				}
+
+				const url = new URL(href, baseUrl);
+				if (url.origin !== baseUrl.origin) { // External URLs
+					return;
+				}
+
+				event.preventDefault();
+
+				this.set(href);
+			});
 		}
+	}
+
+	set(update: string | Partial<URL>): this {
+		let url: URL;
+		if (typeof update === `string`) {
+			url = new URL(update, baseUrl);
+		} else {
+			url = update as URL;
+		}
+		return super.set(url);
 	}
 }
 
@@ -51,7 +92,7 @@ export class Resolver<View> extends Emitter<View> {
 
 	constructor(
 		readonly router: Router<never>,
-		readonly resolve: (to: Route, from?: Route) => View | Promise<View>,
+		readonly resolve: (to: URL, from?: URL) => View | Promise<View>,
 	) {
 		super();
 
@@ -65,7 +106,7 @@ export class Resolver<View> extends Emitter<View> {
 				return;
 			}
 
-			if (to.origin !== baseHref.origin && to.origin !== defaultBaseUrl.origin) { // On external
+			if (to.origin !== baseUrl.origin && to.origin !== defaultBaseUrl.origin) { // On external
 				location.href = to.href;
 				return;
 			}
@@ -86,7 +127,7 @@ export class Renderer<View> extends Emitter<View> {
 		readonly render: (
 			newView: View,
 			oldView: View,
-			newRoute: Route,
+			newRoute: URL,
 		) => void | Promise<void>
 	) {
 		super();
@@ -102,7 +143,7 @@ export class Renderer<View> extends Emitter<View> {
 			}
 		}, { isStrong: true });
 
-		const landingRoute = new Route(location.href);
+		const landingRoute = new URL(location.href);
 		const landingView = resolver.resolve(landingRoute);
 		if (landingView instanceof Promise) {
 			landingView

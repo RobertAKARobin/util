@@ -5,27 +5,27 @@
 	<title>Home page</title>
 	<base href="/">
 	<meta name="viewport" content="width=device-width, initial-scale=1"> <script src="/script.js" type="module"></script>
-	<link rel="stylesheet" href="/styles.css"> <script id="unhydratedArgs" src="data:text/javascript," onload="unhydratedArgs={'/UID3/':{message:'This is a variable',title:'Home page'},mylist:[{value:'hello'}],'mylist-0':'hello','mylist-0_0':{value:'hello'},'/UID3/_0':{idAttr:'',isExternal:false},nav_0:{idAttr:'',isExternal:false},nav_1:{idAttr:'',isExternal:false},nav_2:{idAttr:'jump1',isExternal:false},nav_3:{idAttr:'jump2',isExternal:false},nav_4:{idAttr:'',isExternal:false},nav_5:{idAttr:'',isExternal:false},nav_6:{idAttr:'jump1',isExternal:false},nav_7:{idAttr:'jump2',isExternal:false}}"></script>
+	<link rel="stylesheet" href="/styles.css"> <script id="unhydratedArgs" src="data:text/javascript," onload="unhydratedArgs={'/UID3/':{message:'This is a variable',title:'Home page'},mylist:[{value:'hello'}],'mylist-0':'hello','mylist-0_0':{value:'hello'}}"></script>
 	<link rel="stylesheet" href="/index.html.css">
 	<style data-component="Textbox"></style>
 	<style data-component="ListItem"></style>
 	<style data-component="List"></style>
 	<style data-component="IndexPage"></style>
-	<style data-component="Link"></style>
 	<style data-component="Nav"></style>
 </head>
 
 <body data-component="IndexPage" data-id="/UID3/">
 	<nav data-component="Nav" data-id="nav">
 		<ul>
-			<li><a href="/404.html" onclick="this.closest('[data-component=Link]').instance.onClick(event,)" data-component="Link" data-id="nav_0">Go error404</a></li>
-			<li><a href="/" onclick="this.closest('[data-component=Link]').instance.onClick(event,)" data-component="Link" data-id="nav_1">Go home</a></li>
-			<li><a href="/#jump1" onclick="this.closest('[data-component=Link]').instance.onClick(event,)" data-component="Link" data-id="nav_2">Go homeJump1</a></li>
-			<li><a href="/#jump2" onclick="this.closest('[data-component=Link]').instance.onClick(event,)" data-component="Link" data-id="nav_3">Go homeJump2</a></li>
-			<li><a href="/ssg/no/" onclick="this.closest('[data-component=Link]').instance.onClick(event,)" data-component="Link" data-id="nav_4">Go ssgNo</a></li>
-			<li><a href="/ssg/yes/" onclick="this.closest('[data-component=Link]').instance.onClick(event,)" data-component="Link" data-id="nav_5">Go ssgYes</a></li>
-			<li><a href="/ssg/yes/#jump1" onclick="this.closest('[data-component=Link]').instance.onClick(event,)" data-component="Link" data-id="nav_6">Go ssgYesJump1</a></li>
-			<li><a href="/ssg/yes/#jump2" onclick="this.closest('[data-component=Link]').instance.onClick(event,)" data-component="Link" data-id="nav_7">Go ssgYesJump2</a></li>
+			<li> <a href="/404.html">Go error404</a> </li>
+			<li> <a href="https://example.com/" rel="noopener" target="_blank">Go external</a> </li>
+			<li> <a href="/">Go home</a> </li>
+			<li> <a href="/#jump1">Go homeJump1</a> </li>
+			<li> <a href="/#jump2">Go homeJump2</a> </li>
+			<li> <a href="/ssg/no/">Go ssgNo</a> </li>
+			<li> <a href="/ssg/yes/">Go ssgYes</a> </li>
+			<li> <a href="/ssg/yes/#jump1">Go ssgYesJump1</a> </li>
+			<li> <a href="/ssg/yes/#jump2">Go ssgYesJump2</a> </li>
 		</ul>
 	</nav>
 	<main>
@@ -41,8 +41,8 @@
 		<h1>Headline 1</h1>
 		<h2>This is a variable</h2>
 		<p>Lorem ipsum dolor <strong>sit amet</strong>, consectetur <em>adipiscing elit</em>, sed do <em>eiusmod tempor</em> incididunt.</p>
-		<p>Duis aute voluptate <a href="https://example.com">velit esse cillum</a> dolore /eu fugiat/ nulla pariatur.</p>
-		<p><a href="/ssg/yes/" onclick="this.closest('[data-component=Link]').instance.onClick(event,)" data-component="Link" data-id="/UID3/_0">Link to SSG Yes</a></p><button type="button" onclick="this.closest('[data-component=IndexPage]').instance.anchorlessRoute(event,)">Go to SSG Yes</button>
+		<p>Duis aute voluptate <a href="https://example.com" rel="noopener" target="_blank">velit esse cillum</a> dolore /eu fugiat/ nulla pariatur.</p>
+		<p><a href="/ssg/yes/">Link to SSG Yes</a></p><button type="button" onclick="this.closest('[data-component=IndexPage]').instance.anchorlessRoute(event,)">Go to SSG Yes</button>
 		<h2>Headline 2</h2>
 		<blockquote>
 			<p>Excepteur sint occaecat <em>cupidatat</em> non proident.</p>

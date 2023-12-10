@@ -13,6 +13,7 @@ import { serialize } from '@robertakarobin/util/serialize.ts';
 
 import { Component, globals, type Page } from './component.ts';
 import { hasExtension, type Resolver, type Router } from './router.ts';
+import { baseUrl } from '@robertakarobin/util/context.ts';
 
 const bustCache = (pathname: string) => {
 	const url = new URL(`file:///${pathname}?v=${Date.now() + performance.now()}`); // URL is necessary for running on Windows
@@ -160,8 +161,14 @@ export class Builder {
 		const builtRoutes = new Set<string>();
 
 		await promiseConsecutive(
-			Object.entries(router.routes).map(([routeName, route]) => async() => {
+			Object.entries(router.urls).map(([routeName, route]) => async() => {
 				log(`${routeName.toString()}: ${route.pathname}`);
+
+				if (route.origin !== baseUrl.origin) {
+					console.log(`Route is external. Skipping...`);
+					logBreak();
+					return;
+				}
 
 				const url = new URL(route);
 				url.hash = ``;

@@ -1,6 +1,6 @@
 {
 	"dependencies": {
-		"@robertakarobin/eslint-config": "^0.0.11",
+		"@robertakarobin/eslint-config": "^0.0.14",
 		"@types/node": "^20.10.4",
 		"@typescript-eslint/eslint-plugin": "^6.13.2",
 		"@typescript-eslint/parser": "^6.13.2",
@@ -9,5 +9,5 @@
 	"main": "index.js",
 	"name": "@robertakarobin/eslint-config-ts",
 	"scripts": {},
-	"version": "0.0.22"
+	"version": "0.0.26"
 }

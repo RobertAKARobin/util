@@ -23,7 +23,7 @@
 -	Don't require script
 -	CSS class mapping
 -	Declare CSS variables inline
--	If class is added to element, the class should be appended to existing classes
+-	If class is added via `setAttrs`, the class should be appended to existing classes
 -	Add isHydrated option
 -	Import from other file (ergo SVG)
 
