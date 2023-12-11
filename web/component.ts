@@ -131,8 +131,8 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		return `"this.closest('[${Component.$elAttrType}=${this.Ctor.name}]').${Component.$elInstance}.${targetName as string}${out}"`;
 	}
 
-	closest(Ancestor: string): Element;
-	closest<Ancestor extends typeof Component>(Ancestor: Ancestor): Ancestor;
+	closest(Ancestor: string): HTMLElement;
+	closest<Ancestor extends typeof Component>(Ancestor: Ancestor): InstanceType<Ancestor>;
 	closest<Ancestor extends typeof Component>(Ancestor: Ancestor | string) {
 		const selector = typeof Ancestor === `string`
 			? Ancestor
@@ -147,8 +147,8 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		}
 	}
 
-	find(Descendant: string): Element;
-	find<Descendant extends typeof Component>(Descendant: Descendant): Descendant;
+	find(Descendant: string): HTMLElement;
+	find<Descendant extends typeof Component>(Descendant: Descendant): InstanceType<Descendant>;
 	find<Descendant extends typeof Component>(Descendant: Descendant | string) {
 		const selector = typeof Descendant === `string`
 			? Descendant
@@ -163,7 +163,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		}
 	}
 
-	findAll(Descendant: string): Array<BoundElement>;
+	findAll(Descendant: string): Array<HTMLElement>;
 	findAll<Descendant extends typeof Component>(
 		Descendant: Descendant
 	): Array<InstanceType<Descendant>>;
