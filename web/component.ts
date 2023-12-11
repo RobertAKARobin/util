@@ -3,7 +3,7 @@ import { newUid } from '@robertakarobin/util/index.ts';
 export { html, css } from '@robertakarobin/util/template.ts';
 import { appContext, baseUrl } from '@robertakarobin/util/context.ts';
 
-export type BoundElement = Element & {
+export type BoundElement = HTMLElement & {
 	[Component.$elInstance]: Component; // Attaching instances to Elements should prevent the instance from being garbage-collected until the Element is GCd
 };
 
