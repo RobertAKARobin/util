@@ -18,6 +18,9 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	static currentParent: Component;
 	static instances = new Map<Component[`id`], Component>();
 	static rootParent: Component;
+	static get selector() {
+		return `[${this.$elAttrType}='${this.name}']`;
+	}
 	static readonly style: string | undefined;
 	static readonly subclasses = new Map<string, typeof Component>();
 	static readonly unhydratedArgsName = `unhydratedArgs`;
@@ -36,7 +39,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	static init() {
 		Component.subclasses.set(this.name, this);
 		Object.assign(this, {
-			style: this.style?.replace(/::?host/g, `[${this.$elAttrType}='${this.name}']`), // style is readonly; just override it here
+			style: this.style?.replace(/::?host/g, this.selector), // style is readonly; just override it here
 		});
 		this.setStyle();
 	}
@@ -49,7 +52,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	static setStyle() {
 		if (
 			typeof this.style === `string`
-			&& document.querySelector(`style[${this.$elAttrType}='${this.name}']`) === null
+			&& document.querySelector(`style${this.selector}`) === null
 		) {
 			const $style = document.createElement(`style`);
 			$style.textContent = this.style;
@@ -128,7 +131,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		const out = target instanceof Emitter
 			? `.next(${argsString})`
 			: `(event,${argsString})`;
-		return `"this.closest('[${Component.$elAttrType}=${this.Ctor.name}]').${Component.$elInstance}.${targetName as string}${out}"`;
+		return `"this.closest(\`${this.Ctor.selector}\`).${Component.$elInstance}.${targetName as string}${out}"`;
 	}
 
 	closest(Ancestor: string): HTMLElement;
@@ -136,7 +139,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	closest<Ancestor>(Ancestor: (new () => Ancestor) | string) {
 		const selector = typeof Ancestor === `string`
 			? Ancestor
-			: `[${Component.$elAttrType}=${Ancestor.name}]`;
+			: (Ancestor as unknown as typeof Component).selector;
 
 		const $match = this.$el?.closest(selector);
 		if ($match) {
@@ -152,7 +155,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	find<Descendant>(Descendant: (new () => Descendant) | string) {
 		const selector = typeof Descendant === `string`
 			? Descendant
-			: `[${Component.$elAttrType}=${Descendant.name}]`;
+			: (Descendant as unknown as typeof Component).selector;
 
 		const $match = this.$el?.querySelector(selector);
 		if ($match) {
@@ -168,7 +171,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	findAll<Descendant>(Descendant: (new () => Descendant) | string) {
 		const selector = typeof Descendant === `string`
 			? Descendant
-			: `[${Component.$elAttrType}=${Descendant.name}]`;
+			: (Descendant as unknown as typeof Component).selector;
 
 		const descendants = [];
 
@@ -194,7 +197,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 
 		const $el = $root.getAttribute(Component.$elAttrType) === this.Ctor.name
 			? $root
-			: $root.querySelector(`[${Component.$elAttrType}="${this.Ctor.name}"]`)!;
+			: $root.querySelector(this.Ctor.selector)!;
 		this.id = $el.getAttribute(Component.$elAttrId)!; // This has already been instantiated at this point, so need to overwrite its ID
 		this.setEl($el);
 
@@ -226,6 +229,8 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		this.subscribe(value => doWhat(value[key], this));
 		return this;
 	}
+
+	onRender() {}
 
 	render(content: string = ``) {
 		this.content = content;
@@ -283,6 +288,8 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 				}
 			}
 		}
+
+		this.onRender();
 
 		return `<!--${this.id}-->`;
 	}

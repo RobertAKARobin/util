@@ -34,7 +34,7 @@
 		<ol data-component="List" data-id="mylist">
 			<li>
 				<div data-component="ListItem" data-id="mylist-0"> mylist-0 <button type="button">↑</button> <button type="button">↓</button> <button type="button">Add before</button> <button type="button">Remove</button>
-					<div data-component="Textbox" data-id="mylist-0_0"> <input maxlength="10" oninput="this.closest('[data-component=Textbox]').instance.handleInput(event,)" placeholder="Type here" type="text" value="hello"> <span>5 / 10 Remaining</span> </div>
+					<div data-component="Textbox" data-id="mylist-0_0"> <input maxlength="10" oninput="this.closest(`[data-component='Textbox']`).instance.handleInput(event,)" placeholder="Type here" type="text" value="hello"> <span>5 / 10 Remaining</span> </div>
 				</div>
 			</li>
 		</ol>
@@ -42,7 +42,7 @@
 		<h2>This is a variable</h2>
 		<p>Lorem ipsum dolor <strong>sit amet</strong>, consectetur <em>adipiscing elit</em>, sed do <em>eiusmod tempor</em> incididunt.</p>
 		<p>Duis aute voluptate <a href="https://example.com" rel="noopener" target="_blank">velit esse cillum</a> dolore /eu fugiat/ nulla pariatur.</p>
-		<p><a href="/ssg/yes/">Link to SSG Yes</a></p><button type="button" onclick="this.closest('[data-component=IndexPage]').instance.anchorlessRoute(event,)">Go to SSG Yes</button>
+		<p><a href="/ssg/yes/">Link to SSG Yes</a></p><button type="button" onclick="this.closest(`[data-component='IndexPage']`).instance.anchorlessRoute(event,)">Go to SSG Yes</button>
 		<h2>Headline 2</h2>
 		<blockquote>
 			<p>Excepteur sint occaecat <em>cupidatat</em> non proident.</p>
