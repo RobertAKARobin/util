@@ -132,8 +132,8 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	}
 
 	closest(Ancestor: string): HTMLElement;
-	closest<Ancestor extends typeof Component>(Ancestor: Ancestor): InstanceType<Ancestor>;
-	closest<Ancestor extends typeof Component>(Ancestor: Ancestor | string) {
+	closest<Ancestor>(Ancestor: new () => Ancestor): Ancestor;
+	closest<Ancestor>(Ancestor: (new () => Ancestor) | string) {
 		const selector = typeof Ancestor === `string`
 			? Ancestor
 			: `[${Component.$elAttrType}=${Ancestor.name}]`;
@@ -147,9 +147,9 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		}
 	}
 
-	find(Descendant: string): HTMLElement;
-	find<Descendant extends typeof Component>(Descendant: Descendant): InstanceType<Descendant>;
-	find<Descendant extends typeof Component>(Descendant: Descendant | string) {
+	find(Descendant: string): HTMLElement; // TODO3: Stronger typing for this
+	find<Descendant>(Descendant: new () => Descendant): Descendant;
+	find<Descendant>(Descendant: (new () => Descendant) | string) {
 		const selector = typeof Descendant === `string`
 			? Descendant
 			: `[${Component.$elAttrType}=${Descendant.name}]`;
@@ -164,10 +164,8 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	}
 
 	findAll(Descendant: string): Array<HTMLElement>;
-	findAll<Descendant extends typeof Component>(
-		Descendant: Descendant
-	): Array<InstanceType<Descendant>>;
-	findAll<Descendant extends typeof Component>(Descendant: Descendant | string) {
+	findAll<Descendant>(Descendant: new () => Descendant): Array<Descendant>;
+	findAll<Descendant>(Descendant: (new () => Descendant) | string) {
 		const selector = typeof Descendant === `string`
 			? Descendant
 			: `[${Component.$elAttrType}=${Descendant.name}]`;
@@ -182,7 +180,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 			descendants.push(...Array.from($descendants));
 		} else {
 			for (const $descendant of $descendants) {
-				descendants.push($descendant.instance as InstanceType<Descendant>);
+				descendants.push($descendant.instance as Descendant);
 			}
 		}
 
