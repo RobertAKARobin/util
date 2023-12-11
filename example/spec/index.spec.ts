@@ -13,7 +13,9 @@ EntityStateEmitter.prototype.createId = Component.createId = () => { // Easy to 
 
 export const hasMarkdown = /<markdown>(.*?)<\/markdown>/gs;
 
-const read = (path: string) => fs.readFileSync(path, { encoding: `utf8` }).replace(/\/UID\d+\//g, `/UID/`); // Note that this will make it look like some IDs are repeated
+const read = (path: string) => fs.readFileSync(path, { encoding: `utf8` })
+	.replace(/\/UID\d+\//g, `/UID/`) // Note that this will make it look like some IDs are repeated
+	.replace(/\?cache=\d+/g, `?cache=123`);
 
 const dist = (path: string) => read(`dist/${path}`);
 const golden = (path: string) => read(`dist-golden/${path}`);

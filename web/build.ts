@@ -160,6 +160,8 @@ export class Builder {
 
 		const builtRoutes = new Set<string>();
 
+		const cacheBuster = `?cache=${Date.now().toString()}`;
+
 		await promiseConsecutive(
 			Object.entries(router.urls).map(([routeName, route]) => async() => {
 				log(`${routeName.toString()}: ${route.pathname}`);
@@ -228,6 +230,7 @@ export class Builder {
 					Component,
 					baseHref: this.baseHref,
 					body,
+					cacheBuster,
 					css,
 					head: unhydratedArgs,
 					mainCssPath: path.join(`/`, this.styleServeFileRel),
@@ -375,6 +378,7 @@ export const defaultLayout = (input: {
 	Component: typeof Component;
 	baseHref: string;
 	body?: string;
+	cacheBuster: string;
 	css?: string;
 	head?: string;
 	loadScript?: string;
@@ -397,12 +401,12 @@ export const defaultLayout = (input: {
 		}
 
 		${typeof input.mainJsPath === `string`
-			? `<script src="${input.mainJsPath}" type="module"></script>`
+			? `<script src="${input.mainJsPath}${input.cacheBuster}" type="module"></script>`
 			: ``
 		}
 
 		${typeof input.mainCssPath === `string`
-			? `<link rel="stylesheet" href="${input.mainCssPath}">`
+			? `<link rel="stylesheet" href="${input.mainCssPath}${input.cacheBuster}">`
 			: ``
 		}
 
@@ -412,7 +416,7 @@ export const defaultLayout = (input: {
 		}
 
 		${typeof input.routeCssPath === `string`
-			? `<link rel="stylesheet" href="${input.routeCssPath}">`
+			? `<link rel="stylesheet" href="${input.routeCssPath}${input.cacheBuster}">`
 			: ``
 		}
 

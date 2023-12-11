@@ -20,6 +20,7 @@
 
 ## TODO
 
+-	Make Emitter subscriptions strong by default?
 -	Don't require script
 -	CSS class mapping
 -	Declare CSS variables inline
@@ -41,6 +42,7 @@
 
 ### Done:
 
+-	Bust CSS cache
 -	Add minify as build option
 -	Template/CSS prefix
 -	.bind works on emitters too
