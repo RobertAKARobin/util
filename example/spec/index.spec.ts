@@ -64,5 +64,13 @@ export const spec = suite(`@robertakarobin/web`,
 		$.assert(x => x(new Widget().set({ message: `x` }).template()) === `<h1>x42</h1>`);
 		$.assert(x => x(new Widget().set({ message: `x` }).template()) === `<h1>x42</h1>`);
 		$.assert(x => x(new Widget(`id`).set({ message: `x` }).template()) === `<h1>x42</h1>`);
+
+		let widget: Widget;
+		$.log(() => widget = new Widget());
+		$.log(() => widget.render());
+		$.assert(x => x(widget.$el!.outerHTML) === x(`<h1 data-component="Widget" data-id="/UID8/">42</h1>`));
+		$.assert(x => x(widget.attrs({ class: `foo` }).$el!.outerHTML) === x(`<h1 data-component="Widget" data-id="/UID8/" class="foo">42</h1>`));
+		$.assert(x => x(widget.attrs({ class: `` }).$el!.outerHTML) === x(`<h1 data-component="Widget" data-id="/UID8/">42</h1>`));
+		$.assert(x => x(widget.attrs({ class: `foo` }).attrs({ class: `` }).$el!.outerHTML) === x(`<h1 data-component="Widget" data-id="/UID8/">42</h1>`));
 	}),
 );

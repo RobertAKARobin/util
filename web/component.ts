@@ -169,6 +169,8 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 				const value = this.attributes[attributeName];
 				if (value !== undefined && value !== null && value !== ``) {
 					this.$el.setAttribute(attributeName, value.toString());
+				} else {
+					this.$el.removeAttribute(attributeName);
 				}
 			}
 		}
