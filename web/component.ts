@@ -1,5 +1,5 @@
 import { Emitter } from '@robertakarobin/util/emitter.ts';
-import { newUid } from '@robertakarobin/util/index.ts';
+import { newUid } from '@robertakarobin/util/uid.ts';
 export { html, css } from '@robertakarobin/util/template.ts';
 import { appContext, baseUrl } from '@robertakarobin/util/context.ts';
 

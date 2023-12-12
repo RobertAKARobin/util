@@ -8,12 +8,12 @@ import path from 'path';
 
 import type * as $ from '@robertakarobin/util/types.d.ts';
 import { stringMates, type TagResult } from '@robertakarobin/util/string-mates.ts';
+import { baseUrl } from '@robertakarobin/util/context.ts';
 import { promiseConsecutive } from '@robertakarobin/util/promiseConsecutive.ts';
 import { serialize } from '@robertakarobin/util/serialize.ts';
 
 import { Component, globals, type Page } from './component.ts';
 import { hasExtension, type Resolver, type Router } from './router.ts';
-import { baseUrl } from '@robertakarobin/util/context.ts';
 
 const bustCache = (pathname: string) => {
 	const url = new URL(`file:///${pathname}?v=${Date.now() + performance.now()}`); // URL is necessary for running on Windows

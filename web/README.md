@@ -20,7 +20,6 @@
 
 ## TODO
 
--	Extract `util/index.ts` to separate files, for code splitting
 -	Make Emitter subscriptions strong by default?
 -	CSS class mapping
 -	Declare CSS variables inline
@@ -41,6 +40,7 @@
 
 ### Done:
 
+-	Extract `util/index.ts` to separate files, for code splitting
 -	Add isHydrated option
 -	Don't require script
 -	Bust CSS cache
