@@ -20,7 +20,6 @@
 
 ## TODO
 
--	Make Emitter subscriptions strong by default?
 -	CSS class mapping
 -	Declare CSS variables inline
 -	If class is added via `attrs`, the class should be appended to existing classes
@@ -40,6 +39,7 @@
 
 ### Done:
 
+-	Make Emitter subscriptions strong by default
 -	Make `Component.instances` weak
 -	Extract `util/index.ts` to separate files, for code splitting
 -	Add isHydrated option

@@ -123,7 +123,7 @@ export class Resolver<View> extends Emitter<View> {
 					window.history.replaceState({}, ``, to.pathname); // Turns out `location.hash = ''` will still set a hash of `#`. So, if going from a path with hash to path without hash, we'll need to handle the hash differently
 				}
 			}
-		}, { isStrong: true });
+		});
 	}
 }
 
@@ -150,7 +150,7 @@ export class Renderer<View> extends Emitter<View> {
 					location.hash = to.hash;
 				}
 			}
-		}, { isStrong: true });
+		});
 
 		const landingRoute = new URL(location.href);
 		const landingView = resolver.resolve(landingRoute);

@@ -135,16 +135,15 @@ export class Emitter<
 		} = {}
 	): OnEmit<State> {
 		const subscription = onEmit;
-		this.subscriptions.add(options.isStrong === true
+		const isStrong = options.isStrong ?? true;
+		this.subscriptions.add(isStrong === true
 			? subscription
 			: new WeakRef(subscription)
 		);
 		return subscription;
-
-		/* emitter.update(emitter.actions.poo(32)); */
 	}
 
-	unsubscribe(subscription: WeakRef<OnEmit<State>> | OnEmit<State>) {
+	unsubscribe(subscription: Subscription<State>) {
 		this.subscriptions.delete(subscription);
 		return this;
 	}
