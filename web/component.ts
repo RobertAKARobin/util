@@ -11,6 +11,8 @@ export const globals = (appContext === `browser` ? window : global) as unknown a
 	& { [key in typeof Component.name]: typeof Component; }
 	& { [key in typeof Component.unhydratedArgsName]: Record<Component[`id`], object> };
 
+type HTMLAttributeValue = string | number | undefined | null;
+
 export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	static readonly $elAttrId = `data-id`;
 	static readonly $elAttrType = `data-component`;
@@ -89,7 +91,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	 * Holds the values which will be rendered as HTML attributes on the component's DOM element
 	 * @see Component.attrs()
 	 */
-	attributes = {} as Record<string, string | number>; // TODO2: Test
+	attributes = {} as Record<string, HTMLAttributeValue>;
 	/**
 	 * As the component's template is being rendered, holds the index of the child component currently being rendered. Used to create the child component's ID.
 	 */
@@ -164,16 +166,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		if (input !== undefined) {
 			this.attributes = input;
 		}
-		if (this.$el) {
-			for (const attributeName in this.attributes) {
-				const value = this.attributes[attributeName];
-				if (value !== undefined && value !== null && value !== ``) {
-					this.$el.setAttribute(attributeName, value.toString());
-				} else {
-					this.$el.removeAttribute(attributeName);
-				}
-			}
-		}
+		this.setAttributes(this.attributes);
 		return this;
 	}
 
@@ -367,9 +360,27 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 			}
 		}
 
+		this.setAttributes(this.attributes);
+
 		this.onRender();
 
 		return `<!--${this.id}-->`;
+	}
+
+	private setAttribute(attributeName: string, value?: HTMLAttributeValue) {
+		if (value !== undefined && value !== null && value !== ``) {
+			this.$el!.setAttribute(attributeName, value.toString());
+		} else {
+			this.$el!.removeAttribute(attributeName);
+		}
+	}
+
+	private setAttributes(input: Record<string, HTMLAttributeValue> = {}) {
+		if (this.$el) {
+			for (const attributeName in input) {
+				this.setAttribute(attributeName, input[attributeName]);
+			}
+		}
 	}
 
 	/**
@@ -388,6 +399,10 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	 */
 	template(content: string = ``): string {
 		return content ?? ``;
+	}
+
+	toHTML() {
+		return this.$el?.outerHTML ?? ``;
 	}
 }
 
