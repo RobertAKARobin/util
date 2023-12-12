@@ -5,6 +5,9 @@ export const hasExtension = /\.\w+$/;
 
 export type RouteMap = Record<string, string>;
 
+/**
+ * Given a dictionary of routes, e.g. { contactPage: `/contact` }, listens to window location changes and emits the new location
+ */
 export class Router<RouteMap_ extends RouteMap = Record<string, never>> extends Emitter<URL> {
 	readonly hashes = {} as Record<keyof RouteMap_, string>;
 	isReplace = true;
@@ -73,6 +76,9 @@ export class Router<RouteMap_ extends RouteMap = Record<string, never>> extends 
 		}
 	}
 
+	/**
+	 * Updates the window's location
+	 */
 	set(update: string | Partial<URL>): this {
 		let url: URL;
 		if (typeof update === `string`) {
@@ -85,7 +91,7 @@ export class Router<RouteMap_ extends RouteMap = Record<string, never>> extends 
 }
 
 /**
- * Code that runs when the resolved route changes.
+ * Given a route, returns the corresponding View (probably a Page component)
  */
 export class Resolver<View> extends Emitter<View> {
 	isReplace = true;
@@ -121,6 +127,9 @@ export class Resolver<View> extends Emitter<View> {
 	}
 }
 
+/**
+ * Given a view (e.g. a Page component), figures out what to do with it (e.g. render it after the document's `<head>`)
+ */
 export class Renderer<View> extends Emitter<View> {
 	constructor(
 		readonly resolver: Resolver<View>,

@@ -15,9 +15,9 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	static readonly $elAttrId = `data-id`;
 	static readonly $elAttrType = `data-component`;
 	static readonly $elInstance = `instance`;
-	static currentParent: Component;
-	static instances = new Map<Component[`id`], Component>();
-	static rootParent: Component;
+	private static currentParent: Component;
+	private static instances = new Map<Component[`id`], Component>();
+	private static rootParent: Component;
 	static get selector() {
 		return `[${this.$elAttrType}='${this.name}']`;
 	}
@@ -34,7 +34,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	}
 
 	/**
-	 * Should run after the page is done loading
+	 * Component setup tasks, e.g. applying the component's CSS/styles. Should run after the page is done loading. Recommend adding `static { this.init() }` when defining a component.
 	 */
 	static init() {
 		Component.subclasses.set(this.name, this);
@@ -44,11 +44,17 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		this.setStyle();
 	}
 
+	/**
+	 * Parse the given string to an HTML DOM fragment.
+	 */
 	static parse(input: string) {
 		const parser = new DOMParser();
 		return parser.parseFromString(input, `text/html`);
 	}
 
+	/**
+	 * Applies the component's CSS/styles to the current page
+	 */
 	static setStyle() {
 		if (
 			typeof this.style === `string`
@@ -61,12 +67,22 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		}
 	}
 
+	/**
+	 * The root DOM element to which the component is attached
+	 */
 	$el: BoundElement | undefined;
+	/**
+	 * Holds the values which will be rendered as HTML attributes on the component's DOM element
+	 * @see Component.attrs()
+	 */
 	attributes = {} as Record<string, string | number>;
 	/**
-	 * The element to which this instance is bound
+	 * As the component's template is being rendered, holds the index of the child component currently being rendered. Used to create the child component's ID.
 	 */
-	childIndex = 0;
+	private childIndex = 0;
+	/**
+	 * Holds the string which will be rendered inside the component; i.e. if the component was an HTML element, what would go inside its <tag></tag>
+	 */
 	content = ``;
 	/**
 	 * @returns The instance's constructor
@@ -74,19 +90,29 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	get Ctor() {
 		return this.constructor as typeof Component;
 	}
-	id: string = ``;
+	/**
+	 * When a component is instantiated, if an existing component has the same ID, the template for the existing component is used instead of a new template being rendered to the DOM. By default the ID is based on the index of the current component within its parent component.
+	 */
+	readonly id: string = ``;
 	/**
 	 * If true, if this is a Page it will be compiled into a static `.html` file at the route(s) used for this Page, which serves as a landing page for performance and SEO purposes.
 	 * If this is a Component it will be compiled into static HTML included in the landing page.
 	 * Not a static variable because a Component/Page may/may not want to be SSG based on certain conditions
 	*/
 	readonly isSSG: boolean = true;
+	/**
+	 * The component that owns the template inside of which the current component is being rendered
+	 */
 	parent: Component | undefined;
 	/**
 	 * Warning: `style` should be defined as a static property, not an instance property
 	*/
 	private readonly style: void = undefined;
 
+	/**
+	 * Creates a component instance
+	 * @param id @see Component.id
+	 */
 	constructor(
 		id?: Component[`id`],
 		...args: ConstructorParameters<typeof Emitter<State>>
@@ -113,6 +139,22 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	}
 
 	/**
+	 * Sets and/or places the component's HTML attributes
+	 */
+	attrs(input?: Component[`attributes`]) {
+		if (input !== undefined) {
+			this.attributes = input;
+		}
+		if (this.$el) {
+			for (const attributeName in this.attributes) {
+				const value = this.attributes[attributeName];
+				this.$el.setAttribute(attributeName, value.toString());
+			}
+		}
+		return this;
+	}
+
+	/**
 	 * Returns a JavaScript string that can be assigned to an HTML event attribute to call the given method with the given arguments
 	 * Arguments must be strings or numbers since other data types can't really be written onto the DOM
 	 * @example `<button onclick=${this.bind(`onClick`, `4.99`)}>$4.99</button>`
@@ -134,6 +176,9 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		return `"this.closest(\`${this.Ctor.selector}\`).${Component.$elInstance}.${targetName as string}${out}"`;
 	}
 
+	/**
+	 * Looks for and returns the first instance of the specified constructor, or element of the specified selector, in the current component's ancestor chain
+	 */
 	closest(Ancestor: string): HTMLElement;
 	closest<Ancestor>(Ancestor: new () => Ancestor): Ancestor;
 	closest<Ancestor>(Ancestor: (new () => Ancestor) | string) {
@@ -150,6 +195,9 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		}
 	}
 
+	/**
+	 * Looks for and returns the first instance of the specified constructor, or element of the specified selector, within the current component's template
+	 */
 	find(Descendant: string): HTMLElement; // TODO3: Stronger typing for this
 	find<Descendant>(Descendant: new () => Descendant): Descendant;
 	find<Descendant>(Descendant: (new () => Descendant) | string) {
@@ -166,6 +214,9 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		}
 	}
 
+	/**
+	 * Looks for and returns all instances of the specified constructor, or all elements of the specified selector, within the current component's template
+	 */
 	findAll(Descendant: string): Array<HTMLElement>;
 	findAll<Descendant>(Descendant: new () => Descendant): Array<Descendant>;
 	findAll<Descendant>(Descendant: (new () => Descendant) | string) {
@@ -190,6 +241,9 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		return descendants;
 	}
 
+	/**
+	 * Given some already-rendered HTML, e.g. from a static HTML file rendered through SSG, creates component instances for all elements that expect them, and hydrates them with data found in `<script id="unhydratedArgs">` if it exists
+	 */
 	hydrate($root: Element = document.body) {
 		Component.currentParent = Component.rootParent = Component.rootParent ?? new Component();
 
@@ -198,7 +252,9 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		const $el = $root.getAttribute(Component.$elAttrType) === this.Ctor.name
 			? $root
 			: $root.querySelector(this.Ctor.selector)!;
-		this.id = $el.getAttribute(Component.$elAttrId)!; // This has already been instantiated at this point, so need to overwrite its ID
+		Object.assign(this, {
+			id: $el.getAttribute(Component.$elAttrId)!, // The component has already been instantiated at this point, so need to overwrite its ID
+		});
 		this.setEl($el);
 
 		const $els = $root.querySelectorAll(`[${Component.$elAttrType}]`);
@@ -218,20 +274,19 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 
 		document.getElementById(Component.unhydratedArgsName)?.remove();
 
-		this.rerender();
+		this.render();
 		$el.replaceWith(this.$el!);
 	}
 
-	on<Key extends keyof State>(
-		key: Key,
-		doWhat: (value: State[Key], self: this) => void
-	) {
-		this.subscribe(value => doWhat(value[key], this));
-		return this;
-	}
-
+	/**
+	 * Called when the component is rendered
+	 */
 	onRender() {}
 
+	/**
+	 * Compiles the component's template, looping through all nested components. If a component's ID matches the ID of an existing component, the existing component's template is swapped in instead of rerendered.
+	 * Returns a comment string; this is a placeholder that is swapped out for the component's template.
+	 */
 	render(content: string = ``) {
 		this.content = content;
 
@@ -294,34 +349,15 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		return `<!--${this.id}-->`;
 	}
 
-	rerender() {
-		this.render();
-		return this.$el!;
-	}
-
 	/**
-	 * Sets and/or places the component's HTML attributes
+	 * Sets the component's root element
 	 */
-	setAttrs(input?: Component[`attributes`]) {
-		if (input !== undefined) {
-			this.attributes = input;
-		}
-		if (this.$el) {
-			for (const attributeName in this.attributes) {
-				const value = this.attributes[attributeName];
-				this.$el.setAttribute(attributeName, value.toString());
-			}
-		}
-		return this;
-	}
-
-	setEl($input: Element) {
+	private setEl($input: Element) {
 		const $el = $input as BoundElement;
 		this.$el = $el;
 		this.$el.setAttribute(Component.$elAttrType, this.Ctor.name);
 		this.$el.setAttribute(Component.$elAttrId, this.id);
 		this.$el[Component.$elInstance] = this as Component;
-		this.setAttrs();
 	}
 
 	/**
@@ -336,6 +372,9 @@ type PageType = {
 	title: string;
 };
 
+/**
+ * A Page is just a Component that (a) updates the current page's `<title>`, and (b) should have a template that starts with a `<body>` tag (unless a different layout is specified in the build process)
+ */
 export abstract class Page<
 	State extends Record<string, unknown> = Record<string, unknown>,
 > extends Component<PageType & State> {

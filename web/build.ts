@@ -30,8 +30,14 @@ const logBreak = () => console.log(``);
 
 const trimNewlines = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
 
+/**
+ * Supplies NodeFilter for the build environment. NodeFilter is attached to `window` in the front-end environment. Used to render component templates.
+ */
 globalThis.NodeFilter = new JSDOM().window.NodeFilter;
 
+/**
+ * Overrides `Component.parse` for the build process, since the build environment doesn't have a DOMParser. (Tried the dom-parser NPM library and ran into issues; using JSDOM insteaad
+ */
 Component.parse = function(input: string) {
 	const dom = new JSDOM(input);
 	return dom.window.document;
@@ -40,6 +46,9 @@ Component.parse = function(input: string) {
 Component.setStyle = function() {};
 
 const superSet = Component.prototype.set; // eslint-disable-line @typescript-eslint/unbound-method
+/**
+ * Overrides `Component.set` so that it hydrates a `<script>` tag with all the data that should be used to hydrate components when `page.hydrate()` is called
+ */
 Component.prototype.set = function(...[update, ...args]: Parameters<Component[`set`]>) {
 	const value = globals[Component.unhydratedArgsName][this.id];
 	const isSpreadable = typeof update === `object` && update !== null && !Array.isArray(update);
@@ -57,8 +66,8 @@ Component.prototype.set = function(...[update, ...args]: Parameters<Component[`s
 export class Builder {
 	readonly assetsSrcDirRel: string | Array<string>;
 	readonly baseDirAbs: string;
-	readonly baseHref: string;
-	minify: boolean;
+	readonly baseUri: string;
+	readonly minify: boolean;
 	readonly routerSrcFileAbs: string;
 	readonly routerSrcFileRel: string;
 	readonly scriptServeFileAbs: string;
@@ -73,10 +82,24 @@ export class Builder {
 	readonly stylesServeFileAbs: string;
 	readonly stylesSrcFileAbs: string;
 
+	/**
+	 *
+	 * @param input
+	 * @param input.assetsSrcDirRel The relative path/paths to directories that should be copied to the `dist/` folder
+	 * @param input.baseDirAbs The root directory for this project. Determines where the Builder looks for other files. Defaults to `process.cwd()`
+	 * @param input.baseUri The base URL used when defining routes
+	 * @param input.minify Sets ESBuild's `minify` option
+	 * @param input.routerSrcFileRel Relative path to the file containing the router, resolver, and renderer. Defaults to `./router.ts`
+	 * @param input.scriptSrcFileRel Relative path to the JS script that will be run when a page loads, e.g. the "entry point" for CSR bootstrapping. Not needed for apps that are SSG-only
+	 * @param input.serveDirRel Relative path to the directory from which the application will be served. Defaults to `./dist`
+	 * @param input.srcRawDirRel Relative path to the source code. Defaults to `./src`
+	 * @param input.srcTmpDirRel Relative path to the directory to which the source code will be copied and pre-processed before being compiled, e.g. for rendering Markdown. Defaults to `./tmp`
+	 * @param input.styleServeFileRel Relative path to the root CSS file that will be loaded on all pages. Defaults to `./styles.css`
+	 */
 	constructor(input: Partial<{
 		assetsSrcDirRel: string | Array<string>;
 		baseDirAbs: string;
-		baseHref: string;
+		baseUri: string;
 		minify: boolean;
 		routerSrcFileRel: string;
 		scriptSrcFileRel: string;
@@ -84,10 +107,8 @@ export class Builder {
 		srcRawDirRel: string;
 		srcTmpDirRel: string;
 		styleServeFileRel: string;
-		vendorServeFileName: string;
-		vendorSrcFileAbs: string;
 	}> = {}) {
-		this.baseHref = input.baseHref ?? `/`;
+		this.baseUri = input.baseUri ?? `/`;
 
 		this.baseDirAbs = input.baseDirAbs ?? process.cwd();
 		this.serveDirAbs = path.join(this.baseDirAbs, input.serveDirRel ?? `./dist`);
@@ -207,7 +228,8 @@ export class Builder {
 					return;
 				}
 
-				const body = this.formatBody(page.rerender());
+				page.render();
+				const body = this.formatBody(page.$el!);
 
 				const componentArgs = globals[Component.unhydratedArgsName];
 				const unhydratedArgs = `<script id="${Component.unhydratedArgsName}" src="data:text/javascript," onload="${Component.unhydratedArgsName}=${serialize(componentArgs)}"></script>`;
@@ -228,7 +250,7 @@ export class Builder {
 
 				const html = await this.formatHtml({
 					Component,
-					baseHref: this.baseHref,
+					baseUri: this.baseUri,
 					body,
 					cacheBuster,
 					css,
@@ -376,7 +398,7 @@ export class Builder {
  */
 export const defaultLayout = (input: {
 	Component: typeof Component;
-	baseHref: string;
+	baseUri: string;
 	body?: string;
 	cacheBuster: string;
 	css?: string;
@@ -393,7 +415,7 @@ export const defaultLayout = (input: {
 <html lang="en">
 	<head>
 		<title>${input.page.value.title}</title>
-		<base href="${input.baseHref}">
+		<base href="${input.baseUri}">
 
 		${typeof input.meta === `string`
 			?	input.meta
