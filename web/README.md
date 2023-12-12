@@ -20,11 +20,11 @@
 
 ## TODO
 
+-	Extract `util/index.ts` to separate files, for code splitting
 -	Make Emitter subscriptions strong by default?
--	Don't require script
 -	CSS class mapping
 -	Declare CSS variables inline
--	If class is added via `setAttrs`, the class should be appended to existing classes
+-	If class is added via `attrs`, the class should be appended to existing classes
 -	Add isHydrated option
 -	Import from other file (ergo SVG)
 
@@ -42,6 +42,7 @@
 
 ### Done:
 
+-	Don't require script
 -	Bust CSS cache
 -	Add minify as build option
 -	Template/CSS prefix

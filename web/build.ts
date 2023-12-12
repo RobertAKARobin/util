@@ -70,11 +70,11 @@ export class Builder {
 	readonly minify: boolean;
 	readonly routerSrcFileAbs: string;
 	readonly routerSrcFileRel: string;
-	readonly scriptServeFileAbs: string;
-	readonly scriptServeFileName: string;
-	readonly scriptServeFileRel: string;
-	readonly scriptSrcFileAbs: string;
-	readonly scriptSrcFileRel: string;
+	readonly scriptServeFileAbs: string | undefined;
+	readonly scriptServeFileName: string | undefined;
+	readonly scriptServeFileRel: string | undefined;
+	readonly scriptSrcFileAbs: string | undefined;
+	readonly scriptSrcFileRel: string | undefined;
 	readonly serveDirAbs: string;
 	readonly srcDirAbs: string;
 	readonly srcRawDirAbs: string;
@@ -102,7 +102,7 @@ export class Builder {
 		baseUri: string;
 		minify: boolean;
 		routerSrcFileRel: string;
-		scriptSrcFileRel: string;
+		scriptSrcFileRel: string | undefined;
 		serveDirRel: string;
 		srcRawDirRel: string;
 		srcTmpDirRel: string;
@@ -120,11 +120,13 @@ export class Builder {
 		this.routerSrcFileRel = input.routerSrcFileRel ?? `./router.ts`;
 		this.routerSrcFileAbs = path.join(this.srcDirAbs, this.routerSrcFileRel);
 
-		this.scriptSrcFileRel = input.scriptSrcFileRel ?? `./script.ts`;
-		this.scriptSrcFileAbs = path.join(this.srcDirAbs, this.scriptSrcFileRel);
-		this.scriptServeFileName = path.parse(this.scriptSrcFileRel).name;
-		this.scriptServeFileAbs = path.join(this.serveDirAbs, this.scriptSrcFileRel);
-		this.scriptServeFileRel = path.relative(this.serveDirAbs, `${this.scriptServeFileName}.js`);
+		this.scriptSrcFileRel = `scriptSrcFileRel` in input ? input.scriptSrcFileRel : `./script.ts`;
+		if (this.scriptSrcFileRel !== undefined) {
+			this.scriptSrcFileAbs = path.join(this.srcDirAbs, this.scriptSrcFileRel);
+			this.scriptServeFileName = path.parse(this.scriptSrcFileRel).name;
+			this.scriptServeFileAbs = path.join(this.serveDirAbs, this.scriptSrcFileRel);
+			this.scriptServeFileRel = path.relative(this.serveDirAbs, `${this.scriptServeFileName}.js`);
+		}
 
 		this.styleServeFileRel = input.styleServeFileRel ?? `./styles.css`;
 		this.stylesSrcFileAbs = path.join(this.srcDirAbs, `${this.styleServeFileRel}.ts`);
@@ -256,7 +258,7 @@ export class Builder {
 					css,
 					head: unhydratedArgs,
 					mainCssPath: path.join(`/`, this.styleServeFileRel),
-					mainJsPath: path.join(`/`, this.scriptServeFileRel),
+					mainJsPath: this.scriptServeFileRel === undefined ? undefined : path.join(`/`, this.scriptServeFileRel),
 					page,
 					routeCssPath: typeof routeCssPath === `string` ? path.join(`/`, routeCssPath) : undefined,
 					routePath: path.join(`/`, route.pathname),
@@ -268,23 +270,25 @@ export class Builder {
 			})
 		);
 
-		header(`Bundling JS`);
-		log(local(this.scriptServeFileAbs));
-		logBreak();
-		await esbuild.build({
-			absWorkingDir: this.serveDirAbs,
-			bundle: true,
-			entryPoints: [{
-				in: this.scriptSrcFileAbs,
-				out: this.scriptServeFileName,
-			}],
-			format: `esm`,
-			keepNames: true,
-			metafile: true,
-			minify: this.minify,
-			outdir: this.serveDirAbs,
-			splitting: true,
-		});
+		if (this.scriptServeFileAbs !== undefined) {
+			header(`Bundling JS`);
+			log(local(this.scriptServeFileAbs));
+			logBreak();
+			await esbuild.build({
+				absWorkingDir: this.serveDirAbs,
+				bundle: true,
+				entryPoints: [{
+					in: this.scriptSrcFileAbs!,
+					out: this.scriptServeFileName!,
+				}],
+				format: `esm`,
+				keepNames: true,
+				metafile: true,
+				minify: this.minify,
+				outdir: this.serveDirAbs,
+				splitting: true,
+			});
+		}
 	}
 
 	async buildStyles() {
@@ -405,7 +409,7 @@ export const defaultLayout = (input: {
 	head?: string;
 	loadScript?: string;
 	mainCssPath: string;
-	mainJsPath: string;
+	mainJsPath: string | undefined;
 	meta?: string;
 	page: Page;
 	routeCssPath?: string;
