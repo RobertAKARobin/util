@@ -142,11 +142,12 @@ export class SpecRenderer<
 		const linePadding = ` `.repeat(prefix.length) + ` `;
 
 		const values = [...result.values];
+
 		explanation = explanation.replace(valueWrapperMatcher, () => {
 			let value = values.shift() as string;
 			const lines = value.split(`\n`);
 			const linePaddingWithIndent = `\n${linePadding} `;
-			if (lines.length > 1) {
+			if (lines.length > 1 || value.length > 40) {
 				value = linePaddingWithIndent + lines.join(linePaddingWithIndent) + `\n${linePadding}`;
 			}
 			return `(${value})`;
