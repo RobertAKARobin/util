@@ -75,7 +75,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	 * Holds the values which will be rendered as HTML attributes on the component's DOM element
 	 * @see Component.attrs()
 	 */
-	attributes = {} as Record<string, string | number>;
+	attributes = {} as Record<string, string | number>; // TODO2: Test
 	/**
 	 * As the component's template is being rendered, holds the index of the child component currently being rendered. Used to create the child component's ID.
 	 */
@@ -94,6 +94,11 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	 * When a component is instantiated, if an existing component has the same ID, the template for the existing component is used instead of a new template being rendered to the DOM. By default the ID is based on the index of the current component within its parent component.
 	 */
 	readonly id: string = ``;
+	/**
+	 * Whether this component's data should be included in the data used to hydrate pages rendered via SSG.
+	 * @see `Component.hydrate`
+	 */
+	readonly isHydrated: boolean = true; // TODO2: Test
 	/**
 	 * If true, if this is a Page it will be compiled into a static `.html` file at the route(s) used for this Page, which serves as a landing page for performance and SEO purposes.
 	 * If this is a Component it will be compiled into static HTML included in the landing page.

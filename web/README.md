@@ -25,7 +25,6 @@
 -	CSS class mapping
 -	Declare CSS variables inline
 -	If class is added via `attrs`, the class should be appended to existing classes
--	Add isHydrated option
 -	Import from other file (ergo SVG)
 
 -	Match routes with params
@@ -42,6 +41,7 @@
 
 ### Done:
 
+-	Add isHydrated option
 -	Don't require script
 -	Bust CSS cache
 -	Add minify as build option
