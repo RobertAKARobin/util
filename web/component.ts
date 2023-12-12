@@ -16,7 +16,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	static readonly $elAttrType = `data-component`;
 	static readonly $elInstance = `instance`;
 	private static currentParent: Component;
-	private static instances = new Map<Component[`id`], Component>();
+	private static instances = new Map<Component[`id`], WeakRef<Component>>();
 	private static rootParent: Component;
 	static get selector() {
 		return `[${this.$elAttrType}='${this.name}']`;
@@ -31,6 +31,20 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 
 	static createId() {
 		return newUid();
+	}
+
+	/**
+	 * Get an existing component instance by its ID
+	 */
+	static get(id: Component[`id`]) {
+		const existingRef = Component.instances.get(id);
+		if (existingRef !== undefined) {
+			const existing = existingRef.deref();
+			if (existing !== undefined) {
+				return existing;
+			}
+			console.debug(`${id} GCd, rebuilding`);
+		}
 	}
 
 	/**
@@ -135,12 +149,12 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 			this.id = id ?? `${this.parent.id}_${this.parent.childIndex++}`;
 		}
 
-		const existing = Component.instances.get(this.id) as Component<State>;
+		const existing = Component.get(this.id);
 		if (existing !== undefined) {
-			return existing;
+			return existing as Component<State>;
 		}
 
-		Component.instances.set(this.id, this as Component);
+		Component.instances.set(this.id, new WeakRef(this as Component));
 	}
 
 	/**
@@ -274,7 +288,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 			delete unhydratedArgs[id];
 			const instance = new Constructor(id).set(args);
 			instance.setEl($el);
-			Component.instances.set(id, instance);
+			Component.instances.set(id, new WeakRef(instance));
 		}
 
 		document.getElementById(Component.unhydratedArgsName)?.remove();
@@ -318,7 +332,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 			if (id === null) {
 				continue;
 			}
-			const instance = Component.instances.get(id)!;
+			const instance = Component.get(id)!;
 
 			if ($placeholder.nextSibling) {
 				$placeholder.parentNode?.insertBefore(instance.$el!, $placeholder.nextSibling);

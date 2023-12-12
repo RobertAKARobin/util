@@ -40,6 +40,7 @@
 
 ### Done:
 
+-	Make `Component.instances` weak
 -	Extract `util/index.ts` to separate files, for code splitting
 -	Add isHydrated option
 -	Don't require script
