@@ -44,7 +44,7 @@ export class Emitter<
 	}
 
 	constructor(
-		initial?: State,
+		initial?: State | undefined | null,
 		actions = {} as Actions,
 		options: Partial<EmitterOptions> = {}
 	) {
@@ -91,12 +91,12 @@ export class Emitter<
 		return emitter;
 	}
 
-	set(value: State, message?: string): this {
-		if (value === IGNORE) { // Need a way to indicate that an event _shouldn't_ emit. Can't just do `value === undefined` because there are times when `undefined` is a value we do want to emit
+	set(update: State, message?: string) {
+		if (update === IGNORE) { // Need a way to indicate that an event _shouldn't_ emit. Can't just do `value === undefined` because there are times when `undefined` is a value we do want to emit
 			return this;
 		}
-		this.cache.add(value, message);
 		const previous = this.value;
+		this.cache.add(update, message);
 		for (const subscription of this.subscriptions.values()) {
 			const onEmit = subscription instanceof WeakRef
 				? subscription.deref()
@@ -124,14 +124,16 @@ export class Emitter<
 		options: {
 			isStrong?: boolean;
 		} = {}
-	): OnEmit<State> {
-		const subscription = onEmit;
-		const isStrong = options.isStrong ?? true;
-		this.subscriptions.add(isStrong === true
-			? subscription
-			: new WeakRef(subscription)
-		);
-		return subscription;
+	) {
+		const subscription = options?.isStrong === true
+			? onEmit
+			: new WeakRef(onEmit);
+		this.subscriptions.add(subscription);
+
+		return () => {
+			this.unsubscribe(subscription);
+			return this;
+		};
 	}
 
 	unsubscribe(subscription: Subscription<State>) {
