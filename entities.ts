@@ -73,7 +73,10 @@ export class EntityStateEmitter<Type extends Record<string, unknown>>
 		const oldIndex = ids.indexOf(id);
 		ids.splice(oldIndex, 1);
 		ids.splice(newIndex, 0, id);
-		this.set({ ids });
+		this.set({
+			...this.value,
+			ids,
+		});
 		return ids;
 	}
 
@@ -98,6 +101,7 @@ export class EntityStateEmitter<Type extends Record<string, unknown>>
 		};
 
 		this.set({
+			...this.value,
 			byId: {
 				...this.value.byId,
 				[id]: updated,

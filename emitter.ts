@@ -4,11 +4,10 @@ export type OnEmit<
 > = (
 	value: State,
 	meta: {
-		action: string | undefined;
 		emitter: Source;
+		message: string | undefined;
 		previous: State;
 		subscription: Subscription<State, Source>;
-		update: Partial<State>;
 	}
 ) => unknown;
 
@@ -17,13 +16,13 @@ export type Subscription<
 	Source extends Emitter<State> = Emitter<State>,
 > = WeakRef<OnEmit<State, Source>> | OnEmit<State, Source>;
 
-type EmitterOptions = EmitterCacheOptions & {
-	isReplace: boolean;
-};
+type EmitterOptions = EmitterCacheOptions;
+
+const IGNORE = `_IGNORE_` as const;
 
 export class Emitter<
 	State,
-	Actions extends Record<string, (...args: Array<any>) => Partial<State>> = any, // eslint-disable-line @typescript-eslint/no-explicit-any
+	Actions extends Record<string, (...args: Array<any>) => State> = any, // eslint-disable-line @typescript-eslint/no-explicit-any
 > {
 	get $() {
 		return this.value;
@@ -35,16 +34,14 @@ export class Emitter<
 	 * A collection of all active subcriptions to this Emitter.
 	 * @see {@link EmitterCache}
 	 */
-	readonly cache: EmitterCache<{
-		action: string | undefined;
-		update: Partial<State>;
-	}>;
-	/**
-	 * If true, will overwrite the current value, instead of merging in the update. Important when the value is an object with methods, not just a dict.
-	 */
-	isReplace: boolean;
+	readonly cache: EmitterCache<State>;
+	get last() {
+		return this.cache.list[this.cache.list.length - 1];
+	}
 	readonly subscriptions = new Set<Subscription<State>>();
-	value: State;
+	get value() {
+		return this.last?.value;
+	}
 
 	constructor(
 		initial?: State,
@@ -52,70 +49,57 @@ export class Emitter<
 		options: Partial<EmitterOptions> = {}
 	) {
 		this.cache = new EmitterCache(options ?? {});
-		this.isReplace = options.isReplace ?? false;
-		this.value = initial as unknown as State; // Want value to possibly be undefined without needing to add null checks everywhere
+		if (initial !== undefined && initial !== null) {
+			this.cache.add(initial);
+		}
 		for (const actionName in actions) {
 			const action = actions[actionName];
 			const wrappedAction = (
 				...args: Parameters<typeof action>
-			) => this.set(action(...args), {
-				action: actionName,
-			});
+			) => this.set(action(...args), actionName);
 			this.actions[actionName] = wrappedAction;
 		}
 	}
 
-	pipe<Output>(callback: (state: State) => Output) { // eslint-disable-line @typescript-eslint/no-explicit-any
-		const initial = callback(this.value);
-		const emitter = new Emitter<Output>(initial);
-		this.subscribe(updatedState => {
-			return emitter.set(callback(updatedState));
+	on(actionName: keyof Actions) {
+		return this.pipe((update, meta) => {
+			if (meta?.message !== actionName) {
+				return IGNORE;
+			}
+			return update;
+		});
+	}
+
+	pipe<Output>(
+		callback: (
+			value: Parameters<OnEmit<State>>[0],
+			meta: Parameters<OnEmit<State>>[1]
+		) => Output
+	) {
+		const emitter = new Emitter<Output>();
+		this.subscribe((update, meta) => {
+			const value = callback(update, meta);
+			return emitter.set(value, meta.message);
 		});
 		return emitter;
 	}
 
-	set(update: Partial<State>, options: Partial<{
-		action: string;
-		isReplace: boolean;
-	}> = {}): this {
-		this.cache.add({
-			action: options?.action,
-			update,
-		});
-		const previous = this.value;
-		if (this.isReplace || options?.isReplace === true) {
-			this.value = update as State;
-		} else {
-			if (
-				previous === null // Turns out `typeof null` is `object` :(
-				|| (typeof previous === `object` && typeof update === `object`)
-			) {
-				if (Array.isArray(previous) && Array.isArray(update)) {
-					this.value = [
-						...previous as [],
-						...(update as unknown as []),
-					] as State;
-				} else {
-					this.value = {
-						...previous,
-						...update,
-					};
-				}
-			} else {
-				this.value = update as State;
-			}
+	set(value: State, message?: string): this {
+		if (value === IGNORE) { // Need a way to indicate that an event _shouldn't_ emit. Can't just do `value === undefined` because there are times when `undefined` is a value we do want to emit
+			return this;
 		}
+		this.cache.add(value, message);
+		const previous = this.value;
 		for (const subscription of this.subscriptions.values()) {
 			const onEmit = subscription instanceof WeakRef
 				? subscription.deref()
 				: subscription;
 			if (onEmit) {
 				onEmit(this.value, {
-					action: options?.action,
 					emitter: this,
+					message,
 					previous,
 					subscription,
-					update,
 				});
 			} else {
 				console.warn(`Subscription dead`);
@@ -154,30 +138,44 @@ export class Emitter<
 	}
 }
 
+export type EmitterCacheEntry<State> = {
+	message?: string;
+	time: number;
+	value: State;
+};
+
 /** Encloses an array of values in reverse insertion order. */
 export class EmitterCache<State> {
 	/** The quantity of values to cache. */
 	limit: number;
 
-	get list(): Array<State> {
+	get list(): Array<EmitterCacheEntry<State>> {
 		return [...this.memory];
 	}
 
-	private readonly memory: Array<State> = [];
+	private readonly memory: Array<EmitterCacheEntry<State>> = [];
 
 	constructor(options: Partial<EmitterCacheOptions> = {}) {
 		this.limit = options.limit ?? emitterCacheOptionsDefault.limit;
 	}
 
-	add(value: State) {
-		return this.addMany([value]);
+	add(value: State, message?: string) {
+		return this.addMany([{ message, value }]);
 	}
 
-	addMany(values: Array<State>) {
+	addMany(entries: Array<{
+		message?: string;
+		value: State;
+	}>) {
 		if (this.limit <= 0) {
 			return;
 		}
-		this.memory.unshift(...values);
+		for (const entry of entries) {
+			this.memory.unshift({
+				...entry,
+				time: performance.now(),
+			});
+		}
 		this.memory.splice(this.limit);
 		return this;
 	}
