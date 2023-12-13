@@ -7,6 +7,8 @@ export type BoundElement = HTMLElement & {
 	[Component.$elInstance]: Component; // Attaching instances to Elements should prevent the instance from being garbage-collected until the Element is GCd
 };
 
+type Constructor<Classtype> = new (...args: any) => Classtype; // eslint-disable-line @typescript-eslint/no-explicit-any
+
 export const globals = (appContext === `browser` ? window : global) as unknown as Window
 	& { [key in typeof Component.name]: typeof Component; }
 	& { [key in typeof Component.unhydratedArgsName]: Record<Component[`id`], object> };
@@ -196,8 +198,8 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	 * Looks for and returns the first instance of the specified constructor, or element of the specified selector, in the current component's ancestor chain
 	 */
 	closest(Ancestor: string): HTMLElement;
-	closest<Ancestor>(Ancestor: new () => Ancestor): Ancestor;
-	closest<Ancestor>(Ancestor: (new () => Ancestor) | string) {
+	closest<Ancestor>(Ancestor: Constructor<Ancestor>): Ancestor;
+	closest<Ancestor>(Ancestor: Constructor<Ancestor> | string) { // eslint-disable-line @typescript-eslint/no-explicit-any
 		const selector = typeof Ancestor === `string`
 			? Ancestor
 			: (Ancestor as unknown as typeof Component).selector;
@@ -215,8 +217,8 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	 * Looks for and returns the first instance of the specified constructor, or element of the specified selector, within the current component's template
 	 */
 	find(Descendant: string): HTMLElement; // TODO3: Stronger typing for this
-	find<Descendant>(Descendant: new () => Descendant): Descendant;
-	find<Descendant>(Descendant: (new () => Descendant) | string) {
+	find<Descendant>(Descendant: Constructor<Descendant>): Descendant;
+	find<Descendant>(Descendant: Constructor<Descendant> | string) {
 		const selector = typeof Descendant === `string`
 			? Descendant
 			: (Descendant as unknown as typeof Component).selector;
@@ -234,8 +236,8 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	 * Looks for and returns all instances of the specified constructor, or all elements of the specified selector, within the current component's template
 	 */
 	findAll(Descendant: string): Array<HTMLElement>;
-	findAll<Descendant>(Descendant: new () => Descendant): Array<Descendant>;
-	findAll<Descendant>(Descendant: (new () => Descendant) | string) {
+	findAll<Descendant>(Descendant: Constructor<Descendant>): Array<Descendant>;
+	findAll<Descendant>(Descendant: Constructor<Descendant> | string) {
 		const selector = typeof Descendant === `string`
 			? Descendant
 			: (Descendant as unknown as typeof Component).selector;

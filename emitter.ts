@@ -125,7 +125,8 @@ export class Emitter<
 			isStrong?: boolean;
 		} = {}
 	) {
-		const subscription = options?.isStrong === true
+		const isStrong = options?.isStrong ?? true;
+		const subscription = isStrong
 			? onEmit
 			: new WeakRef(onEmit);
 		this.subscriptions.add(subscription);
