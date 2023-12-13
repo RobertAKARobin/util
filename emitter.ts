@@ -70,6 +70,13 @@ export class Emitter<
 		});
 	}
 
+	patch(value: Partial<State>, message?: string) {
+		return this.set({
+			...this.value,
+			...value,
+		}, message);
+	}
+
 	pipe<Output>(
 		callback: (
 			value: Parameters<OnEmit<State>>[0],

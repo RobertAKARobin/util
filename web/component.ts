@@ -283,7 +283,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 			const Constructor = Component.subclasses.get(constructorName)!;
 			const args = unhydratedArgs[id];
 			delete unhydratedArgs[id];
-			const instance = new Constructor(id).set(args);
+			const instance = new Constructor(id).patch(args);
 			instance.setEl($el);
 			Component.instances.set(id, new WeakRef(instance));
 		}

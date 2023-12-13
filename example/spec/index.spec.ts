@@ -31,7 +31,7 @@ type WidgetType = { message: string; prop: number; };
 class Widget extends Component<WidgetType> {
 	constructor(...args: ConstructorParameters<typeof Component<WidgetType>>) {
 		super(...args);
-		this.set({ prop: 42 });
+		this.set({ ...this.value, prop: 42 });
 	}
 	template = () => `<h1>${this.value.message ?? ``}${this.value.prop}</h1>`;
 }
@@ -61,9 +61,9 @@ export const spec = suite(`@robertakarobin/web`,
 	}),
 
 	test(`component`, $ => {
-		$.assert(x => x(new Widget().set({ message: `x` }).template()) === `<h1>x42</h1>`);
-		$.assert(x => x(new Widget().set({ message: `x` }).template()) === `<h1>x42</h1>`);
-		$.assert(x => x(new Widget(`id`).set({ message: `x` }).template()) === `<h1>x42</h1>`);
+		$.assert(x => x(new Widget().patch({ message: `x` }).template()) === `<h1>x42</h1>`);
+		$.assert(x => x(new Widget().patch({ message: `x` }).template()) === `<h1>x42</h1>`);
+		$.assert(x => x(new Widget(`id`).patch({ message: `x` }).template()) === `<h1>x42</h1>`);
 
 		let widget: Widget;
 		$.log(() => widget = new Widget());

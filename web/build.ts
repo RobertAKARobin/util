@@ -49,7 +49,7 @@ const superSet = Component.prototype.set; // eslint-disable-line @typescript-esl
 /**
  * Overrides `Component.set` so that it hydrates a `<script>` tag with all the data that should be used to hydrate components when `page.hydrate()` is called
  */
-Component.prototype.set = function(...[update, ...args]: Parameters<Component[`set`]>) {
+Component.prototype.set = function(...[update, ...args]: Parameters<Component[`set`]>) { // TODO3: Remove defaults from args?
 	if (this.isHydrated) {
 		const value = globals[Component.unhydratedArgsName][this.id];
 		const isSpreadable = typeof update === `object` && update !== null && !Array.isArray(update);
