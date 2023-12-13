@@ -367,6 +367,14 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		return `<!--${this.id}-->`;
 	}
 
+	/**
+	 * Same as `.render` except it returns the component's element
+	 */
+	renderedEl() {
+		this.render();
+		return this.$el!;
+	}
+
 	private setAttribute(attributeName: string, value?: HTMLAttributeValue) {
 		if (value !== undefined && value !== null && value !== ``) {
 			this.$el!.setAttribute(attributeName, value.toString());
@@ -401,6 +409,9 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		return content ?? ``;
 	}
 
+	/**
+	 * Returns the component's current HTML
+	 */
 	toHTML() {
 		return this.$el?.outerHTML ?? ``;
 	}
