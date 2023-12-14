@@ -12,14 +12,13 @@ export class EntityStateEmitter<Type extends Record<string, unknown>>
 	entries = this.pipe(({ ids, byId }) => ids.map(id => byId[id]));
 
 	constructor(
-		...[initial, actions, options]: ConstructorParameters<typeof Emitter<EntityState<Type>>>
+		...[initial, options]: ConstructorParameters<typeof Emitter<EntityState<Type>>>
 	) {
 		super(
 			initial ?? {
 				byId: {},
 				ids: [],
 			},
-			actions,
 			options,
 		);
 	}

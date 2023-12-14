@@ -24,16 +24,11 @@ export class Emitter<
 	State,
 	Actions extends Record<string, (...args: Array<any>) => State> = any, // eslint-disable-line @typescript-eslint/no-explicit-any
 > {
+
 	get $() {
 		return this.value;
 	}
-	readonly actions = {} as {
-		[ActionName in keyof Actions]: (...args: Parameters<Actions[ActionName]>) => this;
-	};
-	/**
-	 * A collection of all active subcriptions to this Emitter.
-	 * @see {@link EmitterCache}
-	 */
+	actions = {} as Actions;
 	readonly cache: EmitterCache<State>;
 	get last() {
 		return this.cache.list[this.cache.list.length - 1];
@@ -45,28 +40,20 @@ export class Emitter<
 
 	constructor(
 		initial?: State | undefined | null,
-		actions = {} as Actions,
 		options: Partial<EmitterOptions> = {}
 	) {
 		this.cache = new EmitterCache(options ?? {});
 		if (initial !== undefined && initial !== null) {
 			this.cache.add(initial);
 		}
-		for (const actionName in actions) {
-			const action = actions[actionName];
-			const wrappedAction = (
-				...args: Parameters<typeof action>
-			) => this.set(action(...args), actionName);
-			this.actions[actionName] = wrappedAction;
-		}
 	}
 
-	on(actionName: keyof Actions) {
-		return this.pipe((update, meta) => {
-			if (meta?.message !== actionName) {
+	on(actionName: keyof this[`actions`]) {
+		return this.pipe((value, meta) => {
+			if (meta.message !== actionName) {
 				return IGNORE;
 			}
-			return update;
+			return value;
 		});
 	}
 
@@ -135,6 +122,21 @@ export class Emitter<
 			this.unsubscribe(subscription);
 			return this;
 		};
+	}
+
+	toActions<
+		Input extends Record<keyof Actions, (...args: Array<any>) => State>, // eslint-disable-line @typescript-eslint/no-explicit-any
+	>(input: Input) {
+		const out = {} as {
+			[Key in keyof Input]: (...args: Parameters<Input[Key]>) => this;
+		};
+		for (const actionName in input) {
+			const action = input[actionName];
+			out[actionName] = (
+				...args: Parameters<typeof action>
+			) => this.set(action(...args), actionName);
+		}
+		return out;
 	}
 
 	unsubscribe(subscription: Subscription<State>) {

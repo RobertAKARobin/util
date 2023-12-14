@@ -64,16 +64,16 @@ export const spec = suite(`Emitter`, {},
 		let emitterCache1: Emitter<{ age: number; }>;
 		let emitterCache2: Emitter<{ age: number; }>;
 
-		$.log(() => emitterCache0 = new Emitter<State>(null, {}, { limit: 0 }));
+		$.log(() => emitterCache0 = new Emitter<State>(null, { limit: 0 }));
 		$.log(() => emitterCache1 = new Emitter<State>());
-		$.log(() => emitterCache2 = new Emitter<State>(null, {}, { limit: 2 }));
+		$.log(() => emitterCache2 = new Emitter<State>(null, { limit: 2 }));
 		$.assert(x => x(JSON.stringify(emitterCache0.cache.list)) === `[]`);
 		$.assert(x => x(JSON.stringify(emitterCache1.cache.list)) === `[]`);
 		$.assert(x => x(JSON.stringify(emitterCache2.cache.list)) === `[]`);
 
-		$.log(() => emitterCache0 = new Emitter({ age: 0 }, {}, { limit: 0 }));
+		$.log(() => emitterCache0 = new Emitter({ age: 0 }, { limit: 0 }));
 		$.log(() => emitterCache1 = new Emitter({ age: 0 }));
-		$.log(() => emitterCache2 = new Emitter({ age: 0 }, {}, { limit: 2 }));
+		$.log(() => emitterCache2 = new Emitter({ age: 0 }, { limit: 2 }));
 		$.assert(x => x(JSON.stringify(emitterCache0.cache.list[0]?.value)) === undefined);
 		$.assert(x => x(JSON.stringify(emitterCache1.cache.list[0]?.value)) === `{"age":0}`);
 		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[0]?.value)) === `{"age":0}`);
@@ -149,5 +149,43 @@ export const spec = suite(`Emitter`, {},
 		$.log(() => emitter1.set(30));
 		$.assert(x => x(value) === 20);
 		$.assert(x => x(emitter1.subscriptions.size) === 0);
+	}),
+
+	test(`actions`, $ => {
+		type State = {
+			age: number;
+			name: string;
+		};
+		class Person extends Emitter<State> {
+			actions = this.toActions({
+				age: (years: number) => ({
+					...this.value,
+					age: this.value.age + years,
+				}),
+
+				rename: (name: string) => ({
+					...this.value,
+					name,
+				}),
+			});
+		}
+		let person!: Person;
+		$.log(() => person = new Person({ age: 10, name: `alice` }));
+		let incrementsOnAge = 0;
+		let incrementsOnRename = 0;
+		$.log(() => person.on(`age`).subscribe(() => incrementsOnAge += 1));
+		$.log(() => person.on(`rename`).subscribe(() => incrementsOnRename += 1));
+
+		$.log(() => person.actions.age(1));
+		$.assert(x => x(person.value.age) === 11);
+		$.assert(x => x(incrementsOnAge) === 1);
+		$.assert(x => x(person.value.name) === `alice`);
+		$.assert(x => x(incrementsOnRename) === 0);
+
+		$.log(() => person.actions.rename(`bob`));
+		$.assert(x => x(incrementsOnAge) === 1);
+		$.assert(x => x(incrementsOnRename) === 1);
+		$.assert(x => x(person.value.name) === `bob`);
+		$.assert(x => x(incrementsOnRename) === 1);
 	}),
 );
