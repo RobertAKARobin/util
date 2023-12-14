@@ -365,8 +365,8 @@ export abstract class Page<
 	State extends Record<string, unknown> = Record<string, unknown>,
 > extends Component<PageType & State> {
 
-	constructor() {
-		super();
+	constructor(...args: ConstructorParameters<typeof Component<PageType & State>>) {
+		super(...args);
 		this.on(`rendered`).pipe(() => {
 			document.title = this.value.title!;
 		});
