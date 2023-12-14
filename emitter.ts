@@ -1,3 +1,5 @@
+import { isPrimitive } from './isPrimitive.ts';
+
 export type OnEmit<
 	State,
 	Source extends Emitter<State> = Emitter<State>,
@@ -57,10 +59,13 @@ export class Emitter<
 		});
 	}
 
-	patch(value: Partial<State>, message?: string) {
+	patch(update: State | Partial<State>, message?: string) {
+		if (isPrimitive(update)) {
+			return this.set(update as State, message);
+		}
 		return this.set({
 			...this.value,
-			...value,
+			...update as Partial<State>,
 		}, message);
 	}
 
