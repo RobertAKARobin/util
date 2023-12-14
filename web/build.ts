@@ -232,8 +232,7 @@ export class Builder {
 					return;
 				}
 
-				page.render();
-				const body = this.formatBody(page.$el!);
+				const body = this.formatBody(page.renderedEl());
 
 				const componentArgs = globals[Component.unhydratedArgsName];
 				const unhydratedArgs = `<script id="${Component.unhydratedArgsName}" src="data:text/javascript," onload="${Component.unhydratedArgsName}=${serialize(componentArgs)}"></script>`;

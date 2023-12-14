@@ -4,6 +4,12 @@ input {
 	font-size: 24px;
 }
 
+[data-component='TransitionTest'] {
+	background: #ff0000;
+	height: 100px;
+	width: 100px;
+}
+
 [data-component='IndexPage'] h1 {
 	color: red;
 }

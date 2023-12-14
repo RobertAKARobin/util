@@ -3,6 +3,7 @@ import { paths, router } from '@src/router.ts';
 import { BasePage } from './_page.ts';
 import { List } from '@src/components/list.ts';
 import { state } from '@src/state.ts';
+import { TransitionTest } from '@src/components/transition-test.ts';
 
 List.init();
 
@@ -24,6 +25,8 @@ export class IndexPage extends BasePage<{ message: string; }> {
 	template = () => super.template(`
 <main>
 <h1>Hello world!</h1>
+
+${new TransitionTest().render()}
 
 <div id="${router.hashes.homeJump1}">Jump 1</div>
 

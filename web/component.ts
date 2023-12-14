@@ -19,9 +19,9 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	static readonly $elAttrId = `data-id`;
 	static readonly $elAttrType = `data-component`;
 	static readonly $elInstance = `instance`;
-	private static currentParent: Component;
-	private static instances = new Map<Component[`id`], WeakRef<Component>>();
-	private static rootParent: Component;
+	protected static currentParent: Component;
+	protected static instances = new Map<Component[`id`], WeakRef<Component>>();
+	protected static rootParent: Component;
 	static get selector() {
 		return `[${this.$elAttrType}='${this.name}']`;
 	}
@@ -89,11 +89,15 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	 * The root DOM element to which the component is attached
 	 */
 	$el: BoundElement | undefined;
+	actions = this.toActions({
+		removed: () => this.value,
+		rendered: () => this.value,
+	});
 	/**
 	 * Holds the values which will be rendered as HTML attributes on the component's DOM element
 	 * @see Component.attrs()
 	 */
-	attributes = {} as Record<string, HTMLAttributeValue>;
+	private attributes = {} as Record<string, HTMLAttributeValue>;
 	/**
 	 * As the component's template is being rendered, holds the index of the child component currently being rendered. Used to create the child component's ID.
 	 */
@@ -101,7 +105,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	/**
 	 * Holds the string which will be rendered inside the component; i.e. if the component was an HTML element, what would go inside its <tag></tag>
 	 */
-	content = ``;
+	private content = ``;
 	/**
 	 * @returns The instance's constructor
 	 */
@@ -126,7 +130,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	/**
 	 * The component that owns the template inside of which the current component is being rendered
 	 */
-	parent: Component | undefined;
+	protected parent: Component | undefined;
 	/**
 	 * Warning: `style` should be defined as a static property, not an instance property
 	*/
@@ -195,52 +199,30 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	}
 
 	/**
-	 * Looks for and returns the first instance of the specified constructor, or element of the specified selector, in the current component's ancestor chain
+	 * Looks for and returns the first instance of the specified constructor in the current component's ancestor chain
 	 */
-	closest(Ancestor: string): HTMLElement;
-	closest<Ancestor>(Ancestor: Constructor<Ancestor>): Ancestor;
-	closest<Ancestor>(Ancestor: Constructor<Ancestor> | string) { // eslint-disable-line @typescript-eslint/no-explicit-any
-		const selector = typeof Ancestor === `string`
-			? Ancestor
-			: (Ancestor as unknown as typeof Component).selector;
+	closest<Ancestor>(Ancestor: Constructor<Ancestor>) {
+		const selector = (Ancestor as unknown as typeof Component).selector;
 
 		const $match = this.$el?.closest(selector);
-		if ($match) {
-			if (typeof Ancestor === `string`) {
-				return $match;
-			}
-			return ($match as BoundElement).instance;
-		}
+		return ($match as BoundElement)?.instance;
 	}
 
 	/**
 	 * Looks for and returns the first instance of the specified constructor, or element of the specified selector, within the current component's template
 	 */
-	find(Descendant: string): HTMLElement; // TODO3: Stronger typing for this
-	find<Descendant>(Descendant: Constructor<Descendant>): Descendant;
-	find<Descendant>(Descendant: Constructor<Descendant> | string) {
-		const selector = typeof Descendant === `string`
-			? Descendant
-			: (Descendant as unknown as typeof Component).selector;
+	find<Descendant>(Descendant: Constructor<Descendant>) {
+		const selector = (Descendant as unknown as typeof Component).selector;
 
 		const $match = this.$el?.querySelector(selector);
-		if ($match) {
-			if (typeof Descendant === `string`) {
-				return $match;
-			}
-			return ($match as BoundElement).instance;
-		}
+		return ($match as BoundElement)?.instance;
 	}
 
 	/**
 	 * Looks for and returns all instances of the specified constructor, or all elements of the specified selector, within the current component's template
 	 */
-	findAll(Descendant: string): Array<HTMLElement>;
-	findAll<Descendant>(Descendant: Constructor<Descendant>): Array<Descendant>;
-	findAll<Descendant>(Descendant: Constructor<Descendant> | string) {
-		const selector = typeof Descendant === `string`
-			? Descendant
-			: (Descendant as unknown as typeof Component).selector;
+	findAll<Descendant>(Descendant: Constructor<Descendant>) {
+		const selector = (Descendant as unknown as typeof Component).selector;
 
 		const descendants = [];
 
@@ -248,58 +230,13 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		if ($descendants === undefined) {
 			return;
 		}
-		if (typeof Descendant === `string`) {
-			descendants.push(...Array.from($descendants));
-		} else {
-			for (const $descendant of $descendants) {
-				descendants.push($descendant.instance as Descendant);
-			}
+
+		for (const $descendant of $descendants) {
+			descendants.push($descendant.instance as Descendant);
 		}
 
 		return descendants;
 	}
-
-	/**
-	 * Given some already-rendered HTML, e.g. from a static HTML file rendered through SSG, creates component instances for all elements that expect them, and hydrates them with data found in `<script id="unhydratedArgs">` if it exists
-	 */
-	hydrate($root: Element = document.body) {
-		Component.currentParent = Component.rootParent = Component.rootParent ?? new Component();
-
-		const unhydratedArgs = globals[Component.unhydratedArgsName];
-
-		const $el = $root.getAttribute(Component.$elAttrType) === this.Ctor.name
-			? $root
-			: $root.querySelector(this.Ctor.selector)!;
-		Object.assign(this, {
-			id: $el.getAttribute(Component.$elAttrId)!, // The component has already been instantiated at this point, so need to overwrite its ID
-		});
-		this.setEl($el);
-
-		const $els = $root.querySelectorAll(`[${Component.$elAttrType}]`);
-		for (const $el of Array.from($els) as Array<BoundElement>) {
-			const id = $el.getAttribute(Component.$elAttrId)!;
-			if (id === this.id) {
-				continue;
-			}
-			const constructorName = $el.getAttribute(Component.$elAttrType)!;
-			const Constructor = Component.subclasses.get(constructorName)!;
-			const args = unhydratedArgs[id];
-			delete unhydratedArgs[id];
-			const instance = new Constructor(id).patch(args);
-			instance.setEl($el);
-			Component.instances.set(id, new WeakRef(instance));
-		}
-
-		document.getElementById(Component.unhydratedArgsName)?.remove();
-
-		this.render();
-		$el.replaceWith(this.$el!);
-	}
-
-	/**
-	 * Called when the component is rendered
-	 */
-	onRender() {}
 
 	/**
 	 * Compiles the component's template, looping through all nested components. If a component's ID matches the ID of an existing component, the existing component's template is swapped in instead of rerendered.
@@ -364,8 +301,6 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 
 		this.setAttributes(this.attributes);
 
-		this.onRender();
-
 		return `<!--${this.id}-->`;
 	}
 
@@ -377,7 +312,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		return this.$el!;
 	}
 
-	private setAttribute(attributeName: string, value?: HTMLAttributeValue) {
+	protected setAttribute(attributeName: string, value?: HTMLAttributeValue) {
 		if (value !== undefined && value !== null && value !== ``) {
 			this.$el!.setAttribute(attributeName, value.toString());
 		} else {
@@ -385,7 +320,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		}
 	}
 
-	private setAttributes(input: Record<string, HTMLAttributeValue> = {}) {
+	protected setAttributes(input: Record<string, HTMLAttributeValue> = {}) {
 		if (this.$el) {
 			for (const attributeName in input) {
 				this.setAttribute(attributeName, input[attributeName]);
@@ -396,7 +331,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	/**
 	 * Sets the component's root element
 	 */
-	private setEl($input: Element) {
+	protected setEl($input: Element) {
 		const $el = $input as BoundElement;
 		this.$el = $el;
 		this.$el.setAttribute(Component.$elAttrType, this.Ctor.name);
@@ -429,12 +364,64 @@ type PageType = {
 export abstract class Page<
 	State extends Record<string, unknown> = Record<string, unknown>,
 > extends Component<PageType & State> {
-	set(...[update, ...args]: Parameters<Component<{ title: string; } & State>[`set`]>) {
-		if (`title` in update) {
-			if (appContext === `browser`) {
-				document.title = update.title!;
+
+	constructor() {
+		super();
+		this.on(`rendered`).pipe(() => {
+			document.title = this.value.title!;
+		});
+	}
+
+	/**
+	 * Given some already-rendered HTML, e.g. from a static HTML file rendered through SSG, creates component instances for all elements that expect them, and hydrates them with data found in `<script id="unhydratedArgs">` if it exists
+	 */
+	hydrate($root: Element = document.body) {
+		Component.currentParent = Component.rootParent = Component.rootParent ?? new Component();
+
+		const unhydratedArgs = globals[Component.unhydratedArgsName];
+
+		const $el = $root.getAttribute(Component.$elAttrType) === this.Ctor.name
+			? $root
+			: $root.querySelector(this.Ctor.selector)!;
+		Object.assign(this, {
+			id: $el.getAttribute(Component.$elAttrId)!, // The component has already been instantiated at this point, so need to overwrite its ID
+		});
+		this.setEl($el);
+
+		const $els = $root.querySelectorAll(`[${Component.$elAttrType}]`);
+		for (const $el of Array.from($els) as Array<BoundElement>) {
+			const id = $el.getAttribute(Component.$elAttrId)!;
+			if (id === this.id) {
+				continue;
 			}
+			const constructorName = $el.getAttribute(Component.$elAttrType)!;
+			const Constructor = Component.subclasses.get(constructorName)!;
+			const args = unhydratedArgs[id];
+			delete unhydratedArgs[id];
+			const instance = new Constructor(id).patch(args);
+			Component.instances.set(id, new WeakRef(instance));
+			this.setEl.call(instance, $el);
+			instance.actions.rendered();
 		}
-		return super.set(update, ...args);
+
+		document.getElementById(Component.unhydratedArgsName)?.remove();
+	}
+
+	replace(oldPage: Page<any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
+		oldPage.$el?.replaceWith(this.renderedEl());
+		oldPage.actions.removed();
+
+		const $oldEls = oldPage.$el!.querySelectorAll(`[${Component.$elAttrType}]`);
+		for (const $el of $oldEls) {
+			const instance = ($el as BoundElement).instance;
+			instance.actions.removed();
+		}
+
+		const $newEls = this.$el!.querySelectorAll(`[${Component.$elAttrType}]`);
+		for (const $el of $newEls) {
+			const instance = ($el as BoundElement).instance;
+			instance.actions.rendered();
+		}
+		this.actions.rendered();
 	}
 }

@@ -6,6 +6,6 @@ new Renderer(resolver, (page, oldPage) => {
 	if (oldPage === undefined) {
 		page.hydrate();
 	} else {
-		oldPage.$el?.replaceWith(page.renderedEl());
+		page.replace(oldPage);
 	}
 });
