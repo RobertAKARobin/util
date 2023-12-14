@@ -396,9 +396,14 @@ export abstract class Page<
 			}
 			const constructorName = $el.getAttribute(Component.$elAttrType)!;
 			const Constructor = Component.subclasses.get(constructorName)!;
+			const instance = new Constructor(id);
+
 			const args = unhydratedArgs[id];
-			delete unhydratedArgs[id];
-			const instance = new Constructor(id).patch(args);
+			if (args !== undefined) {
+				delete unhydratedArgs[id];
+				instance.patch(args);
+			}
+
 			Component.instances.set(id, new WeakRef(instance));
 			this.setEl.call(instance, $el);
 			instance.actions.rendered();

@@ -8,8 +8,6 @@ export class List extends Component<Type.List> {
 		this.init();
 	}
 
-	isReplace = true;
-
 	template = () => `
 <ol>
 	${this.$.map(({ value }, index) => `

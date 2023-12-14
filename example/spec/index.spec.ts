@@ -66,11 +66,12 @@ export const spec = suite(`@robertakarobin/web`,
 		$.assert(x => x(new Widget(`id`).patch({ message: `x` }).template()) === `<h1>x42</h1>`);
 
 		let widget: Widget;
+		id = 0;
 		$.log(() => widget = new Widget());
 		$.log(() => widget.render());
-		$.assert(x => x(widget.toHTML()) === x(`<h1 data-component="Widget" data-id="/UID8/">42</h1>`));
-		$.assert(x => x(widget.attrs({ class: `foo` }).toHTML()) === x(`<h1 data-component="Widget" data-id="/UID8/" class="foo">42</h1>`));
-		$.assert(x => x(widget.attrs({ class: `` }).toHTML()) === x(`<h1 data-component="Widget" data-id="/UID8/">42</h1>`));
-		$.assert(x => x(widget.attrs({ class: `foo` }).attrs({ class: `` }).toHTML()) === x(`<h1 data-component="Widget" data-id="/UID8/">42</h1>`));
+		$.assert(x => x(widget.toHTML()) === x(`<h1 data-component="Widget" data-id="/UID1/">42</h1>`));
+		$.assert(x => x(widget.attrs({ class: `foo` }).toHTML()) === x(`<h1 data-component="Widget" data-id="/UID1/" class="foo">42</h1>`));
+		$.assert(x => x(widget.attrs({ class: `` }).toHTML()) === x(`<h1 data-component="Widget" data-id="/UID1/">42</h1>`));
+		$.assert(x => x(widget.attrs({ class: `foo` }).attrs({ class: `` }).toHTML()) === x(`<h1 data-component="Widget" data-id="/UID1/">42</h1>`));
 	}),
 );

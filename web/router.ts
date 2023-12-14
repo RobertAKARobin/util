@@ -10,7 +10,6 @@ export type RouteMap = Record<string, string>;
  */
 export class Router<RouteMap_ extends RouteMap = Record<string, never>> extends Emitter<URL> {
 	readonly hashes = {} as Record<keyof RouteMap_, string>;
-	isReplace = true;
 	readonly paths = {} as Record<keyof RouteMap_, string>;
 	readonly urls = {} as Record<keyof RouteMap_, URL>;
 
@@ -94,7 +93,6 @@ export class Router<RouteMap_ extends RouteMap = Record<string, never>> extends 
  * Given a route, returns the corresponding View (probably a Page component)
  */
 export class Resolver<View> extends Emitter<View> {
-	isReplace = true;
 
 	constructor(
 		readonly router: Router<never>,

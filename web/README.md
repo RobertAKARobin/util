@@ -20,6 +20,7 @@
 
 ## TODO
 
+-	Extract out link component
 -	CSS class mapping
 -	Declare CSS variables inline
 -	If class is added via `attrs`, the class should be appended to existing classes

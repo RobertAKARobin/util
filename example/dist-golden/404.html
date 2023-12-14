@@ -4,13 +4,16 @@
 <head>
 	<title>Error 404</title>
 	<base href="/">
-	<meta name="viewport" content="width=device-width, initial-scale=1"> <script src="/script.js?cache=1702534846726" type="module"></script>
-	<link rel="stylesheet" href="/styles.css?cache=1702534846726"> <script id="unhydratedArgs" src="data:text/javascript," onload="unhydratedArgs={'/UID1/':{title:'Error 404'}}"></script>
+	<meta name="viewport" content="width=device-width, initial-scale=1"> <script src="/script.js?cache=1702577295032" type="module"></script>
+	<link rel="stylesheet" href="/styles.css?cache=1702577295032"> <script id="unhydratedArgs" src="data:text/javascript," onload="unhydratedArgs={'/UID3/':{title:'Error 404'}}"></script>
+	<link rel="stylesheet" href="/404.html.css?cache=1702577295032">
+	<style data-component="ModalContainer"></style>
+	<style data-component="ProgressModal"></style>
 	<style data-component="Nav"></style>
 	<style data-component="ErrorPage"></style>
 </head>
 
-<body data-component="ErrorPage" data-id="/UID1/">
+<body data-component="ErrorPage" data-id="/UID3/">
 	<nav data-component="Nav" data-id="nav">
 		<ul>
 			<li> <a href="/404.html">Go error404</a> </li>
@@ -22,6 +25,7 @@
 			<li> <a href="/ssg/yes/">Go ssgYes</a> </li>
 			<li> <a href="/ssg/yes/#jump1">Go ssgYesJump1</a> </li>
 			<li> <a href="/ssg/yes/#jump2">Go ssgYesJump2</a> </li>
+			<li> <button onclick="this.closest(`[data-component='Nav']`).instance.openModal(event,)" type="button">Modal</button> </li>
 		</ul>
 	</nav>
 	<main>
