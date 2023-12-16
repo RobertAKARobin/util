@@ -83,6 +83,7 @@ module.exports = {
 					argsIgnorePattern: `^_`,
 				}],
 				'@typescript-eslint/object-curly-spacing': [`error`, `always`],
+				'@typescript-eslint/restrict-template-expressions': `off`,
 				'@typescript-eslint/semi': [`error`, `always`],
 				'@typescript-eslint/space-before-function-paren': [`error`, `never`],
 				'@typescript-eslint/strict-boolean-expressions': `error`,
