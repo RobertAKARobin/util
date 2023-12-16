@@ -59,6 +59,8 @@ export class Emitter<
 		});
 	}
 
+	onChange(..._args: Parameters<OnEmit<State>>) {}
+
 	patch(update: State | Partial<State>, message?: string) {
 		if (isPrimitive(update)) {
 			return this.set(update as State, message);
@@ -94,12 +96,15 @@ export class Emitter<
 				? subscription.deref()
 				: subscription;
 			if (onEmit) {
-				onEmit(this.value, {
+				const meta = {
 					emitter: this,
 					message,
 					previous,
 					subscription,
-				});
+				};
+				const update = this.value;
+				this.onChange(update, meta);
+				onEmit(update, meta);
 			} else {
 				console.warn(`Subscription dead`);
 				this.subscriptions.delete(subscription);
