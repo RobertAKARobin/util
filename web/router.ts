@@ -11,12 +11,15 @@ export type RouteMap = Record<string, string>;
 export class Router<RouteMap_ extends RouteMap = Record<string, never>> extends Emitter<URL> {
 	readonly hashes = {} as Record<keyof RouteMap_, string>;
 	readonly paths = {} as Record<keyof RouteMap_, string>;
+	readonly routeNames: Array<keyof RouteMap_> = [];
 	readonly urls = {} as Record<keyof RouteMap_, URL>;
 
 	constructor(routes: RouteMap_) {
 		super();
 
 		for (const key in routes) {
+			this.routeNames.push(key);
+
 			const path = routes[key] as string;
 
 			const url = new URL(path, baseUrl);
@@ -86,6 +89,10 @@ export class Router<RouteMap_ extends RouteMap = Record<string, never>> extends 
 			url = update as URL;
 		}
 		return super.set(url);
+	}
+
+	to(routeName: keyof RouteMap_) {
+		return this.set(this.urls[routeName]);
 	}
 }
 
@@ -161,24 +168,3 @@ export class Renderer<View> extends Emitter<View> {
 		}
 	}
 }
-
-// if (Component.currentParent === Component.rootParent) { // Keep this from running unnecessarily for all descendant components
-// 	const $links = $el.querySelectorAll(`a`);
-// 	for (const $link of $links) {
-// 		const href = $link.getAttribute(`href`)!;
-// 		let url: URL;
-// 		try {
-// 			url = new URL(href, baseUrl);
-// 		} catch {
-// 			continue;
-// 		}
-// 		if (url.origin !== baseUrl.origin) {
-// 			if ($link.getAttribute(`rel`) === null) {
-// 				$link.setAttribute(`rel`, `noopener`);
-// 			}
-// 			if ($link.getAttribute(`target`) === null) {
-// 				$link.setAttribute(`target`, `_blank`);
-// 			}
-// 		}
-// 	}
-// }

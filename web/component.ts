@@ -150,15 +150,13 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	 */
 	static put<Subclass extends typeof Component<any>>( // eslint-disable-line @typescript-eslint/no-explicit-any
 		this: Subclass,
-		id?: Component[`id`]
+		id?: Component[`id`] | null, // TODO2: Add argument for state, but getting the type right is annoying
 	) {
-		if (id === undefined) {
-			return new this() as InstanceType<Subclass>;
-		}
-
-		const $existing = document.getElementById(id) as BoundElement;
-		if ($existing !== null) {
-			return $existing.instance as InstanceType<Subclass>;
+		if (typeof id === `string`) {
+			const $existing = document.getElementById(id) as BoundElement;
+			if ($existing !== null) {
+				return $existing.instance as InstanceType<Subclass>;
+			}
 		}
 
 		return new this(id) as InstanceType<Subclass>;
@@ -220,7 +218,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	 * Creates a component instance
 	 * @param id @see Component.id
 	 */
-	constructor(id?: Component[`id`], ...args: ConstructorParameters<typeof Emitter<State>>) {
+	constructor(id?: Component[`id`] | null, ...args: ConstructorParameters<typeof Emitter<State>>) {
 		super(...args);
 
 		if (!Component.subclasses.has(this.Ctor.elName)) {

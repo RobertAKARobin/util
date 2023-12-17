@@ -1,4 +1,5 @@
 import { Resolver, Router } from '@robertakarobin/web/router.ts';
+import { LinkComponent } from '@robertakarobin/web/components/link.ts';
 
 export const router = new Router({
 	error404: `/404.html`,
@@ -12,7 +13,7 @@ export const router = new Router({
 	ssgYesJump2: `/ssg/yes/#jump2`,
 });
 
-export const { paths, hashes, urls } = router;
+export const { paths, hashes, routeNames, urls } = router;
 
 export const resolver = new Resolver(router, async(route: URL) => {
 	switch (route.pathname) {
@@ -38,3 +39,5 @@ export const resolver = new Resolver(router, async(route: URL) => {
 		title: `Error 404`,
 	});
 });
+
+export const Link = LinkComponent(router);

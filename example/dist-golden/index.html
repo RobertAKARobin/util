@@ -4,41 +4,42 @@
 <head>
 	<title>Home page</title>
 	<base href="/">
-	<meta name="viewport" content="width=device-width, initial-scale=1"> <script src="/script.js?cache=1702821708776" type="module"></script>
-	<link rel="stylesheet" href="/styles.css?cache=1702821708776">
+	<meta name="viewport" content="width=device-width, initial-scale=1"> <script src="/script.js?cache=1702829876580" type="module"></script>
+	<link rel="stylesheet" href="/styles.css?cache=1702829876580">
 	<style data-style="l-textbox"></style>
 	<style data-style="l-listitem"></style>
 	<style data-style="l-list"></style>
 	<style data-style="l-transitiontest"></style>
 	<style data-style="l-indexpage"></style>
+	<style data-style="l-link"></style>
 	<style data-style="l-nav"></style>
-	<link rel="stylesheet" href="/index.html.css?cache=1702821708776">
+	<link rel="stylesheet" href="/index.html.css?cache=1702829876580">
 </head>
 
 <body>
-	<div id="UID4_" is="l-indexpage">
+	<div id="UID13_" is="l-indexpage">
 		<nav id="nav" is="l-nav">
 			<ul>
-				<li> <a href="/404.html">Go error404</a> </li>
-				<li> <a href="https://example.com/">Go external</a> </li>
-				<li> <a href="/">Go home</a> </li>
-				<li> <a href="/#jump1">Go homeJump1</a> </li>
-				<li> <a href="/#jump2">Go homeJump2</a> </li>
-				<li> <a href="/ssg/no/">Go ssgNo</a> </li>
-				<li> <a href="/ssg/yes/">Go ssgYes</a> </li>
-				<li> <a href="/ssg/yes/#jump1">Go ssgYesJump1</a> </li>
-				<li> <a href="/ssg/yes/#jump2">Go ssgYesJump2</a> </li>
+				<li><a href="/404.html" id="UID17_" is="l-link">Go error404</a></li>
+				<li><a href="https://example.com/" rel="noopener" target="_blank" id="UID18_" is="l-link">Go external</a></li>
+				<li><a href="/" id="UID19_" is="l-link">Go home</a></li>
+				<li><a href="/#jump1" id="UID20_" is="l-link">Go homeJump1</a></li>
+				<li><a href="/#jump2" id="UID21_" is="l-link">Go homeJump2</a></li>
+				<li><a href="/ssg/no/" id="UID22_" is="l-link">Go ssgNo</a></li>
+				<li><a href="/ssg/yes/" id="UID23_" is="l-link">Go ssgYes</a></li>
+				<li><a href="/ssg/yes/#jump1" id="UID24_" is="l-link">Go ssgYesJump1</a></li>
+				<li><a href="/ssg/yes/#jump2" id="UID25_" is="l-link">Go ssgYesJump2</a></li>
 				<li> <button onclick="this.closest(`[is='l-nav']`).instance.openModal(event,)" type="button">Modal</button> </li>
 			</ul>
 		</nav>
 		<main>
 			<h1>Hello world!</h1>
-			<div id="UID5_" is="l-transitiontest"></div>
+			<div id="UID14_" is="l-transitiontest"></div>
 			<div id="jump1">Jump 1</div>
 			<ol id="mylist" is="l-list">
 				<li>
 					<div id="mylist-0" is="l-listitem"> mylist-0 <button type="button">↑</button> <button type="button">↓</button> <button type="button">Add before</button> <button type="button">Remove</button>
-						<div id="UID6_" is="l-textbox"> <input maxlength="10" oninput="this.closest(`[is='l-textbox']`).instance.handleInput(event,)" placeholder="Type here" type="text" value="hello"> <span>5 / 10 Remaining</span> </div>
+						<div id="UID15_" is="l-textbox"> <input maxlength="10" oninput="this.closest(`[is='l-textbox']`).instance.handleInput(event,)" placeholder="Type here" type="text" value="hello"> <span>5 / 10 Remaining</span> </div>
 					</div>
 				</li>
 			</ol>
@@ -46,7 +47,7 @@
 			<h2>This is a variable</h2>
 			<p>Lorem ipsum dolor <strong>sit amet</strong>, consectetur <em>adipiscing elit</em>, sed do <em>eiusmod tempor</em> incididunt.</p>
 			<p>Duis aute voluptate <a href="https://example.com">velit esse cillum</a> dolore /eu fugiat/ nulla pariatur.</p>
-			<p><a href="/ssg/yes/">Link to SSG Yes</a></p><button type="button" onclick="this.closest(`[is='l-indexpage']`).instance.anchorlessRoute(event,)">Go to SSG Yes</button>
+			<p><a href="/ssg/yes/" id="UID16_" is="l-link">Link to SSG Yes</a></p><button type="button" onclick="this.closest(`[is='l-indexpage']`).instance.anchorlessRoute(event,)">Go to SSG Yes</button>
 			<h2>Headline 2</h2>
 			<blockquote>
 				<p>Excepteur sint occaecat <em>cupidatat</em> non proident.</p>
@@ -72,7 +73,7 @@
 			</ol>
 			<div id="jump2">Jump 2</div>
 		</main>
-	</div><script id="unhydratedArgs" src="data:text/javascript," onload="unhydratedArgs={mylist:[{value:'hello'}],'mylist-0':'hello',UID6_:{maxlength:10,value:'hello'},UID4_:{message:'This is a variable',title:'Home page'}}"></script>
+	</div><script id="unhydratedArgs" src="data:text/javascript," onload="unhydratedArgs={mylist:[{value:'hello'}],'mylist-0':'hello',UID15_:{maxlength:10,value:'hello'},UID13_:{message:'This is a variable',title:'Home page'}}"></script>
 </body>
 
 </html>

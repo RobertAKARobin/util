@@ -1,5 +1,5 @@
 
-import { paths, router } from '@src/router.ts';
+import { Link, router } from '@src/router.ts';
 import { BasePage } from './_page.ts';
 import { List } from '@src/components/list.ts';
 import { state } from '@src/state.ts';
@@ -19,7 +19,7 @@ export class IndexPage extends BasePage<{ message: string; }> {
 	static style = style;
 
 	anchorlessRoute() {
-		router.set(paths.ssgYes);
+		router.to(`ssgYes`);
 	}
 
 	template = () => super.template(`
@@ -42,7 +42,7 @@ Lorem ipsum dolor <strong>sit amet</strong>, consectetur *adipiscing elit*, sed 
 Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ nulla pariatur.
 </markdown>
 
-<p><a href="${paths.ssgYes}">Link to SSG Yes</a></p>
+<p>${Link.to(`ssgYes`, `Link to SSG Yes`)}</p>
 
 <button type="button" onclick=${this.bind(`anchorlessRoute`)}>Go to SSG Yes</button>
 
