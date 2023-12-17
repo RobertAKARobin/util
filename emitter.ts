@@ -95,20 +95,20 @@ export class Emitter<
 			const onEmit = subscription instanceof WeakRef
 				? subscription.deref()
 				: subscription;
+			const meta = {
+				emitter: this,
+				message,
+				previous,
+				subscription,
+			};
 			if (onEmit) {
-				const meta = {
-					emitter: this,
-					message,
-					previous,
-					subscription,
-				};
 				const update = this.value;
-				this.onChange(update, meta);
 				onEmit(update, meta);
 			} else {
 				console.warn(`Subscription dead`);
 				this.subscriptions.delete(subscription);
 			}
+			this.onChange(update, meta);
 		}
 		return this;
 	}
