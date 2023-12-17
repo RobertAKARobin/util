@@ -6,12 +6,12 @@ export class BasePage<
 	State extends Record<string, unknown> = Record<string, unknown>,
 > extends Page<State> {
 
-	template(body: string) { // Not using fat arrow becaue this gets superclassed
+	template(main: string) { // Not using fat arrow becaue this gets superclassed
 		return `
-			<body>
-				${new Nav(`nav`).render()}
-				${body}
-			</body>
+			<div>
+				${Nav.put(`nav`)}
+				${main}
+			</div>
 		`;
 	};
 }

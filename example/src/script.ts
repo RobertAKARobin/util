@@ -1,13 +1,14 @@
 import { Renderer } from '@robertakarobin/web/router.ts';
 
-import { modalContainer } from './state.ts';
+import { modalContainer } from '@src/state.ts';
 import { resolver } from '@src/router.ts';
 
 new Renderer(resolver, (page, oldPage) => {
 	if (oldPage === undefined) {
 		page.hydrate();
 	} else {
-		page.replace(oldPage);
+		oldPage.$el.replaceWith(page.render());
 	}
-	page.$el?.appendChild(modalContainer.renderedEl());
 });
+
+document.body.appendChild(modalContainer.render());

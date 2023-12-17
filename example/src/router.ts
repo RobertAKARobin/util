@@ -19,22 +19,22 @@ export const resolver = new Resolver(router, async(route: URL) => {
 		case paths.home:
 		case paths.homeJump1:
 		case paths.homeJump2:
-			return new (await import(`@src/pages/index.ts`)).IndexPage().set({
+			return new (await import(`@src/pages/index.ts`)).IndexPage(undefined, {
 				message: `This is a variable`,
 				title: `Home page`,
 			});
 		case paths.ssgNo:
-			return new (await import(`@src/pages/ssg-no.ts`)).NoSSGPage().set({
+			return new (await import(`@src/pages/ssg-no.ts`)).NoSSGPage(undefined, {
 				title: `No SSG page`,
 			});
 		case paths.ssgYes:
 		case paths.ssgYesJump1:
 		case paths.ssgYesJump2:
-			return new (await import(`@src/pages/ssg-yes.ts`)).YesSSGPage().set({
+			return new (await import(`@src/pages/ssg-yes.ts`)).YesSSGPage(undefined, {
 				title: `SSG yes`,
 			});
 	}
-	return new (await import(`@src/pages/error.ts`)).ErrorPage().set({
+	return new (await import(`@src/pages/error.ts`)).ErrorPage(undefined, {
 		title: `Error 404`,
 	});
 });

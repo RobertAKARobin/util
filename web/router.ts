@@ -161,3 +161,24 @@ export class Renderer<View> extends Emitter<View> {
 		}
 	}
 }
+
+// if (Component.currentParent === Component.rootParent) { // Keep this from running unnecessarily for all descendant components
+// 	const $links = $el.querySelectorAll(`a`);
+// 	for (const $link of $links) {
+// 		const href = $link.getAttribute(`href`)!;
+// 		let url: URL;
+// 		try {
+// 			url = new URL(href, baseUrl);
+// 		} catch {
+// 			continue;
+// 		}
+// 		if (url.origin !== baseUrl.origin) {
+// 			if ($link.getAttribute(`rel`) === null) {
+// 				$link.setAttribute(`rel`, `noopener`);
+// 			}
+// 			if ($link.getAttribute(`target`) === null) {
+// 				$link.setAttribute(`target`, `_blank`);
+// 			}
+// 		}
+// 	}
+// }

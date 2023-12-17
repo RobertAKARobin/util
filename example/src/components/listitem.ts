@@ -24,10 +24,7 @@ export class ListItem extends Component<string> {
 	<button
 		type="button"
 	>Remove</button>
-	${new Textbox()
-		.patch({ value: this.value })
-		// .on(`value`, console.log)
-		.render()}
+	${Textbox.put().patch({ value: this.value })}
 </div>
 	`;
 }

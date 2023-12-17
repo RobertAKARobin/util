@@ -36,7 +36,7 @@ input {
 			...this.value,
 			value: (event.currentTarget as HTMLInputElement).value,
 		});
-		this.$el!.querySelector(`span`)!.innerHTML = this.remaining();
+		this.$el.querySelector(`span`)!.innerHTML = this.remaining();
 	}
 
 	remaining() {

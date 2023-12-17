@@ -8,13 +8,13 @@ import fs from 'fs';
 
 let id = 0;
 EntityStateEmitter.prototype.createId = Component.createId = () => { // Easy to strip out with RegEx
-	return `/UID${++id}/`;
+	return `UID${++id}_`;
 };
 
 export const hasMarkdown = /<markdown>(.*?)<\/markdown>/gs;
 
 const read = (path: string) => fs.readFileSync(path, { encoding: `utf8` })
-	.replace(/\/UID\d+\//g, `/UID/`) // Note that this will make it look like some IDs are repeated
+	.replace(/UID\d+_/g, `UID`) // Note that this will make it look like some IDs are repeated
 	.replace(/\?cache=\d+/g, `?cache=123`);
 
 const dist = (path: string) => read(`dist/${path}`);
@@ -69,9 +69,9 @@ export const spec = suite(`@robertakarobin/web`,
 		id = 0;
 		$.log(() => widget = new Widget());
 		$.log(() => widget.render());
-		$.assert(x => x(widget.toHTML()) === x(`<h1 data-component="Widget" data-id="/UID1/">42</h1>`));
-		$.assert(x => x(widget.attrs({ class: `foo` }).toHTML()) === x(`<h1 data-component="Widget" data-id="/UID1/" class="foo">42</h1>`));
-		$.assert(x => x(widget.attrs({ class: `` }).toHTML()) === x(`<h1 data-component="Widget" data-id="/UID1/">42</h1>`));
-		$.assert(x => x(widget.attrs({ class: `foo` }).attrs({ class: `` }).toHTML()) === x(`<h1 data-component="Widget" data-id="/UID1/">42</h1>`));
+		$.assert(x => x(widget.$el.outerHTML) === x(`<h1 id="UID1_" is="l-widget">42</h1>`));
+		$.assert(x => x(widget.attrs({ class: `foo` }).$el.outerHTML) === x(`<h1 id="UID1_" is="l-widget" class="foo">42</h1>`));
+		$.assert(x => x(widget.attrs({ class: null }).$el.outerHTML) === x(`<h1 id="UID1_" is="l-widget">42</h1>`));
+		$.assert(x => x(widget.attrs({ class: `foo` }).attrs({ class: null }).$el.outerHTML) === x(`<h1 id="UID1_" is="l-widget">42</h1>`));
 	}),
 );

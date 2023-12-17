@@ -4,33 +4,35 @@
 <head>
 	<title>Error 404</title>
 	<base href="/">
-	<meta name="viewport" content="width=device-width, initial-scale=1"> <script src="/script.js?cache=1702577295032" type="module"></script>
-	<link rel="stylesheet" href="/styles.css?cache=1702577295032"> <script id="unhydratedArgs" src="data:text/javascript," onload="unhydratedArgs={'/UID3/':{title:'Error 404'}}"></script>
-	<link rel="stylesheet" href="/404.html.css?cache=1702577295032">
-	<style data-component="ModalContainer"></style>
-	<style data-component="ProgressModal"></style>
-	<style data-component="Nav"></style>
-	<style data-component="ErrorPage"></style>
+	<meta name="viewport" content="width=device-width, initial-scale=1"> <script src="/script.js?cache=1702821708776" type="module"></script>
+	<link rel="stylesheet" href="/styles.css?cache=1702821708776">
+	<style data-style="l-modalcontainer"></style>
+	<style data-style="l-progressmodal"></style>
+	<style data-style="l-nav"></style>
+	<style data-style="l-errorpage"></style>
+	<link rel="stylesheet" href="/404.html.css?cache=1702821708776">
 </head>
 
-<body data-component="ErrorPage" data-id="/UID3/">
-	<nav data-component="Nav" data-id="nav">
-		<ul>
-			<li> <a href="/404.html">Go error404</a> </li>
-			<li> <a href="https://example.com/" rel="noopener" target="_blank">Go external</a> </li>
-			<li> <a href="/">Go home</a> </li>
-			<li> <a href="/#jump1">Go homeJump1</a> </li>
-			<li> <a href="/#jump2">Go homeJump2</a> </li>
-			<li> <a href="/ssg/no/">Go ssgNo</a> </li>
-			<li> <a href="/ssg/yes/">Go ssgYes</a> </li>
-			<li> <a href="/ssg/yes/#jump1">Go ssgYesJump1</a> </li>
-			<li> <a href="/ssg/yes/#jump2">Go ssgYesJump2</a> </li>
-			<li> <button onclick="this.closest(`[data-component='Nav']`).instance.openModal(event,)" type="button">Modal</button> </li>
-		</ul>
-	</nav>
-	<main>
-		<h1>404 page :(</h1>
-	</main>
+<body>
+	<div id="UID3_" is="l-errorpage">
+		<nav id="nav" is="l-nav">
+			<ul>
+				<li> <a href="/404.html">Go error404</a> </li>
+				<li> <a href="https://example.com/">Go external</a> </li>
+				<li> <a href="/">Go home</a> </li>
+				<li> <a href="/#jump1">Go homeJump1</a> </li>
+				<li> <a href="/#jump2">Go homeJump2</a> </li>
+				<li> <a href="/ssg/no/">Go ssgNo</a> </li>
+				<li> <a href="/ssg/yes/">Go ssgYes</a> </li>
+				<li> <a href="/ssg/yes/#jump1">Go ssgYesJump1</a> </li>
+				<li> <a href="/ssg/yes/#jump2">Go ssgYesJump2</a> </li>
+				<li> <button onclick="this.closest(`[is='l-nav']`).instance.openModal(event,)" type="button">Modal</button> </li>
+			</ul>
+		</nav>
+		<main>
+			<h1>404 page :(</h1>
+		</main>
+	</div><script id="unhydratedArgs" src="data:text/javascript," onload="unhydratedArgs={UID3_:{title:'Error 404'}}"></script>
 </body>
 
 </html>

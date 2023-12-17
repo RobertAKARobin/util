@@ -34,7 +34,7 @@ h1 {
 	outline: 1px solid red;
 }
 
-[data-component='ModalContainer'] {
+[is='l-modalcontainer'] {
 	align-items: center;
 	backdrop-filter: blur(5px);
 	background: #00000060;

@@ -1,10 +1,11 @@
+import { appContext } from '@robertakarobin/util/context.ts';
 import { Emitter } from '@robertakarobin/util/emitter.ts';
 import { newUid } from '@robertakarobin/util/uid.ts';
+
 export { html, css } from '@robertakarobin/util/template.ts';
-import { appContext, baseUrl } from '@robertakarobin/util/context.ts';
 
 export type BoundElement = HTMLElement & {
-	[Component.$elInstance]: Component; // Attaching instances to Elements should prevent the instance from being garbage-collected until the Element is GCd
+	[Component.$elProp]: Component; // Attaching instances to Elements should prevent the instance from being garbage-collected until the Element is GCd
 };
 
 type Constructor<Classtype> = new (...args: any) => Classtype; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -13,41 +14,69 @@ export const globals = (appContext === `browser` ? window : global) as unknown a
 	& { [key in typeof Component.name]: typeof Component; }
 	& { [key in typeof Component.unhydratedArgsName]: Record<Component[`id`], object> };
 
-type HTMLAttributeValue = string | number | undefined | null;
+type AttributeValue = string | number | undefined | null;
 
 export class Component<State = Record<string, unknown>> extends Emitter<State> {
-	static readonly $elAttrId = `data-id`;
-	static readonly $elAttrType = `data-component`;
-	static readonly $elInstance = `instance`;
-	protected static currentParent: Component;
-	protected static instances = new Map<Component[`id`], WeakRef<Component>>();
-	protected static rootParent: Component;
-	static get selector() {
-		return `[${this.$elAttrType}='${this.name}']`;
-	}
+	static readonly $elAttr = `is`;
+	static readonly $elProp = `instance`;
+	static readonly $styleAttr = `data-style`;
+	static readonly elName: string;
+	static readonly selector: string;
 	static readonly style: string | undefined;
 	static readonly subclasses = new Map<string, typeof Component>();
+	protected static readonly unconnectedElements = new Map<
+		Component[`id`],
+		WeakRef<BoundElement>
+	>();
 	static readonly unhydratedArgsName = `unhydratedArgs`;
 
 	static {
 		globals[this.name] = this;
+		if (appContext === `browser`) {
+			this.placeObserver();
+		}
 	}
 
 	static createId() {
-		return newUid();
+		return `l${newUid()}`;
+	}
+
+	/*
+	 * Given some already-rendered HTML, e.g. from a static HTML file rendered through SSG, creates component instances for all elements that expect them, and hydrates them with data found in `<script id="unhydratedArgs">` if it exists
+	 */
+	static hydrate($input: Element) {
+		const unhydratedArgs = globals[Component.unhydratedArgsName];
+
+		const $el = $input as BoundElement;
+		const id = $el.id;
+
+		const args = unhydratedArgs?.[id];
+		if (args !== undefined) {
+			delete unhydratedArgs[id];
+		}
+
+		let instance: Component<any> = $el.instance; // eslint-disable-line @typescript-eslint/no-explicit-any
+		if (instance === undefined) {
+			const constructorName = $el.getAttribute(Component.$elAttr)!;
+			const Constructor = Component.subclasses.get(constructorName)!;
+			instance = new Constructor(id, args);
+			instance.setEl($el);
+		} else {
+			if (args !== undefined) {
+				instance.patch(args);
+			}
+		}
+		instance.actions.placed();
+		return instance;
 	}
 
 	/**
-	 * Get an existing component instance by its ID
+	 * @see {@link Component.hydrate}
 	 */
-	static get(id: Component[`id`]) {
-		const existingRef = Component.instances.get(id);
-		if (existingRef !== undefined) {
-			const existing = existingRef.deref();
-			if (existing !== undefined) {
-				return existing;
-			}
-			console.debug(`${id} GCd, rebuilding`);
+	static hydrateAll($input: Element) {
+		const $els = $input.querySelectorAll(`[${Component.$elAttr}]`);
+		for (const $el of $els) {
+			this.hydrate($el);
 		}
 	}
 
@@ -55,57 +84,112 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	 * Component setup tasks, e.g. applying the component's CSS/styles. Should run after the page is done loading. Recommend adding `static { this.init() }` when defining a component.
 	 */
 	static init() {
-		Component.subclasses.set(this.name, this);
-		Object.assign(this, {
-			style: this.style?.replace(/::?host/g, this.selector), // style is readonly; just override it here
-		});
-		this.setStyle();
+		const elName = `l-${this.name.toLowerCase()}`;
+		if (Component.subclasses.has(elName)) {
+			return;
+		}
+
+		const selector = `[${this.$elAttr}='${elName}']`;
+		const style = this.style?.replace(/::?host/g, selector);
+		Component.subclasses.set(elName, this);
+		Object.assign(this, { elName, selector, style });
+		this.placeStyle();
 	}
 
-	/**
-	 * Parse the given string to an HTML DOM fragment.
-	 */
 	static parse(input: string) {
 		const parser = new DOMParser();
 		return parser.parseFromString(input, `text/html`);
 	}
 
+	static placeObserver() {
+		const observer = new MutationObserver(mutations => {
+			for (const mutation of mutations) {
+				for (const $node of mutation.addedNodes) {
+					if (!($node instanceof HTMLElement)) {
+						continue;
+					}
+					const $el = $node as BoundElement;
+					for (const $child of $el.querySelectorAll(`[${Component.$elAttr}]`)) {
+						($child as BoundElement).instance.actions.placed();
+					}
+				}
+				for (const $node of mutation.removedNodes) {
+					if (!($node instanceof HTMLElement)) {
+						continue;
+					}
+					const $el = $node as BoundElement;
+					for (const $child of $el.querySelectorAll(`[${Component.$elAttr}]`)) {
+						($child as BoundElement).instance.actions.placed();
+					}
+				}
+			}
+		});
+		observer.observe(document.body, {
+			childList: true,
+			subtree: true,
+		});
+	}
+
 	/**
 	 * Applies the component's CSS/styles to the current page
 	 */
-	static setStyle() {
+	static placeStyle() {
 		if (
 			typeof this.style === `string`
-			&& document.querySelector(`style${this.selector}`) === null
+			&& document.querySelector(`style[${this.$styleAttr}='${this.elName}']`) === null
 		) {
 			const $style = document.createElement(`style`);
 			$style.textContent = this.style;
-			$style.setAttribute(Component.$elAttrType, this.name);
+			$style.setAttribute(Component.$styleAttr, this.elName);
 			document.head.appendChild($style);
 		}
 	}
 
 	/**
+	 * Outputs a new component. If an ID is given, outputs the matching existing component, or builds a new one with that ID.
+	 */
+	static put<Subclass extends typeof Component<any>>( // eslint-disable-line @typescript-eslint/no-explicit-any
+		this: Subclass,
+		id?: Component[`id`]
+	) {
+		if (id === undefined) {
+			return new this() as InstanceType<Subclass>;
+		}
+
+		const $existing = document.getElementById(id) as BoundElement;
+		if ($existing !== null) {
+			return $existing.instance as InstanceType<Subclass>;
+		}
+
+		return new this(id) as InstanceType<Subclass>;
+	}
+
+	/**
 	 * The root DOM element to which the component is attached
 	 */
-	$el: BoundElement | undefined;
+	$el!: BoundElement;
+	/**
+	 * @see Emitter.actions
+	 */
 	actions = this.toActions({
-		removed: () => this.value,
-		rendered: () => this.value,
+		el: () => {
+			this.onEl();
+			return this.value;
+		},
+		placed: () => {
+			this.onPlace();
+			return this.value;
+		},
+		removed: () => {
+			this.onRemove();
+			return this.value;
+		},
 	});
+	private attributesCache: Record<string, AttributeValue> = {};
 	/**
-	 * Holds the values which will be rendered as HTML attributes on the component's DOM element
-	 * @see Component.attrs()
+	 * Content that will be rendered inside this element.
 	 */
-	private attributes = {} as Record<string, HTMLAttributeValue>;
-	/**
-	 * As the component's template is being rendered, holds the index of the child component currently being rendered. Used to create the child component's ID.
-	 */
-	private childIndex = 0;
-	/**
-	 * Holds the string which will be rendered inside the component; i.e. if the component was an HTML element, what would go inside its <tag></tag>
-	 */
-	private content = ``;
+	contents = ``;
 	/**
 	 * @returns The instance's constructor
 	 */
@@ -115,7 +199,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	/**
 	 * When a component is instantiated, if an existing component has the same ID, the template for the existing component is used instead of a new template being rendered to the DOM. By default the ID is based on the index of the current component within its parent component.
 	 */
-	readonly id: string = ``;
+	readonly id: string;
 	/**
 	 * Whether this component's data should be included in the data used to hydrate pages rendered via SSG.
 	 * @see `Component.hydrate`
@@ -128,10 +212,6 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	*/
 	readonly isSSG: boolean = true;
 	/**
-	 * The component that owns the template inside of which the current component is being rendered
-	 */
-	protected parent: Component | undefined;
-	/**
 	 * Warning: `style` should be defined as a static property, not an instance property
 	*/
 	private readonly style: void = undefined;
@@ -140,39 +220,38 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	 * Creates a component instance
 	 * @param id @see Component.id
 	 */
-	constructor(
-		id?: Component[`id`],
-		...args: ConstructorParameters<typeof Emitter<State>>
-	) {
+	constructor(id?: Component[`id`], ...args: ConstructorParameters<typeof Emitter<State>>) {
 		super(...args);
 
-		if (!Component.subclasses.has(this.Ctor.name)) {
+		if (!Component.subclasses.has(this.Ctor.elName)) {
 			this.Ctor.init();
 		}
 
-		if (Component.currentParent === undefined) {
-			this.id = id ?? Component.createId();
-		} else {
-			this.parent = Component.currentParent;
-			this.id = id ?? `${this.parent.id}_${this.parent.childIndex++}`;
-		}
-
-		const existing = Component.get(this.id);
-		if (existing !== undefined) {
-			return existing as Component<State>;
-		}
-
-		Component.instances.set(this.id, new WeakRef(this as Component));
+		this.id = id ?? Component.createId();
 	}
 
 	/**
 	 * Sets and/or places the component's HTML attributes
 	 */
-	attrs(input?: Component[`attributes`]) {
-		if (input !== undefined) {
-			this.attributes = input;
+	attrs(attributes: Record<string, AttributeValue>) {
+		if (this.$el === undefined) {
+			this.attributesCache = {
+				...this.attributesCache,
+				...attributes,
+			};
+		} else {
+			for (const attributeName in attributes) {
+				const value = attributes[attributeName];
+				if (value === undefined || value === null) {
+					this.$el.removeAttribute(attributeName);
+				} else {
+					this.$el.setAttribute(
+						attributeName,
+						attributes[attributeName]!.toString(),
+					);
+				}
+			}
 		}
-		this.setAttributes(this.attributes);
 		return this;
 	}
 
@@ -195,7 +274,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		const out = target instanceof Emitter
 			? `.next(${argsString})`
 			: `(event,${argsString})`;
-		return `"this.closest(\`${this.Ctor.selector}\`).${Component.$elInstance}.${targetName as string}${out}"`;
+		return `"this.closest(\`${this.Ctor.selector}\`).${Component.$elProp}.${targetName as string}${out}"`;
 	}
 
 	/**
@@ -206,6 +285,14 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 
 		const $match = this.$el?.closest(selector);
 		return ($match as BoundElement)?.instance;
+	}
+
+	/**
+	 * Set the inner content of the element.
+	 */
+	content(content: string) {
+		this.contents = content;
+		return this;
 	}
 
 	/**
@@ -226,131 +313,92 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 
 		const descendants = [];
 
-		const $descendants = this.$el?.querySelectorAll(selector) as NodeListOf<BoundElement>;
+		const $descendants = this.$el.querySelectorAll(selector);
 		if ($descendants === undefined) {
 			return;
 		}
 
 		for (const $descendant of $descendants) {
-			descendants.push($descendant.instance as Descendant);
+			descendants.push(($descendant as BoundElement).instance as Descendant);
 		}
 
 		return descendants;
 	}
 
 	/**
-	 * Compiles the component's template, looping through all nested components. If a component's ID matches the ID of an existing component, the existing component's template is swapped in instead of rerendered.
-	 * Returns a comment string; this is a placeholder that is swapped out for the component's template.
+	 * Called when the instance's element is defined
 	 */
-	render(content: string = ``) {
-		this.content = content;
+	onEl() {}
 
-		const ownParent = Component.currentParent;
-		Component.currentParent = this as Component;
-		Component.currentParent.childIndex = 0;
+	/**
+	 * Called when the instance's element is attached to or moved within a document
+	 */
+	onPlace() {}
 
-		const doc = Component.parse(this.template(content ?? this.content));
-		const $el = this instanceof Page
-			?	doc.body as unknown as BoundElement
-			: doc.body.children[0] as BoundElement;
-		this.setEl($el);
+	/**
+	 * Called when the instance's element is removed from a document
+	 */
+	onRemove() {}
 
-		Component.currentParent = ownParent;
+	/**
+	 * Replaces all sub-components with fully-rendered templates
+	 */
+	render() {
+		const $template = document.createElement(`template`);
+		$template.innerHTML = this.toString();
 
-		const iterator = doc.createNodeIterator(
-			doc.body,
+		const newCommentIterator = () => document.createNodeIterator(
+			$template.content,
 			NodeFilter.SHOW_COMMENT,
 			() => NodeFilter.FILTER_ACCEPT,
 		);
-		let $placeholder: Node | null | undefined;
-		while ($placeholder = iterator.nextNode()) {
-			const id = $placeholder.textContent;
-			if (id === null) {
-				continue;
-			}
-			const instance = Component.get(id)!;
 
-			if ($placeholder.nextSibling) {
-				$placeholder.parentNode?.insertBefore(instance.$el!, $placeholder.nextSibling);
-			} else {
-				$placeholder.parentNode?.appendChild(instance.$el!);
+		let iterator = newCommentIterator();
+		let $placeholder: Comment;
+		while (true) {
+			$placeholder = iterator.nextNode() as Comment;
+			if ($placeholder === null) {
+				break;
 			}
-			$placeholder.parentNode?.removeChild($placeholder);
-		}
+			const id = $placeholder.textContent!;
+			const $el = Component.unconnectedElements.get(id)!.deref()!;
+			$placeholder.replaceWith($el);
+			Component.unconnectedElements.delete(id);
 
-		if (Component.currentParent === Component.rootParent) { // Keep this from running unnecessarily for all descendant components
-			const $links = $el.querySelectorAll(`a`);
-			for (const $link of $links) {
-				const href = $link.getAttribute(`href`)!;
-				let url: URL;
-				try {
-					url = new URL(href, baseUrl);
-				} catch {
-					continue;
-				}
-				if (url.origin !== baseUrl.origin) {
-					if ($link.getAttribute(`rel`) === null) {
-						$link.setAttribute(`rel`, `noopener`);
-					}
-					if ($link.getAttribute(`target`) === null) {
-						$link.setAttribute(`target`, `_blank`);
-					}
-				}
+			if (appContext !== `browser`) {
+				iterator = newCommentIterator(); // JSDOM has a bug that causes it to not pick up new nodes after the DOM tree has been modified; workaround is to just refresh the iterator each time it's modified: https://github.com/jsdom/jsdom/issues/3040
 			}
 		}
-
-		this.setAttributes(this.attributes);
-
-		return `<!--${this.id}-->`;
+		return this.$el;
 	}
 
-	/**
-	 * Same as `.render` except it returns the component's element
-	 */
-	renderedEl() {
-		this.render();
-		return this.$el!;
-	}
-
-	protected setAttribute(attributeName: string, value?: HTMLAttributeValue) {
-		if (value !== undefined && value !== null && value !== ``) {
-			this.$el!.setAttribute(attributeName, value.toString());
-		} else {
-			this.$el!.removeAttribute(attributeName);
-		}
-	}
-
-	protected setAttributes(input: Record<string, HTMLAttributeValue> = {}) {
-		if (this.$el) {
-			for (const attributeName in input) {
-				this.setAttribute(attributeName, input[attributeName]);
-			}
-		}
-	}
-
-	/**
-	 * Sets the component's root element
-	 */
 	protected setEl($input: Element) {
 		const $el = $input as BoundElement;
 		this.$el = $el;
-		this.$el.setAttribute(Component.$elAttrType, this.Ctor.name);
-		this.$el.setAttribute(Component.$elAttrId, this.id);
-		this.$el[Component.$elInstance] = this as Component;
+		this.$el.id = this.id;
+		this.$el.setAttribute(Component.$elAttr, this.Ctor.elName);
+		this.$el[Component.$elProp] = this as Component;
+		this.attrs(this.attributesCache);
+		this.actions.el();
 	}
 
 	/**
 	 * Defines what is written into the document when this instance is rendered
 	 */
-	template(content: string = ``): string {
-		return content ?? ``;
+	template(body = ``) {
+		return body;
 	}
 
 	/**
-	 * Returns the component's current HTML
+	 * Behind the scenes, compiles the instance's template to DOM nodes and saves them to temporary memory. Returns a comment containing the instance's ID, which can be replaced with the temporary node.
 	 */
-	toHTML() {
-		return this.$el?.outerHTML ?? ``;
+	toString() {
+		const $template = document.createElement(`template`);
+		$template.innerHTML = this.template();
+		const $el = $template.content.firstElementChild as BoundElement;
+		this.setEl($el);
+		Component.unconnectedElements.set(this.id, new WeakRef($el));
+		return `<!--${this.id}-->`;
 	}
 }
 
@@ -359,74 +407,21 @@ type PageType = {
 };
 
 /**
- * A Page is just a Component that (a) updates the current page's `<title>`, and (b) should have a template that starts with a `<body>` tag (unless a different layout is specified in the build process)
+ * A Page is just a Component that updates the current page's `<title>`
  */
-export abstract class Page<
+export class Page<
 	State extends Record<string, unknown> = Record<string, unknown>,
 > extends Component<PageType & State> {
 
-	constructor(...args: ConstructorParameters<typeof Component<PageType & State>>) {
-		super(...args);
-		this.on(`rendered`).pipe(() => {
-			document.title = this.value.title!;
-		});
-	}
-
-	/**
-	 * Given some already-rendered HTML, e.g. from a static HTML file rendered through SSG, creates component instances for all elements that expect them, and hydrates them with data found in `<script id="unhydratedArgs">` if it exists
-	 */
-	hydrate($root: Element = document.body) {
-		Component.currentParent = Component.rootParent = Component.rootParent ?? new Component();
-
-		const unhydratedArgs = globals[Component.unhydratedArgsName];
-
-		const $el = $root.getAttribute(Component.$elAttrType) === this.Ctor.name
-			? $root
-			: $root.querySelector(this.Ctor.selector)!;
-		Object.assign(this, {
-			id: $el.getAttribute(Component.$elAttrId)!, // The component has already been instantiated at this point, so need to overwrite its ID
-		});
+	hydrate() {
+		const $el = document.querySelector(this.Ctor.selector)!;
+		const id = $el.id;
+		Object.assign(this, { id });
 		this.setEl($el);
-
-		const $els = $root.querySelectorAll(`[${Component.$elAttrType}]`);
-		for (const $el of Array.from($els) as Array<BoundElement>) {
-			const id = $el.getAttribute(Component.$elAttrId)!;
-			if (id === this.id) {
-				continue;
-			}
-			const constructorName = $el.getAttribute(Component.$elAttrType)!;
-			const Constructor = Component.subclasses.get(constructorName)!;
-			const instance = new Constructor(id);
-
-			const args = unhydratedArgs[id];
-			if (args !== undefined) {
-				delete unhydratedArgs[id];
-				instance.patch(args);
-			}
-
-			Component.instances.set(id, new WeakRef(instance));
-			this.setEl.call(instance, $el);
-			instance.actions.rendered();
-		}
-
-		document.getElementById(Component.unhydratedArgsName)?.remove();
+		Component.hydrateAll(document.body);
 	}
 
-	replace(oldPage: Page<any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
-		oldPage.$el?.replaceWith(this.renderedEl());
-		oldPage.actions.removed();
-
-		const $oldEls = oldPage.$el!.querySelectorAll(`[${Component.$elAttrType}]`);
-		for (const $el of $oldEls) {
-			const instance = ($el as BoundElement).instance;
-			instance.actions.removed();
-		}
-
-		const $newEls = this.$el!.querySelectorAll(`[${Component.$elAttrType}]`);
-		for (const $el of $newEls) {
-			const instance = ($el as BoundElement).instance;
-			instance.actions.rendered();
-		}
-		this.actions.rendered();
+	onEl() {
+		document.title = this.value.title!;
 	}
 }

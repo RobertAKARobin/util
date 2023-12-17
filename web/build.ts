@@ -30,20 +30,11 @@ const logBreak = () => console.log(``);
 
 const trimNewlines = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
 
-/**
- * Supplies NodeFilter for the build environment. NodeFilter is attached to `window` in the front-end environment. Used to render component templates.
- */
-globalThis.NodeFilter = new JSDOM().window.NodeFilter;
-
-/**
- * Overrides `Component.parse` for the build process, since the build environment doesn't have a DOMParser. (Tried the dom-parser NPM library and ran into issues; using JSDOM insteaad
- */
-Component.parse = function(input: string) {
-	const dom = new JSDOM(input);
-	return dom.window.document;
-};
-
-Component.setStyle = function() {};
+// Supply various browser/DOM variables for the build environment
+const dummyDOM = new JSDOM().window;
+globalThis.document = dummyDOM.document;
+globalThis.NodeFilter = dummyDOM.NodeFilter;
+globalThis.requestAnimationFrame = () => 0;
 
 const superSet = Component.prototype.set; // eslint-disable-line @typescript-eslint/unbound-method
 /**
@@ -146,6 +137,7 @@ export class Builder {
 
 		await this.buildTSSource();
 		this.buildAssets();
+		await this.buildScript();
 		await this.buildStyles();
 		await this.buildRoutes();
 
@@ -191,6 +183,9 @@ export class Builder {
 			Object.entries(router.urls).map(([routeName, route]) => async() => {
 				log(`${routeName.toString()}: ${route.pathname}`);
 
+				Component.subclasses.clear();
+				globals[Component.unhydratedArgsName] = {};
+
 				if (route.origin !== baseUrl.origin) {
 					console.log(`Route is external. Skipping...`);
 					logBreak();
@@ -216,9 +211,6 @@ export class Builder {
 				const serveDirAbs = path.dirname(serveFileAbs);
 				fs.mkdirSync(serveDirAbs, { recursive: true });
 
-				Component.subclasses.clear();
-				globals[Component.unhydratedArgsName] = {};
-
 				const page = await resolver.resolve(route);
 				if (!page.isSSG) {
 					console.warn(`Route '${routeName.toString()}' is not SSG. Skipping...`);
@@ -232,37 +224,41 @@ export class Builder {
 					return;
 				}
 
-				const body = this.formatBody(page.renderedEl());
+				let body = this.formatBody(page.render());
 
 				const componentArgs = globals[Component.unhydratedArgsName];
 				const unhydratedArgs = `<script id="${Component.unhydratedArgsName}" src="data:text/javascript," onload="${Component.unhydratedArgsName}=${serialize(componentArgs)}"></script>`;
 				globals[Component.unhydratedArgsName] = {};
+				body += `\n${unhydratedArgs}`;
 
-				let routeCssPath: string | undefined = undefined;
-				let css = [...Component.subclasses.values()] // I was using JSDOM to let Component build <style> tags and just getting the contents of those, but it had trouble with more modern CSS additions like nested & selectors
-					.map(Subclass => (Subclass.style ?? ``))
-					.join(`\n`)
-					.trim();
-				if (css.length > 0) {
-					css = await this.formatCss(css);
+				let head = ``;
+				let routeCss = ``;
+				let routeCssPath = ``;
+				for (const [elName, Subclass] of Component.subclasses) {
+					if (elName === undefined) {
+						throw new Error(Subclass.name);
+					}
+					head += `<style ${Component.$styleAttr}="${elName}"></style>`;
+					routeCss += Subclass.style ?? ``;
+				}
+
+				if (routeCss.length > 0) {
+					routeCss = await this.formatCss(routeCss);
 					routeCssPath = `${serveFileRel}.css`;
 					const routeCssAbs = path.join(this.serveDirAbs, routeCssPath);
 					log(local(routeCssAbs));
-					fs.writeFileSync(routeCssAbs, css);
+					fs.writeFileSync(routeCssAbs, routeCss);
 				}
 
 				const html = await this.formatHtml({
-					Component,
 					baseUri: this.baseUri,
 					body,
 					cacheBuster,
-					css,
-					head: unhydratedArgs,
+					head,
 					mainCssPath: path.join(`/`, this.styleServeFileRel),
 					mainJsPath: this.scriptServeFileRel === undefined ? undefined : path.join(`/`, this.scriptServeFileRel),
-					page,
 					routeCssPath: typeof routeCssPath === `string` ? path.join(`/`, routeCssPath) : undefined,
-					routePath: path.join(`/`, route.pathname),
+					title: page.value.title,
 				});
 
 				log(local(serveFileAbs));
@@ -270,26 +266,29 @@ export class Builder {
 				logBreak();
 			})
 		);
+	}
 
-		if (this.scriptServeFileAbs !== undefined) {
-			header(`Bundling JS`);
-			log(local(this.scriptServeFileAbs));
-			logBreak();
-			await esbuild.build({
-				absWorkingDir: this.serveDirAbs,
-				bundle: true,
-				entryPoints: [{
-					in: this.scriptSrcFileAbs!,
-					out: this.scriptServeFileName!,
-				}],
-				format: `esm`,
-				keepNames: true,
-				metafile: true,
-				minify: this.minify,
-				outdir: this.serveDirAbs,
-				splitting: true,
-			});
+	async buildScript() {
+		if (this.scriptServeFileAbs === undefined) {
+			return;
 		}
+		header(`Bundling JS`);
+		log(local(this.scriptServeFileAbs));
+		logBreak();
+		await esbuild.build({
+			absWorkingDir: this.serveDirAbs,
+			bundle: true,
+			entryPoints: [{
+				in: this.scriptSrcFileAbs!,
+				out: this.scriptServeFileName!,
+			}],
+			format: `esm`,
+			keepNames: true,
+			metafile: true,
+			minify: this.minify,
+			outdir: this.serveDirAbs,
+			splitting: true,
+		});
 	}
 
 	async buildStyles() {
@@ -402,24 +401,21 @@ export class Builder {
  * The default layout used to render static HTML files for SSG routes
  */
 export const defaultLayout = (input: {
-	Component: typeof Component;
 	baseUri: string;
 	body?: string;
 	cacheBuster: string;
-	css?: string;
 	head?: string;
 	loadScript?: string;
 	mainCssPath: string;
 	mainJsPath: string | undefined;
 	meta?: string;
-	page: Page;
 	routeCssPath?: string;
-	routePath: string;
+	title: string;
 }) => `
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>${input.page.value.title}</title>
+		<title>${input.title}</title>
 		<base href="${input.baseUri}">
 
 		${typeof input.meta === `string`
@@ -451,15 +447,13 @@ export const defaultLayout = (input: {
 			? `<script>${input.loadScript}</script>`
 			: ``
 		}
-
-		${[...input.Component.subclasses.values()].map(Subclass => /* These keep Component.ts from loading the CSS twice; see Componet.setStyle */`
-			<style ${Subclass.$elAttrType}="${Subclass.name}"></style>
-		`).join(``)}
 	</head>
 
-	${typeof input.body === `string`
-		? input.body
-		: ``
-	}
+	<body>
+		${typeof input.body === `string`
+			? input.body
+			: ``
+		}
+	</body>
 </html>
 `;

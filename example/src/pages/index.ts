@@ -26,11 +26,11 @@ export class IndexPage extends BasePage<{ message: string; }> {
 <main>
 <h1>Hello world!</h1>
 
-${new TransitionTest().render()}
+${TransitionTest.put()}
 
 <div id="${router.hashes.homeJump1}">Jump 1</div>
 
-${new List(`mylist`).set(state.entries.$).render()}
+${List.put(`mylist`).set(state.entries.$)}
 
 <markdown>
 # Headline 1

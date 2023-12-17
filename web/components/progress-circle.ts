@@ -13,25 +13,32 @@ export class ProgressCircle extends Component<ProgressCircleParams> {
 		return (this.$.diameter - this.$.borderWidth) / 2;
 	}
 
-	constructor(params: ProgressCircleParams) {
-		super(undefined, params);
-
-		this.subscribe(update => {
-			let percent =  update.value / (update.max - update.min);
-			percent = Math.min(1, percent);
-			percent = Math.max(0, percent);
-
-			const circumference = Math.round((this.radius * 2) * Math.PI);
-			const length = Math.round(circumference * percent);
-			const remainder = circumference - length;
-
-			const $circle = this.$el!.querySelector(`circle`)!;
-			$circle.style.strokeDasharray = `${length} ${remainder}`;
-			$circle.style.strokeDashoffset = `0`;
-		});
+	onChange() {
+		this.rerender();
 	}
 
-	template = (content: string = ``) => `
+	onPlace() {
+		this.rerender();
+	}
+
+	rerender() {
+		if (this.$el === undefined) {
+			return;
+		}
+		let percent =  this.$.value / (this.$.max - this.$.min);
+		percent = Math.min(1, percent);
+		percent = Math.max(0, percent);
+
+		const circumference = Math.round((this.radius * 2) * Math.PI);
+		const length = Math.round(circumference * percent);
+		const remainder = circumference - length;
+
+		const $circle = this.$el.querySelector(`circle`)!;
+		$circle.style.strokeDasharray = `${length} ${remainder}`;
+		$circle.style.strokeDashoffset = `0`;
+	}
+
+	template = (content = ``) => `
 <svg
 	height="${this.$.diameter}"
 	width="${this.$.diameter}"

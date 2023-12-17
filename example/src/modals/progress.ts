@@ -21,32 +21,29 @@ export class ProgressModal extends Component<Type.List> {
 		this.init();
 	}
 
-	constructor() {
-		super();
-		this.on(`rendered`).subscribe(() => {
-			const circle = this.find(ProgressCircle);
-
-			circle.$el!.style.transition = `none`; // Force circle to reset without tweening
-			circle.patch({ value: 100 });
-			circle.$el!.style.removeProperty(`transition`); // Undo the `style.transition = none`
-			repaint(); // Force browser to start tweening after the modal has rendered; otherwise animations/transitions won't work
-			circle.patch({ value: 0 });
-		});
-	}
-
 	dismiss() {
 		modalContainer.clear();
 	}
 
+	onPlace() {
+		const circle = this.find(ProgressCircle);
+
+		circle.$el.style.transition = `none`; // Force circle to reset without tweening
+		circle.patch({ value: 100 });
+		circle.$el.style.removeProperty(`transition`); // Undo the `style.transition = none`
+		repaint(); // Force browser to start tweening after the modal has rendered; otherwise animations/transitions won't work
+		circle.patch({ value: 0 });
+	}
+
 	template = () => html`
 <div>
-	${new ProgressCircle({
+	${ProgressCircle.put().set({
 		borderWidth: 10,
 		diameter: 300,
 		max: 100,
 		min: 0,
 		value: 50,
-	}).render()}
+	}).toString()}
 
 	<button
 		onclick=${this.bind(`dismiss`)}

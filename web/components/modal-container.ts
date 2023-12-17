@@ -4,7 +4,7 @@ import { sleep } from '@robertakarobin/util/sleep.ts';
 
 import { Component } from '../component.ts';
 
-export const modalStatuses = enumy(
+const modalStatuses = enumy(
 	`entering`,
 	`active`,
 	`exiting`,
@@ -22,43 +22,16 @@ export type ModalState = {
 export class ModalContainer extends Component<ModalState> {
 	static transitionDurationDefault = .2;
 
+	static {
+		this.init();
+	}
+
 	constructor(id?: string, initial: Partial<ModalState> = {}) {
 		super(undefined, {
 			modal: undefined,
 			status: `inactive`,
 			transitionDuration: ModalContainer.transitionDurationDefault,
 			...initial,
-		});
-
-		this.subscribe(async({ modal, status }, { previous }) => {
-			if (modal === previous.modal && status === previous.status) {
-				return;
-			}
-
-			if (modal !== undefined && status === `entering`) {
-				this.$el!.style.removeProperty(`display`);
-				repaint();
-				this.$el?.setAttribute(statusAttribute, status);
-				if (modal.$el === undefined) {
-					modal.render();
-				}
-				this.$el!.replaceChildren(modal.$el!);
-				modal.actions.rendered();
-				this.patch({ status: `active` });
-
-			} else if (status === `exiting`) {
-				this.$el?.setAttribute(statusAttribute, status);
-				await sleep(this.value.transitionDuration * 1000);
-				this.patch({
-					modal: undefined,
-					status: `inactive`,
-				});
-				this.$el!.style.display = `none`;
-				this.$el!.replaceChildren();
-
-			} else {
-				this.$el?.setAttribute(statusAttribute, status);
-			}
 		});
 	}
 
@@ -69,6 +42,35 @@ export class ModalContainer extends Component<ModalState> {
 		});
 	}
 
+	async onChange(update: ModalState, { previous }: { previous: ModalState; }) {
+		if (update?.modal === previous?.modal && update?.status === previous?.status
+		) {
+			return;
+		}
+
+		if (update?.modal !== undefined && update?.status === `entering`) {
+			this.$el.style.removeProperty(`display`);
+			repaint();
+			this.$el.setAttribute(statusAttribute, update.status);
+			this.$el.replaceChildren(update.modal.render());
+			this.patch({ status: `active` });
+			update.modal.actions.placed();
+
+		} else if (update?.status === `exiting`) {
+			this.$el.setAttribute(statusAttribute, update.status);
+			await sleep(this.value.transitionDuration * 1000);
+			this.$el.style.display = `none`;
+			this.$el.replaceChildren();
+			this.patch({
+				modal: undefined,
+				status: `inactive`,
+			});
+
+		} else if (update?.status !== undefined) {
+			this.$el?.setAttribute(statusAttribute, update.status);
+		}
+	}
+
 	place(modal: Component<any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
 		this.patch({
 			modal,
@@ -76,5 +78,9 @@ export class ModalContainer extends Component<ModalState> {
 		});
 	}
 
-	template = () => `<div style="display:none"></div>`; // Using `[style]` because the code above toggles the style attribute, as opposed to the styles in the stylesheet
+	template = () => `
+<div
+	is="modal-container"
+	style="display:none"
+></div>`; // Using `[style]` because the code above toggles the style attribute, as opposed to the styles in the stylesheet
 }
