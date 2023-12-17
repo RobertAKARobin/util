@@ -60,12 +60,11 @@ export class Emitter<
 	}
 
 	onChange(
-		update: State,
-		meta: Omit<Parameters<OnEmit<State>>[1], `subscription`>
+		_update: State,
+		_meta: Omit<Parameters<OnEmit<State>>[1], `subscription`>
 	) {}
 
 	patch(update: State | Partial<State>, message?: string) {
-		console.log(`emitter patch`);
 		if (isPrimitive(update)) {
 			return this.set(update as State, message);
 		}
@@ -90,7 +89,6 @@ export class Emitter<
 	}
 
 	set(update: State, message?: string) {
-		console.log(`emitter set`);
 		if (update === IGNORE) { // Need a way to indicate that an event _shouldn't_ emit. Can't just do `value === undefined` because there are times when `undefined` is a value we do want to emit
 			return this;
 		}
