@@ -51,7 +51,10 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		if (typeof id === `string`) {
 			const $existing = document.getElementById(id) as BoundElement;
 			if ($existing !== null) {
-				return $existing.instance as InstanceType<Subclass>;
+				const instance = $existing.instance as InstanceType<Subclass>;
+				if (instance !== undefined) {
+					return instance;
+				}
 			}
 		}
 
