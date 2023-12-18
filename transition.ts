@@ -58,15 +58,15 @@ export class Transition extends Emitter<TransitionState> {
 		update: TransitionState,
 		{ previous }: { previous: TransitionState; }
 	) {
-		if (this.$.$target !== undefined) {
-			this.$.$target.setAttribute(Transition.$stateAttr, update.status);
-		}
-
 		if (
-			(activeStatuses[update.status] - activeStatuses[previous.status] <= 0)
-			|| (inactiveStatuses[update.status] - inactiveStatuses[previous.status] <= 0) // If either undefined, evaluates to NaN, which evaluates to false
+			activeStatuses[update.status] - activeStatuses[previous.status] < 0 // If either is undefined, evaluates to NaN, and false
+			|| inactiveStatuses[update.status] - inactiveStatuses[previous.status] < 0
 		) {
 			return;
+		}
+
+		if (this.$.$target !== undefined) {
+			this.$.$target.setAttribute(Transition.$stateAttr, update.status);
 		}
 
 		switch (update.status) {
