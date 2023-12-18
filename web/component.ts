@@ -32,7 +32,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 
 	static {
 		globals[this.name] = this;
-		if (appContext === `browser`) {
+		if (appContext === `browser`) { // Can't just overwrite placeObserver in `build.ts` because this static constructor will already have been called
 			this.placeObserver();
 		}
 	}
@@ -126,11 +126,6 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		this.placeStyle();
 	}
 
-	static parse(input: string) {
-		const parser = new DOMParser();
-		return parser.parseFromString(input, `text/html`);
-	}
-
 	static placeObserver() {
 		const observer = new MutationObserver(mutations => {
 			for (const mutation of mutations) {
@@ -139,6 +134,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 						continue;
 					}
 					const $el = $node as BoundElement;
+					$el.instance.actions.placed();
 					for (const $child of $el.querySelectorAll(`[${Component.$elAttr}]`)) {
 						($child as BoundElement).instance.actions.placed();
 					}
@@ -148,6 +144,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 						continue;
 					}
 					const $el = $node as BoundElement;
+					$el.instance.actions.removed();
 					for (const $child of $el.querySelectorAll(`[${Component.$elAttr}]`)) {
 						($child as BoundElement).instance.actions.removed();
 					}
