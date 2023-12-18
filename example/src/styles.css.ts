@@ -1,3 +1,4 @@
+import { $transitionStateAttr, transitionStatus } from '@robertakarobin/util/transition.ts';
 import { ModalContainer } from '@robertakarobin/web/components/modal-container.ts';
 
 import { bp, theme, types } from '@src/theme.ts';
@@ -26,7 +27,7 @@ h1 {
 ${ModalContainer.selector} {
 	align-items: center;
 	backdrop-filter: blur(5px);
-	background: #00000060;
+	background: #000000c0;
 	display: flex;
 	height: 100%;
 	justify-content: center;
@@ -34,11 +35,15 @@ ${ModalContainer.selector} {
 	opacity: 0;
 	position: fixed;
 	top: 0;
-	transition: opacity ${ModalContainer.transitionDurationDefault}s;
+	transition: opacity ${ModalContainer.transitionDurationDefault}s linear;
 	width: 100%;
 
-	&[data-modal='entering'],
-	&[data-modal='active'] {
+	&[${$transitionStateAttr}='${transitionStatus.inactive}'] {
+		display: none;
+	}
+
+	&[${$transitionStateAttr}='${transitionStatus.activating}'],
+	&[${$transitionStateAttr}='${transitionStatus.active}'] {
 		opacity: 1;
 	}
 }

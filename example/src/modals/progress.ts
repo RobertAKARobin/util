@@ -27,6 +27,7 @@ export class ProgressModal extends Component<Type.List> {
 
 	onPlace() {
 		const circle = this.find(ProgressCircle);
+		console.log(`progress onPlace`);
 
 		circle.$el.style.transition = `none`; // Force circle to reset without tweening
 		circle.patch({ value: 100 });

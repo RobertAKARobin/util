@@ -1,5 +1,7 @@
 import { isPrimitive } from './isPrimitive.ts';
 
+export type Action<State> = (...args: Array<any>) => State;  // eslint-disable-line @typescript-eslint/no-explicit-any
+
 export type OnEmit<
 	State,
 	Source extends Emitter<State> = Emitter<State>,
@@ -18,13 +20,13 @@ export type Subscription<
 	Source extends Emitter<State> = Emitter<State>,
 > = WeakRef<OnEmit<State, Source>> | OnEmit<State, Source>;
 
-type EmitterOptions = EmitterCacheOptions;
+export type EmitterOptions = EmitterCacheOptions;
 
 const IGNORE = `_IGNORE_` as const;
 
 export class Emitter<
 	State,
-	Actions extends Record<string, (...args: Array<any>) => State> = any, // eslint-disable-line @typescript-eslint/no-explicit-any
+	Actions extends Record<string, Action<State>> = any, // eslint-disable-line @typescript-eslint/no-explicit-any
 > {
 
 	get $() {
