@@ -38,7 +38,7 @@ export class ProgressCircle extends Component<ProgressCircleParams> {
 		$circle.style.strokeDashoffset = `0`;
 	}
 
-	template = (content = ``) => `
+	template = () => `
 <svg
 	height="${this.$.diameter}"
 	width="${this.$.diameter}"
@@ -48,7 +48,7 @@ export class ProgressCircle extends Component<ProgressCircleParams> {
 		y="0"
 		height="${this.$.diameter}"
 		width="${this.$.diameter}"
-	>${content}</foreignObject>
+	>${this.contents}</foreignObject>
 
   <circle
     stroke-width="${this.$.borderWidth}"

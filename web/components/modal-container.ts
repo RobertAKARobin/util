@@ -25,14 +25,16 @@ export class ModalContainer extends Component<ModalState> {
 			status: `inactive`,
 		});
 
-		this.transition.on(`inactive`).pipe(() => {
-			this.patch({ modal: undefined });
-			this.$el.replaceChildren();
+		this.transition.subscribe(({ status }) => {
+			if (status === `inactivate`) {
+				this.patch({ modal: undefined });
+				this.$el.replaceChildren();
+			}
 		});
 	}
 
 	clear() {
-		this.transition.actions.inactivate();
+		this.transition.inactivate();
 	}
 
 	onPlace() {
@@ -42,7 +44,7 @@ export class ModalContainer extends Component<ModalState> {
 	place(modal: Component<any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
 		this.patch({ modal });
 		this.$el.replaceChildren(modal.render());
-		this.transition.actions.activate();
+		this.transition.activate();
 		modal.actions.placed();
 	}
 

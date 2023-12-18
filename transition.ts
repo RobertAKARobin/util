@@ -1,4 +1,4 @@
-import { type Action, Emitter } from './emitter.ts';
+import { Emitter } from './emitter.ts';
 import { enumy } from './enumy.ts';
 import { repaint } from './repaint.ts';
 import { sleep } from './sleep.ts';
@@ -29,18 +29,13 @@ export class Transition extends Emitter<TransitionState> {
 	static readonly status = transitionStatus;
 	static readonly statuses = transitionStatuses;
 
-	actions = this.toActions(
-		<Record<Partial<TransitionStatus>, Action<TransitionState>>>{
-			activate: () => ({
-				...this.value,
-				status: `activate`,
-			}),
-			inactivate: () => ({
-				...this.value,
-				status: `inactivate`,
-			}),
-		},
-	);
+	activate() {
+		this.patch({ status: `activate` });
+	}
+
+	inactivate() {
+		this.patch({ status: `inactivate` });
+	}
 
 	async onChange(
 		update: TransitionState,

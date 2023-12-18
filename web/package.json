@@ -1,6 +1,6 @@
 {
 	"dependencies": {
-		"@robertakarobin/util": "^0.0.226",
+		"@robertakarobin/util": "^0.0.229",
 		"@types/js-beautify": "^1.14.3",
 		"@types/jsdom": "^21.1.6",
 		"esbuild": "^0.19.9",
@@ -12,5 +12,5 @@
 	"name": "@robertakarobin/web",
 	"scripts": {},
 	"type": "module",
-	"version": "0.0.76"
+	"version": "0.0.79"
 }
