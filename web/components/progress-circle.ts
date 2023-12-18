@@ -9,6 +9,10 @@ type ProgressCircleParams = {
 };
 
 export class ProgressCircle extends Component<ProgressCircleParams> {
+	static {
+		this.init();
+	}
+
 	get radius() {
 		return (this.$.diameter - this.$.borderWidth) / 2;
 	}
