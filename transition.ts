@@ -42,6 +42,10 @@ export class Transition extends Emitter<TransitionState> {
 	static readonly status = transitionStatus;
 	static readonly statuses = transitionStatuses;
 
+	get isActive() {
+		return this.$.status in activeStatuses;
+	}
+
 	activate() {
 		this.patch({ status: `activate` });
 	}
