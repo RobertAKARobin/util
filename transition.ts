@@ -14,6 +14,18 @@ export const transitionStatuses = [
 
 export const transitionStatus = enumy(...transitionStatuses);
 
+const activeStatuses = new Set([
+	transitionStatus.activate,
+	transitionStatus.activating,
+	transitionStatus.active,
+]);
+
+const inactiveStatuses = new Set([
+	transitionStatus.inactivate,
+	transitionStatus.inactivating,
+	transitionStatus.inactive,
+]);
+
 export type TransitionStatus = typeof transitionStatuses[number];
 
 export const $transitionStateAttr = `data-transition-state`;
@@ -45,7 +57,10 @@ export class Transition extends Emitter<TransitionState> {
 			this.$.$target.setAttribute(Transition.$stateAttr, update.status);
 		}
 
-		if (update.status === previous.status) {
+		if (
+			(activeStatuses.has(update.status) === activeStatuses.has(previous.status))
+			|| (inactiveStatuses.has(update.status) === inactiveStatuses.has(previous.status))
+		) {
 			return;
 		}
 
