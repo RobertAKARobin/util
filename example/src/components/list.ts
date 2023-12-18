@@ -11,7 +11,7 @@ export class List extends Component<Type.List> {
 	template = () => `
 <ol>
 	${this.$.map(({ value }, index) => `
-		<li>${ListItem.put(`${this.id}-${index}`).set(value)}</li>
+		<li>${ListItem.get(`${this.id}-${index}`).set(value)}</li>
 	`).join(`\n`)}
 </ol>
 	`;

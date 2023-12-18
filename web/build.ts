@@ -212,6 +212,7 @@ export class Builder {
 				fs.mkdirSync(serveDirAbs, { recursive: true });
 
 				const page = await resolver.resolve(route);
+
 				if (!page.isSSG) {
 					console.warn(`Route '${routeName.toString()}' is not SSG. Skipping...`);
 					logBreak();
@@ -224,7 +225,8 @@ export class Builder {
 					return;
 				}
 
-				let body = this.formatBody(page.render());
+				const $page = page.render();
+				let body = this.formatBody($page);
 
 				const componentArgs = globals[Component.unhydratedArgsName];
 				const unhydratedArgs = `<script id="${Component.unhydratedArgsName}" src="data:text/javascript," onload="${Component.unhydratedArgsName}=${serialize(componentArgs)}"></script>`;
@@ -234,7 +236,7 @@ export class Builder {
 				let head = ``;
 				let routeCss = ``;
 				let routeCssPath = ``;
-				for (const [elName, Subclass] of Component.subclasses) {
+				for (const [elName, Subclass] of Component.subclasses) { // document.querySelectorAll($elAttr) doesn't work because static init doesn't get called?
 					if (elName === undefined) {
 						throw new Error(Subclass.name);
 					}

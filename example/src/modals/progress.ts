@@ -1,9 +1,9 @@
 import { Component, css, html } from '@robertakarobin/web/component.ts';
+import { ModalContainer } from '@robertakarobin/web/components/modal-container.ts';
 import { ProgressCircle } from '@robertakarobin/web/components/progress-circle.ts';
 import { repaint } from '@robertakarobin/util/repaint.ts';
 
 import type * as Type from '@src/types.d.ts';
-import { modalContainer } from '@src/state.ts';
 
 const style = css`
 :host {
@@ -22,13 +22,11 @@ export class ProgressModal extends Component<Type.List> {
 	}
 
 	dismiss() {
-		modalContainer.clear();
+		this.closest(ModalContainer).clear();
 	}
 
 	onPlace() {
 		const circle = this.find(ProgressCircle);
-		console.log(`progress onPlace`);
-
 		circle.$el.style.transition = `none`; // Force circle to reset without tweening
 		circle.patch({ value: 100 });
 		circle.$el.style.removeProperty(`transition`); // Undo the `style.transition = none`
@@ -38,7 +36,7 @@ export class ProgressModal extends Component<Type.List> {
 
 	template = () => html`
 <div>
-	${ProgressCircle.put().set({
+	${ProgressCircle.get().set({
 		borderWidth: 10,
 		diameter: 300,
 		max: 100,

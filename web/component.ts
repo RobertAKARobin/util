@@ -41,13 +41,43 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		return `l${newUid()}`;
 	}
 
+	/**
+	 * Outputs a new component. If an ID is given, outputs the matching existing component, or builds a new one with that ID.
+	 */
+	static get<Subclass extends typeof Component<any>>( // eslint-disable-line @typescript-eslint/no-explicit-any
+		this: Subclass,
+		id?: Component[`id`] | null, // TODO2: Add argument for state, but getting the type right is annoying
+	) {
+		if (typeof id === `string`) {
+			const $existing = document.getElementById(id) as BoundElement;
+			if ($existing !== null) {
+				return $existing.instance as InstanceType<Subclass>;
+			}
+		}
+
+		return new this(id) as InstanceType<Subclass>;
+	}
+
+	static getAll<Subclass extends typeof Component<any>>( // eslint-disable-line @typescript-eslint/no-explicit-any
+		this: Subclass,
+	) {
+		return [...document.querySelectorAll(this.selector)].map($el => {
+			return ($el as BoundElement).instance as InstanceType<Subclass>;
+		});
+	}
+
 	/*
 	 * Given some already-rendered HTML, e.g. from a static HTML file rendered through SSG, creates component instances for all elements that expect them, and hydrates them with data found in `<script id="unhydratedArgs">` if it exists
 	 */
-	static hydrate($input: Element) {
+	static hydrate<Subclass extends typeof Component<any>>( // eslint-disable-line @typescript-eslint/no-explicit-any
+		this: Subclass,
+		$input?: Element,
+	) {
 		const unhydratedArgs = globals[Component.unhydratedArgsName];
 
-		const $el = $input as BoundElement;
+		const $el = $input === undefined
+			? document.querySelector(this.selector) as BoundElement
+			: $input as BoundElement;
 		const id = $el.id;
 
 		const args = unhydratedArgs?.[id];
@@ -55,11 +85,11 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 			delete unhydratedArgs[id];
 		}
 
-		let instance: Component<any> = $el.instance; // eslint-disable-line @typescript-eslint/no-explicit-any
+		let instance = $el.instance as InstanceType<Subclass>;
 		if (instance === undefined) {
-			const constructorName = $el.getAttribute(Component.$elAttr)!;
-			const Constructor = Component.subclasses.get(constructorName)!;
-			instance = new Constructor(id, args);
+			const elName = $el.getAttribute(Component.$elAttr)!;
+			const Constructor = Component.subclasses.get(elName)! as Subclass;
+			instance = new Constructor(id, args) as InstanceType<Subclass>;
 			instance.setEl($el);
 		} else {
 			if (args !== undefined) {
@@ -143,23 +173,6 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 			$style.setAttribute(Component.$styleAttr, this.elName);
 			document.head.appendChild($style);
 		}
-	}
-
-	/**
-	 * Outputs a new component. If an ID is given, outputs the matching existing component, or builds a new one with that ID.
-	 */
-	static put<Subclass extends typeof Component<any>>( // eslint-disable-line @typescript-eslint/no-explicit-any
-		this: Subclass,
-		id?: Component[`id`] | null, // TODO2: Add argument for state, but getting the type right is annoying
-	) {
-		if (typeof id === `string`) {
-			const $existing = document.getElementById(id) as BoundElement;
-			if ($existing !== null) {
-				return $existing.instance as InstanceType<Subclass>;
-			}
-		}
-
-		return new this(id) as InstanceType<Subclass>;
 	}
 
 	/**
@@ -282,7 +295,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		const selector = (Ancestor as unknown as typeof Component).selector;
 
 		const $match = this.$el?.closest(selector);
-		return ($match as BoundElement)?.instance;
+		return ($match as BoundElement)?.instance as Ancestor;
 	}
 
 	/**
@@ -300,7 +313,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		const selector = (Descendant as unknown as typeof Component).selector;
 
 		const $match = this.$el?.querySelector(selector);
-		return ($match as BoundElement)?.instance;
+		return ($match as BoundElement)?.instance as Descendant;
 	}
 
 	/**
@@ -309,7 +322,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	findAll<Descendant>(Descendant: Constructor<Descendant>) {
 		const selector = (Descendant as unknown as typeof Component).selector;
 
-		const descendants = [];
+		const descendants: Array<Descendant> = [];
 
 		const $descendants = this.$el.querySelectorAll(selector);
 		if ($descendants === undefined) {
@@ -321,6 +334,13 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		}
 
 		return descendants;
+	}
+
+	hydrate($root: Element = document.documentElement) {
+		const $el = $root.querySelector(this.Ctor.selector)!;
+		const id = $el.id;
+		Object.assign(this, { id });
+		this.setEl($el);
 	}
 
 	/**
@@ -412,11 +432,8 @@ export class Page<
 > extends Component<PageType & State> {
 
 	hydrate() {
-		const $el = document.querySelector(this.Ctor.selector)!;
-		const id = $el.id;
-		Object.assign(this, { id });
-		this.setEl($el);
-		Component.hydrateAll(document.body);
+		super.hydrate();
+		Component.hydrateAll(this.$el);
 	}
 
 	onEl() {

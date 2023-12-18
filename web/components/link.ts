@@ -12,7 +12,7 @@ export function LinkComponent<Routes extends RouteMap>(router: Router<Routes>) {
 			routeName: keyof typeof router.urls,
 			contents?: string,
 		) {
-			const link = this.put().set(routeName);
+			const link = this.get().set(routeName);
 			if (contents !== undefined) {
 				link.content(contents);
 			}

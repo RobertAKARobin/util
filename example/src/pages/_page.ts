@@ -1,3 +1,4 @@
+import { ModalContainer } from '@robertakarobin/web/components/modal-container.ts';
 import { Page } from '@robertakarobin/web/component.ts';
 
 import { Nav } from '@src/components/nav.ts';
@@ -9,8 +10,9 @@ export class BasePage<
 	template(main: string) { // Not using fat arrow becaue this gets superclassed
 		return `
 			<div>
-				${Nav.put(`nav`)}
+				${Nav.get(`nav`)}
 				${main}
+				${ModalContainer.get(`modals`)}
 			</div>
 		`;
 	};

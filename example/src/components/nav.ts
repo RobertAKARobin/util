@@ -1,7 +1,7 @@
 import { Component } from '@robertakarobin/web/component.ts';
+import { ModalContainer } from '@robertakarobin/web/components/modal-container.ts';
 
 import { Link, routeNames } from '@src/router.ts';
-import { modalContainer } from '@src/state.ts';
 import { ProgressModal } from '@src/modals/progress.ts';
 
 export class Nav extends Component {
@@ -10,7 +10,7 @@ export class Nav extends Component {
 	}
 
 	openModal() {
-		modalContainer.place(new ProgressModal());
+		ModalContainer.get(`modals`).place(new ProgressModal());
 	}
 
 	template = () => `
