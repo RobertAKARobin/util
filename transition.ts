@@ -1,3 +1,4 @@
+import { byIndex } from './byIndex.ts';
 import { Emitter } from './emitter.ts';
 import { enumy } from './enumy.ts';
 import { repaint } from './repaint.ts';
@@ -14,17 +15,17 @@ export const transitionStatuses = [
 
 export const transitionStatus = enumy(...transitionStatuses);
 
-const activeStatuses = new Set([
+const activeStatuses = byIndex(
 	transitionStatus.activate,
 	transitionStatus.activating,
 	transitionStatus.active,
-]);
+);
 
-const inactiveStatuses = new Set([
+const inactiveStatuses = byIndex(
 	transitionStatus.inactivate,
 	transitionStatus.inactivating,
 	transitionStatus.inactive,
-]);
+);
 
 export type TransitionStatus = typeof transitionStatuses[number];
 
@@ -58,8 +59,8 @@ export class Transition extends Emitter<TransitionState> {
 		}
 
 		if (
-			(activeStatuses.has(update.status) === activeStatuses.has(previous.status))
-			|| (inactiveStatuses.has(update.status) === inactiveStatuses.has(previous.status))
+			(activeStatuses[update.status] - activeStatuses[previous.status] <= 0)
+			|| (inactiveStatuses[update.status] - inactiveStatuses[previous.status] <= 0) // If either undefined, evaluates to NaN, which evaluates to false
 		) {
 			return;
 		}
