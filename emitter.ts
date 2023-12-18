@@ -102,7 +102,6 @@ export class Emitter<
 			message,
 			previous,
 		};
-		this.onChange(update, meta);
 
 		for (const subscription of this.subscriptions.values()) {
 			const onEmit = subscription instanceof WeakRef
@@ -119,6 +118,7 @@ export class Emitter<
 				this.subscriptions.delete(subscription);
 			}
 		}
+		this.onChange(update, meta);
 		return this;
 	}
 
