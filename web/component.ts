@@ -149,7 +149,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 					}
 					const $el = $node as BoundElement;
 					for (const $child of $el.querySelectorAll(`[${Component.$elAttr}]`)) {
-						($child as BoundElement).instance.actions.placed();
+						($child as BoundElement).instance.actions.removed();
 					}
 				}
 			}
