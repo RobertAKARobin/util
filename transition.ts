@@ -25,6 +25,10 @@ type TransitionState = {
 };
 
 export class Transition extends Emitter<TransitionState> {
+	static readonly $stateAttr = $transitionStateAttr;
+	static readonly status = transitionStatus;
+	static readonly statuses = transitionStatuses;
+
 	actions = this.toActions(
 		<Record<Partial<TransitionStatus>, Action<TransitionState>>>{
 			activate: () => ({
@@ -43,14 +47,12 @@ export class Transition extends Emitter<TransitionState> {
 		{ previous }: { previous: TransitionState; }
 	) {
 		if (this.$.$target !== undefined) {
-			this.$.$target.setAttribute($transitionStateAttr, update.status);
+			this.$.$target.setAttribute(Transition.$stateAttr, update.status);
 		}
 
 		if (update.status === previous.status) {
 			return;
 		}
-
-		console.log(update.status);
 
 		switch (update.status) {
 			case `activate`:
