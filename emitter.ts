@@ -1,7 +1,5 @@
 import { isPrimitive } from './isPrimitive.ts';
 
-export type Action<State> = (...args: Array<any>) => State;  // eslint-disable-line @typescript-eslint/no-explicit-any
-
 export type OnEmit<
 	State,
 	Source extends Emitter<State> = Emitter<State>,
@@ -24,15 +22,11 @@ export type EmitterOptions = EmitterCacheOptions;
 
 const IGNORE = `_IGNORE_` as const;
 
-export class Emitter<
-	State,
-	Actions extends Record<string, Action<State>> = any, // eslint-disable-line @typescript-eslint/no-explicit-any
-> {
+export class Emitter<State> {
 
 	get $() {
 		return this.value;
 	}
-	actions = {} as Actions;
 	readonly cache: EmitterCache<State>;
 	get last() {
 		return this.cache.list[this.cache.list.length - 1];
@@ -52,12 +46,26 @@ export class Emitter<
 		}
 	}
 
-	on(actionName: keyof this[`actions`]) {
-		return this.pipe((value, meta) => {
-			if (meta.message !== actionName) {
+	filter(filter: (updated: State, previous: State) => boolean) {
+		return this.pipe((state, { previous }) => {
+			if (filter(state, previous)) {
+				return state;
+			}
+			return IGNORE;
+		});
+	}
+
+	on<PropertyName extends keyof State>(
+		property: PropertyName | ((state: State) => State[PropertyName]),
+	) {
+		const getValue = typeof property === `function`
+			? property
+			: (state: State) => state[property];
+		return this.pipe((state, { previous }) => {
+			if (getValue(state) === getValue(previous)) {
 				return IGNORE;
 			}
-			return value;
+			return state;
 		});
 	}
 
@@ -141,21 +149,6 @@ export class Emitter<
 			this.unsubscribe(subscription);
 			return this;
 		};
-	}
-
-	toActions<
-		Input extends Record<keyof Actions, (...args: Array<any>) => State>, // eslint-disable-line @typescript-eslint/no-explicit-any
-	>(input: Input) {
-		const out = {} as {
-			[Key in keyof Input]: (...args: Parameters<Input[Key]>) => this;
-		};
-		for (const actionName in input) {
-			const action = input[actionName];
-			out[actionName] = (
-				...args: Parameters<typeof action>
-			) => this.set(action(...args), actionName);
-		}
-		return out;
 	}
 
 	unsubscribe(subscription: Subscription<State>) {

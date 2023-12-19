@@ -157,16 +157,14 @@ export const spec = suite(`Emitter`, {},
 			name: string;
 		};
 		class Person extends Emitter<State> {
-			actions = this.toActions({
-				age: (years: number) => ({
-					...this.value,
-					age: this.value.age + years,
-				}),
+			age = (years: number) => this.set({
+				...this.value,
+				age: this.value.age + years,
+			});
 
-				rename: (name: string) => ({
-					...this.value,
-					name,
-				}),
+			rename = (name: string) => this.set({
+				...this.value,
+				name,
 			});
 		}
 		let person!: Person;
@@ -174,18 +172,30 @@ export const spec = suite(`Emitter`, {},
 		let incrementsOnAge = 0;
 		let incrementsOnRename = 0;
 		$.log(() => person.on(`age`).subscribe(() => incrementsOnAge += 1));
-		$.log(() => person.on(`rename`).subscribe(() => incrementsOnRename += 1));
+		$.log(() => person.on(`name`).subscribe(() => incrementsOnRename += 1));
 
-		$.log(() => person.actions.age(1));
+		$.log(() => person.age(1));
 		$.assert(x => x(person.value.age) === 11);
 		$.assert(x => x(incrementsOnAge) === 1);
 		$.assert(x => x(person.value.name) === `alice`);
 		$.assert(x => x(incrementsOnRename) === 0);
 
-		$.log(() => person.actions.rename(`bob`));
+		$.log(() => person.rename(`bob`));
 		$.assert(x => x(incrementsOnAge) === 1);
 		$.assert(x => x(incrementsOnRename) === 1);
 		$.assert(x => x(person.value.name) === `bob`);
 		$.assert(x => x(incrementsOnRename) === 1);
+
+		let incrementsWhenOlder = 0;
+		const isOlder = (updated: State, previous: State) => updated.age > previous.age;
+		$.log(() => person.filter(isOlder).subscribe(() => incrementsWhenOlder += 1));
+		$.log(() => person.age(1));
+		$.assert(x => x(incrementsWhenOlder) === 1);
+		$.log(() => person.age(0));
+		$.assert(x => x(incrementsWhenOlder) === 1);
+		$.log(() => person.age(-1));
+		$.assert(x => x(incrementsWhenOlder) === 1);
+		$.log(() => person.age(1));
+		$.assert(x => x(incrementsWhenOlder) === 2);
 	}),
 );
