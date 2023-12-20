@@ -7,7 +7,6 @@ export type OnEmit<
 	value: State,
 	meta: {
 		emitter: Source;
-		message: string | undefined;
 		previous: State;
 		subscription: Subscription<State, Source>;
 	}
@@ -33,7 +32,7 @@ export class Emitter<State> {
 	}
 	readonly subscriptions = new Set<Subscription<State>>();
 	get value() {
-		return this.last?.value;
+		return this.last;
 	}
 
 	constructor(
@@ -74,14 +73,14 @@ export class Emitter<State> {
 		_meta: Omit<Parameters<OnEmit<State>>[1], `subscription`>
 	) {}
 
-	patch(update: State | Partial<State>, message?: string) {
+	patch(update: State | Partial<State>) {
 		if (isPrimitive(update)) {
-			return this.set(update as State, message);
+			return this.set(update as State);
 		}
 		return this.set({
 			...this.value,
 			...update as Partial<State>,
-		}, message);
+		});
 	}
 
 	pipe<Output>(
@@ -93,21 +92,20 @@ export class Emitter<State> {
 		const emitter = new Emitter<Output>();
 		this.subscribe((update, meta) => {
 			const value = callback(update, meta);
-			return emitter.set(value, meta.message);
+			return emitter.set(value);
 		});
 		return emitter;
 	}
 
-	set(update: State, message?: string) {
+	set(update: State) {
 		if (update === IGNORE) { // Need a way to indicate that an event _shouldn't_ emit. Can't just do `value === undefined` because there are times when `undefined` is a value we do want to emit
 			return this;
 		}
 		const previous = this.value;
-		this.cache.add(update, message);
+		this.cache.add(update);
 
 		const meta = {
 			emitter: this,
-			message,
 			previous,
 		};
 
@@ -162,43 +160,31 @@ export class Emitter<State> {
 	}
 }
 
-export type EmitterCacheEntry<State> = {
-	message?: string;
-	time: number;
-	value: State;
-};
-
 /** Encloses an array of values in reverse insertion order. */
 export class EmitterCache<State> {
 	/** The quantity of values to cache. */
 	limit: number;
 
-	get list(): Array<EmitterCacheEntry<State>> {
+	get list(): Array<State> {
 		return [...this.memory];
 	}
 
-	private readonly memory: Array<EmitterCacheEntry<State>> = [];
+	private readonly memory: Array<State> = [];
 
 	constructor(options: Partial<EmitterCacheOptions> = {}) {
 		this.limit = options.limit ?? emitterCacheOptionsDefault.limit;
 	}
 
-	add(value: State, message?: string) {
-		return this.addMany([{ message, value }]);
+	add(value: State) {
+		return this.addMany([value]);
 	}
 
-	addMany(entries: Array<{
-		message?: string;
-		value: State;
-	}>) {
+	addMany(entries: Array<State>) {
 		if (this.limit <= 0) {
 			return;
 		}
 		for (const entry of entries) {
-			this.memory.unshift({
-				...entry,
-				time: performance.now(),
-			});
+			this.memory.unshift(entry);
 		}
 		this.memory.splice(this.limit);
 		return this;

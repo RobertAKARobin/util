@@ -45,7 +45,7 @@ export class ModalContainer extends Component<ModalState> {
 		this.patch({ modal });
 		this.$el.replaceChildren(modal.render());
 		this.transition.activate();
-		modal.actions.placed();
+		modal.onPlace();
 	}
 
 	template = () => `<div></div>`;

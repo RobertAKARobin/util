@@ -99,7 +99,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 				instance.patch(args);
 			}
 		}
-		instance.actions.placed();
+		instance.onPlace();
 		return instance;
 	}
 
@@ -137,9 +137,9 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 						continue;
 					}
 					const $el = $node as BoundElement;
-					$el.instance.actions.placed();
+					$el.instance.onPlace();
 					for (const $child of $el.querySelectorAll(`[${Component.$elAttr}]`)) {
-						($child as BoundElement).instance.actions.placed();
+						($child as BoundElement).instance.onPlace();
 					}
 				}
 				for (const $node of mutation.removedNodes) {
@@ -147,9 +147,9 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 						continue;
 					}
 					const $el = $node as BoundElement;
-					$el.instance.actions.removed();
+					$el.instance.onRemove();
 					for (const $child of $el.querySelectorAll(`[${Component.$elAttr}]`)) {
-						($child as BoundElement).instance.actions.removed();
+						($child as BoundElement).instance.onRemove();
 					}
 				}
 			}
@@ -179,23 +179,6 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	 * The root DOM element to which the component is attached
 	 */
 	$el!: BoundElement;
-	/**
-	 * @see Emitter.actions
-	 */
-	actions = this.toActions({
-		el: () => {
-			this.onEl();
-			return this.value;
-		},
-		placed: () => {
-			this.onPlace();
-			return this.value;
-		},
-		removed: () => {
-			this.onRemove();
-			return this.value;
-		},
-	});
 	private attributesCache: Record<string, AttributeValue> = {};
 	/**
 	 * Content that will be rendered inside this element.
@@ -231,8 +214,8 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 	 * Creates a component instance
 	 * @param id @see Component.id
 	 */
-	constructor(id?: Component[`id`] | null, ...args: ConstructorParameters<typeof Emitter<State>>) {
-		super(...args);
+	constructor(id?: Component[`id`] | null, initial?: State) {
+		super(initial);
 
 		if (!Component.subclasses.has(this.Ctor.elName)) {
 			this.Ctor.init();
@@ -397,7 +380,7 @@ export class Component<State = Record<string, unknown>> extends Emitter<State> {
 		this.$el.setAttribute(Component.$elAttr, this.Ctor.elName);
 		this.$el[Component.$elProp] = this as Component;
 		this.attrs(this.attributesCache);
-		this.actions.el();
+		this.onEl();
 	}
 
 	/**

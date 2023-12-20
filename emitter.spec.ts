@@ -40,21 +40,21 @@ export const spec = suite(`Emitter`, {},
 		let emitter1_value1: number;
 		$.log(() => emitter1_value1 = 42);
 		$.log(() => emitter1.set({ age: emitter1_value1 }));
-		$.assert(x => x(emitter1.cache.list[0].value.age) === emitter1_value1);
+		$.assert(x => x(emitter1.cache.list[0].age) === emitter1_value1);
 		$.assert(x => x(emitter1_subscription1_value) === emitter1_value1);
 		$.assert(x => x(emitter1_subscription2_value) === emitter1_value1);
 
 		let emitter1_value2: number;
 		$.log(() => emitter1_value2 = 43);
 		$.log(() => emitter1.set({ age: emitter1_value2 }));
-		$.assert(x => x(emitter1.cache.list[0].value.age) === emitter1_value2);
+		$.assert(x => x(emitter1.cache.list[0].age) === emitter1_value2);
 		$.assert(x => x(emitter1_subscription1_value) === emitter1_value2);
 		$.assert(x => x(emitter1_subscription2_value) === emitter1_value2);
 
 		let emitter2_value1: number;
 		$.log(() => emitter2_value1 = 3);
 		$.log(() => emitter2.set({ age: emitter2_value1 }));
-		$.assert(x => x(emitter2.cache.list[0].value.age) === emitter2_value1);
+		$.assert(x => x(emitter2.cache.list[0].age) === emitter2_value1);
 		$.assert(x => x(emitter1_subscription1_value) === emitter1_value2);
 		$.assert(x => x(emitter1_subscription2_value) === emitter1_value2);
 		$.assert(x => x(emitter2_subscription1_value) === emitter2_value1);
@@ -74,43 +74,43 @@ export const spec = suite(`Emitter`, {},
 		$.log(() => emitterCache0 = new Emitter({ age: 0 }, { limit: 0 }));
 		$.log(() => emitterCache1 = new Emitter({ age: 0 }));
 		$.log(() => emitterCache2 = new Emitter({ age: 0 }, { limit: 2 }));
-		$.assert(x => x(JSON.stringify(emitterCache0.cache.list[0]?.value)) === undefined);
-		$.assert(x => x(JSON.stringify(emitterCache1.cache.list[0]?.value)) === `{"age":0}`);
-		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[0]?.value)) === `{"age":0}`);
+		$.assert(x => x(JSON.stringify(emitterCache0.cache.list[0])) === undefined);
+		$.assert(x => x(JSON.stringify(emitterCache1.cache.list[0])) === `{"age":0}`);
+		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[0])) === `{"age":0}`);
 
 
 		$.log(() => emitterCache0.set({ age: 42 }));
 		$.log(() => emitterCache1.set({ age: 42 }));
 		$.log(() => emitterCache2.set({ age: 42 }));
-		$.assert(x => x(JSON.stringify(emitterCache0.cache.list[0]?.value)) === undefined);
+		$.assert(x => x(JSON.stringify(emitterCache0.cache.list[0])) === undefined);
 
-		$.assert(x => x(JSON.stringify(emitterCache1.cache.list[0]?.value)) === `{"age":42}`);
-		$.assert(x => x(JSON.stringify(emitterCache1.cache.list[1]?.value)) === undefined);
+		$.assert(x => x(JSON.stringify(emitterCache1.cache.list[0])) === `{"age":42}`);
+		$.assert(x => x(JSON.stringify(emitterCache1.cache.list[1])) === undefined);
 
-		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[0]?.value)) === `{"age":42}`);
-		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[1]?.value)) === `{"age":0}`);
-		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[2]?.value)) === undefined);
+		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[0])) === `{"age":42}`);
+		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[1])) === `{"age":0}`);
+		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[2])) === undefined);
 
 
 		$.log(() => emitterCache0.set({ age: 43 }));
 		$.log(() => emitterCache1.set({ age: 43 }));
 		$.log(() => emitterCache2.set({ age: 43 }));
-		$.assert(x => x(JSON.stringify(emitterCache0.cache.list[0]?.value)) === undefined);
+		$.assert(x => x(JSON.stringify(emitterCache0.cache.list[0])) === undefined);
 
-		$.assert(x => x(JSON.stringify(emitterCache1.cache.list[0]?.value)) === `{"age":43}`);
-		$.assert(x => x(JSON.stringify(emitterCache1.cache.list[1]?.value)) === undefined);
+		$.assert(x => x(JSON.stringify(emitterCache1.cache.list[0])) === `{"age":43}`);
+		$.assert(x => x(JSON.stringify(emitterCache1.cache.list[1])) === undefined);
 
-		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[0]?.value)) === `{"age":43}`);
-		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[1]?.value)) === `{"age":42}`);
-		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[2]?.value)) === undefined);
+		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[0])) === `{"age":43}`);
+		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[1])) === `{"age":42}`);
+		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[2])) === undefined);
 
 
 		$.log(() => emitterCache0.set({ age: 44 }));
 		$.log(() => emitterCache1.set({ age: 44 }));
 		$.log(() => emitterCache2.set({ age: 44 }));
-		$.assert(x => x(JSON.stringify(emitterCache0.cache.list[0]?.value)) === undefined);
-		$.assert(x => x(JSON.stringify(emitterCache1.cache.list[0]?.value)) === `{"age":44}`);
-		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[0]?.value)) === `{"age":44}`);
+		$.assert(x => x(JSON.stringify(emitterCache0.cache.list[0])) === undefined);
+		$.assert(x => x(JSON.stringify(emitterCache1.cache.list[0])) === `{"age":44}`);
+		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[0])) === `{"age":44}`);
 
 		$.log(`cache.list always returns new array:`);
 		$.assert(x => x(emitterCache2.cache.list) !== x(emitterCache2.cache.list));
