@@ -2,12 +2,7 @@ import { Component } from '@robertakarobin/web/component.ts';
 
 import { types } from '@src/theme.ts';
 
-type TextboxType = {
-	maxlength: number;
-	value: string;
-};
-
-export class Textbox extends Component<TextboxType> {
+export class Textbox extends Component(`div`) {
 
 	static style = `
 input {
@@ -19,38 +14,25 @@ input {
 		this.init();
 	}
 
-	constructor(...[id, initial, ...args]: ConstructorParameters<typeof Component<TextboxType>>) {
-		super(
-			id,
-			{
-				...initial,
-				maxlength: initial?.maxlength ?? 10,
-				value: initial?.value ?? ``,
-			},
-			...args
-		);
-	}
+	maxlength = 10;
+	value = ``;
 
 	handleInput(event: Event) {
-		this.set({
-			...this.value,
-			value: (event.currentTarget as HTMLInputElement).value,
-		});
-		this.$el.querySelector(`span`)!.innerHTML = this.remaining();
+		this.value = (event.currentTarget as HTMLInputElement).value;
+		this.querySelector(`span`)!.innerHTML = this.remaining();
 	}
 
 	remaining() {
-		return `${this.value.maxlength - this.value.value.length} / ${this.value.maxlength} Remaining`;
+		return `${this.maxlength - this.value.length} / ${this.maxlength} Remaining`;
 	}
 
 	template = () => `
 		<div>
 			<input
-				maxlength="${this.value.maxlength}"
-				oninput=${this.bind(`handleInput`)}
+				maxlength="${this.maxlength}"
 				placeholder="Type here"
 				type="text"
-				value="${this.value.value}"
+				value="${this.value}"
 			>
 
 			<span>${this.remaining()}</span>

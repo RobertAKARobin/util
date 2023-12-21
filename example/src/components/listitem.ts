@@ -2,9 +2,7 @@ import { Component } from '@robertakarobin/web/component.ts';
 
 import { Textbox } from '@src/components/textbox.ts';
 
-Textbox.init();
-
-export class ListItem extends Component<string> {
+export class ListItem extends Component(`div`) {
 	static {
 		this.init();
 	}
@@ -24,7 +22,9 @@ export class ListItem extends Component<string> {
 	<button
 		type="button"
 	>Remove</button>
-	${Textbox.get().patch({ value: this.value })}
 </div>
 	`;
 }
+
+
+// ${Textbox.get().patch({ value: this.value })}

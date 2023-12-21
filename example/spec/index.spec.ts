@@ -73,5 +73,8 @@ export const spec = suite(`@robertakarobin/web`,
 		$.assert(x => x(widget.attrs({ class: `foo` }).$el.outerHTML) === x(`<h1 id="UID1_" is="l-widget" class="foo">42</h1>`));
 		$.assert(x => x(widget.attrs({ class: null }).$el.outerHTML) === x(`<h1 id="UID1_" is="l-widget">42</h1>`));
 		$.assert(x => x(widget.attrs({ class: `foo` }).attrs({ class: null }).$el.outerHTML) === x(`<h1 id="UID1_" is="l-widget">42</h1>`));
+
+		// Assert setting attributes does not trigger onChange
+		// Assert setting dataAttributes triggers onChange
 	}),
 );

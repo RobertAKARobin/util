@@ -1,4 +1,4 @@
-import { BasePage } from './_page.ts';
+import { Page } from '@robertakarobin/web/component.ts';
 
 import { router } from '@src/router.ts';
 
@@ -8,11 +8,13 @@ h1 {
 }
 `;
 
-export class YesSSGPage extends BasePage {
+export class YesSSGPage extends Page(`div`) {
 	static style = style;
-
+	static {
+		this.init();
+	}
 	isSSG = true;
-	template = () => super.template(`
+	template = () => `
 <main>
 	<h1>SSG yes</h1>
 
@@ -20,5 +22,5 @@ export class YesSSGPage extends BasePage {
 
 	<div id="${router.hashes.ssgYesJump2}">Jump 2</div>
 </main>
-`);
+`;
 }

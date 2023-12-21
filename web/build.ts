@@ -10,9 +10,8 @@ import type * as $ from '@robertakarobin/util/types.d.ts';
 import { stringMates, type TagResult } from '@robertakarobin/util/string-mates.ts';
 import { baseUrl } from '@robertakarobin/util/context.ts';
 import { promiseConsecutive } from '@robertakarobin/util/promiseConsecutive.ts';
-import { serialize } from '@robertakarobin/util/serialize.ts';
 
-import { Component, globals, type Page } from './component.ts';
+import type { ComponentConstructor, PageInstance } from './component.ts';
 import { hasExtension, type Resolver, type Router } from './router.ts';
 
 const bustCache = (pathname: string) => {
@@ -31,30 +30,25 @@ const logBreak = () => console.log(``);
 const trimNewlines = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
 
 // Supply various browser/DOM variables for the build environment
-const dummyDOM = new JSDOM().window;
-globalThis.document = dummyDOM.document;
-globalThis.NodeFilter = dummyDOM.NodeFilter;
-globalThis.requestAnimationFrame = () => 0;
-
-const superSet = Component.prototype.set; // eslint-disable-line @typescript-eslint/unbound-method
-/**
- * Overrides `Component.set` so that it hydrates a `<script>` tag with all the data that should be used to hydrate components when `page.hydrate()` is called
- */
-Component.prototype.set = function(...[update, ...args]: Parameters<Component[`set`]>) { // TODO3: Remove defaults from args?
-	if (this.isHydrated) {
-		const value = globals[Component.unhydratedArgsName][this.id];
-		const isSpreadable = typeof update === `object` && update !== null && !Array.isArray(update);
-		if (isSpreadable) {
-			globals[Component.unhydratedArgsName][this.id] = {
-				...value,
-				...update,
-			};
-		} else {
-			globals[Component.unhydratedArgsName][this.id] = update;
-		}
-	}
-	return superSet.call(this, update, ...args);
+let dummyDOM = new JSDOM().window;
+const refreshDummyDOM = () => {
+	dummyDOM = new JSDOM().window;
+	globalThis.customElements = dummyDOM.customElements;
+	globalThis.document = dummyDOM.document;
+	globalThis.NodeFilter = dummyDOM.NodeFilter;
+	globalThis.requestAnimationFrame = () => 0;
 };
+refreshDummyDOM();
+
+const properties = Object.getOwnPropertyNames(dummyDOM);
+for (const propertyName of properties) {
+	if (propertyName.startsWith(`HTML`)) {
+		const value = dummyDOM[propertyName]; // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+		Object.assign(globalThis, {
+			[propertyName]: value, // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+		});
+	}
+}
 
 export class Builder {
 	readonly assetsSrcDirRel: string | Array<string>;
@@ -171,7 +165,7 @@ export class Builder {
 		const { resolver, router } = (
 			await bustCache(this.routerSrcFileAbs)
 		) as {
-			resolver: Resolver<Page>;
+			resolver: Resolver<PageInstance>;
 			router: Router<never>;
 		};
 
@@ -182,9 +176,6 @@ export class Builder {
 		await promiseConsecutive(
 			Object.entries(router.urls).map(([routeName, route]) => async() => {
 				log(`${routeName.toString()}: ${route.pathname}`);
-
-				Component.subclasses.clear();
-				globals[Component.unhydratedArgsName] = {};
 
 				if (route.origin !== baseUrl.origin) {
 					console.log(`Route is external. Skipping...`);
@@ -211,6 +202,7 @@ export class Builder {
 				const serveDirAbs = path.dirname(serveFileAbs);
 				fs.mkdirSync(serveDirAbs, { recursive: true });
 
+				refreshDummyDOM(); // TODO2: On each route the customElements seem to get redefined; need to dump the dummyDOM to prevent errors
 				const page = await resolver.resolve(route);
 
 				if (!page.isSSG) {
@@ -225,32 +217,31 @@ export class Builder {
 					return;
 				}
 
-				const $page = page.render();
-				let body = this.formatBody($page);
+				const body = this.formatBody(page);
 
-				const componentArgs = globals[Component.unhydratedArgsName];
-				const unhydratedArgs = `<script id="${Component.unhydratedArgsName}" src="data:text/javascript," onload="${Component.unhydratedArgsName}=${serialize(componentArgs)}"></script>`;
-				globals[Component.unhydratedArgsName] = {};
-				body += `\n${unhydratedArgs}`;
+				// const componentArgs = globals[Component.unhydratedArgsName];
+				// const unhydratedArgs = `<script id="${Component.unhydratedArgsName}" src="data:text/javascript," onload="${Component.unhydratedArgsName}=${serialize(componentArgs)}"></script>`;
+				// globals[Component.unhydratedArgsName] = {};
+				// body += `\n${unhydratedArgs}`;
 
-				let head = ``;
-				let routeCss = ``;
-				let routeCssPath = ``;
-				for (const [elName, Subclass] of Component.subclasses) { // document.querySelectorAll($elAttr) doesn't work because static init doesn't get called?
-					if (elName === undefined) {
-						throw new Error(Subclass.name);
-					}
-					head += `<style ${Component.$styleAttr}="${elName}"></style>`;
-					routeCss += Subclass.style ?? ``;
-				}
+				const head = ``;
+				// let routeCss = ``;
+				const routeCssPath = ``;
+				// for (const [elName, Subclass] of Component.subclasses) { // document.querySelectorAll($elAttr) doesn't work because static init doesn't get called?
+				// 	if (elName === undefined) {
+				// 		throw new Error(Subclass.name);
+				// 	}
+				// 	head += `<style ${Component.$styleAttr}="${elName}"></style>`;
+				// 	routeCss += Subclass.style ?? ``;
+				// }
 
-				if (routeCss.length > 0) {
-					routeCss = await this.formatCss(routeCss);
-					routeCssPath = `${serveFileRel}.css`;
-					const routeCssAbs = path.join(this.serveDirAbs, routeCssPath);
-					log(local(routeCssAbs));
-					fs.writeFileSync(routeCssAbs, routeCss);
-				}
+				// if (routeCss.length > 0) {
+				// 	routeCss = await this.formatCss(routeCss);
+				// 	routeCssPath = `${serveFileRel}.css`;
+				// 	const routeCssAbs = path.join(this.serveDirAbs, routeCssPath);
+				// 	log(local(routeCssAbs));
+				// 	fs.writeFileSync(routeCssAbs, routeCss);
+				// }
 
 				const html = await this.formatHtml({
 					baseUri: this.baseUri,
@@ -260,7 +251,7 @@ export class Builder {
 					mainCssPath: path.join(`/`, this.styleServeFileRel),
 					mainJsPath: this.scriptServeFileRel === undefined ? undefined : path.join(`/`, this.scriptServeFileRel),
 					routeCssPath: typeof routeCssPath === `string` ? path.join(`/`, routeCssPath) : undefined,
-					title: page.value.title,
+					title: page.data.title,
 				});
 
 				log(local(serveFileAbs));
@@ -318,8 +309,8 @@ export class Builder {
 
 	cleanup(): void | Promise<void> {}
 
-	formatBody($root: Element) {
-		return $root.outerHTML;
+	formatBody($root: HTMLElement) {
+		return ($root as unknown as ComponentConstructor).toString();
 	}
 
 	formatCss(input: string): string | Promise<string> {

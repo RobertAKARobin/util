@@ -3,7 +3,7 @@ import { baseUrl } from '@robertakarobin/util/context.ts';
 import { Component } from '../component.ts';
 
 export function LinkComponent<Routes extends RouteMap>(router: Router<Routes>) {
-	return class Link extends Component<keyof typeof router.urls> {
+	return class Link extends Component(`a`) {
 		static {
 			this.init();
 		}
@@ -12,7 +12,7 @@ export function LinkComponent<Routes extends RouteMap>(router: Router<Routes>) {
 			routeName: keyof typeof router.urls,
 			contents?: string,
 		) {
-			const link = this.get().set(routeName);
+			const link = new this(routeName);
 			if (contents !== undefined) {
 				link.content(contents);
 			}
@@ -21,10 +21,16 @@ export function LinkComponent<Routes extends RouteMap>(router: Router<Routes>) {
 
 		isHydrated = false;
 
-		template = () => router.urls[this.value].origin === baseUrl.origin
-			? `<a href="${router.paths[this.value]}">${this.contents}</a>`
+		constructor(
+			public routeName: keyof typeof router.urls
+		) {
+			super();
+		}
+
+		template = () => router.urls[this.routeName].origin === baseUrl.origin
+			? `<a href="${router.paths[this.routeName]}">${this.contents}</a>`
 			: `<a
-	href="${router.urls[this.value]}"
+	href="${router.urls[this.routeName]}"
 	rel="noopener"
 	target="_blank"
 >${this.contents}</a>`;

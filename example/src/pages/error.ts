@@ -1,10 +1,13 @@
-import { BasePage } from './_page.ts';
+import { Page } from '@robertakarobin/web/component.ts';
 
-export class ErrorPage extends BasePage {
-	title = `Error 404`;
-	template = () => super.template(`
+export class ErrorPage extends Page(`div`) {
+	static {
+		this.init();
+	}
+
+	template = () => `
 	<main>
 		<h1>404 page :(</h1>
 	</main>
-`);
+`;
 }

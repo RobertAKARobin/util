@@ -1,8 +1,7 @@
+import { Page } from '@robertakarobin/web/component.ts';
 
 import { Link, router } from '@src/router.ts';
-import { BasePage } from './_page.ts';
 import { List } from '@src/components/list.ts';
-import { state } from '@src/state.ts';
 import { TransitionTest } from '@src/components/transition-test.ts';
 
 List.init();
@@ -15,14 +14,20 @@ const style =  `
 
 const colors = [`red`, `yellow`, `green`, `brown`, `scarlet`];
 
-export class IndexPage extends BasePage<{ message: string; }> {
+export class IndexPage extends Page(`div`, {
+	message: ``,
+}) {
 	static style = style;
+
+	static {
+		this.init();
+	}
 
 	anchorlessRoute() {
 		router.to(`ssgYes`);
 	}
 
-	template = () => super.template(`
+	template = () => `
 <main>
 <h1>Hello world!</h1>
 
@@ -30,12 +35,10 @@ ${TransitionTest.get()}
 
 <div id="${router.hashes.homeJump1}">Jump 1</div>
 
-${List.get(`mylist`).set(state.entries.$)}
-
 <markdown>
 # Headline 1
 
-## ${this.value.message}
+## ${this.data.message}
 
 Lorem ipsum dolor <strong>sit amet</strong>, consectetur *adipiscing elit*, sed do _eiusmod tempor_ incididunt.
 
@@ -44,7 +47,7 @@ Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ 
 
 <p>${Link.to(`ssgYes`, `Link to SSG Yes`)}</p>
 
-<button type="button" onclick=${this.bind(`anchorlessRoute`)}>Go to SSG Yes</button>
+<button type="button" onclick="this.closest(IndexPage).anchorlessRoute()">Go to SSG Yes</button>
 
 <markdown>
 ## Headline 2
@@ -68,5 +71,5 @@ Joseph's coat was ${colors.join(` and `)}.
 
 <div id="${router.hashes.homeJump2}">Jump 2</div>
 </main>
-`);
+`;
 };

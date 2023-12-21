@@ -21,7 +21,7 @@ export const resolver = new Resolver(router, async(route: URL) => {
 		case paths.homeJump1:
 		case paths.homeJump2:
 			return new (await import(`@src/pages/index.ts`)).IndexPage().set({
-				message: `This is a variable`,
+				message: `This is a message`,
 				title: `Home page`,
 			});
 		case paths.ssgNo:

@@ -4,13 +4,13 @@ import { ModalContainer } from '@robertakarobin/web/components/modal-container.t
 import { Link, routeNames } from '@src/router.ts';
 import { ProgressModal } from '@src/modals/progress.ts';
 
-export class Nav extends Component {
+export class Nav extends Component(`nav`) {
 	static {
 		this.init();
 	}
 
 	openModal() {
-		ModalContainer.get(`modals`).place(new ProgressModal());
+		// ModalContainer.get(`modals`).place(new ProgressModal());
 	}
 
 	template = () => `
@@ -22,7 +22,7 @@ export class Nav extends Component {
 
 			<li>
 				<button
-					onclick=${this.bind(`openModal`)}
+					onclick="this.closest(Nav).openModal()"
 					type="button"
 				>Modal</button>
 			</li>

@@ -1,13 +1,8 @@
 import { Transition } from '@robertakarobin/util/transition.ts';
 
-import { Component } from '../component.ts';
+import { Component, type ComponentInstance } from '../component.ts';
 
-type ModalState = {
-	modal: Component<any>; // eslint-disable-line @typescript-eslint/no-explicit-any
-	transitionDuration: number;
-};
-
-export class ModalContainer extends Component<ModalState> {
+export class ModalContainer extends Component(`div`) {
 	static transitionDurationDefault = 0.2;
 
 	static {
@@ -16,19 +11,22 @@ export class ModalContainer extends Component<ModalState> {
 
 	readonly transition: Transition;
 
-	constructor(...[id, initial]: ConstructorParameters<typeof Component<ModalState>>) {
-		super(id, initial);
+	constructor(
+		id: ModalContainer[`id`],
+		$target: Transition[`value`][`$target`],
+		duration: Transition[`value`][`duration`]
+	) {
+		super(id);
 
 		this.transition = new Transition({
-			$target: initial?.modal.$el ?? undefined,
-			duration: initial?.transitionDuration ?? ModalContainer.transitionDurationDefault,
+			$target,
+			duration,
 			status: `inactive`,
 		});
 
 		this.transition.subscribe(({ status }) => {
 			if (status === `inactivate`) {
-				this.patch({ modal: undefined });
-				this.$el.replaceChildren();
+				this.replaceChildren();
 			}
 		});
 	}
@@ -37,15 +35,13 @@ export class ModalContainer extends Component<ModalState> {
 		this.transition.inactivate();
 	}
 
-	onPlace() {
-		this.transition.patch({ $target: this.$el });
-	}
+	// onPlace() {
+	// 	this.transition.patch({ $target: this.$el });
+	// }
 
-	place(modal: Component<any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
-		this.patch({ modal });
-		this.$el.replaceChildren(modal.render());
+	place(modal: ComponentInstance) {
+		this.replaceChildren(modal);
 		this.transition.activate();
-		modal.onPlace();
 	}
 
 	template = () => `<div></div>`;

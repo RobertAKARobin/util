@@ -8,7 +8,7 @@ const style = `
 }
 `;
 
-export class TransitionTest extends Component {
+export class TransitionTest extends Component(`div`) {
 	static style = style;
 
 	static {
@@ -16,11 +16,10 @@ export class TransitionTest extends Component {
 	}
 
 	async onPlace() {
-		const $transition = this.$el;
-		$transition.style.background = `#ff0000`;
+		this.style.background = `#ff0000`;
 		await new Promise(requestAnimationFrame);
-		$transition.style.transition = `background 5s`;
-		$transition.style.background = `#0000ff`;
+		this.style.transition = `background 5s`;
+		this.style.background = `#0000ff`;
 	}
 
 	template = () => `<div></div>`;

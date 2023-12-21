@@ -5,7 +5,7 @@ export type ImageType = {
 	src: string;
 };
 
-export class Image extends Component<ImageType> {
+export class Image extends Component(`img`) {
 	static {
 		this.init();
 	}
@@ -13,9 +13,6 @@ export class Image extends Component<ImageType> {
 	isHydrated = false;
 
 	template = () => html`
-<img
-	alt="${this.$.alt}"
-	src="${this.$.src}"
-	/>
+<img />
 `;
 }
