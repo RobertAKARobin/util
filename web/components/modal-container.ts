@@ -13,14 +13,13 @@ export class ModalContainer extends Component(`div`) {
 
 	constructor(
 		id: ModalContainer[`id`],
-		$target: Transition[`value`][`$target`],
-		duration: Transition[`value`][`duration`]
+		duration?: Transition[`value`][`duration`]
 	) {
 		super(id);
 
 		this.transition = new Transition({
-			$target,
-			duration,
+			$target: this,
+			duration: duration ?? ModalContainer.transitionDurationDefault,
 			status: `inactive`,
 		});
 
@@ -34,10 +33,6 @@ export class ModalContainer extends Component(`div`) {
 	clear() {
 		this.transition.inactivate();
 	}
-
-	// onPlace() {
-	// 	this.transition.patch({ $target: this.$el });
-	// }
 
 	place(modal: ComponentInstance) {
 		this.replaceChildren(modal);

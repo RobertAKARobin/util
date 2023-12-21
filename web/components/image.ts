@@ -1,9 +1,4 @@
-import { Component, html } from '../component.ts';
-
-export type ImageType = {
-	alt: string;
-	src: string;
-};
+import { Component } from '../component.ts';
 
 export class Image extends Component(`img`) {
 	static {
@@ -11,8 +6,4 @@ export class Image extends Component(`img`) {
 	}
 
 	isHydrated = false;
-
-	template = () => html`
-<img />
-`;
 }

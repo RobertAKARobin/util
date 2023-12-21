@@ -1,6 +1,7 @@
 import { Page } from '@robertakarobin/web/component.ts';
 
 import { Link, router } from '@src/router.ts';
+import { layout } from './_layout.ts';
 import { List } from '@src/components/list.ts';
 import { TransitionTest } from '@src/components/transition-test.ts';
 
@@ -27,7 +28,7 @@ export class IndexPage extends Page(`div`, {
 		router.to(`ssgYes`);
 	}
 
-	template = () => `
+	template = () => layout(`
 <main>
 <h1>Hello world!</h1>
 
@@ -71,5 +72,5 @@ Joseph's coat was ${colors.join(` and `)}.
 
 <div id="${router.hashes.homeJump2}">Jump 2</div>
 </main>
-`;
+`);
 };

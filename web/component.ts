@@ -4,7 +4,7 @@ export { html, css } from '@robertakarobin/util/template.ts';
 
 type Constructor<Classtype> = new (...args: any) => Classtype; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-type AttributeValue = string | number | undefined | null;
+type AttributeValue = string | number | symbol | undefined | null;
 
 export function Component<
 	Dataset extends Record<string, AttributeValue> = Record<string, never>,
@@ -26,22 +26,26 @@ export function Component<
 		}
 
 		/**
-		 * Outputs a new component. If an ID is given, outputs the matching existing component, or builds a new one with that ID.
+		 * Returns the existing component with the given ID, or of this constructor. If no match is found for the given ID, builds a new component with that ID.
 		 */
-		static get<Subclass extends Constructor<Component>>(
-			this: Subclass,
-			id?: Component[`id`]
-		) {
-			if (id !== undefined) {
-				const existing = document.getElementById(id) as InstanceType<Subclass>;
-				return existing;
+		static get<Subclass extends Constructor<Component>>(this: Subclass, id?: Component[`id`]) {
+			let existing = id === undefined
+				? document.querySelector((this as unknown as typeof Component).selector)
+				: document.getElementById(id);
+			if (existing === null) {
+				existing = new this(id);
+			} else {
+				if (!(existing instanceof this)) {
+					throw new Error();
+				}
 			}
-			return new this(id);
+			return existing as InstanceType<Subclass>;
 		}
 
-		static getAll<Subclass extends typeof Component>(
-			this: Subclass,
-		) {
+		/**
+		 * Returns all components matching the given constructor.
+		 */
+		static getAll<Subclass extends typeof Component>(this: Subclass) {
 			return [...document.querySelectorAll(this.selector)].map($el => {
 				return $el as InstanceType<Subclass>;
 			});
@@ -82,7 +86,7 @@ export function Component<
 		/**
 		 * Content that will be rendered inside this element.
 		 */
-		contents = ``;
+		contents = `` as string | undefined | null;
 		/**
 		 * @returns The instance's constructor
 		 */
@@ -160,7 +164,7 @@ export function Component<
 		/**
 		 * Set the inner content of the element.
 		 */
-		content(content: string) {
+		content(content: string | undefined | null) {
 			this.contents = content;
 			return this;
 		}

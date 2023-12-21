@@ -10,23 +10,21 @@ export class Nav extends Component(`nav`) {
 	}
 
 	openModal() {
-		// ModalContainer.get(`modals`).place(new ProgressModal());
+		ModalContainer.get().place(new ProgressModal());
 	}
 
 	template = () => `
-	<nav>
-		<ul>
-			${routeNames.map(routeName => `
-				<li>${Link.to(routeName, `Go ${routeName}`)}</li>
-			`).join(``)}
+<ul>
+	${routeNames.map(routeName => `
+		<li>${Link.to(routeName, `Go ${routeName}`)}</li>
+	`).join(``)}
 
-			<li>
-				<button
-					onclick="this.closest(Nav).openModal()"
-					type="button"
-				>Modal</button>
-			</li>
-		</ul>
-	</nav>
+	<li>
+		<button
+			onclick="this.closest(Nav).openModal()"
+			type="button"
+		>Modal</button>
+	</li>
+</ul>
 	`;
 }
