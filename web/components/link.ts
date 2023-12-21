@@ -15,6 +15,7 @@ export function LinkComponent<Routes extends RouteMap>(router: Router<Routes>) {
 			routeName: keyof typeof router.urls,
 			contents?: string,
 		) {
+			console.log(`>>> Link to ${routeName.toString()}`);
 			return new this()
 				.set({ routeName })
 				.content(contents);
@@ -22,12 +23,19 @@ export function LinkComponent<Routes extends RouteMap>(router: Router<Routes>) {
 
 		isHydrated = false;
 
-		template = () => router.urls[this.data.routeName].origin === baseUrl.origin
-			? `<a href="${router.paths[this.data.routeName]}">${this.contents}</a>`
-			: `<a
-	href="${router.urls[this.data.routeName]}"
-	rel="noopener"
-	target="_blank"
->${this.contents}</a>`;
+		onChange() {
+			const isExternal = router.urls[this.data.routeName].origin === baseUrl.origin;
+			if (isExternal) {
+				this.attrs({
+					href: router.urls[this.data.routeName].toString(),
+					rel: `noopener`,
+					target: `_blank`,
+				});
+			} else {
+				this.attrs({
+					href: router.paths[this.data.routeName],
+				});
+			}
+		}
 	};
 }

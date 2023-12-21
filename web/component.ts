@@ -118,17 +118,18 @@ export function Component<
 			this.setAttribute(`is`, this.Ctor.elName);
 			this.set(dataDefaults);
 			this.onEl();
+			console.log(`>>> ${this.Ctor.name} construct`);
 		}
 
 		protected attributeChangedCallback<
 			AttributeName extends keyof this,
 			Value extends this[AttributeName],
 		>(
-			_attributeName: AttributeName,
-			_oldValue: Value,
-			_newValue: Value,
+			attributeName: AttributeName,
+			oldValue: Value,
+			newValue: Value,
 		) {
-			this.onChange();
+			this.onChange(attributeName, oldValue, newValue);
 		}
 
 		/**
@@ -165,7 +166,7 @@ export function Component<
 		 * Set the inner content of the element.
 		 */
 		content(content: string | undefined | null) {
-			this.contents = content;
+			this.innerHTML = this.template(content ?? ``);
 			return this;
 		}
 
@@ -192,7 +193,14 @@ export function Component<
 			return $descendants;
 		}
 
-		onChange() {}
+		onChange<
+			AttributeName extends keyof this,
+			Value extends this[AttributeName],
+		>(
+			_attributeName: AttributeName,
+			_oldValue: Value,
+			_newValue: Value,
+		) {}
 
 		/**
 		 * Called when the instance's element is defined
@@ -219,12 +227,15 @@ export function Component<
 		/**
 		 * Defines what is written into the document when this instance is rendered
 		 */
-		template(body = ``) {
-			return body;
+		template(contents?: string) {
+			console.log(`>>> ${this.Ctor.name} template`);
+			return contents ?? this.contents ?? ``;
 		}
 
 		toString() {
-			this.innerHTML = this.template();
+			if (this.innerHTML === ``) {
+				this.content(``);
+			}
 			return this.outerHTML;
 		}
 	};
