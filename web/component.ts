@@ -1,3 +1,4 @@
+import { appContext } from '@robertakarobin/util/context.ts';
 import { newUid } from '@robertakarobin/util/uid.ts';
 
 export { html, css } from '@robertakarobin/util/template.ts';
@@ -5,6 +6,8 @@ export { html, css } from '@robertakarobin/util/template.ts';
 type Constructor<Classtype> = new (...args: any) => Classtype; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 type AttributeValue = string | number | symbol | undefined | null;
+
+const unconnectedElements = new Map<HTMLElement[`id`], WeakRef<HTMLElement>>();
 
 export function Component<
 	Dataset extends Record<string, AttributeValue> = Record<string, never>,
@@ -115,10 +118,8 @@ export function Component<
 		constructor(id?: string | null, ..._args: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
 			super();
 			this.setAttribute(`id`, id ?? Component.createId());
-			this.setAttribute(`is`, this.Ctor.elName);
 			this.set(dataDefaults);
 			this.onEl();
-			console.log(`>>> ${this.Ctor.name} construct`);
 		}
 
 		protected attributeChangedCallback<
@@ -166,7 +167,7 @@ export function Component<
 		 * Set the inner content of the element.
 		 */
 		content(content: string | undefined | null) {
-			this.innerHTML = this.template(content ?? ``);
+			this.contents = content;
 			return this;
 		}
 
@@ -217,6 +218,35 @@ export function Component<
 		 */
 		onRemove() {}
 
+		render() {
+			this.innerHTML = this.template();
+
+			const newCommentIterator = () => document.createNodeIterator(
+				this,
+				NodeFilter.SHOW_COMMENT,
+				() => NodeFilter.FILTER_ACCEPT,
+			);
+			let iterator = newCommentIterator();
+			let $placeholder: Comment;
+			while (true) {
+				$placeholder = iterator.nextNode() as Comment;
+
+				if ($placeholder === null) {
+					break;
+				}
+
+				const id = $placeholder.textContent!;
+				const $el = unconnectedElements.get(id)!.deref()!;
+				$placeholder.replaceWith($el);
+
+				if (appContext !== `browser`) {
+					iterator = newCommentIterator();
+				}
+			}
+
+			return this;
+		}
+
 		set(input: Partial<typeof dataDefaults>) {
 			for (const key in input) {
 				this.dataset[key] = input[key] as string;
@@ -227,16 +257,14 @@ export function Component<
 		/**
 		 * Defines what is written into the document when this instance is rendered
 		 */
-		template(contents?: string) {
-			console.log(`>>> ${this.Ctor.name} template`);
-			return contents ?? this.contents ?? ``;
+		template(subclassTemplate?: string) {
+			return subclassTemplate ?? this.contents ?? ``;
 		}
 
 		toString() {
-			if (this.innerHTML === ``) {
-				this.content(``);
-			}
-			return this.outerHTML;
+			this.innerHTML = this.template();
+			unconnectedElements.set(this.id, new WeakRef(this));
+			return `<!--${this.id}-->`;
 		}
 	};
 }

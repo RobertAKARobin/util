@@ -217,7 +217,7 @@ export class Builder {
 					return;
 				}
 
-				const body = this.formatBody(page);
+				const body = this.formatBody(page.render());
 
 				// const componentArgs = globals[Component.unhydratedArgsName];
 				// const unhydratedArgs = `<script id="${Component.unhydratedArgsName}" src="data:text/javascript," onload="${Component.unhydratedArgsName}=${serialize(componentArgs)}"></script>`;
@@ -310,7 +310,7 @@ export class Builder {
 	cleanup(): void | Promise<void> {}
 
 	formatBody($root: HTMLElement) {
-		return ($root as unknown as ComponentConstructor).toString();
+		return $root.outerHTML;
 	}
 
 	formatCss(input: string): string | Promise<string> {

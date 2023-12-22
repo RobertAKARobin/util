@@ -15,16 +15,17 @@ export function LinkComponent<Routes extends RouteMap>(router: Router<Routes>) {
 			routeName: keyof typeof router.urls,
 			contents?: string,
 		) {
-			console.log(`>>> Link to ${routeName.toString()}`);
-			return new this()
+			const link = new this()
 				.set({ routeName })
 				.content(contents);
+			link.onChange();
+			return link;
 		}
 
 		isHydrated = false;
 
 		onChange() {
-			const isExternal = router.urls[this.data.routeName].origin === baseUrl.origin;
+			const isExternal = router.urls[this.data.routeName].origin !== baseUrl.origin;
 			if (isExternal) {
 				this.attrs({
 					href: router.urls[this.data.routeName].toString(),
