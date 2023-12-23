@@ -117,7 +117,7 @@ export function Component<
 		 */
 		constructor(id?: string | null, ..._args: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
 			super();
-			this.setAttribute(`id`, id ?? Component.createId());
+			this.setAttribute(`id`, id ?? this.getAttribute(`id`) ?? Component.createId());
 			this.set(dataDefaults);
 			this.onEl();
 		}
@@ -154,7 +154,9 @@ export function Component<
 		closest<Ancestor>(Ancestor: Constructor<Ancestor>): Ancestor;
 		closest(Ancestor: string): Element | null;
 		closest<Ancestor>(Ancestor: Constructor<Ancestor> | string) {
-			const selector = (Ancestor as unknown as typeof Component).selector;
+			const selector = typeof Ancestor === `string`
+				? Ancestor
+				: (Ancestor as unknown as typeof Component).selector;
 			const $match = super.closest(selector);
 			return $match;
 		}
