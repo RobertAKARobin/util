@@ -17,7 +17,9 @@ export type Subscription<
 	Source extends Emitter<State> = Emitter<State>,
 > = WeakRef<OnEmit<State, Source>> | OnEmit<State, Source>;
 
-export type EmitterOptions = EmitterCacheOptions;
+export type EmitterOptions = EmitterCacheOptions & {
+	emitOnInit: boolean;
+};
 
 const IGNORE = `_IGNORE_` as const;
 
@@ -41,7 +43,11 @@ export class Emitter<State> {
 	) {
 		this.cache = new EmitterCache(options ?? {});
 		if (initial !== undefined && initial !== null) {
-			this.cache.add(initial);
+			if (options.emitOnInit === true) {
+				this.set(initial);
+			} else {
+				this.cache.add(initial);
+			}
 		}
 	}
 
@@ -101,13 +107,14 @@ export class Emitter<State> {
 		if (update === IGNORE) { // Need a way to indicate that an event _shouldn't_ emit. Can't just do `value === undefined` because there are times when `undefined` is a value we do want to emit
 			return this;
 		}
-		const previous = this.value;
-		this.cache.add(update);
 
+		const previous = this.value;
 		const meta = {
 			emitter: this,
 			previous,
 		};
+
+		this.cache.add(update);
 
 		for (const subscription of this.subscriptions.values()) {
 			const onEmit = subscription instanceof WeakRef
@@ -124,7 +131,8 @@ export class Emitter<State> {
 				this.subscriptions.delete(subscription);
 			}
 		}
-		this.onChange(update, meta);
+		this.onChange(this.value, meta);
+
 		return this;
 	}
 

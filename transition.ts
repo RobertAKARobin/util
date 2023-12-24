@@ -59,8 +59,8 @@ export class Transition extends Emitter<TransitionState> {
 		{ previous }: { previous: TransitionState; }
 	) {
 		if (
-			activeStatuses[update.status] - activeStatuses[previous.status] < 0 // If either is undefined, evaluates to NaN, and false
-			|| inactiveStatuses[update.status] - inactiveStatuses[previous.status] < 0
+			activeStatuses[update.status] - activeStatuses[previous?.status] < 0 // If either is undefined, evaluates to NaN, and false
+			|| inactiveStatuses[update.status] - inactiveStatuses[previous?.status] < 0
 		) {
 			return;
 		}
