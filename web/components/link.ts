@@ -5,7 +5,7 @@ import { Component } from '../component.ts';
 
 export function LinkComponent<Routes extends RouteMap>(router: Router<Routes>) {
 	return class Link extends Component(`a`, {
-		routeName: undefined as unknown as keyof typeof router.urls,
+		'data-route-name': null as unknown as keyof typeof router.urls,
 	}) {
 		static {
 			this.init();
@@ -15,27 +15,25 @@ export function LinkComponent<Routes extends RouteMap>(router: Router<Routes>) {
 			routeName: keyof typeof router.urls,
 			contents?: string,
 		) {
-			const link = new this()
-				.set({ routeName })
-				.content(contents);
-			link.onChange();
-			return link;
+			return new this({ 'data-route-name': routeName }).content(contents);
 		}
 
 		isHydrated = false;
 
-		onChange() {
-			const isExternal = router.urls[this.data.routeName].origin !== baseUrl.origin;
-			if (isExternal) {
-				this.attrs({
-					href: router.urls[this.data.routeName].toString(),
-					rel: `noopener`,
-					target: `_blank`,
-				});
-			} else {
-				this.attrs({
-					href: router.paths[this.data.routeName],
-				});
+		onChange(attributeName: string) {
+			if (attributeName === `data-route-name`) {
+				const isExternal = router.urls[this.get(`data-route-name`)].origin !== baseUrl.origin;
+				if (isExternal) {
+					this.setAttributes({
+						href: router.urls[this.get(`data-route-name`)].toString(),
+						rel: `noopener`,
+						target: `_blank`,
+					});
+				} else {
+					this.setAttributes({
+						href: router.paths[this.get(`data-route-name`)],
+					});
+				}
 			}
 		}
 	};

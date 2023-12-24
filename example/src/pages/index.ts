@@ -16,7 +16,7 @@ const style =  `
 const colors = [`red`, `yellow`, `green`, `brown`, `scarlet`];
 
 export class IndexPage extends Page(`div`, {
-	message: ``,
+	'data-message': ``,
 }) {
 	static style = style;
 
@@ -39,7 +39,7 @@ ${TransitionTest.get()}
 <markdown>
 # Headline 1
 
-## ${this.data.message}
+## ${this.dataset.message}
 
 Lorem ipsum dolor <strong>sit amet</strong>, consectetur *adipiscing elit*, sed do _eiusmod tempor_ incididunt.
 

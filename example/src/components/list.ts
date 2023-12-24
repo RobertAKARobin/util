@@ -14,7 +14,9 @@ export class List extends Component(`ol`) {
 	template = () => `
 <ol>
 	${this.listItems.value.map(({ value }, index) => `
-		<li>${ListItem.get(`${this.id}-${index}`).set({ value })}</li>
+		<li>${
+			ListItem.get(`${this.id}-${index}`).setAttributes({ 'data-value': value })}
+		</li>
 	`).join(`\n`)}
 </ol>
 	`;

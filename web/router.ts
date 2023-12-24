@@ -1,4 +1,5 @@
 import { appContext, baseUrl, defaultBaseUrl } from '@robertakarobin/util/context.ts';
+import { Page, type PageInstance } from './component.ts';
 import { Emitter } from '@robertakarobin/util/emitter.ts';
 
 export const hasExtension = /\.\w+$/;
@@ -97,15 +98,16 @@ export class Router<RouteMap_ extends RouteMap = Record<string, never>> extends 
 }
 
 /**
- * Given a route, returns the corresponding View (probably a Page component)
+ * Given a route, returns the corresponding Page
  */
-export class Resolver<View> extends Emitter<View> {
+export class Resolver<CurrentPage extends PageInstance> extends Emitter<CurrentPage> {
 
 	constructor(
 		readonly router: Router<never>,
-		readonly resolve: (to: URL, from?: URL) => View | Promise<View>,
+		readonly resolve: (to: URL, from?: URL) => CurrentPage | Promise<CurrentPage>,
 	) {
-		super();
+		const $landingPage = document.querySelector(`[${Page.$pageAttr}]`) as CurrentPage;
+		super($landingPage);
 
 		router.subscribe(async(to, { previous }) => {
 			if (to.href === previous?.href) { // On no change
@@ -133,38 +135,31 @@ export class Resolver<View> extends Emitter<View> {
 }
 
 /**
- * Given a view (e.g. a Page component), figures out what to do with it (e.g. render it after the document's `<head>`)
+ * Given a Page, figures out what to do with it (e.g. render it after the document's `<head>`)
  */
-export class Renderer<View> extends Emitter<View> {
+export class Renderer<ResolvedPage extends PageInstance> {
 	constructor(
-		readonly resolver: Resolver<View>,
+		readonly resolver: Resolver<ResolvedPage>,
 		readonly render: (
-			newView: View,
-			oldView: View,
-			newRoute: URL,
-		) => void | Promise<void>
+			(newPage: ResolvedPage, oldPage: ResolvedPage, newRoute: URL) => void | Promise<void>
+		) = (newPage, oldPage) => {
+			if (oldPage !== undefined) {
+				oldPage.replaceWith(newPage.render());
+			}
+		}
 	) {
-		super();
-
-		resolver.subscribe(async(view, { previous }) => {
+		resolver.subscribe(async(page, { previous }) => {
 			const to = this.resolver.router.value;
-			await this.render(view, previous, to);
+			await this.render(page, previous, to);
+
+			document.title = page.get(Page.$pageAttr);
+
 			if (previous !== undefined) {
-				window.history.pushState({}, ``, to.pathname); // Setting the hash here causes the jumpanchor to not be activated for some reason
+				window.history.pushState({}, ``, to.pathname); // Setting the hash here causes the jumpanchor to not be activated for some reason, so we do it on the next line
 				if (to.hash.length > 0) {
 					location.hash = to.hash;
 				}
 			}
 		});
-
-		const landingRoute = new URL(location.href);
-		const landingView = resolver.resolve(landingRoute);
-		if (landingView instanceof Promise) {
-			landingView
-				.then(view => this.resolver.set(view))
-				.catch(console.error);
-		} else {
-			this.resolver.set(landingView);
-		}
 	}
 }

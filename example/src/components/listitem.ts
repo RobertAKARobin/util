@@ -3,7 +3,7 @@ import { Component } from '@robertakarobin/web/component.ts';
 import { Textbox } from '@src/components/textbox.ts';
 
 export class ListItem extends Component(`div`, {
-	value: ``,
+	'data-value': ``,
 }) {
 	static {
 		this.init();
@@ -21,7 +21,7 @@ export class ListItem extends Component(`div`, {
 	<button
 		type="button"
 	>Add before</button>
-	${Textbox.get(this.id).set({ value: this.data.value })}
+	${Textbox.get(this.id).setAttributes({ 'data-value': this.get(`data-value`) })}
 	<button
 		type="button"
 	>Remove</button>

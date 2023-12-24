@@ -9,18 +9,30 @@ type AttributeValue = string | number | symbol | undefined | null;
 
 const unconnectedElements = new Map<HTMLElement[`id`], WeakRef<HTMLElement>>();
 
+const globalProperty = `El`;
+const globalVars = globalThis as typeof globalThis & {
+	[globalProperty]: Record<string, unknown>;
+};
+globalVars[globalProperty] = {};
+
 export function Component<
-	Dataset extends Record<string, AttributeValue> = Record<string, never>,
+	ObservedAttributes extends Record<string, AttributeValue> = Record<string, never>,
 >(
 	tagName: string,
-	dataDefaults: Dataset = {} as Dataset
+	observedAttributesDefaults: ObservedAttributes = {} as ObservedAttributes
 ) {
 	const BaseElement = document.createElement(tagName).constructor as Constructor<HTMLElement>;
+	for (const key in observedAttributesDefaults) {
+		if (/A-Z/.test(key)) {
+			throw new Error(`observedAttributes must be dash-cased`);
+		}
+	}
+
 	return class Component extends BaseElement {
 		static readonly $elAttr = `is`;
 		static readonly $styleAttr = `data-style`;
 		static readonly elName: string;
-		static readonly observedAttributes = Object.keys(dataDefaults);
+		static readonly observedAttributes = Object.keys(observedAttributesDefaults);
 		static readonly selector: string;
 		static readonly style: string | undefined;
 
@@ -69,6 +81,7 @@ export function Component<
 
 			globalThis.customElements.define(elName, this, { extends: tagName });
 			Object.assign(this, { elName, selector, style });
+			globalVars[globalProperty][this.name] = this;
 		}
 
 		/**
@@ -96,9 +109,6 @@ export function Component<
 		get Ctor() {
 			return this.constructor as typeof Component;
 		}
-		get data() {
-			return this.dataset as Dataset;
-		}
 		/**
 		 * Whether this component's data should be included in the data used to hydrate pages rendered via SSG.
 		 * @see `Component.hydrate`
@@ -115,40 +125,25 @@ export function Component<
 		 * Creates a component instance
 		 * @param id @see Component.id
 		 */
-		constructor(id?: string | null, ..._args: any) { // eslint-disable-line @typescript-eslint/no-explicit-any
+		constructor(initialAttributes: Partial<ObservedAttributes> = {}) {
 			super();
-			this.setAttribute(`id`, id ?? this.getAttribute(`id`) ?? Component.createId());
-			this.set(dataDefaults);
+
+			for (const attributeName in observedAttributesDefaults) {
+				const value = initialAttributes[attributeName]
+					?? this.getAttribute(attributeName)
+					?? observedAttributesDefaults[attributeName];
+				this.setAttribute(attributeName, value as string);
+			}
+			this.id = (initialAttributes[`id`] ?? this.getAttribute(`id`) ?? this.Ctor.createId()) as string; // If an element has no ID, this.id is empty string, and this.getAttribute(`id`) is null
 			this.onEl();
 		}
 
-		protected attributeChangedCallback<
-			AttributeName extends keyof this,
-			Value extends this[AttributeName],
-		>(
-			attributeName: AttributeName,
-			oldValue: Value,
-			newValue: Value,
+		protected attributeChangedCallback(
+			attributeName: string,
+			oldValue: string,
+			newValue: string,
 		) {
 			this.onChange(attributeName, oldValue, newValue);
-		}
-
-		/**
-		 * Sets and/or places the component's HTML attributes
-		 */
-		attrs(attributes: Record<string, AttributeValue>) {
-			for (const attributeName in attributes) {
-				const value = attributes[attributeName];
-				if (value === undefined || value === null) {
-					this.removeAttribute(attributeName);
-				} else {
-					this.setAttribute(
-						attributeName,
-						attributes[attributeName]!.toString(),
-					);
-				}
-			}
-			return this;
 		}
 
 		closest<Ancestor>(Ancestor: Constructor<Ancestor>): Ancestor;
@@ -196,13 +191,14 @@ export function Component<
 			return $descendants;
 		}
 
-		onChange<
-			AttributeName extends keyof this,
-			Value extends this[AttributeName],
-		>(
-			_attributeName: AttributeName,
-			_oldValue: Value,
-			_newValue: Value,
+		get(attributeName: string) {
+			return this.getAttribute(attributeName) as string;
+		}
+
+		onChange(
+			_attributeName: string,
+			_oldValue: string,
+			_newValue: string,
 		) {}
 
 		/**
@@ -249,9 +245,17 @@ export function Component<
 			return this;
 		}
 
-		set(input: Partial<typeof dataDefaults>) {
-			for (const key in input) {
-				this.dataset[key] = input[key] as string;
+		/**
+		 * Sets and/or places the component's HTML attributes
+		 */
+		setAttributes(attributes: Partial<ObservedAttributes> | Record<string, AttributeValue>) {
+			for (const attributeName in attributes) {
+				const value = attributes[attributeName];
+				if (value === undefined || value === null) {
+					this.removeAttribute(attributeName);
+				} else {
+					this.setAttribute(attributeName, attributes[attributeName]!.toString());
+				}
 			}
 			return this;
 		}
@@ -274,20 +278,16 @@ export function Component<
 export type ComponentConstructor = ReturnType<typeof Component>;
 export type ComponentInstance = InstanceType<ComponentConstructor>;
 
-export function Page<Dataset>(
+export function Page<ObservedAttributes>(
 	tagName: string,
-	dataDefaults: Dataset = {} as Dataset,
+	observedAttributes: ObservedAttributes = {} as ObservedAttributes,
 ) {
 	return class extends Component(tagName, {
-		title: ``,
-		...dataDefaults,
-	}) {
-		onEl() {
-			document.title = this.data.title;
-		}
-	};
+		[Page.$pageAttr]: undefined as unknown as string,
+		...observedAttributes,
+	}) {};
 }
-
+Page.$pageAttr = `data-page-title`;
 
 export type PageConstructor = ReturnType<typeof Page>;
 export type PageInstance = InstanceType<PageConstructor>;

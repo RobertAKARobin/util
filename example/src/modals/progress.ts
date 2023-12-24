@@ -26,20 +26,20 @@ export class ProgressModal extends Component(`div`) {
 	onPlace() {
 		const circle = this.find(ProgressCircle);
 		circle.style.transition = `none`; // Force circle to reset without tweening
-		circle.attrs({ value: 100 });
+		circle.setAttributes({ 'data-value': 100 });
 		circle.style.removeProperty(`transition`); // Undo the `style.transition = none`
 		repaint(); // Force browser to start tweening after the modal has rendered; otherwise animations/transitions won't work
-		circle.attrs({ value: 0 });
+		circle.setAttributes({ 'data-value': 0 });
 	}
 
 	template = () => html`
 <div>
-	${ProgressCircle.get(`${this.id}-progess`).set({
-		borderWidth: 10,
-		diameter: 300,
-		max: 100,
-		min: 0,
-		value: 50,
+	${ProgressCircle.get(`${this.id}-progess`).setAttributes({
+		'data-border-width': 10,
+		'data-diameter': 300,
+		'data-max': 100,
+		'data-min': 0,
+		'data-value': 50,
 	}).toString()}
 
 	<button

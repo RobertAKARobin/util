@@ -3,8 +3,8 @@ import { Component } from '@robertakarobin/web/component.ts';
 import { types } from '@src/theme.ts';
 
 export class Textbox extends Component(`div`, {
-	maxlength: 10,
-	value: ``,
+	'data-maxlength': 10,
+	'data-value': ``,
 }) {
 
 	static style = `
@@ -18,21 +18,21 @@ input {
 	}
 
 	handleInput(event: Event) {
-		this.data.value = (event.currentTarget as HTMLInputElement).value;
+		this.setAttributes({ value: (event.currentTarget as HTMLInputElement).value });
 		this.querySelector(`span`)!.innerHTML = this.remaining();
 	}
 
 	remaining() {
-		return `${this.data.maxlength - this.data.value.length} / ${this.data.maxlength} Remaining`;
+		return `${parseInt(this.get(`data-maxlength`)) - this.get(`data-value`).length} / ${this.get(`data-maxlength`)} Remaining`;
 	}
 
 	template = () => `
 		<div>
 			<input
-				maxlength="${this.data.maxlength}"
+				maxlength="${this.get(`data-maxlength`)}"
 				placeholder="Type here"
 				type="text"
-				value="${this.data.value}"
+				value="${this.get(`data-value`)}"
 			>
 
 			<span>${this.remaining()}</span>

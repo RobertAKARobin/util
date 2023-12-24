@@ -21,7 +21,7 @@ export class Nav extends Component(`nav`) {
 
 	<li>
 		<button
-			onclick="this.closest(Nav).openModal()"
+			onclick="El.ModalContainer.get().place(new El.ProgressModal())"
 			type="button"
 		>Modal</button>
 	</li>

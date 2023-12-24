@@ -1,22 +1,22 @@
 import { Component } from '../component.ts';
 
 export class ProgressCircle extends Component(`div`, {
-	borderWidth: 10,
-	diameter: 100,
-	max: 100,
-	min: 0,
-	value: 50,
+	'data-border-width': 10,
+	'data-diameter': 100,
+	'data-max': 100,
+	'data-min': 0,
+	'data-value': 50,
 }) {
 	static {
 		this.init();
 	}
 
 	get radius() {
-		return (this.data.diameter - this.data.borderWidth) / 2;
+		return (parseFloat(this.get(`data-diameter`)) - parseFloat(this.get(`data-border-width`))) / 2;
 	}
 
 	onChange() {
-		let percent =  this.data.value / (this.data.max - this.data.min);
+		let percent =  parseFloat(this.get(`data-value`)) / (parseFloat(this.get(`data-max`)) - parseFloat(this.get(`data-min`)));
 		percent = Math.min(1, percent);
 		percent = Math.max(0, percent);
 
@@ -35,21 +35,21 @@ export class ProgressCircle extends Component(`div`, {
 
 	template = () => `
 <svg
-	height="${this.data.diameter}"
-	width="${this.data.diameter}"
+	height="${this.get(`data-diameter`)}"
+	width="${this.get(`data-diameter`)}"
 >
 	<foreignObject
 		x="0"
 		y="0"
-		height="${this.data.diameter}"
-		width="${this.data.diameter}"
+		height="${this.get(`data-diameter`)}"
+		width="${this.get(`data-diameter`)}"
 	>${this.contents}</foreignObject>
 
   <circle
-    stroke-width="${this.data.borderWidth}"
+    stroke-width="${this.get(`data-border-width`)}"
     r="${this.radius}"
-    cx="${this.data.diameter / 2}"
-    cy="${this.data.diameter / 2}"
+    cx="${parseFloat(this.get(`data-diameter`)) / 2}"
+    cy="${parseFloat(this.get(`data-diameter`)) / 2}"
 		x="0"
 		y="0"
 	/>

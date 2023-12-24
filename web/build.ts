@@ -50,6 +50,8 @@ for (const propertyName of properties) {
 	}
 }
 
+const compilePathsByExportName = {} as Record<string, string>;
+
 export class Builder {
 	readonly assetsSrcDirRel: string | Array<string>;
 	readonly baseDirAbs: string;
@@ -129,11 +131,11 @@ export class Builder {
 		fs.rmSync(this.srcDirAbs, { force: true, recursive: true });
 		fs.cpSync(this.srcRawDirAbs, this.srcDirAbs, { force: true, recursive: true });
 
+		await this.buildAssets();
 		await this.buildTSSource();
-		this.buildAssets();
 		await this.buildScript();
-		await this.buildStyles();
 		await this.buildRoutes();
+		await this.buildStyles();
 
 		fs.rmSync(this.srcDirAbs, { force: true, recursive: true });
 
@@ -144,7 +146,7 @@ export class Builder {
 		}
 	}
 
-	buildAssets() {
+	buildAssets(): void | Promise<void> {
 		header(`Building assets`);
 		const assetsSrcDirRels = typeof this.assetsSrcDirRel === `string`
 			?	[this.assetsSrcDirRel]
@@ -204,6 +206,7 @@ export class Builder {
 
 				refreshDummyDOM(); // TODO2: On each route the customElements seem to get redefined; need to dump the dummyDOM to prevent errors
 				const page = await resolver.resolve(route);
+				const pageCompilepath = compilePathsByExportName[page.Ctor.name];
 
 				if (!page.isSSG) {
 					console.warn(`Route '${routeName.toString()}' is not SSG. Skipping...`);
@@ -219,12 +222,12 @@ export class Builder {
 
 				const body = this.formatBody(page.render());
 
-				// const componentArgs = globals[Component.unhydratedArgsName];
-				// const unhydratedArgs = `<script id="${Component.unhydratedArgsName}" src="data:text/javascript," onload="${Component.unhydratedArgsName}=${serialize(componentArgs)}"></script>`;
-				// globals[Component.unhydratedArgsName] = {};
-				// body += `\n${unhydratedArgs}`;
+				const head = `
+<script type="module">
+import { ${page.Ctor.name} } from '${path.join(`/`, pageCompilepath)}';
+${page.Ctor.name}.init();
+</script>`;
 
-				const head = ``;
 				// let routeCss = ``;
 				const routeCssPath = ``;
 				// for (const [elName, Subclass] of Component.subclasses) { // document.querySelectorAll($elAttr) doesn't work because static init doesn't get called?
@@ -251,7 +254,7 @@ export class Builder {
 					mainCssPath: path.join(`/`, this.styleServeFileRel),
 					mainJsPath: this.scriptServeFileRel === undefined ? undefined : path.join(`/`, this.scriptServeFileRel),
 					routeCssPath: typeof routeCssPath === `string` ? path.join(`/`, routeCssPath) : undefined,
-					title: page.data.title,
+					title: page.get(`data-page-title`),
 				});
 
 				log(local(serveFileAbs));
@@ -268,7 +271,7 @@ export class Builder {
 		header(`Bundling JS`);
 		log(local(this.scriptServeFileAbs));
 		logBreak();
-		await esbuild.build({
+		const buildResults = await esbuild.build({
 			absWorkingDir: this.serveDirAbs,
 			bundle: true,
 			entryPoints: [{
@@ -282,6 +285,12 @@ export class Builder {
 			outdir: this.serveDirAbs,
 			splitting: true,
 		});
+		for (const filepath in buildResults.metafile.outputs) {
+			const output = buildResults.metafile.outputs[filepath];
+			for (const exportName of output.exports) {
+				compilePathsByExportName[exportName] = filepath;
+			}
+		}
 	}
 
 	async buildStyles() {

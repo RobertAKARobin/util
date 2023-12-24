@@ -2,24 +2,23 @@ import { Transition } from '@robertakarobin/util/transition.ts';
 
 import { Component, type ComponentInstance } from '../component.ts';
 
-export class ModalContainer extends Component(`div`) {
-	static transitionDurationDefault = 0.2;
-
+export class ModalContainer extends Component(`div`, {
+	'data-duration': 0.2,
+}) {
 	static {
 		this.init();
 	}
 
-	readonly transition: Transition;
+	transition!: Transition;
 
-	constructor(
-		id: ModalContainer[`id`],
-		duration?: Transition[`value`][`duration`]
-	) {
-		super(id);
+	clear() {
+		this.transition.inactivate();
+	}
 
+	onEl() {
 		this.transition = new Transition({
 			$target: this,
-			duration: duration ?? ModalContainer.transitionDurationDefault,
+			duration: parseInt(this.get(`data-duration`)),
 			status: `inactive`,
 		});
 
@@ -28,10 +27,8 @@ export class ModalContainer extends Component(`div`) {
 				this.replaceChildren();
 			}
 		});
-	}
 
-	clear() {
-		this.transition.inactivate();
+		this.style.display = `none`;
 	}
 
 	place(modal: ComponentInstance) {
