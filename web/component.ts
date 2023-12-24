@@ -71,6 +71,7 @@ export function Component<
 		 */
 		static init() {
 			const elName = `l-${this.name.toLowerCase()}`;
+
 			if (customElements.get(elName)) {
 				return;
 			}
@@ -79,9 +80,10 @@ export function Component<
 			const style = this.style?.replace(/::?host/g, selector);
 			this.placeStyle();
 
-			globalThis.customElements.define(elName, this, { extends: tagName });
 			Object.assign(this, { elName, selector, style });
 			globalVars[globalProperty][this.name] = this;
+
+			globalThis.customElements.define(elName, this, { extends: tagName }); // This should come last because when a custom element is defined its constructor runs for all instances on the page
 		}
 
 		/**
@@ -135,6 +137,7 @@ export function Component<
 				this.setAttribute(attributeName, value as string);
 			}
 			this.id = (initialAttributes[`id`] ?? this.getAttribute(`id`) ?? this.Ctor.createId()) as string; // If an element has no ID, this.id is empty string, and this.getAttribute(`id`) is null
+			this.setAttribute(this.Ctor.$elAttr, this.Ctor.elName);
 			this.onEl();
 		}
 
