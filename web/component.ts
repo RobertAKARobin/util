@@ -78,9 +78,11 @@ export function Component<
 
 			const selector = `[${this.$elAttr}='${elName}']`;
 			const style = this.style?.replace(/::?host/g, selector);
-			this.placeStyle();
 
 			Object.assign(this, { elName, selector, style });
+
+			this.placeStyle(); // Has to come after elName has been assigned
+
 			globalVars[globalProperty][this.name] = this;
 
 			globalThis.customElements.define(elName, this, { extends: tagName }); // This should come last because when a custom element is defined its constructor runs for all instances on the page
