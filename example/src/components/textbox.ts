@@ -1,8 +1,8 @@
-import { Component } from '@robertakarobin/web/component.ts';
+import { ComponentFactory } from '@robertakarobin/web/component.ts';
 
 import { types } from '@src/theme.ts';
 
-export class Textbox extends Component(`div`, {
+export class Textbox extends ComponentFactory(`div`, {
 	'data-maxlength': 10,
 	'data-value': ``,
 }) {

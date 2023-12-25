@@ -1,4 +1,4 @@
-import { Component, css, html } from '@robertakarobin/web/component.ts';
+import { ComponentFactory, css, html } from '@robertakarobin/web/component.ts';
 import { ModalContainer } from '@robertakarobin/web/components/modal-container.ts';
 import { ProgressCircle } from '@robertakarobin/web/components/progress-circle.ts';
 import { repaint } from '@robertakarobin/util/repaint.ts';
@@ -12,7 +12,7 @@ const style = css`
 }
 `;
 
-export class ProgressModal extends Component(`div`) {
+export class ProgressModal extends ComponentFactory(`div`) {
 	static style = style;
 
 	static {

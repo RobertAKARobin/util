@@ -1,10 +1,10 @@
-import { Component } from '@robertakarobin/web/component.ts';
+import { ComponentFactory } from '@robertakarobin/web/component.ts';
 import { ModalContainer } from '@robertakarobin/web/components/modal-container.ts';
 
 import { Link, routeNames } from '@src/router.ts';
 import { ProgressModal } from '@src/modals/progress.ts';
 
-export class Nav extends Component(`nav`) {
+export class Nav extends ComponentFactory(`nav`) {
 	static {
 		this.init();
 	}

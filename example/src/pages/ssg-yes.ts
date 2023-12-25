@@ -1,4 +1,4 @@
-import { Page } from '@robertakarobin/web/component.ts';
+import { PageFactory } from '@robertakarobin/web/component.ts';
 
 import { layout } from './_layout.ts';
 import { router } from '@src/router.ts';
@@ -9,7 +9,7 @@ h1 {
 }
 `;
 
-export class YesSSGPage extends Page(`div`) {
+export class YesSSGPage extends PageFactory(`div`) {
 	static style = style;
 	static {
 		this.init();

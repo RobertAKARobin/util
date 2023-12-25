@@ -1,10 +1,10 @@
-import { Component } from '@robertakarobin/web/component.ts';
+import { ComponentFactory } from '@robertakarobin/web/component.ts';
 import { Emitter } from '@robertakarobin/util/emitter.ts';
 
 import type * as Type from '@src/types.js';
 import { ListItem } from './listitem.ts';
 
-export class List extends Component(`ol`) {
+export class List extends ComponentFactory(`ol`) {
 	static {
 		this.init();
 	}

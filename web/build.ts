@@ -11,8 +11,8 @@ import { stringMates, type TagResult } from '@robertakarobin/util/string-mates.t
 import { baseUrl } from '@robertakarobin/util/context.ts';
 import { promiseConsecutive } from '@robertakarobin/util/promiseConsecutive.ts';
 
-import type { ComponentConstructor, PageInstance } from './component.ts';
 import { hasExtension, type Resolver, type Router } from './router.ts';
+import type { PageInstance } from './component.ts';
 
 const bustCache = (pathname: string) => {
 	const url = new URL(`file:///${pathname}?v=${Date.now() + performance.now()}`); // URL is necessary for running on Windows

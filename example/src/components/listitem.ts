@@ -1,8 +1,8 @@
-import { Component } from '@robertakarobin/web/component.ts';
+import { ComponentFactory } from '@robertakarobin/web/component.ts';
 
 import { Textbox } from '@src/components/textbox.ts';
 
-export class ListItem extends Component(`div`, {
+export class ListItem extends ComponentFactory(`div`, {
 	'data-value': ``,
 }) {
 	static {

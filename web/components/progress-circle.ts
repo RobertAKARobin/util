@@ -1,4 +1,4 @@
-import { Component } from '../component.ts';
+import { ComponentFactory } from '../component.ts';
 
 const style = `
 :host {
@@ -6,7 +6,7 @@ const style = `
 }
 `;
 
-export class ProgressCircle extends Component(`div`, {
+export class ProgressCircle extends ComponentFactory(`div`, {
 	'data-border-width': 10,
 	'data-diameter': 100,
 	'data-max': 100,
@@ -34,8 +34,6 @@ export class ProgressCircle extends Component(`div`, {
 		const circumference = Math.round((this.radius * 2) * Math.PI);
 		const length = Math.round(circumference * percent);
 		const remainder = circumference - length;
-
-		console.log(`${length} ${remainder}`);
 
 		const $circle = this.querySelector(`circle`)!;
 		$circle.style.strokeDasharray = `${length} ${remainder}`;

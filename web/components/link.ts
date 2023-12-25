@@ -1,10 +1,10 @@
 import { baseUrl } from '@robertakarobin/util/context.ts';
 
 import { type RouteMap, type Router } from '../router.ts';
-import { Component } from '../component.ts';
+import { ComponentFactory } from '../component.ts';
 
 export function LinkComponent<Routes extends RouteMap>(router: Router<Routes>) {
-	return class Link extends Component(`a`, {
+	return class Link extends ComponentFactory(`a`, {
 		'data-route-name': null as unknown as keyof typeof router.urls,
 	}) {
 		static {

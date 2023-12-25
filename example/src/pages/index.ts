@@ -1,11 +1,8 @@
-import { Page } from '@robertakarobin/web/component.ts';
+import { PageFactory } from '@robertakarobin/web/component.ts';
 
 import { Link, router } from '@src/router.ts';
 import { layout } from './_layout.ts';
-import { List } from '@src/components/list.ts';
 import { TransitionTest } from '@src/components/transition-test.ts';
-
-List.init();
 
 const style =  `
 :host h1 {
@@ -15,7 +12,7 @@ const style =  `
 
 const colors = [`red`, `yellow`, `green`, `brown`, `scarlet`];
 
-export class IndexPage extends Page(`div`, {
+export class IndexPage extends PageFactory(`div`, {
 	'data-message': ``,
 }) {
 	static style = style;

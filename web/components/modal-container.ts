@@ -1,10 +1,10 @@
 import { Transition } from '@robertakarobin/util/transition.ts';
 
-import { Component, type ComponentInstance } from '../component.ts';
+import { ComponentFactory, type ComponentInstance } from '../component.ts';
 
 const defaultDuration = .2;
 
-export class ModalContainer extends Component(`div`, {
+export class ModalContainer extends ComponentFactory(`div`, {
 	'data-duration': defaultDuration,
 }) {
 	static defaultDuration = defaultDuration;

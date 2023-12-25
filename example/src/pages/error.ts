@@ -1,8 +1,8 @@
-import { Page } from '@robertakarobin/web/component.ts';
+import { PageFactory } from '@robertakarobin/web/component.ts';
 
 import { layout } from './_layout.ts';
 
-export class ErrorPage extends Page(`div`) {
+export class ErrorPage extends PageFactory(`div`) {
 	static {
 		this.init();
 	}

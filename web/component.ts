@@ -15,7 +15,7 @@ const globalVars = globalThis as typeof globalThis & {
 };
 globalVars[globalProperty] = {};
 
-export function Component<
+export function ComponentFactory<
 	ObservedAttributes extends Record<string, AttributeValue> = Record<string, never>,
 >(
 	tagName: string,
@@ -29,16 +29,10 @@ export function Component<
 	}
 
 	return class Component extends BaseElement {
-		static readonly $elAttr = `is`;
-		static readonly $styleAttr = `data-style`;
 		static readonly elName: string;
 		static readonly observedAttributes = Object.keys(observedAttributesDefaults);
 		static readonly selector: string;
 		static readonly style: string | undefined;
-
-		static createId() {
-			return `l${newUid()}`;
-		}
 
 		/**
 		 * Returns the existing component with the given ID, or of this constructor. If no match is found for the given ID, builds a new component with that ID.
@@ -76,7 +70,7 @@ export function Component<
 				return;
 			}
 
-			const selector = `[${this.$elAttr}='${elName}']`;
+			const selector = `[${ComponentFactory.$elAttr}='${elName}']`;
 			const style = this.style?.replace(/::?host/g, selector);
 
 			Object.assign(this, { elName, selector, style });
@@ -94,11 +88,11 @@ export function Component<
 		static placeStyle() {
 			if (
 				typeof this.style === `string`
-				&& document.querySelector(`style[${this.$styleAttr}='${this.elName}']`) === null
+				&& document.querySelector(`style[${ComponentFactory.$styleAttr}='${this.elName}']`) === null
 			) {
 				const $style = document.createElement(`style`);
 				$style.textContent = this.style;
-				$style.setAttribute(Component.$styleAttr, this.elName);
+				$style.setAttribute(ComponentFactory.$styleAttr, this.elName);
 				document.head.appendChild($style);
 			}
 		}
@@ -138,8 +132,8 @@ export function Component<
 					?? observedAttributesDefaults[attributeName];
 				this.setAttribute(attributeName, value as string);
 			}
-			this.id = (initialAttributes[`id`] ?? this.getAttribute(`id`) ?? this.Ctor.createId()) as string; // If an element has no ID, this.id is empty string, and this.getAttribute(`id`) is null
-			this.setAttribute(this.Ctor.$elAttr, this.Ctor.elName);
+			this.id = (initialAttributes[`id`] ?? this.getAttribute(`id`) ?? ComponentFactory.createId()) as string; // If an element has no ID, this.id is empty string, and this.getAttribute(`id`) is null
+			this.setAttribute(ComponentFactory.$elAttr, this.Ctor.elName);
 			this.onEl();
 		}
 
@@ -279,20 +273,23 @@ export function Component<
 		}
 	};
 }
+ComponentFactory.createId = () => `l${newUid()}`;
+ComponentFactory.$elAttr = `is`;
+ComponentFactory.$styleAttr = `data-style`;
 
-export type ComponentConstructor = ReturnType<typeof Component>;
+export type ComponentConstructor = ReturnType<typeof ComponentFactory>;
 export type ComponentInstance = InstanceType<ComponentConstructor>;
 
-export function Page<ObservedAttributes>(
+export function PageFactory<ObservedAttributes>(
 	tagName: string,
 	observedAttributes: ObservedAttributes = {} as ObservedAttributes,
 ) {
-	return class extends Component(tagName, {
-		[Page.$pageAttr]: undefined as unknown as string,
+	return class Page extends ComponentFactory(tagName, {
+		[PageFactory.$pageAttr]: undefined as unknown as string,
 		...observedAttributes,
 	}) {};
 }
-Page.$pageAttr = `data-page-title`;
+PageFactory.$pageAttr = `data-page-title`;
 
-export type PageConstructor = ReturnType<typeof Page>;
+export type PageConstructor = ReturnType<typeof PageFactory>;
 export type PageInstance = InstanceType<PageConstructor>;
