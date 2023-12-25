@@ -35,7 +35,7 @@ ${ModalContainer.selector} {
 	opacity: 0;
 	position: fixed;
 	top: 0;
-	transition: opacity ${ModalContainer.transitionDurationDefault}s linear;
+	transition: opacity ${ModalContainer.defaultDuration}s linear;
 	width: 100%;
 
 	&[${$transitionStateAttr}='${transitionStatus.inactive}'] {

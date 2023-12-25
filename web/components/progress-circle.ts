@@ -1,5 +1,11 @@
 import { Component } from '../component.ts';
 
+const style = `
+:host {
+	display: contents;
+}
+`;
+
 export class ProgressCircle extends Component(`div`, {
 	'data-border-width': 10,
 	'data-diameter': 100,
@@ -7,6 +13,8 @@ export class ProgressCircle extends Component(`div`, {
 	'data-min': 0,
 	'data-value': 50,
 }) {
+	static style = style;
+
 	static {
 		this.init();
 	}
@@ -16,6 +24,9 @@ export class ProgressCircle extends Component(`div`, {
 	}
 
 	onChange() {
+		if (!this.isConnected) {
+			return;
+		}
 		let percent =  parseFloat(this.get(`data-value`)) / (parseFloat(this.get(`data-max`)) - parseFloat(this.get(`data-min`)));
 		percent = Math.min(1, percent);
 		percent = Math.max(0, percent);
@@ -23,6 +34,8 @@ export class ProgressCircle extends Component(`div`, {
 		const circumference = Math.round((this.radius * 2) * Math.PI);
 		const length = Math.round(circumference * percent);
 		const remainder = circumference - length;
+
+		console.log(`${length} ${remainder}`);
 
 		const $circle = this.querySelector(`circle`)!;
 		$circle.style.strokeDasharray = `${length} ${remainder}`;
