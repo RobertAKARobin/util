@@ -29,19 +29,19 @@ export class ProgressModal extends ComponentFactory(`div`) {
 			switch (status) {
 				case `activate`:
 					circle.style.transition = `none`; // Force circle to reset without tweening
-					circle.setAttributes({ 'data-value': 100 });
+					circle.set({ 'data-value': 100 });
 					break;
 				case `activating`:
 					circle.style.removeProperty(`transition`); // Undo the `style.transition = none`
 					repaint(); // Force browser to start tweening after the modal has rendered; otherwise animations/transitions won't work
-					circle.setAttributes({ 'data-value': 0 });
+					circle.set({ 'data-value': 0 });
 					break;
 			}
 		});
 	}
 
 	template = () => html`
-${ProgressCircle.get(`${this.id}-progess`).setAttributes({
+${ProgressCircle.get(`${this.id}-progess`).set({
 	'data-border-width': 10,
 	'data-diameter': 300,
 	'data-max': 100,

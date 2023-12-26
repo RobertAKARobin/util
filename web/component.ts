@@ -245,9 +245,16 @@ export function ComponentFactory<
 		}
 
 		/**
-		 * Sets and/or places the component's HTML attributes
+		 * Sets the component's observed attributes
 		 */
-		setAttributes(attributes: Partial<ObservedAttributes> | Record<string, AttributeValue>) {
+		set(observedAttributes: Partial<ObservedAttributes>) {
+			return this.setAttributes(observedAttributes);
+		}
+
+		/**
+		 * Sets the component's HTML attributes
+		 */
+		setAttributes(attributes: Record<string, AttributeValue>) {
 			for (const attributeName in attributes) {
 				const value = attributes[attributeName];
 				if (value === undefined || value === null) {

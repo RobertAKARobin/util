@@ -18,7 +18,7 @@ input {
 	}
 
 	handleInput(event: Event) {
-		this.setAttributes({ value: (event.currentTarget as HTMLInputElement).value });
+		this.set({ 'data-value': (event.currentTarget as HTMLInputElement).value });
 		this.querySelector(`span`)!.innerHTML = this.remaining();
 	}
 

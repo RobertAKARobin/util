@@ -1,6 +1,5 @@
 import { suite, test } from '@robertakarobin/util/spec/index.ts';
 import { diff } from '@robertakarobin/util/spec/diff.ts';
-import { EntityStateEmitter } from '@robertakarobin/util/entities.ts';
 
 import { ComponentFactory } from '@robertakarobin/web/component.ts';
 import { DummyDOM } from '@robertakarobin/web/dummydom.ts';
@@ -8,7 +7,7 @@ import { DummyDOM } from '@robertakarobin/web/dummydom.ts';
 import fs from 'fs';
 
 let id = 0;
-EntityStateEmitter.prototype.createId = ComponentFactory.createId = () => { // Easy to strip out with RegEx
+ComponentFactory.createId = () => { // Easy to strip out with RegEx
 	return `UID${++id}_`;
 };
 
@@ -31,7 +30,8 @@ const hasSSG = (page: string) =>
 	fs.existsSync(`dist/${page}.html`);
 
 class Widget extends ComponentFactory(`h1`, {
-	message: undefined as unknown as string,
+	id: undefined as unknown as string,
+	message: undefined as undefined | string,
 	prop: 42,
 }) {
 	static {
@@ -65,21 +65,26 @@ export const spec = suite(`@robertakarobin/web`,
 	// }),
 
 	test(`component`, $ => {
+		$.assert(x => x(new Widget({ id: `ID` }).outerHTML) === `<h1 id="ID" prop="42" is="l-widget"></h1>`);
+
+		id = 0;
+		$.assert(x => x(new Widget().outerHTML) === `<h1 prop="42" id="UID1_" is="l-widget"></h1>`);
+
 		id = 0;
 		$.assert(x => x(new Widget({ message: `x` }).outerHTML) === `<h1 message="x" prop="42" id="UID1_" is="l-widget"></h1>`);
 
 		id = 0;
 		$.assert(x => x(new Widget({ message: `x` }).render().outerHTML) === `<h1 message="x" prop="42" id="UID1_" is="l-widget">x42</h1>`);
-		// $.assert(x => x(new Widget({ id: `id` }).setAttributes({ message: `x` }).template()) === `<h1>x42</h1>`);
+
 
 		let widget: Widget;
 		id = 0;
 		$.log(() => widget = new Widget());
 		$.assert(x => x(widget.outerHTML) === `<h1 prop="42" id="UID1_" is="l-widget"></h1>`);
 		$.assert(x => x(widget.render().outerHTML) === `<h1 prop="42" id="UID1_" is="l-widget">42</h1>`);
-		$.assert(x => x(widget.setAttributes({ message: `x` }).outerHTML) === `<h1 prop="42" id="UID1_" is="l-widget" message="x">42</h1>`);
+		$.assert(x => x(widget.set({ message: `x` }).outerHTML) === `<h1 prop="42" id="UID1_" is="l-widget" message="x">42</h1>`);
 		$.assert(x => x(widget.render().outerHTML) === `<h1 prop="42" id="UID1_" is="l-widget" message="x">x42</h1>`);
-		$.assert(x => x(widget.setAttributes({ message: null }).outerHTML) === `<h1 prop="42" id="UID1_" is="l-widget">x42</h1>`);
+		$.assert(x => x(widget.set({ message: undefined }).outerHTML) === `<h1 prop="42" id="UID1_" is="l-widget">x42</h1>`);
 		$.assert(x => x(widget.render().outerHTML) === `<h1 prop="42" id="UID1_" is="l-widget">42</h1>`);
 	}),
 );

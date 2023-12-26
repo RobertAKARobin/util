@@ -21,7 +21,7 @@ export class ListItem extends ComponentFactory(`div`, {
 	<button
 		type="button"
 	>Add before</button>
-	${Textbox.get(this.id).setAttributes({ 'data-value': this.get(`data-value`) })}
+	${Textbox.get(this.id).set({ 'data-value': this.get(`data-value`) })}
 	<button
 		type="button"
 	>Remove</button>
