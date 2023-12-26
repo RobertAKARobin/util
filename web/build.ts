@@ -2,7 +2,6 @@ import esbuild from 'esbuild';
 import fs from 'fs';
 import { glob } from 'glob';
 import jsBeautify from 'js-beautify';
-import { JSDOM } from 'jsdom';
 import { marked } from 'marked';
 import path from 'path';
 
@@ -11,8 +10,11 @@ import { stringMates, type TagResult } from '@robertakarobin/util/string-mates.t
 import { baseUrl } from '@robertakarobin/util/context.ts';
 import { promiseConsecutive } from '@robertakarobin/util/promiseConsecutive.ts';
 
+import { ComponentFactory, type PageInstance } from './component.ts';
 import { hasExtension, type Resolver, type Router } from './router.ts';
-import type { PageInstance } from './component.ts';
+import { DummyDOM } from './dummydom.ts';
+
+const dummyDOM = new DummyDOM();
 
 const bustCache = (pathname: string) => {
 	const url = new URL(`file:///${pathname}?v=${Date.now() + performance.now()}`); // URL is necessary for running on Windows
@@ -28,27 +30,6 @@ const log = (...args: Array<string>) => console.log(args.join(`\n`));
 const logBreak = () => console.log(``);
 
 const trimNewlines = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
-
-// Supply various browser/DOM variables for the build environment
-let dummyDOM = new JSDOM().window;
-const refreshDummyDOM = () => {
-	dummyDOM = new JSDOM().window;
-	globalThis.customElements = dummyDOM.customElements;
-	globalThis.document = dummyDOM.document;
-	globalThis.NodeFilter = dummyDOM.NodeFilter;
-	globalThis.requestAnimationFrame = () => 0;
-};
-refreshDummyDOM();
-
-const properties = Object.getOwnPropertyNames(dummyDOM);
-for (const propertyName of properties) {
-	if (propertyName.startsWith(`HTML`)) {
-		const value = dummyDOM[propertyName]; // eslint-disable-line @typescript-eslint/no-unsafe-assignment
-		Object.assign(globalThis, {
-			[propertyName]: value, // eslint-disable-line @typescript-eslint/no-unsafe-assignment
-		});
-	}
-}
 
 const compilePathsByExportName = {} as Record<string, string>;
 
@@ -204,7 +185,7 @@ export class Builder {
 				const serveDirAbs = path.dirname(serveFileAbs);
 				fs.mkdirSync(serveDirAbs, { recursive: true });
 
-				refreshDummyDOM(); // TODO2: On each route the customElements seem to get redefined; need to dump the dummyDOM to prevent errors
+				dummyDOM.refresh(); // TODO2: On each route the customElements seem to get redefined; need to dump the dummyDOM to prevent errors
 				const page = await resolver.resolve(route);
 				const pageCompilepath = compilePathsByExportName[page.Ctor.name];
 
@@ -222,29 +203,29 @@ export class Builder {
 
 				const body = this.formatBody(page.render());
 
-				const head = `
+				let head = `
 <script type="module">
 import { ${page.Ctor.name} } from '${path.join(`/`, pageCompilepath)}';
 ${page.Ctor.name}.init();
 </script>`;
 
-				// let routeCss = ``;
-				const routeCssPath = ``;
-				// for (const [elName, Subclass] of Component.subclasses) { // document.querySelectorAll($elAttr) doesn't work because static init doesn't get called?
-				// 	if (elName === undefined) {
-				// 		throw new Error(Subclass.name);
-				// 	}
-				// 	head += `<style ${Component.$styleAttr}="${elName}"></style>`;
-				// 	routeCss += Subclass.style ?? ``;
-				// }
+				let routeCss = ``;
+				let routeCssPath = ``;
+				for (const Subclass of ComponentFactory.subclasses) { // document.querySelectorAll($elAttr) doesn't work because static init doesn't get called?
+					if (Subclass.elName === undefined) {
+						throw new Error(Subclass.name);
+					}
+					head += `<style ${ComponentFactory.$styleAttr}="${Subclass.elName}"></style>`;
+					routeCss += Subclass.style ?? ``;
+				}
 
-				// if (routeCss.length > 0) {
-				// 	routeCss = await this.formatCss(routeCss);
-				// 	routeCssPath = `${serveFileRel}.css`;
-				// 	const routeCssAbs = path.join(this.serveDirAbs, routeCssPath);
-				// 	log(local(routeCssAbs));
-				// 	fs.writeFileSync(routeCssAbs, routeCss);
-				// }
+				if (routeCss.length > 0) {
+					routeCss = await this.formatCss(routeCss);
+					routeCssPath = `${serveFileRel}.css`;
+					const routeCssAbs = path.join(this.serveDirAbs, routeCssPath);
+					log(local(routeCssAbs));
+					fs.writeFileSync(routeCssAbs, routeCss);
+				}
 
 				const html = await this.formatHtml({
 					baseUri: this.baseUri,

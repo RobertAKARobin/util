@@ -80,6 +80,8 @@ export function ComponentFactory<
 			globalVars[globalProperty][this.name] = this;
 
 			globalThis.customElements.define(elName, this, { extends: tagName }); // This should come last because when a custom element is defined its constructor runs for all instances on the page
+
+			ComponentFactory.subclasses.add(this);
 		}
 
 		/**
@@ -126,12 +128,10 @@ export function ComponentFactory<
 		constructor(initialAttributes: Partial<ObservedAttributes> = {}) {
 			super();
 
-			for (const attributeName in observedAttributesDefaults) {
-				const value = initialAttributes[attributeName]
-					?? this.getAttribute(attributeName)
-					?? observedAttributesDefaults[attributeName];
-				this.setAttribute(attributeName, value as string);
-			}
+			this.setAttributes({
+				...observedAttributesDefaults,
+				...initialAttributes,
+			});
 			this.id = (initialAttributes[`id`] ?? this.getAttribute(`id`) ?? ComponentFactory.createId()) as string; // If an element has no ID, this.id is empty string, and this.getAttribute(`id`) is null
 			this.setAttribute(ComponentFactory.$elAttr, this.Ctor.elName);
 			this.onEl();
@@ -274,6 +274,7 @@ export function ComponentFactory<
 	};
 }
 ComponentFactory.createId = () => `l${newUid()}`;
+ComponentFactory.subclasses = new Set<ComponentConstructor>();
 ComponentFactory.$elAttr = `is`;
 ComponentFactory.$styleAttr = `data-style`;
 

@@ -20,7 +20,8 @@
 
 ## TODO
 
--	Subclass actions
+-	Distinguish between data attrs and others
+
 -	CSS class mapping
 -	Declare CSS variables inline
 -	If class is added via `attrs`, the class should be appended to existing classes
