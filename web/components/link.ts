@@ -5,7 +5,9 @@ import { ComponentFactory } from '../component.ts';
 
 export function LinkComponent<Routes extends RouteMap>(router: Router<Routes>) {
 	return class Link extends ComponentFactory(`a`, {
-		'data-route-name': null as unknown as keyof typeof router.urls,
+		'data-route-name': {
+			default: undefined as unknown as keyof typeof router.urls,
+		},
 	}) {
 		static {
 			this.init();
@@ -17,8 +19,6 @@ export function LinkComponent<Routes extends RouteMap>(router: Router<Routes>) {
 		) {
 			return new this({ 'data-route-name': routeName }).content(contents);
 		}
-
-		isHydrated = false;
 
 		onChange(attributeName: string) {
 			if (attributeName === `data-route-name`) {

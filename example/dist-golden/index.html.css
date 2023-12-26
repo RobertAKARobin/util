@@ -4,6 +4,17 @@ input {
 	font-size: 24px;
 }
 
+[is='l-progresscircle'] {
+	display: contents;
+}
+
+[is='l-progressmodal'] {
+	& circle {
+		stroke: #ff0000;
+		transition: stroke-dasharray 10s;
+	}
+}
+
 [is='l-transitiontest'] {
 	background: #ff0000;
 	height: 100px;

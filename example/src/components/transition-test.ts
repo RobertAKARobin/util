@@ -21,6 +21,4 @@ export class TransitionTest extends ComponentFactory(`div`) {
 		this.style.transition = `background 5s`;
 		this.style.background = `#0000ff`;
 	}
-
-	template = () => `<div></div>`;
 }

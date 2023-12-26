@@ -2,14 +2,12 @@ import { PageFactory } from '@robertakarobin/web/component.ts';
 
 import { layout } from './_layout.ts';
 
-export class NoSSGPage extends PageFactory(`div`) {
+export class NoSSGPage extends PageFactory(`main`) {
 	static {
 		this.init();
 	}
 	isSSG = false;
 	template = () => layout(`
-<main>
-	<h1>SSG no</h1>
-</main>
+<h1>SSG no</h1>
 `);
 }

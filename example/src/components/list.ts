@@ -11,13 +11,12 @@ export class List extends ComponentFactory(`ol`) {
 
 	listItems = new Emitter<Array<Type.ListItem>>();
 
-	template = () => `
-<ol>
-	${this.listItems.value.map(({ value }, index) => `
-		<li>${
-			ListItem.get(`${this.id}-${index}`).set({ 'data-value': value })}
-		</li>
-	`).join(`\n`)}
-</ol>
-	`;
+	setListItems(listItems: Array<Type.ListItem>) {
+		this.listItems.set(listItems);
+		return this;
+	}
+
+	template = () => this.listItems.value.map(({ value }, index) =>
+		ListItem.get(`${this.id}-${index}`).set({ 'data-value': value })
+	).join(`\n`);
 }

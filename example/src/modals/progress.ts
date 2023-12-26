@@ -50,7 +50,7 @@ ${ProgressCircle.get(`${this.id}-progess`).set({
 }).toString()}
 
 <button
-	onclick="El.ProgressModal.get().dismiss()"
+	onclick="${this.bind(`dismiss`)}"
 	type="button"
 >Dismiss</button>
 	`;

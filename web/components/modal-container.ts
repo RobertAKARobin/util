@@ -5,7 +5,9 @@ import { ComponentFactory, type ComponentInstance } from '../component.ts';
 const defaultDuration = .2;
 
 export class ModalContainer extends ComponentFactory(`div`, {
-	'data-duration': defaultDuration,
+	'data-duration': {
+		default: defaultDuration,
+	},
 }) {
 	static defaultDuration = defaultDuration;
 
@@ -20,7 +22,7 @@ export class ModalContainer extends ComponentFactory(`div`, {
 
 		this.transition = new Transition({
 			$target: this,
-			duration: parseFloat(this.get(`data-duration`)),
+			duration: this.get(`data-duration`),
 			status: `inactive`,
 		}, {
 			emitOnInit: true,
@@ -43,3 +45,4 @@ export class ModalContainer extends ComponentFactory(`div`, {
 		this.transition.activate();
 	}
 }
+ModalContainer.defaultDuration = .2;

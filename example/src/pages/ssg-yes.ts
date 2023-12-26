@@ -9,19 +9,17 @@ h1 {
 }
 `;
 
-export class YesSSGPage extends PageFactory(`div`) {
+export class YesSSGPage extends PageFactory(`main`) {
 	static style = style;
 	static {
 		this.init();
 	}
 	isSSG = true;
 	template = () => layout(`
-<main>
-	<h1>SSG yes</h1>
+<h1>SSG yes</h1>
 
-	<div id="${router.hashes.ssgYesJump1}">Jump 1</div>
+<div id="${router.hashes.ssgYesJump1}">Jump 1</div>
 
-	<div id="${router.hashes.ssgYesJump2}">Jump 2</div>
-</main>
+<div id="${router.hashes.ssgYesJump2}">Jump 2</div>
 `);
 }

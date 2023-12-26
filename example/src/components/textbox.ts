@@ -3,8 +3,13 @@ import { ComponentFactory } from '@robertakarobin/web/component.ts';
 import { types } from '@src/theme.ts';
 
 export class Textbox extends ComponentFactory(`div`, {
-	'data-maxlength': 10,
-	'data-value': ``,
+	'data-maxlength': {
+		default: 10,
+		fromString: parseInt,
+	},
+	'data-value': {
+		default: ``,
+	},
 }) {
 
 	static style = `
@@ -23,19 +28,18 @@ input {
 	}
 
 	remaining() {
-		return `${parseInt(this.get(`data-maxlength`)) - this.get(`data-value`).length} / ${this.get(`data-maxlength`)} Remaining`;
+		return `${this.get(`data-maxlength`) - this.get(`data-value`).length} / ${this.get(`data-maxlength`)} Remaining`;
 	}
 
 	template = () => `
-		<div>
-			<input
-				maxlength="${this.get(`data-maxlength`)}"
-				placeholder="Type here"
-				type="text"
-				value="${this.get(`data-value`)}"
-			>
+<input
+	maxlength="${this.get(`data-maxlength`)}"
+	oninput="El.Textbox.get('${this.id}').handleInput(event)"
+	placeholder="Type here"
+	type="text"
+	value="${this.get(`data-value`)}"
+>
 
-			<span>${this.remaining()}</span>
-		</div>
+<span>${this.remaining()}</span>
 		`;
 }

@@ -186,6 +186,8 @@ export class Builder {
 				fs.mkdirSync(serveDirAbs, { recursive: true });
 
 				dummyDOM.refresh(); // TODO2: On each route the customElements seem to get redefined; need to dump the dummyDOM to prevent errors
+				ComponentFactory.subclasses.clear();
+
 				const page = await resolver.resolve(route);
 				const pageCompilepath = compilePathsByExportName[page.Ctor.name];
 

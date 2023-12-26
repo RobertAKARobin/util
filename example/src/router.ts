@@ -21,12 +21,11 @@ export const resolver = new Resolver(router, async(route: URL) => {
 		case paths.homeJump1:
 		case paths.homeJump2:
 			return new (await import(`@src/pages/index.ts`)).IndexPage({
-				'data-message': `This is a message`,
+				'data-message': `This is a variable`,
 				'data-page-title': `Home page`,
 			});
 		case paths.ssgNo:
 			return new (await import(`@src/pages/ssg-no.ts`)).NoSSGPage({
-				'data-page-title': `No SSG page`,
 			});
 		case paths.ssgYes:
 		case paths.ssgYesJump1:

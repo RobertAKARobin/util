@@ -17,7 +17,8 @@ export const hasMarkdown = /<markdown>(.*?)<\/markdown>/gs;
 
 const read = (path: string) => fs.readFileSync(path, { encoding: `utf8` })
 	.replace(/UID\d+_/g, `UID`) // Note that this will make it look like some IDs are repeated
-	.replace(/\?cache=\d+/g, `?cache=123`);
+	.replace(/\?cache=\d+/g, `?cache=123`)
+	.replace(/-[A-Z0-9]{8}\.js/g, `.js`);
 
 const dist = (path: string) => read(`dist/${path}`);
 const golden = (path: string) => read(`dist-golden/${path}`);
@@ -30,9 +31,15 @@ const hasSSG = (page: string) =>
 	fs.existsSync(`dist/${page}.html`);
 
 class Widget extends ComponentFactory(`h1`, {
-	id: undefined as unknown as string,
-	message: undefined as undefined | string,
-	prop: 42,
+	id: {
+		default: undefined as unknown as string,
+	},
+	message: {
+		default: `` as undefined | string,
+	},
+	prop: {
+		default: 42,
+	},
 }) {
 	static {
 		this.init();
@@ -43,26 +50,26 @@ class Widget extends ComponentFactory(`h1`, {
 export const spec = suite(`@robertakarobin/web`,
 	{
 		args: async() => {
-			// await import(`../build.ts`);
+			await import(`../build.ts`);
 		},
 	},
 
-	// test(`build`, $ => {
-	// 	$.assert(x => x(distMatchesGolden(`ssg/yes/index.html`)) === ``);
-	// 	$.assert(x => x(distMatchesGolden(`ssg/yes/index.html.css`)) === ``);
-	// 	$.assert(x => x(distMatchesGolden(`404.html`)) === ``);
-	// 	$.assert(x => x(distMatchesGolden(`index.html`)) === ``);
-	// 	$.assert(x => x(distMatchesGolden(`index.html.css`)) === ``);
-	// 	$.assert(x => x(distMatchesGolden(`styles.css`)) === ``);
+	test(`build`, $ => {
+		$.assert(x => x(distMatchesGolden(`ssg/yes/index.html`)) === ``);
+		$.assert(x => x(distMatchesGolden(`ssg/yes/index.html.css`)) === ``);
+		$.assert(x => x(distMatchesGolden(`404.html`)) === ``);
+		$.assert(x => x(distMatchesGolden(`index.html`)) === ``);
+		$.assert(x => x(distMatchesGolden(`index.html.css`)) === ``);
+		$.assert(x => x(distMatchesGolden(`styles.css`)) === ``);
 
-	// 	$.assert(() => hasSSG(`404`));
-	// 	$.assert(() => hasSSG(`index`));
-	// 	$.assert(() => hasSSG(`ssg/yes/index`));
-	// 	$.assert(() => !hasSSG(`ssg/no/index`));
+		$.assert(() => hasSSG(`404`));
+		$.assert(() => hasSSG(`index`));
+		$.assert(() => hasSSG(`ssg/yes/index`));
+		$.assert(() => !hasSSG(`ssg/no/index`));
 
-	// 	$.assert(() => hasMarkdown.test(src(`pages/index.ts`)));
-	// 	$.assert(() => !hasMarkdown.test(dist(`index.html`)));
-	// }),
+		$.assert(() => hasMarkdown.test(src(`pages/index.ts`)));
+		$.assert(() => !hasMarkdown.test(dist(`index.html`)));
+	}),
 
 	test(`component`, $ => {
 		$.assert(x => x(new Widget({ id: `ID` }).outerHTML) === `<h1 id="ID" prop="42" is="l-widget"></h1>`);

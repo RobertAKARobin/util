@@ -20,6 +20,9 @@
 
 ## TODO
 
+-	Extract out and then reference component baseclass methods, so all subclasses share the same method reference
+-	isHydrated
+
 -	CSS class mapping
 -	Declare CSS variables inline
 -	If class is added via `attrs`, the class should be appended to existing classes

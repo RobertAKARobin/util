@@ -5,7 +5,7 @@ export { html, css } from '@robertakarobin/util/template.ts';
 
 type Constructor<Classtype> = new (...args: any) => Classtype; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-type AttributeValue = string | number | symbol | undefined | null;
+export type HTMLAttributeValue = string | number | symbol | undefined | null;
 
 const unconnectedElements = new Map<HTMLElement[`id`], WeakRef<HTMLElement>>();
 
@@ -15,22 +15,45 @@ const globalVars = globalThis as typeof globalThis & {
 };
 globalVars[globalProperty] = {};
 
+export type ObservedAttributeDefinition<Value = unknown> = {
+	default: Value;
+	fromString?: (input: string) => Value;
+};
+
 export function ComponentFactory<
-	ObservedAttributes extends Record<string, AttributeValue> = Record<string, never>,
+	ObservedAttributeDefinitions extends Record<string, ObservedAttributeDefinition>,
+	ObservedAttributeValues extends {
+		[AttributeName in keyof ObservedAttributeDefinitions]: ObservedAttributeDefinitions[AttributeName][`default`]
+	},
 >(
 	tagName: string,
-	observedAttributesDefaults: ObservedAttributes = {} as ObservedAttributes
+	observedAttributeDefinitions = {} as ObservedAttributeDefinitions,
 ) {
 	const BaseElement = document.createElement(tagName).constructor as Constructor<HTMLElement>;
-	for (const key in observedAttributesDefaults) {
-		if (/A-Z/.test(key)) {
-			throw new Error(`observedAttributes must be dash-cased`);
-		}
+	for (const attributeName in observedAttributeDefinitions) {
+		const attributeDefinition = observedAttributeDefinitions[attributeName];
+		const defaultValue = attributeDefinition.default;
+		attributeDefinition.fromString = attributeDefinition.fromString ?? (
+			typeof defaultValue === `number` ? Number
+				: typeof defaultValue === `boolean` ? Boolean
+					: (input: string) => (
+						input === null ? null
+							: input === undefined ? undefined
+								: input === `` ? undefined
+									: input
+					)
+		);
 	}
 
 	return class Component extends BaseElement {
 		static readonly elName: string;
-		static readonly observedAttributes = Object.keys(observedAttributesDefaults);
+		static readonly observedAttributes = Object.keys(observedAttributeDefinitions);
+		static readonly observedAttributesDefaults = Object.entries(observedAttributeDefinitions)
+			.reduce((attributes, [attributeName, attribute]) => {
+				const key = attributeName as keyof ObservedAttributeValues;
+				attributes[key] = attribute.default as ObservedAttributeValues[typeof key];
+				return attributes;
+			}, {} as ObservedAttributeValues);
 		static readonly selector: string;
 		static readonly style: string | undefined;
 
@@ -81,7 +104,7 @@ export function ComponentFactory<
 
 			globalThis.customElements.define(elName, this, { extends: tagName }); // This should come last because when a custom element is defined its constructor runs for all instances on the page
 
-			ComponentFactory.subclasses.add(this);
+			ComponentFactory.subclasses.add(this as ComponentConstructor);
 		}
 
 		/**
@@ -125,14 +148,21 @@ export function ComponentFactory<
 		 * Creates a component instance
 		 * @param id @see Component.id
 		 */
-		constructor(initialAttributes: Partial<ObservedAttributes> = {}) {
+		constructor(
+			initial = {} as Partial<ObservedAttributeValues>,
+		) {
 			super();
 
-			this.setAttributes({
-				...observedAttributesDefaults,
-				...initialAttributes,
-			});
-			this.id = (initialAttributes[`id`] ?? this.getAttribute(`id`) ?? ComponentFactory.createId()) as string; // If an element has no ID, this.id is empty string, and this.getAttribute(`id`) is null
+			const initialValues = {} as ObservedAttributeValues;
+			for (const attributeName in observedAttributeDefinitions) {
+				initialValues[attributeName] = (
+					initial[attributeName]
+						?? this.getAttribute(attributeName)
+						?? this.Ctor.observedAttributesDefaults[attributeName]
+				) as ObservedAttributeValues[typeof attributeName];
+			}
+			this.set(initialValues);
+			this.id = (initialValues[`id`] ?? this.getAttribute(`id`) ?? ComponentFactory.createId()) as string; // If an element has no ID, this.id is empty string, and this.getAttribute(`id`) is null
 			this.setAttribute(ComponentFactory.$elAttr, this.Ctor.elName);
 			this.onEl();
 		}
@@ -143,6 +173,10 @@ export function ComponentFactory<
 			newValue: string,
 		) {
 			this.onChange(attributeName, oldValue, newValue);
+		}
+
+		bind(eventName: keyof this) {
+			return `${globalProperty}.${this.Ctor.name}.get('${this.id}').${eventName.toString()}(event)`;
 		}
 
 		closest<Ancestor>(Ancestor: Constructor<Ancestor>): Ancestor;
@@ -190,8 +224,13 @@ export function ComponentFactory<
 			return $descendants;
 		}
 
-		get(attributeName: string) {
-			return this.getAttribute(attributeName) as string;
+		get<
+			AttributeName extends keyof ObservedAttributeDefinitions,
+			AttributeValue extends ObservedAttributeDefinitions[AttributeName][`default`],
+		>(attributeName: AttributeName): AttributeValue {
+			const attributeValue = this.getAttribute(attributeName as string)!;
+			const attributeDefinition = observedAttributeDefinitions[attributeName];
+			return attributeDefinition.fromString!(attributeValue) as AttributeValue;
 		}
 
 		onChange(
@@ -247,17 +286,17 @@ export function ComponentFactory<
 		/**
 		 * Sets the component's observed attributes
 		 */
-		set(observedAttributes: Partial<ObservedAttributes>) {
-			return this.setAttributes(observedAttributes);
+		set(observedAttributes: Partial<ObservedAttributeValues>) {
+			return this.setAttributes(observedAttributes as Record<string, HTMLAttributeValue>);
 		}
 
 		/**
 		 * Sets the component's HTML attributes
 		 */
-		setAttributes(attributes: Record<string, AttributeValue>) {
+		setAttributes(attributes: Record<string, HTMLAttributeValue>) {
 			for (const attributeName in attributes) {
 				const value = attributes[attributeName];
-				if (value === undefined || value === null) {
+				if (value === undefined || value === null || value === `undefined` || value === `null` || value === ``) {
 					this.removeAttribute(attributeName);
 				} else {
 					this.setAttribute(attributeName, attributes[attributeName]!.toString());
@@ -285,16 +324,32 @@ ComponentFactory.subclasses = new Set<ComponentConstructor>();
 ComponentFactory.$elAttr = `is`;
 ComponentFactory.$styleAttr = `data-style`;
 
-export type ComponentConstructor = ReturnType<typeof ComponentFactory>;
+export type ComponentConstructor = ReturnType<typeof ComponentFactory>; // eslint-disable-line @typescript-eslint/no-explicit-any
 export type ComponentInstance = InstanceType<ComponentConstructor>;
 
-export function PageFactory<ObservedAttributes>(
+export function PageFactory<
+	ObservedAttributeDefinitions extends (
+		Record<string, ObservedAttributeDefinition<any>> & { // eslint-disable-line @typescript-eslint/no-explicit-any
+			'data-page-title': {
+				default: string;
+			};
+		}
+	) = {
+		'data-page-title': {
+			default: string;
+		};
+	},
+>(
 	tagName: string,
-	observedAttributes: ObservedAttributes = {} as ObservedAttributes,
+	observedAttributeDefinitions = {} as (
+		Omit<ObservedAttributeDefinitions, `data-page-title`>
+	)
 ) {
 	return class Page extends ComponentFactory(tagName, {
-		[PageFactory.$pageAttr]: undefined as unknown as string,
-		...observedAttributes,
+		...observedAttributeDefinitions,
+		[PageFactory.$pageAttr]: {
+			default: undefined as unknown as string,
+		},
 	}) {};
 }
 PageFactory.$pageAttr = `data-page-title`;

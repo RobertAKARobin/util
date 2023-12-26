@@ -7,11 +7,21 @@ const style = `
 `;
 
 export class ProgressCircle extends ComponentFactory(`div`, {
-	'data-border-width': 10,
-	'data-diameter': 100,
-	'data-max': 100,
-	'data-min': 0,
-	'data-value': 50,
+	'data-border-width': {
+		default: 10,
+	},
+	'data-diameter': {
+		default: 100,
+	},
+	'data-max': {
+		default: 100,
+	},
+	'data-min': {
+		default: 0,
+	},
+	'data-value': {
+		default: 50,
+	},
 }) {
 	static style = style;
 
@@ -20,14 +30,15 @@ export class ProgressCircle extends ComponentFactory(`div`, {
 	}
 
 	get radius() {
-		return (parseFloat(this.get(`data-diameter`)) - parseFloat(this.get(`data-border-width`))) / 2;
+		return (this.get(`data-diameter`) - this.get(`data-border-width`)) / 2;
 	}
 
 	onChange() {
 		if (!this.isConnected) {
 			return;
 		}
-		let percent =  parseFloat(this.get(`data-value`)) / (parseFloat(this.get(`data-max`)) - parseFloat(this.get(`data-min`)));
+
+		let percent =  (this.get(`data-value`) / this.get(`data-max`)) - this.get(`data-min`);
 		percent = Math.min(1, percent);
 		percent = Math.max(0, percent);
 
@@ -59,8 +70,8 @@ export class ProgressCircle extends ComponentFactory(`div`, {
   <circle
     stroke-width="${this.get(`data-border-width`)}"
     r="${this.radius}"
-    cx="${parseFloat(this.get(`data-diameter`)) / 2}"
-    cy="${parseFloat(this.get(`data-diameter`)) / 2}"
+    cx="${this.get(`data-diameter`) / 2}"
+    cy="${this.get(`data-diameter`) / 2}"
 		x="0"
 		y="0"
 	/>
