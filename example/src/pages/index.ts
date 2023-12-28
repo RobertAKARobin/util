@@ -32,12 +32,6 @@ export class IndexPage extends PageFactory(`main`, {
 		router.to(`ssgYes`);
 	}
 
-	onConstruct() {
-		state.subscribe(updated => {
-			console.log(JSON.stringify(updated, null, `  `));
-		});
-	}
-
 	onPlace() {
 		const $list = this.find(List);
 		const $listItems = $list.findAll(ListItem);
@@ -50,6 +44,12 @@ export class IndexPage extends PageFactory(`main`, {
 
 		$list.on(`add`, () => {
 			state.add({ value: `` });
+			$list.setListItems(state.entries.$);
+			$list.render();
+		});
+
+		$list.on(`remove`, event => {
+			state.remove(event.detail.id);
 			$list.setListItems(state.entries.$);
 			$list.render();
 		});

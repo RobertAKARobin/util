@@ -12,6 +12,7 @@ export class ListItem extends ComponentFactory(`li`, {
 	}
 
 	events = {
+		remove: () => ({ id: this.id }),
 		value: (value: string) => ({
 			id: this.id,
 			value,
@@ -26,21 +27,17 @@ export class ListItem extends ComponentFactory(`li`, {
 		});
 	}
 
+	onRemove() {
+		this.emit(`remove`);
+	}
+
 	template = () => `
 	<p>List item ID ${this.id}</p>
-	<button
-		type="button"
-	>↑</button>
-	<button
-		type="button"
-	>↓</button>
-	<button
-		type="button"
-	>Add before</button>
 	${new Textbox({ id: `${this.id}-txt` }).set({
 		'data-value': this.get(`data-value`),
 	})}
 	<button
+		onclick="${this.bind(`onRemove`)}"
 		type="button"
 	>Remove</button>
 	`;

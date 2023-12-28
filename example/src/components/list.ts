@@ -24,14 +24,16 @@ export class List extends ComponentFactory(`ol`) {
 
 	template = () => `
 	<li>List ID ${this.id}</li>
+
 	${this.listItems.map(({ id, value }) =>
 		new ListItem({ id }).set({ 'data-value': value })
 	).join(`\n`)}
-<li>
-	<button
-		onclick="${this.bind(`onAdd`)}"
-		type="button"
-	>Add</button>
-</li>
+
+	<li>
+		<button
+			onclick="${this.bind(`onAdd`)}"
+			type="button"
+		>Add</button>
+	</li>
 	`;
 }
