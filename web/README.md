@@ -22,7 +22,6 @@
 
 -	Extract out and then reference component baseclass methods, so all subclasses share the same method reference
 -	isHydrated
--	onEl => onConstruct
 -	Remove .init, since it can happen in factory function?
 
 -	CSS class mapping
@@ -44,6 +43,7 @@
 
 ### Done:
 
+-	onEl => onConstruct
 -	Extract out link component
 -	Make Emitter subscriptions strong by default
 -	Make `Component.instances` weak

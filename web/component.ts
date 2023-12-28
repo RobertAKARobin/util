@@ -165,7 +165,7 @@ export function ComponentFactory<
 			this.set(initialValues);
 			this.id = (initialValues[`id`] ?? this.getAttribute(`id`) ?? ComponentFactory.createId()) as string; // If an element has no ID, this.id is empty string, and this.getAttribute(`id`) is null
 			this.setAttribute(ComponentFactory.$elAttr, this.Ctor.elName);
-			this.onEl();
+			this.onConstruct();
 		}
 
 		protected attributeChangedCallback(
@@ -269,7 +269,7 @@ export function ComponentFactory<
 		/**
 		 * Called when the instance's element is defined
 		 */
-		onEl() {}
+		onConstruct() {}
 
 		/**
 		 * Called when the instance's element is attached to or moved within a document
