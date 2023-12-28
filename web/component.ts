@@ -60,12 +60,15 @@ export function ComponentFactory<
 		/**
 		 * Returns the existing component with the given ID, or of this constructor. If no match is found for the given ID, builds a new component with that ID.
 		 */
-		static get<Subclass extends Constructor<Component>>(this: Subclass, id?: Component[`id`]) {
+		static get<Subclass extends Constructor<Component>>(
+			this: Subclass,
+			id?: Component[`id`]
+		) {
 			let existing = id === undefined
 				? document.querySelector((this as unknown as typeof Component).selector)
 				: document.getElementById(id);
 			if (existing === null) {
-				existing = new this(id);
+				existing = new this({ id });
 			} else {
 				if (!(existing instanceof this)) {
 					throw new Error();

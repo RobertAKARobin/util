@@ -32,8 +32,11 @@ export class IndexPage extends PageFactory(`main`, {
 	}
 
 	onPlace() {
-		this.find(List).on(`add`, () => {
-			console.log(`Index list add`);
+		const list = this.find(List);
+		list.on(`add`, () => {
+			state.add({ value: `` });
+			list.setListItems(state.entries.$);
+			list.render();
 		});
 	}
 

@@ -9,6 +9,7 @@ export class Textbox extends ComponentFactory(`div`, {
 	},
 	'data-value': {
 		default: ``,
+		fromString: (input: string) => input ?? ``,
 	},
 }) {
 
