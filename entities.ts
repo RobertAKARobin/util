@@ -9,7 +9,10 @@ export type EntityState<Type> = {
 export class EntityStateEmitter<Type extends Record<string, unknown>>
 	extends Emitter<EntityState<Type>> {
 
-	entries = this.pipe(({ ids, byId }) => ids.map(id => byId[id]));
+	entries = this.pipe(({ ids, byId }) => ids.map(id => ({
+		...byId[id],
+		id,
+	}))).set([]);
 
 	constructor(
 		...[initial, options]: ConstructorParameters<typeof Emitter<EntityState<Type>>>
@@ -43,7 +46,7 @@ export class EntityStateEmitter<Type extends Record<string, unknown>>
 	}
 
 	createId() {
-		return newUid();
+		return `l${newUid()}`;
 	}
 
 	fromEnd(offset: number = 0) {
