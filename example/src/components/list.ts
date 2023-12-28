@@ -10,6 +10,7 @@ export class List extends ComponentFactory(`ol`) {
 
 	events = {
 		add: () => ({}),
+		...ListItem.prototype.events,
 	};
 
 	listItems = [] as Array<Type.ListItem>;
@@ -22,8 +23,9 @@ export class List extends ComponentFactory(`ol`) {
 	}
 
 	template = () => `
-	${this.listItems.map(({ value }, index) =>
-		ListItem.get(`${this.id}-${index}`).set({ 'data-value': value })
+	<li>List ID ${this.id}</li>
+	${this.listItems.map(({ id, value }) =>
+		new ListItem({ id }).set({ 'data-value': value })
 	).join(`\n`)}
 <li>
 	<button

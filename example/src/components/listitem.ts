@@ -11,8 +11,23 @@ export class ListItem extends ComponentFactory(`li`, {
 		this.init();
 	}
 
+	events = {
+		value: (value: string) => ({
+			id: this.id,
+			value,
+		}),
+	};
+
+	onPlace() {
+		const $textbox = this.find(Textbox);
+		$textbox.on(`value`, event => {
+			this.emit(`value`, event.detail);
+			event.stopPropagation();
+		});
+	}
+
 	template = () => `
-	${this.id}
+	<p>List item ID ${this.id}</p>
 	<button
 		type="button"
 	>↑</button>
@@ -22,8 +37,9 @@ export class ListItem extends ComponentFactory(`li`, {
 	<button
 		type="button"
 	>Add before</button>
-	${Textbox.get(`${this.id}-txt`)
-		.set({ 'data-value': this.get(`data-value`) })}
+	${new Textbox({ id: `${this.id}-txt` }).set({
+		'data-value': this.get(`data-value`),
+	})}
 	<button
 		type="button"
 	>Remove</button>

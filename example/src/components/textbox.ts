@@ -23,13 +23,25 @@ input {
 		this.init();
 	}
 
+	events = {
+		value: (value: string) => value, // Not calling this `input` because that's a standard HTML event which also gets picked up by ListItem
+	};
+
 	handleInput(event: Event) {
-		this.set({ 'data-value': (event.currentTarget as HTMLInputElement).value });
-		this.querySelector(`span`)!.innerHTML = this.remaining();
+		const value = (event.currentTarget as HTMLInputElement).value;
+		this.emit(`value`, value);
+		this.setRemaining();
 	}
 
-	remaining() {
-		return `${this.get(`data-maxlength`) - this.get(`data-value`).length} / ${this.get(`data-maxlength`)} Remaining`;
+	onPlace() {
+		this.setRemaining();
+	}
+
+	setRemaining() {
+		const $input = this.find(`input`);
+		const value = ($input as HTMLInputElement).value;
+		const maxLength = this.get(`data-maxlength`);
+		this.querySelector(`span`)!.innerHTML = `${maxLength - value.length} / ${maxLength} Remaining`;
 	}
 
 	template = () => `
@@ -41,6 +53,8 @@ input {
 	value="${this.get(`data-value`)}"
 >
 
-<span>${this.remaining()}</span>
+<span></span>
+
+<p>textbox ID ${this.id}</p>
 		`;
 }

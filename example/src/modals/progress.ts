@@ -41,7 +41,7 @@ export class ProgressModal extends ComponentFactory(`div`) {
 	}
 
 	template = () => html`
-${ProgressCircle.get(`${this.id}-progess`).set({
+${new ProgressCircle().set({
 	'data-border-width': 10,
 	'data-diameter': 300,
 	'data-max': 100,

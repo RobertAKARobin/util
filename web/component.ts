@@ -7,7 +7,7 @@ type Constructor<Classtype> = new (...args: any) => Classtype; // eslint-disable
 
 export type HTMLAttributeValue = string | number | symbol | undefined | null;
 
-const unconnectedElements = new Map<HTMLElement[`id`], WeakRef<HTMLElement>>();
+const unconnectedElements = new Map<HTMLElement[`id`], WeakRef<ComponentInstance>>();
 
 const globalProperty = `El`;
 const globalVars = globalThis as typeof globalThis & {
@@ -169,9 +169,7 @@ export function ComponentFactory<
 			this.onConstruct();
 		}
 
-		protected adoptedCallback() {
-			console.log(`${this.Ctor.name} adopted`);
-		}
+		protected adoptedCallback() {}
 
 		protected attributeChangedCallback(
 			attributeName: string,
@@ -197,7 +195,6 @@ export function ComponentFactory<
 		}
 
 		protected connectedCallback() {
-			console.log(`${this.Ctor.name} connected`);
 			this.onPlace();
 		}
 
@@ -210,7 +207,6 @@ export function ComponentFactory<
 		}
 
 		protected disconnectedCallback() {
-			console.log(`${this.Ctor.name} disconnected`);
 			this.onRemove();
 		}
 
@@ -298,10 +294,11 @@ export function ComponentFactory<
 		onRemove() {}
 
 		render() {
-			this.innerHTML = this.template();
+			const $template = document.createElement(`template`);
+			$template.innerHTML = this.template();
 
 			const newCommentIterator = () => document.createNodeIterator(
-				this,
+				$template.content,
 				NodeFilter.SHOW_COMMENT,
 				() => NodeFilter.FILTER_ACCEPT,
 			);
@@ -316,12 +313,19 @@ export function ComponentFactory<
 
 				const id = $placeholder.textContent!;
 				const $el = unconnectedElements.get(id)!.deref()!;
+				unconnectedElements.delete(id);
+
+				if ($el.innerHTML === ``) {
+					$el.innerHTML = $el.template(); // Flipping the order of these two lines seems to make the $el 'adopted' an extra time
+				}
 				$placeholder.replaceWith($el);
 
 				if (appContext !== `browser`) {
 					iterator = newCommentIterator();
 				}
 			}
+
+			this.replaceChildren(...$template.content.childNodes);
 
 			return this;
 		}
@@ -356,7 +360,6 @@ export function ComponentFactory<
 		}
 
 		toString() {
-			this.innerHTML = this.template();
 			unconnectedElements.set(this.id, new WeakRef(this));
 			return `<!--${this.id}-->`;
 		}

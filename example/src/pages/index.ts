@@ -3,6 +3,7 @@ import { PageFactory } from '@robertakarobin/web/component.ts';
 import { Link, router } from '@src/router.ts';
 import { layout } from './_layout.ts';
 import { List } from '@src/components/list.ts';
+import { ListItem } from '@src/components/listitem.ts';
 import { ModalContainer } from '@robertakarobin/web/components/modal-container.ts';
 import { ProgressModal } from '@src/modals/progress.ts';
 import { state } from '@src/state.ts';
@@ -31,12 +32,30 @@ export class IndexPage extends PageFactory(`main`, {
 		router.to(`ssgYes`);
 	}
 
+	onConstruct() {
+		state.subscribe(updated => {
+			console.log(JSON.stringify(updated, null, `  `));
+		});
+	}
+
 	onPlace() {
-		const list = this.find(List);
-		list.on(`add`, () => {
+		const $list = this.find(List);
+		const $listItems = $list.findAll(ListItem);
+		for (const $listItem of $listItems) {
+			state.upsert(
+				$listItem.id,
+				{ value: $listItem.get(`data-value`) },
+			);
+		}
+
+		$list.on(`add`, () => {
 			state.add({ value: `` });
-			list.setListItems(state.entries.$);
-			list.render();
+			$list.setListItems(state.entries.$);
+			$list.render();
+		});
+
+		$list.on(`value`, event => {
+			console.log(event.detail);
 		});
 	}
 
@@ -47,7 +66,7 @@ export class IndexPage extends PageFactory(`main`, {
 	template = () => layout(`
 <h1>Hello world!</h1>
 
-${TransitionTest.get()}
+${new TransitionTest()}
 
 <button
 	onclick="${this.bind(`openModal`)}"
@@ -56,7 +75,7 @@ ${TransitionTest.get()}
 
 <div id="${router.hashes.homeJump1}">Jump 1</div>
 
-${List.get().setListItems(state.entries.$)}
+${new List().setListItems(state.entries.$)}
 
 <markdown>
 # Headline 1

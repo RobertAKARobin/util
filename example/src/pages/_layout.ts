@@ -3,7 +3,7 @@ import { ModalContainer } from '@robertakarobin/web/components/modal-container.t
 import { Nav } from '@src/components/nav.ts';
 
 export const layout = (contents: string) => `
-${Nav.get()}
+${new Nav()}
 ${contents}
-${ModalContainer.get()}
+${new ModalContainer()}
 `;
