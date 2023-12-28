@@ -31,6 +31,12 @@ export class IndexPage extends PageFactory(`main`, {
 		router.to(`ssgYes`);
 	}
 
+	onPlace() {
+		this.find(List).on(`add`, () => {
+			console.log(`Index list add`);
+		});
+	}
+
 	openModal() {
 		ModalContainer.get().place(new ProgressModal());
 	}
@@ -42,7 +48,7 @@ ${TransitionTest.get()}
 
 <button
 	onclick="${this.bind(`openModal`)}"
-type="button"
+	type="button"
 >Modal</button>
 
 <div id="${router.hashes.homeJump1}">Jump 1</div>
@@ -61,7 +67,7 @@ Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ 
 
 <p>${Link.to(`ssgYes`, `Link to SSG Yes`)}</p>
 
-<button type="button" onclick="this.closest(IndexPage).anchorlessRoute()">Go to SSG Yes</button>
+<button type="button" onclick="${this.bind(`anchorlessRoute`)}">Go to SSG Yes</button>
 
 <markdown>
 ## Headline 2

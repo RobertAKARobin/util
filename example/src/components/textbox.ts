@@ -34,7 +34,7 @@ input {
 	template = () => `
 <input
 	maxlength="${this.get(`data-maxlength`)}"
-	oninput="El.Textbox.get('${this.id}').handleInput(event)"
+	oninput="${this.bind(`handleInput`)}"
 	placeholder="Type here"
 	type="text"
 	value="${this.get(`data-value`)}"

@@ -132,6 +132,7 @@ export function ComponentFactory<
 		get Ctor() {
 			return this.constructor as typeof Component;
 		}
+		readonly events = {} as Record<string, (...args: Array<any>) => any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 		/**
 		 * Whether this component's data should be included in the data used to hydrate pages rendered via SSG.
 		 * @see `Component.hydrate`
@@ -175,8 +176,9 @@ export function ComponentFactory<
 			this.onChange(attributeName, oldValue, newValue);
 		}
 
-		bind(eventName: keyof this) {
-			return `${globalProperty}.${this.Ctor.name}.get('${this.id}').${eventName.toString()}(event)`;
+		bind(methodKey: keyof this) {
+			const methodName = methodKey as string;
+			return `this.closest(\`${this.Ctor.selector}\`).${methodName}(event)`;
 		}
 
 		closest<Ancestor>(Ancestor: Constructor<Ancestor>): Ancestor;
@@ -205,6 +207,19 @@ export function ComponentFactory<
 			this.onRemove();
 		}
 
+		emit<
+			EventKey extends keyof this[`events`],
+			EventDetail extends this[`events`][EventKey],
+		>(eventKey: EventKey, arg?: Parameters<EventDetail>[0]) {
+			const eventName = eventKey as string;
+			const detail = this.events[eventName](arg) as unknown;
+			const event = new CustomEvent(eventName, {
+				bubbles: true,
+				detail,
+			});
+			this.dispatchEvent(event);
+		}
+
 		/**
 		 * Looks for and returns the first instance of the specified constructor, or element of the specified selector, within the current component's template
 		 */
@@ -231,6 +246,18 @@ export function ComponentFactory<
 			const attributeValue = this.getAttribute(attributeName as string)!;
 			const attributeDefinition = observedAttributeDefinitions[attributeName];
 			return attributeDefinition.fromString!(attributeValue) as AttributeValue;
+		}
+
+		on<
+			EventName extends keyof this[`events`],
+			EventDetail extends ReturnType<this[`events`][EventName]>,
+		>(
+			eventKey: EventName,
+			doWhat: (event: CustomEvent<EventDetail>) => void
+		) {
+			const eventName = eventKey.toString();
+			this.addEventListener(eventName, doWhat as EventListener);
+			return this;
 		}
 
 		onChange(
@@ -324,7 +351,7 @@ ComponentFactory.subclasses = new Set<ComponentConstructor>();
 ComponentFactory.$elAttr = `is`;
 ComponentFactory.$styleAttr = `data-style`;
 
-export type ComponentConstructor = ReturnType<typeof ComponentFactory>; // eslint-disable-line @typescript-eslint/no-explicit-any
+export type ComponentConstructor = ReturnType<typeof ComponentFactory>;
 export type ComponentInstance = InstanceType<ComponentConstructor>;
 
 export function PageFactory<

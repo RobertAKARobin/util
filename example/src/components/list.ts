@@ -9,14 +9,28 @@ export class List extends ComponentFactory(`ol`) {
 		this.init();
 	}
 
+	events = {
+		add: () => ({}),
+	};
+
 	listItems = new Emitter<Array<Type.ListItem>>();
+
+	onAdd = () => this.emit(`add`);
 
 	setListItems(listItems: Array<Type.ListItem>) {
 		this.listItems.set(listItems);
 		return this;
 	}
 
-	template = () => this.listItems.value.map(({ value }, index) =>
+	template = () => `
+	${this.listItems.value.map(({ value }, index) =>
 		ListItem.get(`${this.id}-${index}`).set({ 'data-value': value })
-	).join(`\n`);
+	).join(`\n`)}
+<li>
+	<button
+		onclick="${this.bind(`onAdd`)}"
+		type="button"
+	>Add</button>
+</li>
+	`;
 }

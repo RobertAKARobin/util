@@ -4,8 +4,8 @@
 <head>
 	<title>Home page</title>
 	<base href="/">
-	<meta name="viewport" content="width=device-width, initial-scale=1"> <script src="/script.js?cache=1703610557542" type="module"></script>
-	<link rel="stylesheet" href="/styles.css?cache=1703610557542"> <script type="module">import { IndexPage } from '/pages-M2RCDEZ6.js';IndexPage.init();</script>
+	<meta name="viewport" content="width=device-width, initial-scale=1"> <script src="/script.js?cache=1703737253170" type="module"></script>
+	<link rel="stylesheet" href="/styles.css?cache=1703737253170"> <script type="module">import { IndexPage } from '/pages-XXUM4Y22.js';IndexPage.init();</script>
 	<style data-style="l-textbox"></style>
 	<style data-style="l-listitem"></style>
 	<style data-style="l-list"></style>
@@ -13,7 +13,7 @@
 	<style data-style="l-progressmodal"></style>
 	<style data-style="l-transitiontest"></style>
 	<style data-style="l-indexpage"></style>
-	<link rel="stylesheet" href="/index.html.css?cache=1703610557542">
+	<link rel="stylesheet" href="/index.html.css?cache=1703737253170">
 </head>
 
 <body>
@@ -32,18 +32,19 @@
 			</ul>
 		</nav>
 		<h1>Hello world!</h1>
-		<div id="UID14_" is="l-transitiontest"></div><button onclick="El.IndexPage.get('UID13_').openModal(event)" type="button">Modal</button>
+		<div id="UID14_" is="l-transitiontest"></div><button onclick="this.closest(`[is='l-indexpage']`).openModal(event)" type="button">Modal</button>
 		<div id="jump1">Jump 1</div>
 		<ol id="UID15_" is="l-list">
 			<li id="UID16_" is="l-listitem" data-value="hello"> UID16_ <button type="button">↑</button> <button type="button">↓</button> <button type="button">Add before</button>
-				<div data-maxlength="10" id="UID17_" is="l-textbox" data-value="hello"><input maxlength="10" oninput="El.Textbox.get('UID17_').handleInput(event)" placeholder="Type here" type="text" value="hello"><span>5 / 10 Remaining</span> </div> <button type="button">Remove</button>
+				<div data-maxlength="10" id="UID17_" is="l-textbox" data-value="hello"><input maxlength="10" oninput="this.closest(`[is='l-textbox']`).handleInput(event)" placeholder="Type here" type="text" value="hello"><span>5 / 10 Remaining</span> </div> <button type="button">Remove</button>
 			</li>
+			<li> <button onclick="this.closest(`[is='l-list']`).onAdd(event)" type="button">Add</button></li>
 		</ol>
 		<h1>Headline 1</h1>
 		<h2>This is a variable</h2>
 		<p>Lorem ipsum dolor <strong>sit amet</strong>, consectetur <em>adipiscing elit</em>, sed do <em>eiusmod tempor</em> incididunt.</p>
 		<p>Duis aute voluptate <a href="https://example.com">velit esse cillum</a> dolore /eu fugiat/ nulla pariatur.</p>
-		<p><a data-route-name="ssgYes" href="/ssg/yes/" id="UID18_" is="l-link">Link to SSG Yes</a></p><button type="button" onclick="this.closest(IndexPage).anchorlessRoute()">Go to SSG Yes</button>
+		<p><a data-route-name="ssgYes" href="/ssg/yes/" id="UID18_" is="l-link">Link to SSG Yes</a></p><button type="button" onclick="this.closest(`[is='l-indexpage']`).anchorlessRoute(event)">Go to SSG Yes</button>
 		<h2>Headline 2</h2>
 		<blockquote>
 			<p>Excepteur sint occaecat <em>cupidatat</em> non proident.</p>
