@@ -58,23 +58,19 @@ export function ComponentFactory<
 		static readonly style: string | undefined;
 
 		/**
-		 * Returns the existing component with the given ID, or of this constructor. If no match is found for the given ID, builds a new component with that ID.
+		 * Returns the existing component with the given ID, or of this constructor.
 		 */
 		static get<Subclass extends Constructor<Component>>(
 			this: Subclass,
 			id?: Component[`id`]
 		) {
-			let existing = id === undefined
+			const $existing = id === undefined
 				? document.querySelector((this as unknown as typeof Component).selector)
 				: document.getElementById(id);
-			if (existing === null) {
-				existing = new this({ id });
-			} else {
-				if (!(existing instanceof this)) {
-					throw new Error();
-				}
+			if (!($existing instanceof this)) {
+				throw new Error();
 			}
-			return existing as InstanceType<Subclass>;
+			return $existing as InstanceType<Subclass>;
 		}
 
 		/**
@@ -145,9 +141,21 @@ export function ComponentFactory<
 		 * @param id @see Component.id
 		 */
 		constructor(
-			initial = {} as Partial<ObservedAttributeValues>,
+			initial = {} as Partial<ObservedAttributeValues> & {
+				id?: Component[`id`];
+			},
 		) {
+			if (initial.id !== undefined) {
+				const $existing = document.getElementById(initial.id);
+				if ($existing) {
+					return $existing as this;
+				}
+			}
+
 			super();
+
+			this.id = (initial.id ?? this.getAttribute(`id`) ?? ComponentFactory.createId()); // If an element has no ID, this.id is empty string, and this.getAttribute(`id`) is null
+			this.setAttribute(ComponentFactory.$elAttr, this.Ctor.elName);
 
 			const initialValues = {} as ObservedAttributeValues;
 			for (const attributeName in observedAttributeDefinitions) {
@@ -158,9 +166,11 @@ export function ComponentFactory<
 				) as ObservedAttributeValues[typeof attributeName];
 			}
 			this.set(initialValues);
-			this.id = (initialValues[`id`] ?? this.getAttribute(`id`) ?? ComponentFactory.createId()) as string; // If an element has no ID, this.id is empty string, and this.getAttribute(`id`) is null
-			this.setAttribute(ComponentFactory.$elAttr, this.Ctor.elName);
 			this.onConstruct();
+		}
+
+		protected adoptedCallback() {
+			console.log(`${this.Ctor.name} adopted`);
 		}
 
 		protected attributeChangedCallback(
@@ -187,6 +197,7 @@ export function ComponentFactory<
 		}
 
 		protected connectedCallback() {
+			console.log(`${this.Ctor.name} connected`);
 			this.onPlace();
 		}
 
@@ -199,6 +210,7 @@ export function ComponentFactory<
 		}
 
 		protected disconnectedCallback() {
+			console.log(`${this.Ctor.name} disconnected`);
 			this.onRemove();
 		}
 
@@ -218,20 +230,29 @@ export function ComponentFactory<
 		/**
 		 * Looks for and returns the first instance of the specified constructor, or element of the specified selector, within the current component's template
 		 */
-		find<Descendant>(Descendant: Constructor<Descendant>) {
-			const selector = (Descendant as unknown as typeof Component).selector;
-			const $match = this.querySelector(selector);
-			return $match as Descendant;
+		find(Descendant: string): HTMLElement;
+		find<Descendant>(Descendant: Constructor<Descendant>): Descendant;
+		find<Descendant>(Descendant: string | Constructor<Descendant>) {
+			if (typeof Descendant === `string`) {
+				return this.querySelector(Descendant) as HTMLElement;
+			}
+			return this.querySelector(
+				(Descendant as unknown as typeof Component).selector
+			) as Descendant;
 		}
 
 		/**
 		 * Looks for and returns all instances of the specified constructor, or all elements of the specified selector, within the current component's template
 		 */
-		findAll<Descendant>(Descendant: Constructor<Descendant>) {
-			const selector = (Descendant as unknown as typeof Component).selector;
-
-			const $descendants = this.querySelectorAll(selector);
-			return $descendants;
+		findAll(Descendant: string): Array<HTMLElement>;
+		findAll<Descendant>(Descendant: Constructor<Descendant>): Array<Descendant>;
+		findAll<Descendant>(Descendant: string | Constructor<Descendant>) {
+			if (typeof Descendant === `string`) {
+				return [...this.querySelectorAll(Descendant)];
+			}
+			return [...this.querySelectorAll(
+				(Descendant as unknown as typeof Component).selector
+			)] as Array<Descendant>;
 		}
 
 		get<
