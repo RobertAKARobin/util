@@ -95,31 +95,23 @@ export function ComponentFactory<
 
 			const selector = `[${ComponentFactory.$elAttr}='${elName}']`;
 			const style = this.style?.replace(/::?host/g, selector);
+			if ( // Has to come after elName has been assigned
+				typeof style === `string`
+				&& document.querySelector(`style[${ComponentFactory.$styleAttr}='${elName}']`) === null
+			) {
+				const $style = document.createElement(`style`);
+				$style.textContent = style;
+				$style.setAttribute(ComponentFactory.$styleAttr, elName);
+				document.head.appendChild($style);
+			}
 
 			Object.assign(this, { elName, selector, style });
-
-			this.placeStyle(); // Has to come after elName has been assigned
 
 			globalVars[globalProperty][this.name] = this;
 
 			globalThis.customElements.define(elName, this, { extends: tagName }); // This should come last because when a custom element is defined its constructor runs for all instances on the page
 
 			ComponentFactory.subclasses.add(this as ComponentConstructor);
-		}
-
-		/**
-		 * Applies the component's CSS/styles to the current page
-		 */
-		static placeStyle() {
-			if (
-				typeof this.style === `string`
-				&& document.querySelector(`style[${ComponentFactory.$styleAttr}='${this.elName}']`) === null
-			) {
-				const $style = document.createElement(`style`);
-				$style.textContent = this.style;
-				$style.setAttribute(ComponentFactory.$styleAttr, this.elName);
-				document.head.appendChild($style);
-			}
 		}
 
 		/**

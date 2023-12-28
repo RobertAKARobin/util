@@ -22,7 +22,6 @@
 
 -	Extract out and then reference component baseclass methods, so all subclasses share the same method reference
 -	isHydrated
--	Remove .init, since it can happen in factory function?
 
 -	CSS class mapping
 -	Declare CSS variables inline
