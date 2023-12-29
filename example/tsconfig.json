@@ -13,6 +13,7 @@
 	"include": [
 		"build.ts",
 		"spec/**/*.ts",
-		"src/**/*.ts"
+		"src/**/*.ts",
+		"tmp/**/*.ts"
 	]
 }

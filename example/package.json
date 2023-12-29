@@ -5,7 +5,7 @@
 	},
 	"devDependencies": {
 		"@robertakarobin/csslint": "^0.0.13",
-		"@robertakarobin/eslint-config-ts": "^0.0.27",
+		"@robertakarobin/eslint-config-ts": "^0.0.28",
 		"@robertakarobin/htmlvalidate": "^0.0.4"
 	},
 	"scripts": {

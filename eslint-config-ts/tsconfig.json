@@ -9,6 +9,7 @@
 		"noEmit": true,
 		"resolveJsonModule": true,
 		"strict": true,
-		"target": "ESNext"
+		"target": "ESNext",
+		"useDefineForClassFields": false // https://lit.dev/docs/components/decorators/#decorators-typescript
 	}
 }
