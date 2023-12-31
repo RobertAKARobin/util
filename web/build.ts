@@ -10,7 +10,7 @@ import { stringMates, type TagResult } from '@robertakarobin/util/string-mates.t
 import { baseUrl } from '@robertakarobin/util/context.ts';
 import { promiseConsecutive } from '@robertakarobin/util/promiseConsecutive.ts';
 
-import { ComponentFactory, type PageInstance } from './component.ts';
+import { Component, type Page } from './component.ts';
 import { hasExtension, type Resolver, type Router } from './router.ts';
 import { DummyDOM } from './dummydom.ts';
 
@@ -148,7 +148,7 @@ export class Builder {
 		const { resolver, router } = (
 			await bustCache(this.routerSrcFileAbs)
 		) as {
-			resolver: Resolver<PageInstance>;
+			resolver: Resolver<Page>;
 			router: Router<never>;
 		};
 
@@ -186,7 +186,7 @@ export class Builder {
 				fs.mkdirSync(serveDirAbs, { recursive: true });
 
 				dummyDOM.refresh(); // TODO2: On each route the customElements seem to get redefined; need to dump the dummyDOM to prevent errors
-				ComponentFactory.subclasses.clear();
+				Component.subclasses.clear();
 
 				const page = await resolver.resolve(route);
 				const pageCompilepath = compilePathsByExportName[page.Ctor.name];
@@ -213,11 +213,11 @@ ${page.Ctor.name}.init();
 
 				let routeCss = ``;
 				let routeCssPath = ``;
-				for (const Subclass of ComponentFactory.subclasses) { // document.querySelectorAll($elAttr) doesn't work because static init doesn't get called?
+				for (const Subclass of Component.subclasses) { // document.querySelectorAll($elAttr) doesn't work because static init doesn't get called?
 					if (Subclass.elName === undefined) {
 						throw new Error(Subclass.name);
 					}
-					head += `<style ${ComponentFactory.$styleAttr}="${Subclass.elName}"></style>`;
+					head += `<style ${Component.$styleAttr}="${Subclass.elName}"></style>`;
 					routeCss += Subclass.style ?? ``;
 				}
 
