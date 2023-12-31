@@ -57,6 +57,56 @@ export class Component {
 		return `l${newUid()}`;
 	}
 
+	static customize(tagName: string) {
+		const BaseElement = document.createElement(tagName).constructor as typeof HTMLElement;
+		interface ComponentBase extends Component {} // eslint-disable-line no-restricted-syntax
+
+		class ComponentBase extends BaseElement {
+			static readonly elName: string;
+			static readonly observedAttributes = [] as Array<string>;
+			static readonly selector: string;
+			static readonly style: string | undefined;
+			static readonly tagName = tagName;
+
+			constructor(id?: ComponentBase[`id`]) {
+				if (id !== undefined) {
+					const $existing = document.getElementById(id);
+					if ($existing) {
+						return $existing as this;
+					}
+				}
+
+				super();
+
+				this.id = (id ?? this.getAttribute(`id`) ?? Component.createId()); // If an element has no ID, this.id is empty string, and this.getAttribute(`id`) is null
+
+				// this.setAttribute(Component.$elAttr, this.Ctor.elName);
+
+				// const initialValues = {} as ObservedAttributeValues;
+				// for (const attributeName in observedAttributeDefinitions) {
+				// 	initialValues[attributeName] = (
+				// 		initial[attributeName]
+				// 			?? this.getAttribute(attributeName)
+				// 			?? this.Ctor.observedAttributesDefaults[attributeName]
+				// 	) as ObservedAttributeValues[typeof attributeName];
+				// }
+				// this.set(initialValues);
+				// this.onConstruct();
+			}
+		}
+
+		const instanceProperties = Object.getOwnPropertyDescriptors(Component.prototype);
+		for (const instancePropertyName in instanceProperties) { // Note that this includes _prototype_ properties, but not _instance_ properties: https://stackoverflow.com/q/77733619/2053389
+			if (instancePropertyName === `constructor`) {
+				continue;
+			}
+			const instanceProperty = instanceProperties[instancePropertyName];
+			Object.defineProperty(ComponentBase, instancePropertyName, instanceProperty);
+		}
+
+		return ComponentBase;
+	}
+
 	static event(options: Partial<{
 		bubbles: boolean;
 		name: string;
@@ -79,6 +129,56 @@ export class Component {
 				},
 			});
 		};
+	}
+
+	static init<Subclass extends Constructor<Component> & Pick<typeof Component, `style` | `tagName`>>(
+		Constructor: Subclass
+	) {
+		const elName = `l-${Constructor.name.toLowerCase()}`;
+
+		const selector = `[${Component.$elAttr}='${elName}']`;
+		const style = Constructor.style?.replace(/::?host/g, selector);
+		if ( // Has to come after elName has been assigned
+			typeof style === `string`
+			&& document.querySelector(`style[${Component.$styleAttr}='${elName}']`) === null
+		) {
+			const $style = document.createElement(`style`);
+			$style.textContent = style;
+			$style.setAttribute(Component.$styleAttr, elName);
+			document.head.appendChild($style);
+		}
+
+		Object.assign(Constructor, {
+			elName,
+			selector,
+			style,
+		});
+
+		globalVars[globalProperty][Constructor.name] = Constructor;
+
+		globalThis.customElements.define(elName, Constructor, { extends: Constructor.tagName }); // This should come last because when a custom element is defined its constructor runs for all instances on the page
+
+		Component.subclasses.add(Constructor as unknown as typeof Component);
+
+		return function(...args: ConstructorParameters<typeof Constructor>) {
+			return new Constructor(...(args as unknown as [])) as InstanceType<Subclass>;
+		};
+
+		// const BaseElement = document.createElement(tagName).constructor as Constructor<HTMLElement>;
+		// for (const attributeName in observedAttributeDefinitions) {
+		// 	const attributeDefinition = observedAttributeDefinitions[attributeName];
+		// 	const defaultValue = attributeDefinition.default;
+		// 	attributeDefinition.fromString = attributeDefinition.fromString ?? (
+		// 		typeof defaultValue === `number` ? Number
+		// 			: typeof defaultValue === `boolean` ? Boolean
+		// 				: (input: string) => (
+		// 					input === null ? null
+		// 						: input === undefined ? undefined
+		// 							: input === `` ? undefined
+		// 								: input
+		// 				)
+		// 	);
+		// }
 	}
 
 	/**
@@ -124,16 +224,6 @@ export class Component {
 		return `this.closest(\`${(this as unknown as Component).Ctor.selector}\`).${methodName}(event)`;
 	}
 
-	// closest<Ancestor>(Ancestor: Constructor<Ancestor>): Ancestor;
-	// closest(Ancestor: string): Element | null;
-	// closest<Ancestor>(Ancestor: Constructor<Ancestor> | string) {
-	// 	const selector = typeof Ancestor === `string`
-	// 		? Ancestor
-	// 		: (Ancestor as unknown as typeof Component).selector;
-	// 	const $match = HTMLElement.prototype.closest.call(this, selector);
-	// 	return $match;
-	// }
-
 	protected connectedCallback() {
 		this.onPlace();
 	}
@@ -153,9 +243,9 @@ export class Component {
 	/**
 	 * Looks for and returns the first instance of the specified constructor, or element of the specified selector, within the current component's template
 	 */
-	find(Descendant: string): HTMLElement;
-	find<Descendant>(Descendant: Constructor<Descendant>): Descendant;
-	find<Descendant>(Descendant: string | Constructor<Descendant>) {
+	findDown(Descendant: string): HTMLElement;
+	findDown<Descendant>(Descendant: Constructor<Descendant>): Descendant;
+	findDown<Descendant>(Descendant: string | Constructor<Descendant>) {
 		if (typeof Descendant === `string`) {
 			return this.querySelector(Descendant) as HTMLElement;
 		}
@@ -167,15 +257,25 @@ export class Component {
 	/**
 	 * Looks for and returns all instances of the specified constructor, or all elements of the specified selector, within the current component's template
 	 */
-	findAll(Descendant: string): Array<HTMLElement>;
-	findAll<Descendant>(Descendant: Constructor<Descendant>): Array<Descendant>;
-	findAll<Descendant>(Descendant: string | Constructor<Descendant>) {
+	findDownAll(Descendant: string): Array<HTMLElement>;
+	findDownAll<Descendant>(Descendant: Constructor<Descendant>): Array<Descendant>;
+	findDownAll<Descendant>(Descendant: string | Constructor<Descendant>) {
 		if (typeof Descendant === `string`) {
 			return [...this.querySelectorAll(Descendant)];
 		}
 		return [...this.querySelectorAll(
 			(Descendant as unknown as typeof Component).selector
 		)] as Array<Descendant>;
+	}
+
+	findUp<Ancestor>(Ancestor: Constructor<Ancestor>): Ancestor;
+	findUp(Ancestor: string): Element | null;
+	findUp<Ancestor>(Ancestor: Constructor<Ancestor> | string) {
+		const selector = typeof Ancestor === `string`
+			? Ancestor
+			: (Ancestor as unknown as typeof Component).selector;
+		const $match = HTMLElement.prototype.closest.call(this, selector);
+		return $match;
 	}
 
 	on<
@@ -309,106 +409,12 @@ export class Page extends Component {
 // 	}) {};
 // }
 
-export function Custom(tagName: string) {
-	const BaseElement = document.createElement(tagName).constructor as typeof HTMLElement;
-	interface ComponentBase extends Component {} // eslint-disable-line no-restricted-syntax
-
-	class ComponentBase extends BaseElement {
-		static readonly elName: string;
-		static readonly observedAttributes = [] as Array<string>;
-		static readonly selector: string;
-		static readonly style: string | undefined;
-		static readonly tagName = tagName;
-
-		constructor(id?: ComponentBase[`id`]) {
-			if (id !== undefined) {
-				const $existing = document.getElementById(id);
-				if ($existing) {
-					return $existing as this;
-				}
-			}
-
-			super();
-
-			this.id = (id ?? this.getAttribute(`id`) ?? Component.createId()); // If an element has no ID, this.id is empty string, and this.getAttribute(`id`) is null
-
-			// this.setAttribute(Component.$elAttr, this.Ctor.elName);
-
-			// const initialValues = {} as ObservedAttributeValues;
-			// for (const attributeName in observedAttributeDefinitions) {
-			// 	initialValues[attributeName] = (
-			// 		initial[attributeName]
-			// 			?? this.getAttribute(attributeName)
-			// 			?? this.Ctor.observedAttributesDefaults[attributeName]
-			// 	) as ObservedAttributeValues[typeof attributeName];
-			// }
-			// this.set(initialValues);
-			// this.onConstruct();
-		}
-	}
-
-	const instanceProperties = Object.getOwnPropertyDescriptors(Component.prototype);
-	for (const instancePropertyName in instanceProperties) { // Note that this includes _prototype_ properties, but not _instance_ properties: https://stackoverflow.com/q/77733619/2053389
-		if (instancePropertyName === `constructor`) {
-			continue;
-		}
-		const instanceProperty = instanceProperties[instancePropertyName];
-		Object.defineProperty(ComponentBase, instancePropertyName, instanceProperty);
-	}
-
-	return ComponentBase;
-}
-
-export function build<Subclass extends typeof Component>(Constructor: Subclass) {
-	const elName = `l-${Constructor.name.toLowerCase()}`;
-
-	if (customElements.get(elName)) {
-		return;
-	}
-
-	const selector = `[${Component.$elAttr}='${elName}']`;
-	const style = Constructor.style?.replace(/::?host/g, selector);
-	if ( // Has to come after elName has been assigned
-		typeof style === `string`
-		&& document.querySelector(`style[${Component.$styleAttr}='${elName}']`) === null
-	) {
-		const $style = document.createElement(`style`);
-		$style.textContent = style;
-		$style.setAttribute(Component.$styleAttr, elName);
-		document.head.appendChild($style);
-	}
-
-	Object.assign(Constructor, {
-		elName,
-		selector,
-		style,
-	});
-
-	globalVars[globalProperty][Constructor.name] = Constructor;
-
-	globalThis.customElements.define(elName, Constructor, { extends: Constructor.tagName }); // This should come last because when a custom element is defined its constructor runs for all instances on the page
-
-	Component.subclasses.add(Constructor);
-
-	// const BaseElement = document.createElement(tagName).constructor as Constructor<HTMLElement>;
-	// for (const attributeName in observedAttributeDefinitions) {
-	// 	const attributeDefinition = observedAttributeDefinitions[attributeName];
-	// 	const defaultValue = attributeDefinition.default;
-	// 	attributeDefinition.fromString = attributeDefinition.fromString ?? (
-	// 		typeof defaultValue === `number` ? Number
-	// 			: typeof defaultValue === `boolean` ? Boolean
-	// 				: (input: string) => (
-	// 					input === null ? null
-	// 						: input === undefined ? undefined
-	// 							: input === `` ? undefined
-	// 								: input
-	// 				)
-	// 	);
-	// }
-}
-
-class Widget extends Component {
+class WidgetComponent extends Component.customize(`div`) {
 	@Component.attribute() name = `steve`;
+
+	constructor(age: number, name: string) {
+		super();
+	}
 
 	@Component.event()
 	addOne(name: string) {
@@ -416,7 +422,9 @@ class Widget extends Component {
 	}
 }
 
-const widget = new Widget();
+const Widget = Component.init(WidgetComponent);
+
+const widget = Widget(32, `foo`);
 widget.addOne(`foo`);
 widget.on(`addOne`, foo => ({}));
 widget.bind(`addOne`);
