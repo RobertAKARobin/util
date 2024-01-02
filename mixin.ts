@@ -1,6 +1,6 @@
 export function mixin<
 	TargetType,
-	TargetConstructor extends { new(...args: any): TargetType }
+	TargetConstructor extends { new(...args: any): TargetType; }, // eslint-disable-line @typescript-eslint/no-explicit-any
 >(Target: TargetConstructor, ...Sources: Array<Function>) {
 	for (const Source of Sources) {
 		const staticProperties = Object.getOwnPropertyDescriptors(Source);

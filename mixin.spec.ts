@@ -1,5 +1,6 @@
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 import { test } from './spec/index.ts';
-import { tryCatch } from './tryCatch.ts';
 
 import { mixin } from './mixin.ts';
 
@@ -7,13 +8,13 @@ class Base {
 	static baseStaticProperty = `base static property`;
 	static baseStaticMethodArrow = () => `base static method arrow`;
 	static baseStaticMethodTraditional() {
-			return `base static method traditional`;
+		return `base static method traditional`;
 	}
 
 	baseInstanceProperty = `base instance property`;
 	baseInstanceMethodArrow = () => `base instance method arrow`;
 	baseInstanceMethodTraditional() {
-			return `base instance method traditional`;
+		return `base instance method traditional`;
 	}
 }
 
