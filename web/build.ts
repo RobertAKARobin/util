@@ -237,7 +237,7 @@ ${page.Ctor.name}.init();
 					mainCssPath: path.join(`/`, this.styleServeFileRel),
 					mainJsPath: this.scriptServeFileRel === undefined ? undefined : path.join(`/`, this.scriptServeFileRel),
 					routeCssPath: typeof routeCssPath === `string` ? path.join(`/`, routeCssPath) : undefined,
-					title: page.get(`data-page-title`),
+					title: page.pageTitle,
 				});
 
 				log(local(serveFileAbs));

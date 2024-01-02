@@ -5,7 +5,7 @@
 	},
 	"devDependencies": {
 		"@robertakarobin/csslint": "^0.0.13",
-		"@robertakarobin/eslint-config-ts": "^0.0.28",
+		"@robertakarobin/eslint-config-ts": "file:../eslint-config-ts",
 		"@robertakarobin/htmlvalidate": "^0.0.4"
 	},
 	"scripts": {
@@ -16,7 +16,7 @@
 		"lint:html": "html-validate dist",
 		"lint:ts": "eslint .",
 		"spec": "tsx spec/run.ts",
-		"test": "tsc -p tsconfig.json && npm run spec"
+		"test": "npm run spec"
 	},
 	"type": "module"
 }

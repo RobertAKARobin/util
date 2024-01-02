@@ -12,7 +12,9 @@
 	],
 	"include": [
 		"build.ts",
-		"spec/**/*.ts",
+		"spec/index.spec.ts",
+		"spec/run.ts",
+		"../web/component.ts",
 		"src/**/*.ts",
 		"tmp/**/*.ts"
 	]

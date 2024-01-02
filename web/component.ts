@@ -40,14 +40,16 @@ export class Component {
 	}> = {}) {
 		return function(target: Component, propertyName: string) {
 			const attributeName = options?.name ?? propertyName;
-			(target.constructor as CustomElement).observedAttributes.push(attributeName);
+			const Constructor = target.constructor as CustomElement;
+			Constructor.observedAttributes = (Constructor.observedAttributes ?? []);
+			Constructor.observedAttributes.push(attributeName);
 
-			Object.defineProperty((target as any).prototype, propertyName, { // eslint-disable-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-explicit-any
+			Object.defineProperty(Constructor.prototype, propertyName, {
 				get(this: Component) {
-					this.getAttribute(attributeName);
+					return this.getAttribute(attributeName);
 				},
 				set(this: Component, value: unknown) {
-					this.setAttribute(attributeName, value as string);
+					this.set({ [attributeName]: value as string });
 				},
 			});
 		};
@@ -57,12 +59,14 @@ export class Component {
 		return `l${newUid()}`;
 	}
 
-	static customize(tagName: string) {
+	static customize(tagName: string, options: Partial<{
+		elName: string;
+	}> = {}) {
 		const BaseElement = document.createElement(tagName).constructor as typeof HTMLElement;
 		interface ComponentBase extends Component {} // eslint-disable-line no-restricted-syntax
 
 		class ComponentBase extends BaseElement {
-			static readonly elName: string;
+			static readonly elName = options.elName as string;
 			static readonly observedAttributes = [] as Array<string>;
 			static readonly selector: string;
 			static readonly style: string | undefined;
@@ -79,8 +83,6 @@ export class Component {
 				super();
 
 				this.id = (id ?? this.getAttribute(`id`) ?? Component.createId()); // If an element has no ID, this.id is empty string, and this.getAttribute(`id`) is null
-
-				// this.setAttribute(Component.$elAttr, this.Ctor.elName);
 
 				// const initialValues = {} as ObservedAttributeValues;
 				// for (const attributeName in observedAttributeDefinitions) {
@@ -101,7 +103,7 @@ export class Component {
 				continue;
 			}
 			const instanceProperty = instanceProperties[instancePropertyName];
-			Object.defineProperty(ComponentBase, instancePropertyName, instanceProperty);
+			Object.defineProperty(ComponentBase.prototype, instancePropertyName, instanceProperty);
 		}
 
 		return ComponentBase;
@@ -131,10 +133,10 @@ export class Component {
 		};
 	}
 
-	static init<Subclass extends Constructor<Component> & Pick<typeof Component, `style` | `tagName`>>(
+	static init<Subclass extends Constructor<Component> & Pick<typeof Component, `elName` | `style` | `tagName`>>(
 		Constructor: Subclass
 	) {
-		const elName = `l-${Constructor.name.toLowerCase()}`;
+		const elName = Constructor.elName ?? `l-${Constructor.name.toLowerCase()}`;
 
 		const selector = `[${Component.$elAttr}='${elName}']`;
 		const style = Constructor.style?.replace(/::?host/g, selector);
@@ -161,7 +163,8 @@ export class Component {
 		Component.subclasses.add(Constructor as unknown as typeof Component);
 
 		return function(...args: ConstructorParameters<typeof Constructor>) {
-			return new Constructor(...(args as unknown as [])) as InstanceType<Subclass>;
+			const instance = new Constructor(...(args as unknown as [])) as InstanceType<Subclass>;
+			return instance;
 		};
 
 		// const BaseElement = document.createElement(tagName).constructor as Constructor<HTMLElement>;
@@ -351,10 +354,7 @@ export class Component {
 		return this;
 	}
 
-	/**
-	 * Sets multiple HTML attributes
-	 */
-	setAttributes(attributes: Record<string, HTMLAttributeValue>) {
+	set(attributes: Partial<this>) {
 		for (const attributeName in attributes) {
 			const value = attributes[attributeName];
 			if (value === undefined || value === null || value === `undefined` || value === `null` || value === ``) {
@@ -380,7 +380,13 @@ export class Component {
 }
 
 export class Page extends Component {
-	static readonly $pageAttr = `data-page-title`;
+	@Component.attribute({
+		name: `data-page-title`,
+	}) pageTitle = ``;
+
+	onPlace() {
+		document.title = this.pageTitle;
+	}
 }
 
 // export function PageFactory<
@@ -409,22 +415,22 @@ export class Page extends Component {
 // 	}) {};
 // }
 
-class WidgetComponent extends Component.customize(`div`) {
-	@Component.attribute() name = `steve`;
+// class WidgetComponent extends Component.customize(`div`) {
+// 	@Component.attribute() name = `steve`;
 
-	constructor(age: number, name: string) {
-		super();
-	}
+// 	constructor(age: number, name: string) {
+// 		super();
+// 	}
 
-	@Component.event()
-	addOne(name: string) {
-		return 32;
-	}
-}
+// 	@Component.event()
+// 	addOne(name: string) {
+// 		return 32;
+// 	}
+// }
 
-const Widget = Component.init(WidgetComponent);
+// const Widget = Component.init(WidgetComponent);
 
-const widget = Widget(32, `foo`);
-widget.addOne(`foo`);
-widget.on(`addOne`, foo => ({}));
-widget.bind(`addOne`);
+// const widget = Widget(32, `foo`);
+// widget.addOne(`foo`);
+// widget.on(`addOne`, foo => ({}));
+// widget.bind(`addOne`);
