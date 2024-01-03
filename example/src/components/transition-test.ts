@@ -9,7 +9,7 @@ const style = `
 `;
 
 @Component.define()
-export class TransitionTest extends Component {
+export class TransitionTest extends Component.custom(`div`) {
 	static style = style;
 
 	async onPlace() {

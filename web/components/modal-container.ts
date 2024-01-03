@@ -3,7 +3,7 @@ import { Transition } from '@robertakarobin/util/transition.ts';
 import { Component } from '../component.ts';
 
 @Component.define()
-export class ModalContainer extends Component {
+export class ModalContainer extends Component.custom(`div`) {
 	static defaultDuration = .2;
 
 	@Component.attribute() duration = ModalContainer.defaultDuration;

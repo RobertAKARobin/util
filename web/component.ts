@@ -14,6 +14,18 @@ const globalVars = globalThis as typeof globalThis & {
 };
 globalVars[globalProperty] = {};
 
+type ComponentWithoutGlobals = Omit<typeof Component,
+	| `$elAttr`
+	| `$styleAttr`
+	| `subclasses`
+	| `attribute`
+	| `createId`
+	| `custom`
+	| `define`
+	| `event`
+	| `unconnectedElements`
+>;
+
 export class Component extends HTMLElement {
 	static readonly $elAttr = `is`;
 	static readonly $styleAttr = `data-style`;
@@ -22,7 +34,7 @@ export class Component extends HTMLElement {
 	static readonly selector: string;
 	static readonly style: string | undefined;
 	static readonly subclasses = new Set<typeof Component>();
-	static readonly tagName: string;
+	static readonly tagName?: keyof HTMLElementTagNameMap;
 	static readonly unconnectedElements = new Map<HTMLElement[`id`], WeakRef<Component>>();
 
 	static attribute(options: Partial<{
@@ -51,10 +63,40 @@ export class Component extends HTMLElement {
 		return `l${newUid()}`;
 	}
 
-	static define<Subclass extends typeof Component>(
+	static custom(tagName: keyof HTMLElementTagNameMap) {
+		const $dummy = document.createElement(tagName);
+		const BaseElement = $dummy.constructor as Constructor<
+			HTMLElementTagNameMap[keyof HTMLElementTagNameMap]
+		>;
+
+		interface ComponentBase extends Component {} // eslint-disable-line no-restricted-syntax
+		class ComponentBase extends (BaseElement as typeof HTMLElement) {
+			static readonly elName: string;
+			static readonly observedAttributes = [] as Array<string>;
+			static readonly selector: string;
+			static readonly style: string | undefined;
+			static readonly tagName = tagName;
+
+			constructor(...args: Array<any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
+				super();
+				this.onConstruct(...args); // eslint-disable-line @typescript-eslint/no-unsafe-argument
+			}
+		}
+
+		const instanceProperties = Object.getOwnPropertyDescriptors(Component.prototype);
+		for (const instancePropertyName in instanceProperties) { // Note that this includes _prototype_ properties, but not _instance_ properties: https://stackoverflow.com/q/77733619/2053389
+			const instanceProperty = instanceProperties[instancePropertyName];
+			Object.defineProperty(ComponentBase.prototype, instancePropertyName, instanceProperty);
+		}
+
+		return ComponentBase;
+	}
+
+	static define<Subclass extends ComponentWithoutGlobals>(
 		_options = {} // TODO3: Options?
 	) {
-		return function(Constructor: Subclass) {
+		return function(Subclass: Subclass) {
+			const Constructor = Subclass as unknown as typeof Component;
 			const elName = Constructor.elName ?? `l-${Constructor.name.toLowerCase()}`;
 
 			const selector = `[${Component.$elAttr}='${elName}']`;
@@ -79,7 +121,11 @@ export class Component extends HTMLElement {
 
 			Component.subclasses.add(Constructor as unknown as typeof Component);
 
-			globalThis.customElements.define(elName, Constructor); // This should come last because when a custom element is defined its constructor runs for all instances on the page
+			globalThis.customElements.define( // This should come last because when a custom element is defined its constructor runs for all instances on the page
+				elName,
+				Constructor,
+				Subclass.tagName === undefined ? undefined : { extends: Subclass.tagName }
+			);
 
 			// const BaseElement = document.createElement(tagName).constructor as Constructor<HTMLElement>;
 			// for (const attributeName in observedAttributeDefinitions) {
@@ -140,9 +186,9 @@ export class Component extends HTMLElement {
 	*/
 	readonly isSSG: boolean = true;
 
-	constructor(..._args: Array<any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
+	constructor(...args: Array<any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
 		super();
-		this.id = (this.getAttribute(`id`) ?? Component.createId()); // If an element has no ID, this.id is empty string, and this.getAttribute(`id`) is null
+		this.onConstruct(...args); // eslint-disable-line @typescript-eslint/no-unsafe-argument
 
 		// if (id !== undefined) {
 		// 	const $existing = document.getElementById(id);
@@ -245,6 +291,11 @@ export class Component extends HTMLElement {
 		_newValue: string,
 	) {}
 
+	private onConstruct(...args: Array<any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
+		const id = typeof args[0] === `string` ? args[0] : undefined;
+		this.id = (id ?? this.getAttribute(`id`) ?? Component.createId()); // If an element has no ID, this.id is empty string, and this.getAttribute(`id`) is null
+	}
+
 	/**
 	 * Called when the instance's element is attached to or moved within a document
 	 */
@@ -329,9 +380,10 @@ export class Component extends HTMLElement {
 	}
 }
 
-export class Page extends Component {
+export class Page extends Component.custom(`main`) {
 	static $pageAttr = `data-page-title`;
 
+	isSSG = true;
 	@Component.attribute() pageTitle = ``;
 
 	constructor(input: {

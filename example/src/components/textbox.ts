@@ -3,7 +3,7 @@ import { Component } from '@robertakarobin/web/component.ts';
 import { types } from '@src/theme.ts';
 
 @Component.define()
-export class Textbox extends Component {
+export class Textbox extends Component.custom(`div`) {
 	static style = `
 input {
 	${types.body}

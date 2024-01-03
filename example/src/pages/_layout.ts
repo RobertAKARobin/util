@@ -6,7 +6,7 @@ import { Nav } from '@src/components/nav.ts';
 export class Layout extends Page {
 	template(contents: string) {
 		return `
-${new Nav()}
+${Nav()}
 ${contents}
 ${modalContainer}
 		`;

@@ -31,7 +31,7 @@ const hasSSG = (page: string) =>
 	fs.existsSync(`dist/${page}.html`);
 
 @Component.define()
-class Widget extends Component {
+class Widget extends Component.custom(`h1`) {
 	@Component.attribute() message = `` as undefined | string;
 	@Component.attribute() prop = 42;
 

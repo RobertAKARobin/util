@@ -3,7 +3,7 @@ import { Component } from '@robertakarobin/web/component.ts';
 import { Textbox } from '@src/components/textbox.ts';
 
 @Component.define()
-export class ListItem extends Component {
+export class ListItem extends Component.custom(`li`) {
 	@Component.attribute() value = ``;
 
 	onPlace() {

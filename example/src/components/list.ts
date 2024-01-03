@@ -4,7 +4,7 @@ import type * as Type from '@src/types.js';
 import { ListItem } from './listitem.ts';
 
 @Component.define()
-export class List extends Component {
+export class List extends Component.custom(`ol`) {
 	listItems = [] as Array<Type.ListItem>;
 
 	@Component.event()
