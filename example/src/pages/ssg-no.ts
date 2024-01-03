@@ -1,13 +1,11 @@
-import { PageFactory } from '@robertakarobin/web/component.ts';
+import { Component } from '@robertakarobin/web/component.ts';
 
-import { layout } from './_layout.ts';
+import { Layout } from './_layout.ts';
 
-export class NoSSGPage extends PageFactory(`main`) {
-	static {
-		this.init();
-	}
+@Component.define()
+export class NoSSGPage extends Layout {
 	isSSG = false;
-	template = () => layout(`
+	template = () => super.template(`
 <h1>SSG no</h1>
 `);
 }

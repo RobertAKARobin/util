@@ -21,22 +21,24 @@ export const resolver = new Resolver(router, async(route: URL) => {
 		case paths.homeJump1:
 		case paths.homeJump2:
 			return new (await import(`@src/pages/index.ts`)).IndexPage({
-				// 'data-message': `This is a variable`,
-				pageTitle: `Home page`,
+				title: `Home page`,
+			}).set({
+				message: `This is a variable`,
 			});
 		case paths.ssgNo:
 			return new (await import(`@src/pages/ssg-no.ts`)).NoSSGPage({
+				title: `SSG no`,
 			});
 		case paths.ssgYes:
 		case paths.ssgYesJump1:
 		case paths.ssgYesJump2:
 			return new (await import(`@src/pages/ssg-yes.ts`)).YesSSGPage({
-				'data-page-title': `SSG yes`,
+				title: `SSG yes`,
 			});
 	}
-	return (await import(`@src/pages/error.ts`)).errorPage({
-		pageTitle: `Error 404`,
+	return new (await import(`@src/pages/error.ts`)).ErrorPage({
+		title: `Error 404`,
 	});
 });
 
-export const link = LinkFactory(router);
+export const Link = LinkFactory(router);

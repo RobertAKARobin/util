@@ -1,6 +1,6 @@
-import { PageFactory } from '@robertakarobin/web/component.ts';
+import { Component } from '@robertakarobin/web/component.ts';
 
-import { layout } from './_layout.ts';
+import { Layout } from './_layout.ts';
 import { router } from '@src/router.ts';
 
 const style = `
@@ -9,13 +9,11 @@ h1 {
 }
 `;
 
-export class YesSSGPage extends PageFactory(`main`) {
+@Component.define()
+export class YesSSGPage extends Layout {
 	static style = style;
-	static {
-		this.init();
-	}
 	isSSG = true;
-	template = () => layout(`
+	template = () => super.template(`
 <h1>SSG yes</h1>
 
 <div id="${router.hashes.ssgYesJump1}">Jump 1</div>

@@ -1,56 +1,42 @@
-import { ComponentFactory } from '@robertakarobin/web/component.ts';
+import { Component } from '@robertakarobin/web/component.ts';
 
 import { types } from '@src/theme.ts';
 
-export class Textbox extends ComponentFactory(`div`, {
-	'data-maxlength': {
-		default: 10,
-		fromString: parseInt,
-	},
-	'data-value': {
-		default: ``,
-		fromString: (input: string) => input ?? ``,
-	},
-}) {
-
+@Component.define()
+export class Textbox extends Component {
 	static style = `
 input {
 	${types.body}
 }
 	`;
 
-	static {
-		this.init();
-	}
-
-	events = {
-		value: (value: string) => value, // Not calling this `input` because that's a standard HTML event which also gets picked up by ListItem
-	};
-
-	handleInput(event: Event) {
-		const value = (event.currentTarget as HTMLInputElement).value;
-		this.emit(`value`, value);
-		this.setRemaining();
-	}
+	@Component.attribute() maxLength = 10;
+	@Component.attribute() valueOverride = ``;
 
 	onPlace() {
 		this.setRemaining();
 	}
 
+	@Component.event()
+	onValue(event: Event) {
+		const value = (event.currentTarget as HTMLInputElement).value;
+		this.setRemaining();
+		return value;
+	}
+
 	setRemaining() {
-		const $input = this.find(`input`);
-		const value = ($input as HTMLInputElement).value;
-		const maxLength = this.get(`data-maxlength`);
-		this.querySelector(`span`)!.innerHTML = `${maxLength - value.length} / ${maxLength} Remaining`;
+		const $input = this.findDown(`input`);
+		const value = $input.value;
+		this.querySelector(`span`)!.innerHTML = `${this.maxLength - value.length} / ${this.maxLength} Remaining`;
 	}
 
 	template = () => `
 <input
-	maxlength="${this.get(`data-maxlength`)}"
-	oninput="${this.bind(`handleInput`)}"
+	maxlength="${this.maxLength}"
+	oninput="${this.bind(`onValue`)}"
 	placeholder="Type here"
 	type="text"
-	value="${this.get(`data-value`)}"
+	value="${this.valueOverride}"
 >
 
 <span></span>

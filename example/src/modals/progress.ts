@@ -1,4 +1,4 @@
-import { ComponentFactory, css, html } from '@robertakarobin/web/component.ts';
+import { Component, css, html } from '@robertakarobin/web/component.ts';
 import { ModalContainer } from '@robertakarobin/web/components/modal-container.ts';
 import { ProgressCircle } from '@robertakarobin/web/components/progress-circle.ts';
 import { repaint } from '@robertakarobin/util/repaint.ts';
@@ -12,29 +12,26 @@ const style = css`
 }
 `;
 
-export class ProgressModal extends ComponentFactory(`div`) {
+@Component.define()
+export class ProgressModal extends Component {
 	static style = style;
 
-	static {
-		this.init();
-	}
-
 	dismiss() {
-		this.closest(ModalContainer).clear();
+		this.findUp(ModalContainer).clear();
 	}
 
 	onPlace() {
-		const circle = this.find(ProgressCircle);
-		this.closest(ModalContainer).transition.subscribe(({ status }) => {
+		const $circle = this.findDown(ProgressCircle);
+		this.findUp(ModalContainer).transition.subscribe(({ status }) => {
 			switch (status) {
 				case `activate`:
-					circle.style.transition = `none`; // Force circle to reset without tweening
-					circle.set({ 'data-value': 100 });
+					$circle.style.transition = `none`; // Force circle to reset without tweening
+					$circle.set({ value: 100 });
 					break;
 				case `activating`:
-					circle.style.removeProperty(`transition`); // Undo the `style.transition = none`
+					$circle.style.removeProperty(`transition`); // Undo the `style.transition = none`
 					repaint(); // Force browser to start tweening after the modal has rendered; otherwise animations/transitions won't work
-					circle.set({ 'data-value': 0 });
+					$circle.set({ value: 0 });
 					break;
 			}
 		});
@@ -42,11 +39,11 @@ export class ProgressModal extends ComponentFactory(`div`) {
 
 	template = () => html`
 ${new ProgressCircle().set({
-	'data-border-width': 10,
-	'data-diameter': 300,
-	'data-max': 100,
-	'data-min': 0,
-	'data-value': 50,
+	borderWidth: 10,
+	diameter: 300,
+	max: 100,
+	min: 0,
+	value: 50,
 }).toString()}
 
 <button

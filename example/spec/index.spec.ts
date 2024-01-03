@@ -31,16 +31,13 @@ const distMatchesGolden = (path: string) =>
 const hasSSG = (page: string) =>
 	fs.existsSync(`dist/${page}.html`);
 
-class WidgetComponent extends Component.customize(`h1`, {
-	elName: `l-widget`,
-}) {
+@Component.define()
+class Widget extends Component {
 	@Component.attribute() message = `` as undefined | string;
 	@Component.attribute() prop = 42;
 
 	template = () => `${this.message ?? ``}${this.prop}`;
 }
-
-const Widget = Component.init(WidgetComponent);
 
 export const spec = suite(`@robertakarobin/web`,
 	{
@@ -67,21 +64,21 @@ export const spec = suite(`@robertakarobin/web`,
 	}),
 
 	test(`component`, $ => {
-		$.assert(x => x(Widget(`ID`).outerHTML) === `<h1 is="l-widget" id="ID" prop="42"></h1>`);
+		$.assert(x => x(new Widget(`ID`).outerHTML) === `<h1 is="l-widget" id="ID" prop="42"></h1>`);
 
 		id = 0;
-		$.assert(x => x(Widget().outerHTML) === `<h1 is="l-widget" id="UID1_" prop="42"></h1>`);
+		$.assert(x => x(new Widget().outerHTML) === `<h1 is="l-widget" id="UID1_" prop="42"></h1>`);
 
 		id = 0;
-		$.assert(x => x(Widget().set({ message: `x` }).outerHTML) === `<h1 is="l-widget" id="UID1_" prop="42" message="x"></h1>`);
+		$.assert(x => x(new Widget().set({ message: `x` }).outerHTML) === `<h1 is="l-widget" id="UID1_" prop="42" message="x"></h1>`);
 
 		id = 0;
-		$.assert(x => x(Widget().set({ message: `x` }).render().outerHTML) === `<h1 is="l-widget" id="UID1_" prop="42" message="x">x42</h1>`);
+		$.assert(x => x(new Widget().set({ message: `x` }).render().outerHTML) === `<h1 is="l-widget" id="UID1_" prop="42" message="x">x42</h1>`);
 
 
-		let widget: WidgetComponent;
+		let widget: Widget;
 		id = 0;
-		$.log(() => widget = Widget());
+		$.log(() => widget = new Widget());
 		$.assert(x => x(widget.outerHTML) === `<h1 is="l-widget" id="UID1_" prop="42"></h1>`);
 		$.assert(x => x(widget.render().outerHTML) === `<h1 is="l-widget" id="UID1_" prop="42">42</h1>`);
 		$.assert(x => x(widget.set({ message: `x` }).outerHTML) === `<h1 is="l-widget" id="UID1_" prop="42" message="x">42</h1>`);

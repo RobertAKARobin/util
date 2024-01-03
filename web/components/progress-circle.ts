@@ -6,7 +6,8 @@ const style = `
 }
 `;
 
-export class ProgressCircle extends Component.custom(`div`) {
+@Component.define()
+export class ProgressCircle extends Component {
 	static style = style;
 
 	@Component.attribute() borderWidth = 10;
@@ -68,5 +69,3 @@ export class ProgressCircle extends Component.custom(`div`) {
 </svg>
 	`;
 }
-
-export const progressCircle = Component.init(ProgressCircle);

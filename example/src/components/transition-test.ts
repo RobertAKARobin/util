@@ -1,4 +1,4 @@
-import { ComponentFactory } from '@robertakarobin/web/component.ts';
+import { Component } from '@robertakarobin/web/component.ts';
 
 const style = `
 :host {
@@ -8,12 +8,9 @@ const style = `
 }
 `;
 
-export class TransitionTest extends ComponentFactory(`div`) {
+@Component.define()
+export class TransitionTest extends Component {
 	static style = style;
-
-	static {
-		this.init();
-	}
 
 	async onPlace() {
 		this.style.background = `#ff0000`;
