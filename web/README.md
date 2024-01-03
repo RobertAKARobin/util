@@ -21,16 +21,13 @@
 
 ## TODO
 
--	Extract out and then reference component baseclass methods, so all subclasses share the same method reference
 -	isHydrated
 
 -	CSS class mapping
 -	Declare CSS variables inline
--	If class is added via `attrs`, the class should be appended to existing classes
 -	Import from other file (ergo SVG)
 
 -	Match routes with params
--	Jump anchors on landing page get overwritten; shouldn't, on static pages
 -	Remove CSS from JS bundles
 -	Image preprocessing
 
