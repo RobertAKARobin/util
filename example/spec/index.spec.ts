@@ -44,27 +44,27 @@ const Widget = Component.init(WidgetComponent);
 
 export const spec = suite(`@robertakarobin/web`,
 	{
-		// args: async() => {
-		// 	await import(`../build.ts`);
-		// },
+		args: async() => {
+			await import(`../build.ts`);
+		},
 	},
 
-	// test(`build`, $ => {
-	// 	$.assert(x => x(distMatchesGolden(`ssg/yes/index.html`)) === ``);
-	// 	$.assert(x => x(distMatchesGolden(`ssg/yes/index.html.css`)) === ``);
-	// 	$.assert(x => x(distMatchesGolden(`404.html`)) === ``);
-	// 	$.assert(x => x(distMatchesGolden(`index.html`)) === ``);
-	// 	$.assert(x => x(distMatchesGolden(`index.html.css`)) === ``);
-	// 	$.assert(x => x(distMatchesGolden(`styles.css`)) === ``);
+	test(`build`, $ => {
+		$.assert(x => x(distMatchesGolden(`ssg/yes/index.html`)) === ``);
+		$.assert(x => x(distMatchesGolden(`ssg/yes/index.html.css`)) === ``);
+		$.assert(x => x(distMatchesGolden(`404.html`)) === ``);
+		$.assert(x => x(distMatchesGolden(`index.html`)) === ``);
+		$.assert(x => x(distMatchesGolden(`index.html.css`)) === ``);
+		$.assert(x => x(distMatchesGolden(`styles.css`)) === ``);
 
-	// 	$.assert(() => hasSSG(`404`));
-	// 	$.assert(() => hasSSG(`index`));
-	// 	$.assert(() => hasSSG(`ssg/yes/index`));
-	// 	$.assert(() => !hasSSG(`ssg/no/index`));
+		$.assert(() => hasSSG(`404`));
+		$.assert(() => hasSSG(`index`));
+		$.assert(() => hasSSG(`ssg/yes/index`));
+		$.assert(() => !hasSSG(`ssg/no/index`));
 
-	// 	$.assert(() => hasMarkdown.test(src(`pages/index.ts`)));
-	// 	$.assert(() => !hasMarkdown.test(dist(`index.html`)));
-	// }),
+		$.assert(() => hasMarkdown.test(src(`pages/index.ts`)));
+		$.assert(() => !hasMarkdown.test(dist(`index.html`)));
+	}),
 
 	test(`component`, $ => {
 		$.assert(x => x(Widget(`ID`).outerHTML) === `<h1 is="l-widget" id="ID" prop="42"></h1>`);

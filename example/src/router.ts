@@ -1,5 +1,5 @@
 import { Resolver, Router } from '@robertakarobin/web/router.ts';
-import { LinkComponent } from '@robertakarobin/web/components/link.ts';
+import { LinkFactory } from '@robertakarobin/web/components/link.ts';
 
 export const router = new Router({
 	error404: `/404.html`,
@@ -21,8 +21,8 @@ export const resolver = new Resolver(router, async(route: URL) => {
 		case paths.homeJump1:
 		case paths.homeJump2:
 			return new (await import(`@src/pages/index.ts`)).IndexPage({
-				'data-message': `This is a variable`,
-				'data-page-title': `Home page`,
+				// 'data-message': `This is a variable`,
+				pageTitle: `Home page`,
 			});
 		case paths.ssgNo:
 			return new (await import(`@src/pages/ssg-no.ts`)).NoSSGPage({
@@ -34,9 +34,9 @@ export const resolver = new Resolver(router, async(route: URL) => {
 				'data-page-title': `SSG yes`,
 			});
 	}
-	return new (await import(`@src/pages/error.ts`)).ErrorPage({
-		'data-page-title': `Error 404`,
+	return (await import(`@src/pages/error.ts`)).errorPage({
+		pageTitle: `Error 404`,
 	});
 });
 
-export const Link = LinkComponent(router);
+export const link = LinkFactory(router);

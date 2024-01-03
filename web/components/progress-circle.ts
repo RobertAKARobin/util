@@ -1,4 +1,4 @@
-import { ComponentFactory } from '../component.ts';
+import { Component } from '../component.ts';
 
 const style = `
 :host {
@@ -6,39 +6,29 @@ const style = `
 }
 `;
 
-export class ProgressCircle extends ComponentFactory(`div`, {
-	'data-border-width': {
-		default: 10,
-	},
-	'data-diameter': {
-		default: 100,
-	},
-	'data-max': {
-		default: 100,
-	},
-	'data-min': {
-		default: 0,
-	},
-	'data-value': {
-		default: 50,
-	},
-}) {
+export class ProgressCircle extends Component.custom(`div`) {
 	static style = style;
 
-	static {
-		this.init();
-	}
+	@Component.attribute() borderWidth = 10;
+
+	@Component.attribute() diameter = 100;
+
+	@Component.attribute() max = 100;
+
+	@Component.attribute() min = 0;
 
 	get radius() {
-		return (this.get(`data-diameter`) - this.get(`data-border-width`)) / 2;
+		return (this.diameter - this.borderWidth) / 2;
 	}
+
+	@Component.attribute() value = 50;
 
 	onChange() {
 		if (!this.isConnected) {
 			return;
 		}
 
-		let percent =  (this.get(`data-value`) / this.get(`data-max`)) - this.get(`data-min`);
+		let percent =  (this.value / this.max) - this.min;
 		percent = Math.min(1, percent);
 		percent = Math.max(0, percent);
 
@@ -57,24 +47,26 @@ export class ProgressCircle extends ComponentFactory(`div`, {
 
 	template = () => `
 <svg
-	height="${this.get(`data-diameter`)}"
-	width="${this.get(`data-diameter`)}"
+	height="${this.diameter}"
+	width="${this.diameter}"
 >
 	<foreignObject
 		x="0"
 		y="0"
-		height="${this.get(`data-diameter`)}"
-		width="${this.get(`data-diameter`)}"
-	>${this.contents}</foreignObject>
+		height="${this.diameter}"
+		width="${this.diameter}"
+	>${this.content}</foreignObject>
 
   <circle
-    stroke-width="${this.get(`data-border-width`)}"
+    stroke-width="${this.borderWidth}"
     r="${this.radius}"
-    cx="${this.get(`data-diameter`) / 2}"
-    cy="${this.get(`data-diameter`) / 2}"
+    cx="${this.diameter / 2}"
+    cy="${this.diameter / 2}"
 		x="0"
 		y="0"
 	/>
 </svg>
 	`;
 }
+
+export const progressCircle = Component.init(ProgressCircle);

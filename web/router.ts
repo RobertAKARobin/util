@@ -1,6 +1,6 @@
 import { appContext, baseUrl, defaultBaseUrl } from '@robertakarobin/util/context.ts';
-import { PageFactory, type PageInstance } from './component.ts';
 import { Emitter } from '@robertakarobin/util/emitter.ts';
+import { Page } from './component.ts';
 
 export const hasExtension = /\.\w+$/;
 
@@ -100,13 +100,13 @@ export class Router<RouteMap_ extends RouteMap = Record<string, never>> extends 
 /**
  * Given a route, returns the corresponding Page
  */
-export class Resolver<CurrentPage extends PageInstance> extends Emitter<CurrentPage> {
+export class Resolver<CurrentPage extends Page> extends Emitter<CurrentPage> {
 
 	constructor(
 		readonly router: Router<never>,
 		readonly resolve: (to: URL, from?: URL) => CurrentPage | Promise<CurrentPage>,
 	) {
-		const $landingPage = document.querySelector(`[${PageFactory.$pageAttr}]`) as CurrentPage;
+		const $landingPage = document.querySelector(`[${Page.$pageAttr}]`) as CurrentPage;
 		super($landingPage);
 
 		router.subscribe(async(to, { previous }) => {
@@ -137,7 +137,7 @@ export class Resolver<CurrentPage extends PageInstance> extends Emitter<CurrentP
 /**
  * Given a Page, figures out what to do with it (e.g. render it after the document's `<head>`)
  */
-export class Renderer<ResolvedPage extends PageInstance> {
+export class Renderer<ResolvedPage extends Page> {
 	constructor(
 		readonly resolver: Resolver<ResolvedPage>,
 		readonly render: (
@@ -151,8 +151,6 @@ export class Renderer<ResolvedPage extends PageInstance> {
 		resolver.subscribe(async(page, { previous }) => {
 			const to = this.resolver.router.value;
 			await this.render(page, previous, to);
-
-			document.title = page.get(PageFactory.$pageAttr);
 
 			if (previous !== undefined) {
 				window.history.pushState({}, ``, to.pathname); // Setting the hash here causes the jumpanchor to not be activated for some reason, so we do it on the next line

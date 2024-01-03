@@ -1,17 +1,15 @@
-import { ComponentFactory } from '@robertakarobin/web/component.ts';
+import { Component } from '@robertakarobin/web/component.ts';
 
-import { Link, routeNames } from '@src/router.ts';
+import { link, routeNames } from '@src/router.ts';
 
-export class Nav extends ComponentFactory(`nav`) {
-	static {
-		this.init();
-	}
-
+export class Nav extends Component.custom(`nav`) {
 	template = () => `
 <ul>
 	${routeNames.map(routeName => `
-		<li>${Link.to(routeName, `Go ${routeName}`)}</li>
+		<li>${link(routeName, `Go ${routeName}`)}</li>
 	`).join(``)}
 </ul>
 	`;
 }
+
+export const nav = Component.init(Nav);

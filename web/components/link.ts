@@ -1,40 +1,45 @@
 import { baseUrl } from '@robertakarobin/util/context.ts';
+import type { FromIndex1 } from '@robertakarobin/util/types.d.ts';
 
-import { type RouteMap, type Router } from '../router.ts';
-import { ComponentFactory } from '../component.ts';
+import { Component } from '../component.ts';
+import { type Router } from '../router.ts';
 
-export function LinkComponent<Routes extends RouteMap>(router: Router<Routes>) {
-	return class Link extends ComponentFactory(`a`, {
-		'data-route-name': {
-			default: undefined as unknown as keyof typeof router.urls,
-		},
-	}) {
-		static {
-			this.init();
-		}
+export class Link<AppRouter extends Router> extends Component.custom(`a`) {
+	@Component.attribute() routeName: keyof Router[`urls`];
+	readonly router: AppRouter;
 
-		static to(
-			routeName: keyof typeof router.urls,
-			contents?: string,
-		) {
-			return new this({ 'data-route-name': routeName }).content(contents);
-		}
+	constructor(
+		router: AppRouter,
+		routeName: keyof Router[`urls`],
+		content?: string,
+	) {
+		super();
+		this.router = router;
+		this.routeName = routeName;
+		this.write(content);
+	}
 
-		onChange(attributeName: string) {
-			if (attributeName === `data-route-name`) {
-				const isExternal = router.urls[this.get(`data-route-name`)].origin !== baseUrl.origin;
-				if (isExternal) {
-					this.setAttributes({
-						href: router.urls[this.get(`data-route-name`)].toString(),
-						rel: `noopener`,
-						target: `_blank`,
-					});
-				} else {
-					this.setAttributes({
-						href: router.paths[this.get(`data-route-name`)],
-					});
-				}
+	onChange(attributeName: string) {
+		if (attributeName === `data-route-name`) {
+			const isExternal = this.router.urls[this.routeName].origin !== baseUrl.origin;
+			if (isExternal) {
+				this.set({
+					href: this.router.urls[this.routeName].toString(),
+					rel: `noopener` as string,
+					target: `_blank` as string,
+				});
+			} else {
+				this.set({
+					href: this.router.paths[this.routeName],
+				});
 			}
 		}
-	};
-}
+	}
+};
+
+const buildLink = Component.init(Link);
+
+export const LinkFactory = (router: Router) =>
+	(...args: FromIndex1<ConstructorParameters<typeof Link>>) =>
+		buildLink(router, ...args);
+

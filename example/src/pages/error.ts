@@ -1,13 +1,11 @@
-import { PageFactory } from '@robertakarobin/web/component.ts';
+import { Page } from '@robertakarobin/web/component.ts';
 
-import { layout } from './_layout.ts';
+import { Layout } from './_layout.ts';
 
-export class ErrorPage extends PageFactory(`main`) {
-	static {
-		this.init();
-	}
-
-	template = () => layout(`
+export class ErrorPage extends Layout {
+	template = () => super.template(`
 <h1>404 page :(</h1>
 `);
 }
+
+export const errorPage = Page.init(ErrorPage);

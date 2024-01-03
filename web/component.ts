@@ -6,7 +6,7 @@ export { html, css } from '@robertakarobin/util/template.ts';
 
 type Constructor<Classtype> = new (...args: any) => Classtype; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-export type HTMLAttributeValue = string | number | symbol | undefined | null;
+export type AttributeValue = string | number | symbol | undefined | null;
 
 const globalProperty = `El`;
 const globalVars = globalThis as typeof globalThis & {
@@ -49,7 +49,7 @@ export class Component {
 					return this.getAttribute(attributeName);
 				},
 				set(this: Component, value: unknown) {
-					this.set({ [attributeName]: value as string });
+					this.setAttributes({ [attributeName]: value as string });
 				},
 			});
 		};
@@ -59,9 +59,15 @@ export class Component {
 		return `l${newUid()}`;
 	}
 
-	static customize(tagName: string, options: Partial<{
-		elName: string;
-	}> = {}) {
+	static custom<
+		TagName extends keyof HTMLElementTagNameMap,
+		TagType extends HTMLElementTagNameMap[TagName],
+	>(
+		tagName: TagName,
+		options: Partial<{
+			elName: string;
+		}> = {}
+	) {
 		const BaseElement = document.createElement(tagName).constructor as typeof HTMLElement;
 		interface ComponentBase extends Component {} // eslint-disable-line no-restricted-syntax
 
@@ -83,21 +89,14 @@ export class Component {
 				super();
 
 				this.id = (id ?? this.getAttribute(`id`) ?? Component.createId()); // If an element has no ID, this.id is empty string, and this.getAttribute(`id`) is null
+			}
 
-				// const initialValues = {} as ObservedAttributeValues;
-				// for (const attributeName in observedAttributeDefinitions) {
-				// 	initialValues[attributeName] = (
-				// 		initial[attributeName]
-				// 			?? this.getAttribute(attributeName)
-				// 			?? this.Ctor.observedAttributesDefaults[attributeName]
-				// 	) as ObservedAttributeValues[typeof attributeName];
-				// }
-				// this.set(initialValues);
-				// this.onConstruct();
+			set(attributes: Partial<TagType | this>) {
+				return this.setAttributes(attributes as Record<string, AttributeValue>);
 			}
 		}
 
-		const instanceProperties = Object.getOwnPropertyDescriptors(Component.prototype);
+		const instanceProperties = Object.getOwnPropertyDescriptors(this.prototype);
 		for (const instancePropertyName in instanceProperties) { // Note that this includes _prototype_ properties, but not _instance_ properties: https://stackoverflow.com/q/77733619/2053389
 			if (instancePropertyName === `constructor`) {
 				continue;
@@ -106,7 +105,9 @@ export class Component {
 			Object.defineProperty(ComponentBase.prototype, instancePropertyName, instanceProperty);
 		}
 
-		return ComponentBase;
+		return ComponentBase as (typeof ComponentBase & {
+			new(...args: Array<any>): TagType; // eslint-disable-line @typescript-eslint/no-explicit-any
+		});
 	}
 
 	static event(options: Partial<{
@@ -187,18 +188,13 @@ export class Component {
 	/**
 	 * Content that will be rendered inside this element.
 	 */
-	contents = `` as string | undefined | null;
+	content = `` as string | undefined | null;
 	/**
 	 * @returns The instance's constructor
 	 */
 	get Ctor() {
 		return this.constructor as typeof Component;
 	}
-	/**
-	 * Whether this component's data should be included in the data used to hydrate pages rendered via SSG.
-	 * @see `Component.hydrate`
-	 */
-	readonly isHydrated: boolean = true; // TODO2: Test
 	/**
 	 * If true, if this is a Page it will be compiled into a static `.html` file at the route(s) used for this Page, which serves as a landing page for performance and SEO purposes.
 	 * If this is a Component it will be compiled into static HTML included in the landing page.
@@ -229,14 +225,6 @@ export class Component {
 
 	protected connectedCallback() {
 		this.onPlace();
-	}
-
-	/**
-	 * Set the inner content of the element.
-	 */
-	content(content: string | undefined | null) {
-		this.contents = content;
-		return this;
 	}
 
 	protected disconnectedCallback() {
@@ -303,11 +291,6 @@ export class Component {
 	) {}
 
 	/**
-	 * Called when the instance's element is defined
-	 */
-	onConstruct() {}
-
-	/**
 	 * Called when the instance's element is attached to or moved within a document
 	 */
 	onPlace() {}
@@ -354,7 +337,7 @@ export class Component {
 		return this;
 	}
 
-	set(attributes: Partial<this>) {
+	setAttributes(attributes: Record<string, AttributeValue>) {
 		for (const attributeName in attributes) {
 			const value = attributes[attributeName];
 			if (value === undefined || value === null || value === `undefined` || value === `null` || value === ``) {
@@ -370,19 +353,27 @@ export class Component {
 	 * Defines what is written into the document when this instance is rendered
 	 */
 	template(subclassTemplate?: string) {
-		return subclassTemplate ?? this.contents ?? ``;
+		return subclassTemplate ?? this.content ?? ``;
 	}
 
 	toString() {
 		Component.unconnectedElements.set(this.id, new WeakRef(this));
 		return `<!--${this.id}-->`;
 	}
+
+	/**
+	 * Set the inner content of the element.
+	 */
+	write(content: string | undefined | null) {
+		this.content = content;
+		return this;
+	}
 }
 
 export class Page extends Component {
-	@Component.attribute({
-		name: `data-page-title`,
-	}) pageTitle = ``;
+	static $pageAttr = `data-page-title`;
+
+	@Component.attribute() pageTitle = ``;
 
 	onPlace() {
 		document.title = this.pageTitle;

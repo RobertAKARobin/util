@@ -1,28 +1,19 @@
 import { Transition } from '@robertakarobin/util/transition.ts';
 
-import { ComponentFactory, type ComponentInstance } from '../component.ts';
+import { Component } from '../component.ts';
 
-const defaultDuration = .2;
+export class ModalContainer extends Component.custom(`div`) {
+	static defaultDuration = .2;
 
-export class ModalContainer extends ComponentFactory(`div`, {
-	'data-duration': {
-		default: defaultDuration,
-	},
-}) {
-	static defaultDuration = defaultDuration;
-
-	static {
-		this.init();
-	}
-
-	transition!: Transition;
+	@Component.attribute() duration = ModalContainer.defaultDuration;
+	transition: Transition;
 
 	constructor() {
 		super();
 
 		this.transition = new Transition({
 			$target: this,
-			duration: this.get(`data-duration`),
+			duration: this.duration,
 			status: `inactive`,
 		}, {
 			emitOnInit: true,
@@ -39,10 +30,11 @@ export class ModalContainer extends ComponentFactory(`div`, {
 		this.transition.inactivate();
 	}
 
-	place(modal: ComponentInstance) {
+	place(modal: Component) {
 		const $content = modal.render();
 		this.replaceChildren($content);
 		this.transition.activate();
 	}
 }
-ModalContainer.defaultDuration = .2;
+
+export const modalContainer = Component.init(ModalContainer);

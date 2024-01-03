@@ -1,14 +1,5 @@
-import { ComponentFactory } from '../component.ts';
+import { Component } from '../component.ts';
 
-export class Image extends ComponentFactory(`img`, {
-	alt: {
-		default: undefined as unknown as string,
-	},
-	src: {
-		default: undefined as unknown as string,
-	},
-}) {
-	static {
-		this.init();
-	}
-}
+export class Image extends Component.custom(`img`) {}
+
+export const image = Component.init(Image);
