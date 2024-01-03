@@ -11,10 +11,9 @@
 		"@robertakarobin/eslint-config-ts"
 	],
 	"include": [
+		"../web/**/*.ts",
 		"build.ts",
-		"spec/index.spec.ts",
-		"spec/run.ts",
-		"../web/component.ts",
+		"spec/**/*.ts",
 		"src/**/*.ts",
 		"tmp/**/*.ts"
 	]

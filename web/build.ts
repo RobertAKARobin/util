@@ -1,3 +1,5 @@
+import { dummyDOM } from './dummydom.ts';
+
 import esbuild from 'esbuild';
 import fs from 'fs';
 import { glob } from 'glob';
@@ -12,9 +14,6 @@ import { promiseConsecutive } from '@robertakarobin/util/promiseConsecutive.ts';
 
 import { Component, type Page } from './component.ts';
 import { hasExtension, type Resolver, type Router } from './router.ts';
-import { DummyDOM } from './dummydom.ts';
-
-const dummyDOM = new DummyDOM();
 
 const bustCache = (pathname: string) => {
 	const url = new URL(`file:///${pathname}?v=${Date.now() + performance.now()}`); // URL is necessary for running on Windows
@@ -185,7 +184,7 @@ export class Builder {
 				const serveDirAbs = path.dirname(serveFileAbs);
 				fs.mkdirSync(serveDirAbs, { recursive: true });
 
-				dummyDOM.refresh(); // TODO2: On each route the customElements seem to get redefined; need to dump the dummyDOM to prevent errors
+				// dummyDOM.refresh(); // TODO2: On each route the customElements seem to get redefined; need to dump the dummyDOM to prevent errors
 				Component.subclasses.clear();
 
 				const page = await resolver.resolve(route);

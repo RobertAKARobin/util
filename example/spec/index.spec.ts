@@ -1,9 +1,10 @@
+import '@robertakarobin/web/dummydom.ts';
+
 import { suite, test } from '@robertakarobin/util/spec/index.ts';
 import { diff } from '@robertakarobin/util/spec/diff.ts';
 import { EntityStateEmitter } from '@robertakarobin/util/entities.ts';
 
 import { Component } from '@robertakarobin/web/component.ts';
-import { DummyDOM } from '@robertakarobin/web/dummydom.ts';
 
 import fs from 'fs';
 
@@ -11,8 +12,6 @@ let id = 0;
 EntityStateEmitter.prototype.createId = Component.createId = () => { // Easy to strip out with RegEx
 	return `UID${++id}_`;
 };
-
-new DummyDOM();
 
 export const hasMarkdown = /<markdown>(.*?)<\/markdown>/gs;
 

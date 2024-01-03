@@ -18,6 +18,7 @@ const style =  `
 
 const colors = [`red`, `yellow`, `green`, `brown`, `scarlet`];
 
+@Component.define()
 export class IndexPage extends Layout {
 	static style = style;
 

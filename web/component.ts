@@ -18,7 +18,7 @@ export class Component extends HTMLElement {
 	static readonly $elAttr = `is`;
 	static readonly $styleAttr = `data-style`;
 	static readonly elName: string;
-	static readonly observedAttributes: Array<string>;
+	static readonly observedAttributes = [] as Array<string>;
 	static readonly selector: string;
 	static readonly style: string | undefined;
 	static readonly subclasses = new Set<typeof Component>();
@@ -77,9 +77,9 @@ export class Component extends HTMLElement {
 
 			globalVars[globalProperty][Constructor.name] = Constructor;
 
-			globalThis.customElements.define(elName, Constructor, { extends: Constructor.tagName }); // This should come last because when a custom element is defined its constructor runs for all instances on the page
-
 			Component.subclasses.add(Constructor as unknown as typeof Component);
+
+			globalThis.customElements.define(elName, Constructor); // This should come last because when a custom element is defined its constructor runs for all instances on the page
 
 			// const BaseElement = document.createElement(tagName).constructor as Constructor<HTMLElement>;
 			// for (const attributeName in observedAttributeDefinitions) {
@@ -345,54 +345,3 @@ export class Page extends Component {
 		document.title = this.pageTitle;
 	}
 }
-
-// export function PageFactory<
-// 	ObservedAttributeDefinitions extends (
-// 		Record<string, ObservedAttributeDefinition<any>> & { // eslint-disable-line @typescript-eslint/no-explicit-any
-// 			'data-page-title': {
-// 				default: string;
-// 			};
-// 		}
-// 	) = {
-// 		'data-page-title': {
-// 			default: string;
-// 		};
-// 	},
-// >(
-// 	tagName: string,
-// 	observedAttributeDefinitions = {} as (
-// 		Omit<ObservedAttributeDefinitions, `data-page-title`>
-// 	)
-// ) {
-// 	return class Page extends Component(tagName, {
-// 		...observedAttributeDefinitions,
-// 		[PageFactory.$pageAttr]: {
-// 			default: undefined as unknown as string,
-// 		},
-// 	}) {};
-// }
-
-// class WidgetComponent extends Component.customize(`div`) {
-// 	@Component.attribute() name = `steve`;
-
-// 	constructor(age: number, name: string) {
-// 		super();
-// 	}
-
-// 	@Component.event()
-// 	addOne(name: string) {
-// 		return 32;
-// 	}
-// }
-
-// const Widget = Component.init(WidgetComponent);
-
-// const widget = Widget(32, `foo`);
-// widget.addOne(`foo`);
-// widget.on(`addOne`, foo => ({}));
-// widget.bind(`addOne`);
-
-// return function(...args: ConstructorParameters<typeof Constructor>) {
-// 	const instance = new Constructor(...(args as unknown as [])) as InstanceType<Subclass>;
-// 	return instance;
-// };

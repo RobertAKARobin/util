@@ -28,3 +28,5 @@ export class DummyDOM {
 		return dummyDOM;
 	}
 }
+
+export const dummyDOM = new DummyDOM();
