@@ -1,6 +1,5 @@
 import { appContext, baseUrl, defaultBaseUrl } from '@robertakarobin/util/context.ts';
 import { Emitter } from '@robertakarobin/util/emitter.ts';
-import { Page } from './component.ts';
 
 export const hasExtension = /\.\w+$/;
 
@@ -41,6 +40,8 @@ export class Router<RouteMap_ extends RouteMap = Record<string, never>> extends 
 		}
 
 		if (appContext === `browser`) {
+			this.set(new URL(window.location.href));
+
 			window.onpopstate = () => { // Popstate is fired only by performing a browser action on the current document, e.g. back, forward, or hashchange
 				this.set(new URL(window.location.href));
 			};
@@ -79,6 +80,27 @@ export class Router<RouteMap_ extends RouteMap = Record<string, never>> extends 
 		}
 	}
 
+	link(
+		routeName: keyof RouteMap_,
+		content?: string,
+	) {
+		const url = this.urls[routeName];
+		const isExternal = url.origin !== baseUrl.origin;
+		if (isExternal) {
+			return `
+				<a
+					href=${url}
+					rel="noopener"
+					target="_blank"
+				>${content}</a>`;
+		} else {
+			return `
+				<a
+					href=${this.paths[routeName]}
+				>${content}</a>`;
+		}
+	}
+
 	/**
 	 * Updates the window's location
 	 */
@@ -100,14 +122,12 @@ export class Router<RouteMap_ extends RouteMap = Record<string, never>> extends 
 /**
  * Given a route, returns the corresponding Page
  */
-export class Resolver<CurrentPage extends Page> extends Emitter<CurrentPage> {
-
+export class Resolver<View> extends Emitter<View> {
 	constructor(
 		readonly router: Router<never>,
-		readonly resolve: (to: URL, from?: URL) => CurrentPage | Promise<CurrentPage>,
+		readonly resolve: (to: URL, from?: URL) => View | Promise<View>,
 	) {
-		const $landingPage = document.querySelector(`[${Page.$pageAttr}]`) as CurrentPage;
-		super($landingPage);
+		super();
 
 		router.subscribe(async(to, { previous }) => {
 			if (to.href === previous?.href) { // On no change
@@ -116,6 +136,14 @@ export class Resolver<CurrentPage extends Page> extends Emitter<CurrentPage> {
 
 			if (to.pathname !== previous?.pathname) { // On new page
 				this.set(await this.resolve(to, previous));
+
+				if (previous !== undefined) {
+					window.history.pushState({}, ``, to.pathname); // Setting the hash here causes the jumpanchor to not be activated for some reason, so we do it on the next line
+					if (to.hash.length > 0) {
+						location.hash = to.hash;
+					}
+				}
+
 				return;
 			}
 
@@ -128,34 +156,6 @@ export class Resolver<CurrentPage extends Page> extends Emitter<CurrentPage> {
 				location.hash = to.hash;
 				if (to.hash?.length === 0) {
 					window.history.replaceState({}, ``, to.pathname); // Turns out `location.hash = ''` will still set a hash of `#`. So, if going from a path with hash to path without hash, we'll need to handle the hash differently
-				}
-			}
-		});
-	}
-}
-
-/**
- * Given a Page, figures out what to do with it (e.g. render it after the document's `<head>`)
- */
-export class Renderer<ResolvedPage extends Page> {
-	constructor(
-		readonly resolver: Resolver<ResolvedPage>,
-		readonly render: (
-			(newPage: ResolvedPage, oldPage: ResolvedPage, newRoute: URL) => void | Promise<void>
-		) = (newPage, oldPage) => {
-			if (oldPage !== undefined) {
-				oldPage.replaceWith(newPage.render());
-			}
-		}
-	) {
-		resolver.subscribe(async(page, { previous }) => {
-			const to = this.resolver.router.value;
-			await this.render(page, previous, to);
-
-			if (previous !== undefined) {
-				window.history.pushState({}, ``, to.pathname); // Setting the hash here causes the jumpanchor to not be activated for some reason, so we do it on the next line
-				if (to.hash.length > 0) {
-					location.hash = to.hash;
 				}
 			}
 		});

@@ -1,10 +1,10 @@
-import { Link, routeNames } from '@src/router.ts';
+import { router } from '@src/router.ts';
 
 export const Nav = () => `
 <nav>
 	<ul>
-		${routeNames.map(routeName => `
-			<li>${Link(routeName, `Go ${routeName}`)}</li>
+		${router.routeNames.map(routeName => `
+			<li>${router.link(routeName, `Go ${routeName}`)}</li>
 		`).join(``)}
 	</ul>
 </nav>

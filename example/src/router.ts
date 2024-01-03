@@ -1,5 +1,4 @@
 import { Resolver, Router } from '@robertakarobin/web/router.ts';
-import { LinkFactory } from '@robertakarobin/web/components/link.ts';
 
 export const router = new Router({
 	error404: `/404.html`,
@@ -13,25 +12,23 @@ export const router = new Router({
 	ssgYesJump2: `/ssg/yes/#jump2`,
 });
 
-export const { paths, hashes, routeNames, urls } = router;
-
 export const resolver = new Resolver(router, async(route: URL) => {
 	switch (route.pathname) {
-		case paths.home:
-		case paths.homeJump1:
-		case paths.homeJump2:
+		case router.paths.home:
+		case router.paths.homeJump1:
+		case router.paths.homeJump2:
 			return new (await import(`@src/pages/index.ts`)).IndexPage({
 				title: `Home page`,
 			}).set({
 				message: `This is a variable`,
 			});
-		case paths.ssgNo:
+		case router.paths.ssgNo:
 			return new (await import(`@src/pages/ssg-no.ts`)).NoSSGPage({
 				title: `SSG no`,
 			});
-		case paths.ssgYes:
-		case paths.ssgYesJump1:
-		case paths.ssgYesJump2:
+		case router.paths.ssgYes:
+		case router.paths.ssgYesJump1:
+		case router.paths.ssgYesJump2:
 			return new (await import(`@src/pages/ssg-yes.ts`)).YesSSGPage({
 				title: `SSG yes`,
 			});
@@ -40,5 +37,3 @@ export const resolver = new Resolver(router, async(route: URL) => {
 		title: `Error 404`,
 	});
 });
-
-export const Link = LinkFactory(router);

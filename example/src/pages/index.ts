@@ -1,9 +1,9 @@
 import { Component } from '@robertakarobin/web/component.ts';
 
-import { Link, router } from '@src/router.ts';
 import { Layout } from './_layout.ts';
 import { List } from '@src/components/list.ts';
 import { ListItem } from '@src/components/listitem.ts';
+import { router } from '@src/router.ts';
 
 import { modalContainer } from '@src/modals/_container.ts';
 import { ProgressModal } from '@src/modals/progress.ts';
@@ -75,7 +75,7 @@ Lorem ipsum dolor <strong>sit amet</strong>, consectetur *adipiscing elit*, sed 
 Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ nulla pariatur.
 </markdown>
 
-<p>${Link(`ssgYes`, `Link to SSG Yes`)}</p>
+<p>${router.link(`ssgYes`, `Link to SSG Yes`)}</p>
 
 <button type="button" onclick="${this.bind(`anchorlessRoute`)}">Go to SSG Yes</button>
 
