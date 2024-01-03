@@ -6,7 +6,9 @@ import { Component } from '../component.ts';
 export class ModalContainer extends Component.custom(`div`) {
 	static defaultDuration = .2;
 
-	@Component.attribute() duration = ModalContainer.defaultDuration;
+	@Component.attribute({
+		name: `data-duration`,
+	}) duration = ModalContainer.defaultDuration;
 	transition: Transition;
 
 	constructor() {

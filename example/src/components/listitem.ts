@@ -4,7 +4,9 @@ import { Textbox } from '@src/components/textbox.ts';
 
 @Component.define()
 export class ListItem extends Component.custom(`li`) {
-	@Component.attribute() value = ``;
+	@Component.attribute({
+		name: `data-value`,
+	}) value = ``;
 
 	onPlace() {
 		const $textbox = this.findDown(Textbox);

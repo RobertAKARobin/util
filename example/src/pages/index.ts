@@ -22,7 +22,9 @@ const colors = [`red`, `yellow`, `green`, `brown`, `scarlet`];
 export class IndexPage extends Layout {
 	static style = style;
 
-	@Component.attribute() message = ``;
+	@Component.attribute({
+		name: `data-message`,
+	}) message = ``;
 
 	anchorlessRoute() {
 		router.to(`ssgYes`);

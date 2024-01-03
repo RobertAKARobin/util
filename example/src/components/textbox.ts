@@ -10,8 +10,12 @@ input {
 }
 	`;
 
-	@Component.attribute() maxLength = 10;
-	@Component.attribute() valueOverride = ``;
+	@Component.attribute({
+		name: `data-max`,
+	}) maxLength = 10;
+	@Component.attribute({
+		name: `data-value`,
+	}) valueOverride = ``;
 
 	onPlace() {
 		this.setRemaining();

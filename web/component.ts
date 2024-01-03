@@ -344,7 +344,11 @@ export class Component extends HTMLElement {
 	}
 
 	set(attributes: Partial<this>) {
-		return this.setAttributes(attributes as Record<string, AttributeValue>);
+		for (const attributeName in attributes) {
+			const attributeKey = attributeName as keyof this;
+			this[attributeKey] = attributes[attributeKey]!;
+		}
+		return this;
 	}
 
 	setAttributes(attributes: Record<string, AttributeValue>) {
@@ -384,7 +388,9 @@ export class Page extends Component.custom(`main`) {
 	static $pageAttr = `data-page-title`;
 
 	isSSG = true;
-	@Component.attribute() pageTitle = ``;
+	@Component.attribute({
+		name: `data-page-title`,
+	}) pageTitle = ``;
 
 	constructor(input: {
 		title: Page[`pageTitle`];
