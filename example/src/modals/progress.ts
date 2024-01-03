@@ -16,11 +16,7 @@ const style = css`
 export class ProgressModal extends Component {
 	static style = style;
 
-	dismiss() {
-		this.findUp(ModalContainer).clear();
-	}
-
-	onPlace() {
+	$onPlace() {
 		const $circle = this.findDown(ProgressCircle);
 		this.findUp(ModalContainer).transition.subscribe(({ status }) => {
 			switch (status) {
@@ -35,6 +31,10 @@ export class ProgressModal extends Component {
 					break;
 			}
 		});
+	}
+
+	dismiss() {
+		this.findUp(ModalContainer).clear();
 	}
 
 	template = () => html`

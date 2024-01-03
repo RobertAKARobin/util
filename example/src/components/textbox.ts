@@ -17,15 +17,15 @@ input {
 		name: `data-value`,
 	}) valueOverride = ``;
 
+	$onPlace() {
+		this.setRemaining();
+	}
+
 	@Component.event()
 	emitValue(event: Event) {
 		const value = (event.currentTarget as HTMLInputElement).value;
 		this.setRemaining();
 		return value;
-	}
-
-	onPlace() {
-		this.setRemaining();
 	}
 
 	setRemaining() {

@@ -79,7 +79,7 @@ export class Component extends HTMLElement {
 
 			constructor(...args: Array<any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
 				super();
-				this.onConstruct(...args); // eslint-disable-line @typescript-eslint/no-unsafe-argument
+				this.$onConstruct(...args); // eslint-disable-line @typescript-eslint/no-unsafe-argument
 			}
 		}
 
@@ -185,7 +185,7 @@ export class Component extends HTMLElement {
 
 	constructor(...args: Array<any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
 		super();
-		this.onConstruct(...args); // eslint-disable-line @typescript-eslint/no-unsafe-argument
+		this.$onConstruct(...args); // eslint-disable-line @typescript-eslint/no-unsafe-argument
 
 		// if (id !== undefined) {
 		// 	const $existing = document.getElementById(id);
@@ -195,6 +195,28 @@ export class Component extends HTMLElement {
 		// }
 	}
 
+	$onChange(
+		_attributeName: string,
+		_oldValue: string,
+		_newValue: string,
+	) {}
+
+	private $onConstruct(...args: Array<any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
+		const id = typeof args[0] === `string` ? args[0] : undefined;
+		this.id = (id ?? this.getAttribute(`id`) ?? Component.createId()); // If an element has no ID, this.id is empty string, and this.getAttribute(`id`) is null
+		this.setAttribute(Component.$elAttr, this.Ctor.elName);
+	}
+
+	/**
+	 * Called when the instance's element is attached to or moved within a document
+	 */
+	$onPlace() {}
+
+	/**
+	 * Called when the instance's element is removed from a document
+	 */
+	$onRemove() {}
+
 	protected adoptedCallback() {}
 
 	protected attributeChangedCallback(
@@ -202,7 +224,7 @@ export class Component extends HTMLElement {
 		oldValue: string,
 		newValue: string,
 	) {
-		this.onChange(attributeName, oldValue, newValue);
+		this.$onChange(attributeName, oldValue, newValue);
 	}
 
 	bind<
@@ -217,11 +239,11 @@ export class Component extends HTMLElement {
 	}
 
 	protected connectedCallback() {
-		this.onPlace();
+		this.$onPlace();
 	}
 
 	protected disconnectedCallback() {
-		this.onRemove();
+		this.$onRemove();
 	}
 
 	/**
@@ -281,28 +303,6 @@ export class Component extends HTMLElement {
 		(this as unknown as HTMLElement).addEventListener(eventName, doWhat as EventListener);
 		return this;
 	}
-
-	onChange(
-		_attributeName: string,
-		_oldValue: string,
-		_newValue: string,
-	) {}
-
-	private onConstruct(...args: Array<any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
-		const id = typeof args[0] === `string` ? args[0] : undefined;
-		this.id = (id ?? this.getAttribute(`id`) ?? Component.createId()); // If an element has no ID, this.id is empty string, and this.getAttribute(`id`) is null
-		this.setAttribute(Component.$elAttr, this.Ctor.elName);
-	}
-
-	/**
-	 * Called when the instance's element is attached to or moved within a document
-	 */
-	onPlace() {}
-
-	/**
-	 * Called when the instance's element is removed from a document
-	 */
-	onRemove() {}
 
 	render() {
 		const $template = document.createElement(`template`);

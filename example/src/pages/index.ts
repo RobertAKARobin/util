@@ -26,11 +26,7 @@ export class IndexPage extends Layout {
 		name: `data-message`,
 	}) message = ``;
 
-	anchorlessRoute() {
-		router.to(`ssgYes`);
-	}
-
-	onPlace() {
+	$onPlace() {
 		const $list = this.findDown(List);
 		const $listItems = $list.findDownAll(ListItem);
 		for (const $listItem of $listItems) {
@@ -45,6 +41,10 @@ export class IndexPage extends Layout {
 			$list.setListItems(state.entries.$);
 			$list.render();
 		});
+	}
+
+	anchorlessRoute() {
+		router.to(`ssgYes`);
 	}
 
 	openModal() {

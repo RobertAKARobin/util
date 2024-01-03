@@ -24,7 +24,7 @@ export class ProgressCircle extends Component {
 
 	@Component.attribute() value = 50;
 
-	onChange() {
+	$onChange() {
 		if (!this.isConnected) {
 			return;
 		}
@@ -42,8 +42,8 @@ export class ProgressCircle extends Component {
 		$circle.style.strokeDashoffset = `0`;
 	}
 
-	onPlace() {
-		this.onChange();
+	$onPlace() {
+		this.$onChange();
 	}
 
 	template = () => `
