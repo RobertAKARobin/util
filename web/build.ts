@@ -207,7 +207,6 @@ export class Builder {
 				let head = `
 <script type="module">
 import { ${page.Ctor.name} } from '${path.join(`/`, pageCompilepath)}';
-${page.Ctor.name}.init();
 </script>`;
 
 				let routeCss = ``;

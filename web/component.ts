@@ -294,6 +294,7 @@ export class Component extends HTMLElement {
 	private onConstruct(...args: Array<any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
 		const id = typeof args[0] === `string` ? args[0] : undefined;
 		this.id = (id ?? this.getAttribute(`id`) ?? Component.createId()); // If an element has no ID, this.id is empty string, and this.getAttribute(`id`) is null
+		this.setAttribute(Component.$elAttr, this.Ctor.elName);
 	}
 
 	/**
@@ -392,11 +393,11 @@ export class Page extends Component.custom(`main`) {
 		name: `data-page-title`,
 	}) pageTitle = ``;
 
-	constructor(input: {
+	constructor(input: Partial<{
 		title: Page[`pageTitle`];
-	}) {
+	}> = {}) {
 		super();
-		this.pageTitle = input.title ?? this.pageTitle;
+		this.pageTitle = this.pageTitle ?? input.title ?? this.pageTitle;
 	}
 
 	onPlace() {
