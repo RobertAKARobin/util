@@ -8,29 +8,27 @@ export class ListItem extends Component.custom(`li`) {
 		name: `data-value`,
 	}) value = ``;
 
+	@Component.event()
+	emitDelete() {}
+
+	@Component.event()
+	emitValue(value: string) {
+		return value;
+	}
+
 	onPlace() {
 		const $textbox = this.findDown(Textbox);
-		$textbox.on(`onValue`, event => {
-			this.onValue(event.detail);
+		$textbox.on(`emitValue`, event => {
+			this.emitValue(event.detail);
 			event.stopPropagation();
 		});
-	}
-
-	@Component.event()
-	onRemove() {
-		return { id: this.id };
-	}
-
-	@Component.event()
-	onValue(value: string) {
-		return value;
 	}
 
 	template = () => `
 	<p>List item ID ${this.id}</p>
 	${new Textbox(`${this.id}-txt`).set({ valueOverride: this.value })}
 	<button
-		onclick="${this.bind(`onRemove`)}"
+		onclick="${this.bind(`emitDelete`)}"
 		type="button"
 	>Remove</button>
 	`;

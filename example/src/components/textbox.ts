@@ -17,15 +17,15 @@ input {
 		name: `data-value`,
 	}) valueOverride = ``;
 
-	onPlace() {
-		this.setRemaining();
-	}
-
 	@Component.event()
-	onValue(event: Event) {
+	emitValue(event: Event) {
 		const value = (event.currentTarget as HTMLInputElement).value;
 		this.setRemaining();
 		return value;
+	}
+
+	onPlace() {
+		this.setRemaining();
 	}
 
 	setRemaining() {
@@ -37,7 +37,7 @@ input {
 	template = () => `
 <input
 	maxlength="${this.maxLength}"
-	oninput="${this.bind(`onValue`)}"
+	oninput="${this.bind(`emitValue`)}"
 	placeholder="Type here"
 	type="text"
 	value="${this.valueOverride}"

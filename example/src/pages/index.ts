@@ -40,7 +40,7 @@ export class IndexPage extends Layout {
 			);
 		}
 
-		$list.on(`onAdd`, () => {
+		$list.on(`emitAdd`, () => {
 			state.add({ value: `` });
 			$list.setListItems(state.entries.$);
 			$list.render();

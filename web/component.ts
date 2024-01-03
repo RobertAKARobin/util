@@ -156,16 +156,13 @@ export class Component extends HTMLElement {
 		) {
 			const eventName = options.name ?? propertyName;
 			const eventDetailFormatter = descriptor.value as Function;
-			Object.defineProperty(target, propertyName, {
-				...descriptor,
-				value: function(this: Component, ...args: Array<unknown>) {
-					const detail = eventDetailFormatter(...args) as unknown;
-					this.dispatchEvent(new CustomEvent(eventName, {
-						bubbles: options.bubbles ?? true,
-						detail,
-					}));
-				},
-			});
+			descriptor.value = function(this: Component, ...args: Array<unknown>) {
+				const detail = eventDetailFormatter.call(this, ...args) as unknown;
+				this.dispatchEvent(new CustomEvent(eventName, {
+					bubbles: options.bubbles ?? true,
+					detail,
+				}));
+			};
 		};
 	}
 

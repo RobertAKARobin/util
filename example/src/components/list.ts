@@ -8,7 +8,7 @@ export class List extends Component.custom(`ol`) {
 	listItems = [] as Array<Type.ListItem>;
 
 	@Component.event()
-	onAdd() {}
+	emitAdd() {}
 
 	setListItems(listItems: Array<Type.ListItem>) {
 		this.listItems = listItems;
@@ -24,7 +24,7 @@ export class List extends Component.custom(`ol`) {
 
 	<li>
 		<button
-			onclick="${this.bind(`onAdd`)}"
+			onclick="${this.bind(`emitAdd`)}"
 			type="button"
 		>Add</button>
 	</li>
