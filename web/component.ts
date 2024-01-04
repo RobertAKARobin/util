@@ -1,7 +1,7 @@
 import { appContext } from '@robertakarobin/util/context.ts';
 import { newUid } from '@robertakarobin/util/uid.ts';
 
-export { html, css } from '@robertakarobin/util/template.ts';
+export { css, html } from '@robertakarobin/util/template.ts';
 
 type Constructor<Classtype> = new (...args: any) => Classtype; // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -322,17 +322,18 @@ export class Component extends HTMLElement {
 			}
 
 			const id = $placeholder.textContent!;
-			const $el = Component.unconnectedElements.get(id)!.deref()!;
+			const el = Component.unconnectedElements.get(id)?.deref();
+			if (el !== undefined) {
+				if (el.innerHTML === ``) {
+					el.innerHTML = el.template(); // Flipping the order of these two lines seems to make the $el 'adopted' an extra time
+				}
+				$placeholder.replaceWith(el);
+
+				if (appContext !== `browser`) {
+					iterator = newCommentIterator();
+				}
+			}
 			Component.unconnectedElements.delete(id);
-
-			if ($el.innerHTML === ``) {
-				$el.innerHTML = $el.template(); // Flipping the order of these two lines seems to make the $el 'adopted' an extra time
-			}
-			$placeholder.replaceWith($el);
-
-			if (appContext !== `browser`) {
-				iterator = newCommentIterator();
-			}
 		}
 
 		this.replaceChildren(...$template.content.childNodes);

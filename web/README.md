@@ -21,6 +21,7 @@
 
 ## TODO
 
+-	Remove `$` prefix from elements; this isn't jQuery
 -	isHydrated
 
 -	CSS class mapping

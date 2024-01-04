@@ -1,4 +1,4 @@
-import { Component } from '@robertakarobin/web/component.ts';
+import { Component, css } from '@robertakarobin/web/component.ts';
 
 import { Layout } from './_layout.ts';
 import { List } from '@src/components/list.ts';
@@ -10,7 +10,7 @@ import { ProgressModal } from '@src/modals/progress.ts';
 import { state } from '@src/state.ts';
 import { TransitionTest } from '@src/components/transition-test.ts';
 
-const style =  `
+const style = css`
 :host h1 {
 	color: red;
 }
@@ -77,7 +77,10 @@ Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ 
 
 <p>${router.link(`ssgYes`, `Link to SSG Yes`)}</p>
 
-<button type="button" onclick="${this.bind(`anchorlessRoute`)}">Go to SSG Yes</button>
+<button
+	onclick="${this.bind(`anchorlessRoute`)}"
+	type="button"
+>Go to SSG Yes</button>
 
 <markdown>
 ## Headline 2
