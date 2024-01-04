@@ -12,6 +12,7 @@ class CustomBuilder extends Builder {
 }
 
 const builder = new CustomBuilder({
+	metaFileRel: `./meta.json`,
 	minify: false,
 });
 

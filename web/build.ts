@@ -36,6 +36,7 @@ export class Builder {
 	readonly assetsSrcDirRel: string | Array<string>;
 	readonly baseDirAbs: string;
 	readonly baseUri: string;
+	readonly metaFileRel: string | undefined;
 	readonly minify: boolean;
 	readonly routerSrcFileAbs: string;
 	readonly routerSrcFileRel: string;
@@ -69,6 +70,7 @@ export class Builder {
 		assetsSrcDirRel: string | Array<string>;
 		baseDirAbs: string;
 		baseUri: string;
+		metaFileRel: string;
 		minify: boolean;
 		routerSrcFileRel: string;
 		scriptSrcFileRel: string | undefined;
@@ -85,6 +87,8 @@ export class Builder {
 		this.srcDirAbs = path.join(this.baseDirAbs, input.srcTmpDirRel ?? `./tmp`); // Copying the TS source to `/tmp` is necessary because we want to compile Markdown _before_ we build the JS source. Otherwise we'd be sending Markdown to the browser, and we'd rather send valid HTML and not need to load a Markdown parser
 
 		this.assetsSrcDirRel = input.assetsSrcDirRel ?? `./assets`;
+
+		this.metaFileRel = input.metaFileRel;
 
 		this.routerSrcFileRel = input.routerSrcFileRel ?? `./router.ts`;
 		this.routerSrcFileAbs = path.join(this.srcDirAbs, this.routerSrcFileRel);
@@ -266,6 +270,13 @@ import { ${page.Ctor.name} } from '${path.join(`/`, pageCompilepath)}';
 			outdir: this.serveDirAbs,
 			splitting: true,
 		});
+		if (this.metaFileRel !== undefined) {
+			const metaFileAbs = path.join(this.serveDirAbs, this.metaFileRel);
+			header(`Outputting metafile`);
+			log(local(metaFileAbs));
+			fs.writeFileSync(metaFileAbs, JSON.stringify(buildResults.metafile));
+			logBreak();
+		}
 		for (const filepath in buildResults.metafile.outputs) {
 			const output = buildResults.metafile.outputs[filepath];
 			for (const exportName of output.exports) {
