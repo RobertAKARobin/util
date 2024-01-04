@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
 import { appContext } from '@robertakarobin/util/context.ts';
 import { newUid } from '@robertakarobin/util/uid.ts';
 
@@ -69,8 +68,8 @@ export class Component extends HTMLElement {
 			HTMLElementTagNameMap[keyof HTMLElementTagNameMap]
 		>;
 
-		interface ComponentBase extends Component {} // eslint-disable-line no-restricted-syntax
-		class ComponentBase extends (BaseElement as typeof HTMLElement) {
+		interface ComponentBase extends Component {} // eslint-disable-line no-restricted-syntax, @typescript-eslint/no-unsafe-declaration-merging
+		class ComponentBase extends (BaseElement as typeof HTMLElement) { // eslint-disable-line @typescript-eslint/no-unsafe-declaration-merging
 			static readonly elName: string;
 			static readonly observedAttributes = [] as Array<string>;
 			static readonly selector: string;
