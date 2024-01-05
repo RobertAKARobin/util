@@ -37,6 +37,7 @@
 	-	Have to extend HTMLElement
 	-	HTML tagged templates are a little annoying
 	-	Have to use shadow DOM for lit-ssr
+	-	Have to render first before can rerender
 -	Svelte
 	-	Magic syntax, e.g. `$` state prefixes
 -	Preact

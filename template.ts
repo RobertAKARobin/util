@@ -3,10 +3,25 @@
  * {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates See MDN Docs}
  */
 export function taggedTemplate(
-	strings: ReadonlyArray<string>,
-	...values: Array<string>
-) {
-	return strings.map((chunk, index) => `${chunk}${values[index] ?? ``}`).join(``);
+	strings: ReadonlyArray<string>, // Originally had these as <string> but that would reject numbers, URLs, etc
+	...values: Array<unknown>
+): string {
+	let out = ``;
+	for (let index = 0, length = strings.length; index < length; index += 1) {
+		out += strings[index];
+
+		const value = values[index];
+		if (typeof value === `string`) {
+			out += value;
+		} else if (value === null || value === undefined) {
+			continue;
+		} else if (Array.isArray(value)) {
+			out += value.join(``);
+		} else {
+			out += (value as number).toString();
+		}
+	}
+	return out;
 }
 
 /**

@@ -11,6 +11,8 @@ const globalVars = globalThis as typeof globalThis & {
 };
 globalVars[globalProperty] = {};
 
+type AttributeValue = string | number | boolean | undefined | null | symbol;
+
 type ComponentWithoutGlobals = Omit<typeof Component,
 	| `$elAttr`
 	| `$styleAttr`
@@ -59,7 +61,7 @@ export class Component extends HTMLElement {
 				get(this: Component) {
 					return this.getAttribute(attributeName);
 				},
-				set(this: Component, value: unknown) {
+				set(this: Component, value: AttributeValue) {
 					this.setAttributes({ [attributeName]: value });
 				},
 			});
@@ -370,7 +372,7 @@ export class Component extends HTMLElement {
 		return this;
 	}
 
-	setAttributes(attributes: Record<string, unknown>) {
+	setAttributes(attributes: Record<string, AttributeValue>) {
 		for (const attributeName in attributes) {
 			const value = attributes[attributeName];
 			if (value === undefined || value === null || value === `undefined` || value === `null` || value === ``) {

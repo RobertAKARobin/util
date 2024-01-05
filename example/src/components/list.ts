@@ -1,4 +1,4 @@
-import { Component } from '@robertakarobin/web/component.ts';
+import { Component, html } from '@robertakarobin/web/component.ts';
 
 import type * as Type from '@src/types.js';
 import { ListItem } from './listitem.ts';
@@ -15,12 +15,12 @@ export class List extends Component.custom(`ol`) {
 		return this;
 	}
 
-	template = () => `
+	template = () => html`
 	<li>List ID ${this.id}</li>
 
 	${this.listItems.map(({ id, value }) =>
 		ListItem.get(id).set({ value })
-	).join(`\n`)}
+	)}
 
 	<li>
 		<button
