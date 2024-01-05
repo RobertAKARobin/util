@@ -1,4 +1,4 @@
-import { Component } from '@robertakarobin/web/component.ts';
+import { Component, html } from '@robertakarobin/web/component.ts';
 
 import { types } from '@src/theme.ts';
 
@@ -18,13 +18,16 @@ export class Textbox extends Component.custom(`div`) {
 		const updated = (event.currentTarget as HTMLInputElement).value;
 		if (updated !== this.value) {
 			this.value = updated;
-			this.render();
+			this.rerender();
 		}
 		return this.value;
 	}
 
-	template = () => `
+	template = () => html`
 <input
+	${this.dynamicAttrs(`class`)}
+	class="${(this.value ?? ``).length >= (this.maxLength - 5) ? `warning` : ``}"
+	id="${this.id}-input"
 	maxlength="${this.maxLength}"
 	oninput="${this.bind(`emitValue`)}"
 	placeholder="Type here"
@@ -32,8 +35,11 @@ export class Textbox extends Component.custom(`div`) {
 	value="${this.value ?? ``}"
 >
 
-<span>
-	${this.maxLength - this.value.length} / ${this.maxLength} Remaining
+<span
+	${this.dynamicContent()}
+	id="${this.id}-remaining"
+>
+	${this.maxLength - (this.value ?? ``).length} / ${this.maxLength} Remaining
 </span>
 
 <p>textbox ID ${this.id}</p>

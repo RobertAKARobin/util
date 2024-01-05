@@ -1,4 +1,6 @@
 import { appContext } from '@robertakarobin/util/context.ts';
+import { findCommentsByContents } from '@robertakarobin/util/findComment.ts';
+import { indexOn } from '@robertakarobin/util/indexOn.ts';
 import { newUid } from '@robertakarobin/util/uid.ts';
 
 export { css, html } from '@robertakarobin/util/template.ts';
@@ -15,21 +17,24 @@ type AttributeValue = string | number | boolean | undefined | null | symbol;
 
 type ComponentWithoutGlobals = Omit<typeof Component,
 	| `$elAttr`
+	| `$elDynamicAttrs`
+	| `$elDynamicContent`
+	| `$elDynamicList`
 	| `$styleAttr`
-	| `subclasses`
 	| `attribute`
 	| `createId`
 	| `custom`
 	| `define`
 	| `event`
-	| `find`
-	| `findAll`
-	| `get`
+	| `subclasses`
 	| `unconnectedElements`
 >;
 
 export class Component extends HTMLElement {
 	static readonly $elAttr = `is`;
+	static readonly $elDynamicAttrs = `data-dynamic-attrs`;
+	static readonly $elDynamicContent = `data-dynamic-content`;
+	static readonly $elDynamicList = `data-dynamic-list`;
 	static readonly $styleAttr = `data-style`;
 	static readonly elName: string;
 	static readonly observedAttributes = [] as Array<string>;
@@ -211,6 +216,7 @@ export class Component extends HTMLElement {
 	 * Not a static variable because a Component/Page may/may not want to be SSG based on certain conditions
 	*/
 	readonly isSSG: boolean = true;
+	private watchCache = new Map();
 
 	constructor(...args: Array<any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
 		super();
@@ -266,6 +272,21 @@ export class Component extends HTMLElement {
 
 	protected disconnectedCallback() {
 		this.$onRemove();
+	}
+
+	dynamicAttrs(...attrs: Array<string>) {
+		return ` ${Component.$elDynamicAttrs}="${attrs.join(`,`)}" `;
+	}
+
+	dynamicContent() {
+		return ` ${Component.$elDynamicContent} `;
+	}
+
+	dynamicList(id: string, els: Array<HTMLElement>) {
+		return `<!--${id}-->` + els.map(element => {
+			element.setAttribute(Component.$elDynamicList, id);
+			return element;
+		}).join(``);
 	}
 
 	/**
@@ -327,11 +348,11 @@ export class Component extends HTMLElement {
 	}
 
 	render() {
-		const $template = document.createElement(`template`);
-		$template.innerHTML = this.template();
+		const template = document.createElement(`template`);
+		template.innerHTML = this.template();
 
 		const newCommentIterator = () => document.createNodeIterator(
-			$template.content,
+			template.content,
 			NodeFilter.SHOW_COMMENT,
 			() => NodeFilter.FILTER_ACCEPT,
 		);
@@ -359,9 +380,72 @@ export class Component extends HTMLElement {
 			Component.unconnectedElements.delete(id);
 		}
 
-		this.replaceChildren(...$template.content.childNodes);
+		this.replaceChildren(...template.content.childNodes);
 
 		return this;
+	}
+
+	rerender() {
+		const template = document.createElement(`template`);
+		template.innerHTML = this.template();
+
+		this.rerenderLists(template);
+		this.rerenderAttributes(template);
+		this.rerenderContents(template);
+
+		return this;
+	}
+
+	private rerenderAttributes(template: HTMLTemplateElement) {
+		const updatedEls = template.content.querySelectorAll(`[${Component.$elDynamicAttrs}]`);
+		const existingEls = this.querySelectorAll(`[${Component.$elDynamicAttrs}]`);
+		const existingElsById = indexOn(existingEls, `id`);
+		for (const updatedEl of updatedEls) {
+			const attributeNames = updatedEl.getAttribute(Component.$elDynamicAttrs)!.split(`,`);
+			const id = updatedEl.id;
+			const existingEl = existingElsById[id];
+			for (const attributeName of attributeNames) {
+				const value = updatedEl.getAttribute(attributeName)!;
+				existingEl.setAttribute(attributeName, value);
+			}
+		}
+	}
+
+	private rerenderContents(template: HTMLTemplateElement) {
+		const updatedEls = template.content.querySelectorAll(`[${Component.$elDynamicContent}]`);
+		const existingEls = this.querySelectorAll(`[${Component.$elDynamicContent}]`);
+		const existingElsById = indexOn(existingEls, `id`);
+		for (const updatedEl of updatedEls) {
+			const id = updatedEl.id;
+			const existingEl = existingElsById[id];
+			existingEl.innerHTML = updatedEl.innerHTML;
+		}
+	}
+
+	private rerenderLists(template: HTMLTemplateElement) {
+		const updatedEls = template.content.querySelectorAll(`[${Component.$elDynamicList}]`);
+		const existingEls = this.querySelectorAll(`[${Component.$elDynamicList}]`) as Iterable<HTMLElement>;
+		const existingElsById = indexOn(existingEls, `id`);
+		const elsToRemove = new Set(existingEls);
+		const elStartsById = {} as Record<string, Node>;
+		for (const updatedEl of updatedEls) {
+			const id = updatedEl.id;
+			const elStart = elStartsById[id] ?? (
+				elStartsById[id] = findCommentsByContents(this, id)[0]
+			);
+
+			const existingEl = existingElsById[id];
+			elStart.parentElement!.insertBefore(
+				existingEl ?? updatedEl,
+				elStart
+			);
+
+			elsToRemove.delete(existingEl);
+		}
+
+		for (const elToRemove of elsToRemove) {
+			elToRemove.remove();
+		}
 	}
 
 	set(attributes: Partial<this>) {

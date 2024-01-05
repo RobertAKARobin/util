@@ -18,9 +18,9 @@ export class List extends Component.custom(`ol`) {
 	template = () => html`
 	<li>List ID ${this.id}</li>
 
-	${this.listItems.map(({ id, value }) =>
+	${this.dynamicList(`items`, this.listItems.map(({ id, value }) =>
 		ListItem.get(id).set({ value })
-	)}
+	))}
 
 	<li>
 		<button

@@ -1,4 +1,4 @@
-import { Component, css } from '@robertakarobin/web/component.ts';
+import { Component, css, html } from '@robertakarobin/web/component.ts';
 
 import { Layout } from './_layout.ts';
 import { List } from '@src/components/list.ts';
@@ -49,7 +49,7 @@ export class IndexPage extends Layout {
 		modalContainer.place(new ProgressModal());
 	}
 
-	template = () => super.template(`
+	template = () => super.template(html`
 <h1>Hello world!</h1>
 
 ${TransitionTest.get()}

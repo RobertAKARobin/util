@@ -8,4 +8,7 @@ if (appContext === `build`) {
 	state.add({
 		value: `hello`,
 	});
+	state.add({
+		value: `world`,
+	});
 }
