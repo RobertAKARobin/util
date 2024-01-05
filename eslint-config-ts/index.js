@@ -64,14 +64,13 @@ module.exports = {
 						order: `natural-case-insensitive`,
 					},
 				}],
-				'@typescript-eslint/no-base-to-string': `off`, // TODO2: Want to use this, but it tends to throw false positives on custom classes
-				// '@typescript-eslint/no-base-to-string': [`error`, {
-				// 	ignoredTypeNames: [
-				// 		`RegExp`,
-				// 		`URL`,
-				// 		`URLSearchParams`,
-				// 	],
-				// }],
+				'@typescript-eslint/no-base-to-string': [`error`, {
+					ignoredTypeNames: [
+						`RegExp`,
+						`URL`,
+						`URLSearchParams`,
+					],
+				}],
 				'@typescript-eslint/no-empty-interface': `off`,
 				'@typescript-eslint/no-explicit-any': `error`,
 				'@typescript-eslint/no-this-alias': `off`,
