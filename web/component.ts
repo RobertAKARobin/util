@@ -22,6 +22,8 @@ type ComponentWithoutGlobals = Omit<typeof Component,
 	| `custom`
 	| `define`
 	| `event`
+	| `find`
+	| `findAll`
 	| `get`
 	| `unconnectedElements`
 >;
@@ -72,6 +74,8 @@ export class Component extends HTMLElement {
 		interface ComponentBase extends Component {} // eslint-disable-line no-restricted-syntax, @typescript-eslint/no-unsafe-declaration-merging
 		class ComponentBase extends (BaseElement as typeof HTMLElement) { // eslint-disable-line @typescript-eslint/no-unsafe-declaration-merging
 			static readonly elName: string;
+			static readonly find = Component.find;
+			static readonly findAll = Component.findAll;
 			static readonly get = Component.get;
 			static readonly observedAttributes = [] as Array<string>;
 			static readonly selector: string;
@@ -165,6 +169,22 @@ export class Component extends HTMLElement {
 				}));
 			};
 		};
+	}
+
+	static find<Subclass extends Component>(
+		this: Constructor<Subclass>,
+		root: Element = document.documentElement,
+	) {
+		const selector = (this as unknown as typeof Component).selector;
+		return root.querySelector(selector) as Subclass;
+	}
+
+	static findAll<Subclass extends Component>(
+		this: Constructor<Subclass>,
+		root: Element = document.documentElement,
+	) {
+		const selector = (this as unknown as typeof Component).selector;
+		return [...root.querySelectorAll(selector)] as Array<Subclass>;
 	}
 
 	static get<Subclass extends Component>(
