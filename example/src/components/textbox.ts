@@ -40,7 +40,7 @@ input {
 	oninput="${this.bind(`emitValue`)}"
 	placeholder="Type here"
 	type="text"
-	value="${this.valueOverride}"
+	value="${this.valueOverride ?? ``}"
 >
 
 <span></span>

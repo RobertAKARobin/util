@@ -38,7 +38,7 @@ export class ProgressModal extends Component {
 	}
 
 	template = () => html`
-${new ProgressCircle().set({
+${ProgressCircle.get().set({
 	borderWidth: 10,
 	diameter: 300,
 	max: 100,

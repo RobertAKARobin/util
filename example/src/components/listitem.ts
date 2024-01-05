@@ -26,7 +26,7 @@ export class ListItem extends Component.custom(`li`) {
 
 	template = () => `
 	<p>List item ID ${this.id}</p>
-	${new Textbox(`${this.id}-txt`).set({ valueOverride: this.value })}
+	${Textbox.get(`${this.id}-txt`).set({ valueOverride: this.value })}
 	<button
 		onclick="${this.bind(`emitDelete`)}"
 		type="button"

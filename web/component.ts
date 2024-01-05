@@ -22,6 +22,7 @@ type ComponentWithoutGlobals = Omit<typeof Component,
 	| `custom`
 	| `define`
 	| `event`
+	| `get`
 	| `unconnectedElements`
 >;
 
@@ -71,6 +72,7 @@ export class Component extends HTMLElement {
 		interface ComponentBase extends Component {} // eslint-disable-line no-restricted-syntax, @typescript-eslint/no-unsafe-declaration-merging
 		class ComponentBase extends (BaseElement as typeof HTMLElement) { // eslint-disable-line @typescript-eslint/no-unsafe-declaration-merging
 			static readonly elName: string;
+			static readonly get = Component.get;
 			static readonly observedAttributes = [] as Array<string>;
 			static readonly selector: string;
 			static readonly style: string | undefined;
@@ -165,6 +167,22 @@ export class Component extends HTMLElement {
 		};
 	}
 
+	static get<Subclass extends Component>(
+		this: Constructor<Subclass>,
+		id?: Component[`id`],
+	) {
+		if (id === undefined) {
+			return new this();
+		}
+
+		const $existing = document.getElementById(id) as Subclass;
+		if ($existing !== null) {
+			return $existing;
+		}
+
+		return new this(id);
+	}
+
 	/**
 	 * Content that will be rendered inside this element.
 	 */
@@ -185,13 +203,6 @@ export class Component extends HTMLElement {
 	constructor(...args: Array<any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
 		super();
 		this.$onConstruct(...args); // eslint-disable-line @typescript-eslint/no-unsafe-argument
-
-		// if (id !== undefined) {
-		// 	const $existing = document.getElementById(id);
-		// 	if ($existing) {
-		// 		return $existing as this;
-		// 	}
-		// }
 	}
 
 	$onChange(

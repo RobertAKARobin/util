@@ -19,6 +19,31 @@
 -	The build script copies the contents of `src` to a `tmp` folder so that it can transpile `<markdown>` tags before the TS is compiled. Without this step the Markdown would need to be compiled in the browser. However, if your `tsconfig.json` has path aliases for `src` then it'll keep the Markdown from getting transpiled correctly. To resolve, point your alias to `tmp` as well as `src`, e.g. `paths: { "@src/*": ["tmp/*", "src/*"]}`
 -	Have to include `tmp` in the tsconfig `includes` for until TSX fixes an issue with decorators: https://github.com/evanw/esbuild/issues/3496
 
+### Render methods
+
+`Component.get`
+
+-	Extra step: have to translate to comment
+-	Looks stupid
+
+`<component>`
+
+-	Not so type-safe
+-	Have to manually import
+
+### Existing frameworks
+
+-	Lit
+	-	Have to extend HTMLElement
+	-	HTML tagged templates are a little annoying
+	-	Have to use shadow DOM for lit-ssr
+-	Svelte
+	-	Magic syntax, e.g. `$` state prefixes
+-	Preact
+	-	Clunky state management
+-	lwc
+	-	Limited Typescript support
+
 ## TODO
 
 -	Remove `$` prefix from elements; this isn't jQuery

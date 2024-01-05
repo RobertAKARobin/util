@@ -54,7 +54,7 @@ export class IndexPage extends Layout {
 	template = () => super.template(`
 <h1>Hello world!</h1>
 
-${new TransitionTest()}
+${TransitionTest.get()}
 
 <button
 	onclick="${this.bind(`openModal`)}"
@@ -63,7 +63,7 @@ ${new TransitionTest()}
 
 <div id="${router.hashes.homeJump1}">Jump 1</div>
 
-${new List().setListItems(state.entries.$)}
+${List.get().setListItems(state.entries.$)}
 
 <markdown>
 # Headline 1

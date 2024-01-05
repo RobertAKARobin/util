@@ -19,7 +19,7 @@ export class List extends Component.custom(`ol`) {
 	<li>List ID ${this.id}</li>
 
 	${this.listItems.map(({ id, value }) =>
-		new ListItem(id).set({ value })
+		ListItem.get(id).set({ value })
 	).join(`\n`)}
 
 	<li>
