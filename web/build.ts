@@ -188,9 +188,6 @@ export class Builder {
 				const serveDirAbs = path.dirname(serveFileAbs);
 				fs.mkdirSync(serveDirAbs, { recursive: true });
 
-				// dummyDOM.refresh(); // TODO2: On each route the customElements seem to get redefined; need to dump the dummyDOM to prevent errors
-				Component.subclasses.clear();
-
 				const page = await resolver.resolve(route);
 				const pageCompilepath = compilePathsByExportName[page.Ctor.name];
 
@@ -215,12 +212,10 @@ import { ${page.Ctor.name} } from '${path.join(`/`, pageCompilepath)}';
 
 				let routeCss = ``;
 				let routeCssPath = ``;
-				for (const Subclass of Component.subclasses) { // document.querySelectorAll($elAttr) doesn't work because static init doesn't get called?
-					if (Subclass.elName === undefined) {
-						throw new Error(Subclass.name);
-					}
-					head += `<style ${Component.$styleAttr}="${Subclass.elName}"></style>`;
-					routeCss += Subclass.style ?? ``;
+				for (const $style of document.querySelectorAll(`[${Component.$styleAttr}]`)) {
+					const componentName = $style.getAttribute(Component.$styleAttr);
+					head += `<style ${Component.$styleAttr}="${componentName}"></style>`;
+					routeCss += $style.textContent?.trim() ?? ``;
 				}
 
 				if (routeCss.length > 0) {

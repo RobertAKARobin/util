@@ -11,7 +11,7 @@ export class ListItem extends Component.custom(`li`) {
 	$onPlace() {
 		const $textbox = this.findDown(Textbox);
 		$textbox.on(`emitValue`, event => {
-			this.emitValue(event.detail!);
+			this.emitValue(event.detail);
 			event.stopPropagation();
 		});
 	}

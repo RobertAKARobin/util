@@ -32,7 +32,6 @@ export class Component extends HTMLElement {
 	static readonly elName: string;
 	static readonly observedAttributes = [] as Array<string>;
 	static readonly selector: string;
-	static readonly style: string | undefined;
 	static readonly subclasses = new Set<typeof Component>();
 	static readonly tagName?: keyof HTMLElementTagNameMap;
 	static readonly unconnectedElements = new Map<HTMLElement[`id`], WeakRef<Component>>();
@@ -85,7 +84,6 @@ export class Component extends HTMLElement {
 			static readonly get = Component.get;
 			static readonly observedAttributes = [] as Array<string>;
 			static readonly selector: string;
-			static readonly style: string | undefined;
 			static readonly tagName = tagName;
 
 			constructor(...args: Array<any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -104,17 +102,19 @@ export class Component extends HTMLElement {
 	}
 
 	static define<Subclass extends ComponentWithoutGlobals>(
-		_options = {} // TODO3: Options?
+		options: Partial<{
+			style: string;
+		}> = {}
 	) {
 		return function(Subclass: Subclass) {
 			const Constructor = Subclass as unknown as typeof Component;
 			const elName = Constructor.elName ?? `l-${Constructor.name.toLowerCase()}`;
 
 			const selector = `[${Component.$elAttr}='${elName}']`;
-			const style = Constructor.style?.replace(/::?host/g, selector);
+			const style = options.style?.replace(/::?host/g, selector);
 			if ( // Has to come after elName has been assigned
 				typeof style === `string`
-				&& document.querySelector(`style[${Component.$styleAttr}='${elName}']`) === null
+				&& document.querySelector(`[${Component.$styleAttr}='${elName}']`) === null
 			) {
 				const $style = document.createElement(`style`);
 				$style.textContent = style;

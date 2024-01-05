@@ -2,14 +2,14 @@ import { Component } from '@robertakarobin/web/component.ts';
 
 import { types } from '@src/theme.ts';
 
-@Component.define()
-export class Textbox extends Component.custom(`div`) {
-	static style = `
+const style = `
 input {
 	${types.body}
 }
-	`;
+`;
 
+@Component.define({ style })
+export class Textbox extends Component.custom(`div`) {
 	@Component.attribute({ name: `data-max` }) maxLength = 10;
 	@Component.attribute({ name: `data-value` }) value = ``;
 

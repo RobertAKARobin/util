@@ -9,9 +9,8 @@ h1 {
 }
 `;
 
-@Component.define()
+@Component.define({ style })
 export class YesSSGPage extends Layout {
-	static style = style;
 	isSSG = true;
 	template = () => super.template(`
 <h1>SSG yes</h1>

@@ -18,10 +18,8 @@ const style = css`
 
 const colors = [`red`, `yellow`, `green`, `brown`, `scarlet`];
 
-@Component.define()
+@Component.define({ style })
 export class IndexPage extends Layout {
-	static style = style;
-
 	@Component.attribute({
 		name: `data-message`,
 	}) message = ``;

@@ -12,7 +12,7 @@ const style = css`
 }
 `;
 
-@Component.define()
+@Component.define({ style })
 export class ProgressModal extends Component {
 	static style = style;
 
