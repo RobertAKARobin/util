@@ -163,6 +163,10 @@ export class Builder {
 			Object.entries(router.urls).map(([routeName, route]) => async() => {
 				log(`${routeName.toString()}: ${route.pathname}`);
 
+				for (const style of document.querySelectorAll(`style`)) { // Remove styles so that the only ones that exist on this page are for components used on this page
+					style.remove();
+				}
+
 				if (route.origin !== baseUrl.origin) {
 					console.log(`Route is external. Skipping...`);
 					logBreak();

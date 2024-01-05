@@ -63,26 +63,26 @@ export const spec = suite(`@robertakarobin/web`,
 	}),
 
 	test(`component`, $ => {
-		$.assert(x => x(new Widget(`ID`).outerHTML) === `<h1 is="l-widget" id="ID" prop="42"></h1>`);
+		$.assert(x => x(new Widget(`ID`).outerHTML) === `<h1 id="ID" is="l-widget" prop="42"></h1>`);
 
 		id = 0;
-		$.assert(x => x(new Widget().outerHTML) === `<h1 is="l-widget" id="UID1_" prop="42"></h1>`);
+		$.assert(x => x(new Widget().outerHTML) === `<h1 id="UID1_" is="l-widget" prop="42"></h1>`);
 
 		id = 0;
-		$.assert(x => x(new Widget().set({ message: `x` }).outerHTML) === `<h1 is="l-widget" id="UID1_" prop="42" message="x"></h1>`);
+		$.assert(x => x(new Widget().set({ message: `x` }).outerHTML) === `<h1 id="UID1_" is="l-widget" prop="42" message="x"></h1>`);
 
 		id = 0;
-		$.assert(x => x(new Widget().set({ message: `x` }).render().outerHTML) === `<h1 is="l-widget" id="UID1_" prop="42" message="x">x42</h1>`);
+		$.assert(x => x(new Widget().set({ message: `x` }).render().outerHTML) === `<h1 id="UID1_" is="l-widget" prop="42" message="x">x42</h1>`);
 
 
 		let widget: Widget;
 		id = 0;
 		$.log(() => widget = new Widget());
-		$.assert(x => x(widget.outerHTML) === `<h1 is="l-widget" id="UID1_" prop="42"></h1>`);
-		$.assert(x => x(widget.render().outerHTML) === `<h1 is="l-widget" id="UID1_" prop="42">42</h1>`);
-		$.assert(x => x(widget.set({ message: `x` }).outerHTML) === `<h1 is="l-widget" id="UID1_" prop="42" message="x">42</h1>`);
-		$.assert(x => x(widget.render().outerHTML) === `<h1 is="l-widget" id="UID1_" prop="42" message="x">x42</h1>`);
-		$.assert(x => x(widget.set({ message: undefined }).outerHTML) === `<h1 is="l-widget" id="UID1_" prop="42">x42</h1>`);
-		$.assert(x => x(widget.render().outerHTML) === `<h1 is="l-widget" id="UID1_" prop="42">42</h1>`);
+		$.assert(x => x(widget.outerHTML) === `<h1 id="UID1_" is="l-widget" prop="42"></h1>`);
+		$.assert(x => x(widget.render().outerHTML) === `<h1 id="UID1_" is="l-widget" prop="42">42</h1>`);
+		$.assert(x => x(widget.set({ message: `x` }).outerHTML) === `<h1 id="UID1_" is="l-widget" prop="42" message="x">42</h1>`);
+		$.assert(x => x(widget.render().outerHTML) === `<h1 id="UID1_" is="l-widget" prop="42" message="x">x42</h1>`);
+		$.assert(x => x(widget.set({ message: undefined }).outerHTML) === `<h1 id="UID1_" is="l-widget" prop="42">x42</h1>`);
+		$.assert(x => x(widget.render().outerHTML) === `<h1 id="UID1_" is="l-widget" prop="42">42</h1>`);
 	}),
 );

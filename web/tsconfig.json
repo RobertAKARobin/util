@@ -9,5 +9,12 @@
 	],
 	"extends": [
 		"@robertakarobin/eslint-config-ts"
+	],
+	"include": [
+		"build.ts",
+		"component.ts",
+		"dummydom.ts",
+		"router.ts",
+		"components/*.ts"
 	]
 }

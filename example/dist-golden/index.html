@@ -4,51 +4,54 @@
 <head>
 	<title>Home page</title>
 	<base href="/">
-	<meta name="viewport" content="width=device-width, initial-scale=1"> <script src="/script.js?cache=1703788829069" type="module"></script>
-	<link rel="stylesheet" href="/styles.css?cache=1703788829069"> <script type="module">import { IndexPage } from '/pages-HZBTGD2U.js';IndexPage.init();</script>
+	<meta name="viewport" content="width=device-width, initial-scale=1"> <script src="/script.js?cache=1704473732305" type="module"></script>
+	<link rel="stylesheet" href="/styles.css?cache=1704473732305"> <script type="module">import { IndexPage } from '/pages-C37NORY4.js';</script>
 	<style data-style="l-textbox"></style>
-	<style data-style="l-listitem"></style>
-	<style data-style="l-list"></style>
-	<style data-style="l-progresscircle"></style>
 	<style data-style="l-progressmodal"></style>
 	<style data-style="l-transitiontest"></style>
 	<style data-style="l-indexpage"></style>
-	<link rel="stylesheet" href="/index.html.css?cache=1703788829069">
+	<link rel="stylesheet" href="/index.html.css?cache=1704473732305">
 </head>
 
 <body>
-	<main id="UID14_" is="l-indexpage" data-message="This is a variable" data-page-title="Home page">
-		<nav id="UID18_" is="l-nav">
+	<main id="UID5_" is="l-indexpage" data-page-title="Home page" data-message="This is a variable">
+		<nav>
 			<ul>
-				<li><a id="UID20_" is="l-link" data-route-name="error404" href="/404.html">Go error404</a></li>
-				<li><a id="UID21_" is="l-link" data-route-name="external" href="https://example.com/" rel="noopener" target="_blank">Go external</a></li>
-				<li><a id="UID22_" is="l-link" data-route-name="home" href="/">Go home</a></li>
-				<li><a id="UID23_" is="l-link" data-route-name="homeJump1" href="/#jump1">Go homeJump1</a></li>
-				<li><a id="UID24_" is="l-link" data-route-name="homeJump2" href="/#jump2">Go homeJump2</a></li>
-				<li><a id="UID25_" is="l-link" data-route-name="ssgNo" href="/ssg/no/">Go ssgNo</a></li>
-				<li><a id="UID26_" is="l-link" data-route-name="ssgYes" href="/ssg/yes/">Go ssgYes</a></li>
-				<li><a id="UID27_" is="l-link" data-route-name="ssgYesJump1" href="/ssg/yes/#jump1">Go ssgYesJump1</a></li>
-				<li><a id="UID28_" is="l-link" data-route-name="ssgYesJump2" href="/ssg/yes/#jump2">Go ssgYesJump2</a></li>
+				<li> <a href="/404.html">Go error404</a></li>
+				<li> <a href="https://example.com/" rel="noopener" target="_blank">Go external</a></li>
+				<li> <a href="/">Go home</a></li>
+				<li> <a href="/#jump1">Go homeJump1</a></li>
+				<li> <a href="/#jump2">Go homeJump2</a></li>
+				<li> <a href="/ssg/no/">Go ssgNo</a></li>
+				<li> <a href="/ssg/yes/">Go ssgYes</a></li>
+				<li> <a href="/ssg/yes/#jump1">Go ssgYesJump1</a></li>
+				<li> <a href="/ssg/yes/#jump2">Go ssgYesJump2</a></li>
 			</ul>
 		</nav>
 		<h1>Hello world!</h1>
-		<div id="UID15_" is="l-transitiontest"></div><button onclick="this.closest(`[is='l-indexpage']`).openModal(event)" type="button">Modal</button>
+		<div id="UID6_" is="l-transitiontest"></div><button onclick="this.closest(`[is='l-indexpage']`).openModal(event)" type="button">Modal</button>
 		<div id="jump1">Jump 1</div>
-		<ol id="UID16_" is="l-list">
-			<li>List ID UID16_</li>
-			<li id="UID13_" is="l-listitem" data-value="hello">
-				<p>List item ID UID13_</p>
-				<div id="UID13_-txt" is="l-textbox" data-maxlength="10" data-value="hello"><input maxlength="10" oninput="this.closest(`[is='l-textbox']`).handleInput(event)" placeholder="Type here" type="text" value="hello"><span></span>
-					<p>textbox ID UID13_-txt</p>
-				</div> <button onclick="this.closest(`[is='l-listitem']`).onRemove(event)" type="button">Remove</button>
+		<ol id="UID7_" is="l-list">
+			<li>List ID UID7_</li> <!--items-->
+			<li id="UID3_" is="l-listitem" data-value="hello" data-dynamic-list="items">
+				<p>List item ID UID3_</p>
+				<div id="UID3_-txt" is="l-textbox" data-max="10" data-value="hello"><input data-dynamic-attrs="class" class="warning" id="UID3_-txt-input" maxlength="10" oninput="this.closest(`[is='l-textbox']`).emitValue(event)" placeholder="Type here" type="text" value="hello"><span data-dynamic-content="" id="UID3_-txt-remaining"> 5 / 10 Remaining</span>
+					<p>textbox ID UID3_-txt</p>
+				</div> <button onclick="this.closest(`[is='l-listitem']`).emitDelete(event)" type="button">Remove</button>
 			</li>
-			<li> <button onclick="this.closest(`[is='l-list']`).onAdd(event)" type="button">Add</button> </li>
+			<li id="UID4_" is="l-listitem" data-value="world" data-dynamic-list="items">
+				<p>List item ID UID4_</p>
+				<div id="UID4_-txt" is="l-textbox" data-max="10" data-value="world"><input data-dynamic-attrs="class" class="warning" id="UID4_-txt-input" maxlength="10" oninput="this.closest(`[is='l-textbox']`).emitValue(event)" placeholder="Type here" type="text" value="world"><span data-dynamic-content="" id="UID4_-txt-remaining"> 5 / 10 Remaining</span>
+					<p>textbox ID UID4_-txt</p>
+				</div> <button onclick="this.closest(`[is='l-listitem']`).emitDelete(event)" type="button">Remove</button>
+			</li>
+			<li> <button onclick="this.closest(`[is='l-list']`).emitAdd(event)" type="button">Add</button> </li>
 		</ol>
 		<h1>Headline 1</h1>
 		<h2>This is a variable</h2>
 		<p>Lorem ipsum dolor <strong>sit amet</strong>, consectetur <em>adipiscing elit</em>, sed do <em>eiusmod tempor</em> incididunt.</p>
 		<p>Duis aute voluptate <a href="https://example.com">velit esse cillum</a> dolore /eu fugiat/ nulla pariatur.</p>
-		<p><a id="UID17_" is="l-link" data-route-name="ssgYes" href="/ssg/yes/">Link to SSG Yes</a></p><button type="button" onclick="this.closest(`[is='l-indexpage']`).anchorlessRoute(event)">Go to SSG Yes</button>
+		<p> <a href="/ssg/yes/">Link to SSG Yes</a></p><button onclick="this.closest(`[is='l-indexpage']`).anchorlessRoute(event)" type="button">Go to SSG Yes</button>
 		<h2>Headline 2</h2>
 		<blockquote>
 			<p>Excepteur sint occaecat <em>cupidatat</em> non proident.</p>
@@ -73,7 +76,7 @@
 			<li> ut aliquip ex</li>
 		</ol>
 		<div id="jump2">Jump 2</div>
-		<div id="UID19_" is="l-modalcontainer" data-duration="0.2" data-transition-state="inactive"></div>
+		<div id="UID1_" is="l-modalcontainer" data-duration="0.2" data-transition-state="inactive"></div>
 	</main>
 </body>
 

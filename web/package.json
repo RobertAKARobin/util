@@ -1,16 +1,16 @@
 {
 	"dependencies": {
-		"@robertakarobin/util": "^0.0.245",
+		"@robertakarobin/util": "^0.0.246",
 		"@types/js-beautify": "^1.14.3",
 		"@types/jsdom": "^21.1.6",
-		"esbuild": "^0.19.10",
+		"esbuild": "^0.19.11",
 		"glob": "^10.3.10",
 		"js-beautify": "^1.14.11",
-		"jsdom": "^23.0.1",
-		"marked": "^11.1.0"
+		"jsdom": "^23.1.0",
+		"marked": "^11.1.1"
 	},
 	"name": "@robertakarobin/web",
 	"scripts": {},
 	"type": "module",
-	"version": "0.0.88"
+	"version": "0.0.91"
 }

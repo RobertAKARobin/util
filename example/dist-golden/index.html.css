@@ -4,10 +4,6 @@ input {
 	font-size: 24px;
 }
 
-[is='l-progresscircle'] {
-	display: contents;
-}
-
 [is='l-progressmodal'] {
 	& circle {
 		stroke: #ff0000;
