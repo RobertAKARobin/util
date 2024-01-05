@@ -11,7 +11,7 @@ export class ListItem extends Component.custom(`li`) {
 	$onPlace() {
 		const $textbox = this.findDown(Textbox);
 		$textbox.on(`emitValue`, event => {
-			this.emitValue(event.detail);
+			this.emitValue(event.detail!);
 			event.stopPropagation();
 		});
 	}
@@ -26,7 +26,7 @@ export class ListItem extends Component.custom(`li`) {
 
 	template = () => `
 	<p>List item ID ${this.id}</p>
-	${Textbox.get(`${this.id}-txt`).set({ valueOverride: this.value })}
+	${Textbox.get(`${this.id}-txt`).set({ value: this.value })}
 	<button
 		onclick="${this.bind(`emitDelete`)}"
 		type="button"

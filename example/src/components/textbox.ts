@@ -10,28 +10,17 @@ input {
 }
 	`;
 
-	@Component.attribute({
-		name: `data-max`,
-	}) maxLength = 10;
-	@Component.attribute({
-		name: `data-value`,
-	}) valueOverride = ``;
-
-	$onPlace() {
-		this.setRemaining();
-	}
+	@Component.attribute({ name: `data-max` }) maxLength = 10;
+	@Component.attribute({ name: `data-value` }) value = ``;
 
 	@Component.event()
 	emitValue(event: Event) {
-		const value = (event.currentTarget as HTMLInputElement).value;
-		this.setRemaining();
-		return value;
-	}
-
-	setRemaining() {
-		const $input = this.findDown(`input`);
-		const value = $input.value;
-		this.querySelector(`span`)!.innerHTML = `${this.maxLength - value.length} / ${this.maxLength} Remaining`;
+		const updated = (event.currentTarget as HTMLInputElement).value;
+		if (updated !== this.value) {
+			this.value = updated;
+			this.render();
+		}
+		return this.value;
 	}
 
 	template = () => `
@@ -40,11 +29,13 @@ input {
 	oninput="${this.bind(`emitValue`)}"
 	placeholder="Type here"
 	type="text"
-	value="${this.valueOverride ?? ``}"
+	value="${this.value ?? ``}"
 >
 
-<span></span>
+<span>
+	${this.maxLength - this.value.length} / ${this.maxLength} Remaining
+</span>
 
 <p>textbox ID ${this.id}</p>
-		`;
+	`;
 }

@@ -5,8 +5,6 @@ export { css, html } from '@robertakarobin/util/template.ts';
 
 type Constructor<Classtype> = new (...args: any) => Classtype; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-export type AttributeValue = string | number | symbol | undefined | null;
-
 const globalProperty = `El`;
 const globalVars = globalThis as typeof globalThis & {
 	[globalProperty]: Record<string, unknown>;
@@ -42,6 +40,14 @@ export class Component extends HTMLElement {
 	static attribute(options: Partial<{
 		name: string;
 	}> = {}) {
+		// typeof defaultValue === `number` ? Number
+		// 	: typeof defaultValue === `boolean` ? Boolean
+		// 		: (input: string) => (
+		// 			input === null ? null
+		// 				: input === undefined ? undefined
+		// 					: input === `` ? undefined
+		// 						: input
+		// 		)
 		return function(
 			target: Component,
 			propertyName: string,
@@ -55,7 +61,7 @@ export class Component extends HTMLElement {
 					return this.getAttribute(attributeName);
 				},
 				set(this: Component, value: unknown) {
-					this.setAttributes({ [attributeName]: value as string });
+					this.setAttributes({ [attributeName]: value });
 				},
 			});
 		};
@@ -131,22 +137,6 @@ export class Component extends HTMLElement {
 				Constructor,
 				Subclass.tagName === undefined ? undefined : { extends: Subclass.tagName }
 			);
-
-			// const BaseElement = document.createElement(tagName).constructor as Constructor<HTMLElement>;
-			// for (const attributeName in observedAttributeDefinitions) {
-			// 	const attributeDefinition = observedAttributeDefinitions[attributeName];
-			// 	const defaultValue = attributeDefinition.default;
-			// 	attributeDefinition.fromString = attributeDefinition.fromString ?? (
-			// 		typeof defaultValue === `number` ? Number
-			// 			: typeof defaultValue === `boolean` ? Boolean
-			// 				: (input: string) => (
-			// 					input === null ? null
-			// 						: input === undefined ? undefined
-			// 							: input === `` ? undefined
-			// 								: input
-			// 				)
-			// 	);
-			// }
 		};
 	}
 
@@ -380,7 +370,7 @@ export class Component extends HTMLElement {
 		return this;
 	}
 
-	setAttributes(attributes: Record<string, AttributeValue>) {
+	setAttributes(attributes: Record<string, unknown>) {
 		for (const attributeName in attributes) {
 			const value = attributes[attributeName];
 			if (value === undefined || value === null || value === `undefined` || value === `null` || value === ``) {
