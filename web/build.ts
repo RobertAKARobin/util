@@ -51,6 +51,7 @@ export class Builder {
 	readonly styleServeFileRel: string;
 	readonly stylesServeFileAbs: string;
 	readonly stylesSrcFileAbs: string;
+	readonly tsconfigFileAbs: string | undefined;
 
 	/**
 	 *
@@ -78,6 +79,7 @@ export class Builder {
 		srcRawDirRel: string;
 		srcTmpDirRel: string;
 		styleServeFileRel: string;
+		tsconfigFileRel: string;
 	}> = {}) {
 		this.baseUri = input.baseUri ?? `/`;
 
@@ -85,6 +87,7 @@ export class Builder {
 		this.serveDirAbs = path.join(this.baseDirAbs, input.serveDirRel ?? `./dist`);
 		this.srcRawDirAbs = path.join(this.baseDirAbs, input.srcRawDirRel ?? `./src`);
 		this.srcDirAbs = path.join(this.baseDirAbs, input.srcTmpDirRel ?? `./tmp`); // Copying the TS source to `/tmp` is necessary because we want to compile Markdown _before_ we build the JS source. Otherwise we'd be sending Markdown to the browser, and we'd rather send valid HTML and not need to load a Markdown parser
+		this.tsconfigFileAbs = path.join(process.cwd(), input.tsconfigFileRel ?? `tsconfig.json`);
 
 		this.assetsSrcDirRel = input.assetsSrcDirRel ?? `./assets`;
 
@@ -268,6 +271,7 @@ import { ${page.Ctor.name} } from '${path.join(`/`, pageCompilepath)}';
 			minify: this.minify,
 			outdir: this.serveDirAbs,
 			splitting: true,
+			tsconfig: this.tsconfigFileAbs, // I thought esbuild would figure this out by itself, but when this isn't specified it does all kinds of weird behavior like not transpiling decorators
 		});
 		if (this.metaFileRel !== undefined) {
 			const metaFileAbs = path.join(this.serveDirAbs, this.metaFileRel);
