@@ -1,6 +1,6 @@
 import { baseUrl, defaultBaseUrl } from './context.ts';
 import { Emitter } from './emitter.ts';
-import { toAttributes } from 'toAttributes.ts';
+import { toAttributes } from './toAttributes.ts';
 
 export const hasExtension = /\.\w+$/;
 
@@ -13,7 +13,7 @@ export class Router<RouteMap_ extends RouteMap = Record<string, never>> extends 
 	readonly baseUrl: URL;
 	readonly hashes = {} as Record<keyof RouteMap_, string>;
 	readonly paths = {} as Record<keyof RouteMap_, string>;
-	readonly routeNames = new Set<keyof RouteMap_>();
+	readonly routeNames = [] as Array<keyof RouteMap_>;
 	readonly urls = {} as Record<keyof RouteMap_, URL>;
 
 	constructor(routes: RouteMap_, options: Partial<{
@@ -34,7 +34,7 @@ export class Router<RouteMap_ extends RouteMap = Record<string, never>> extends 
 	 * Defines a new route
 	 */
 	add(routeName: keyof RouteMap_, path: string) {
-		this.routeNames.add(routeName);
+		this.routeNames.push(routeName);
 
 		const url = new URL(path, this.baseUrl);
 		this.urls[routeName] = url;
