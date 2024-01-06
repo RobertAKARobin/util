@@ -40,10 +40,17 @@
 	-	Have to render first before can rerender
 -	Svelte
 	-	Magic syntax, e.g. `$` state prefixes
+	-	Don't care for route structure
 -	Preact
 	-	Clunky state management
 -	lwc
 	-	Limited Typescript support
+-	Marko
+	-	Weird custom syntax
+-	Riot.js
+	-	Old and not actively maintained?
+-	Stencil
+	-
 
 ## TODO
 

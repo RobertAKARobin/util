@@ -1,5 +1,5 @@
-import { appContext, baseUrl, defaultBaseUrl } from '@robertakarobin/util/context.ts';
-import { Emitter } from '@robertakarobin/util/emitter.ts';
+import { appContext, baseUrl, defaultBaseUrl } from './context.ts';
+import { Emitter } from './emitter.ts';
 
 export const hasExtension = /\.\w+$/;
 
