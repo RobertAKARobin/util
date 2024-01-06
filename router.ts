@@ -1,5 +1,6 @@
-import { appContext, baseUrl, defaultBaseUrl } from './context.ts';
+import { baseUrl, defaultBaseUrl } from './context.ts';
 import { Emitter } from './emitter.ts';
+import { toAttributes } from 'toAttributes.ts';
 
 export const hasExtension = /\.\w+$/;
 
@@ -9,118 +10,140 @@ export type RouteMap = Record<string, string>;
  * Given a dictionary of routes, e.g. { contactPage: `/contact` }, listens to window location changes and emits the new location
  */
 export class Router<RouteMap_ extends RouteMap = Record<string, never>> extends Emitter<URL> {
+	readonly baseUrl: URL;
 	readonly hashes = {} as Record<keyof RouteMap_, string>;
 	readonly paths = {} as Record<keyof RouteMap_, string>;
-	readonly routeNames: Array<keyof RouteMap_> = [];
+	readonly routeNames = new Set<keyof RouteMap_>();
 	readonly urls = {} as Record<keyof RouteMap_, URL>;
 
-	constructor(routes: RouteMap_) {
-		super();
+	constructor(routes: RouteMap_, options: Partial<{
+		baseUrl: string | URL;
+		initial: URL;
+	}> = {}) {
+		super(options.initial);
+
+		this.baseUrl = new URL(options.baseUrl ?? baseUrl);
 
 		for (const key in routes) {
-			this.routeNames.push(key);
-
 			const path = routes[key] as string;
+			this.add(key, path);
+		}
+	}
 
-			const url = new URL(path, baseUrl);
-			this.urls[key] = url;
+	/**
+	 * Defines a new route
+	 */
+	add(routeName: keyof RouteMap_, path: string) {
+		this.routeNames.add(routeName);
 
-			this.hashes[key] = url.hash.substring(1);
+		const url = new URL(path, this.baseUrl);
+		this.urls[routeName] = url;
+		this.hashes[routeName] = url.hash.substring(1);
+
+		const isExternal = url.origin !== this.baseUrl.origin;
+
+		if (isExternal) {
+			this.paths[routeName] = url.href;
+		} else {
 			if (!hasExtension.test(url.pathname)) {
 				if (!url.pathname.endsWith(`/`)) {
 					url.pathname += `/`;
 				}
 			}
-
-			if (url.origin === baseUrl.origin) {
-				this.paths[key] = `${url.pathname}${url.hash}`;
-			} else {
-				this.paths[key] = url.href;
-			}
-		}
-
-		if (appContext === `browser`) {
-			this.set(new URL(window.location.href));
-
-			window.onpopstate = () => { // Popstate is fired only by performing a browser action on the current document, e.g. back, forward, or hashchange
-				this.set(new URL(window.location.href));
-			};
-
-			window.onhashchange = () => { // Hashchange is fired _after_ popstate
-				this.set(new URL(window.location.href));
-			};
-
-			document.addEventListener(`click`, event => {
-				const $target = event.target as HTMLElement;
-				const $link = $target.closest(`a`);
-
-				if ($link === null) {
-					return;
-				}
-
-				const href = $link.getAttribute(`href`);
-
-				if (href === null) {
-					return;
-				}
-
-				if (event.metaKey || event.ctrlKey) { // Allow opening in new tab
-					return;
-				}
-
-				const url = new URL(href, baseUrl);
-				if (url.origin !== baseUrl.origin) { // External URLs
-					return;
-				}
-
-				event.preventDefault();
-
-				this.set(href);
-			});
-		}
-	}
-
-	link(
-		routeName: keyof RouteMap_,
-		content?: string,
-	) {
-		const url = this.urls[routeName];
-		const isExternal = url.origin !== baseUrl.origin;
-		if (isExternal) {
-			return `
-				<a
-					href=${url}
-					rel="noopener"
-					target="_blank"
-				>${content}</a>`;
-		} else {
-			return `
-				<a
-					href=${this.paths[routeName]}
-				>${content}</a>`;
+			this.paths[routeName] = `${url.pathname}${url.hash}`;
 		}
 	}
 
 	/**
-	 * Updates the window's location
+	 * Sets up the router to listen for location changes and intercept click events that cause navigation
+	 */
+	init() {
+		this.set(new URL(window.location.href));
+
+		window.onpopstate = () => { // Popstate is fired only by performing a browser action on the current document, e.g. back, forward, or hashchange
+			this.set(new URL(window.location.href));
+		};
+
+		window.onhashchange = () => { // Hashchange is fired _after_ popstate
+			this.set(new URL(window.location.href));
+		};
+
+		document.addEventListener(`click`, event => {
+			const $target = event.target as HTMLElement;
+			const $link = $target.closest(`a`);
+
+			if ($link === null) {
+				return;
+			}
+
+			const href = $link.getAttribute(`href`);
+
+			if (href === null) {
+				return;
+			}
+
+			if (event.metaKey || event.ctrlKey) { // Allow opening in new tab
+				return;
+			}
+
+			const url = new URL(href, baseUrl);
+			if (url.origin !== baseUrl.origin) { // External URLs
+				return;
+			}
+
+			event.preventDefault();
+
+			this.set(href);
+		});
+	}
+
+	/**
+	 * Returns the HTML for an anchor <a> element to the specified route
+	 */
+	link(
+		routeName: keyof RouteMap_,
+		content: string = ``,
+		attributeOverrides: Record<string, string> = {},
+	) {
+		const url = this.urls[routeName];
+		const isExternal = url.origin !== this.baseUrl.origin;
+		const attributes = isExternal
+			? {
+				href: url,
+				rel: `noopener`,
+				target: `_blank`,
+				...attributeOverrides,
+			}
+			: {
+				href: this.paths[routeName],
+				...attributeOverrides,
+			};
+		return `<a ${toAttributes(attributes)}>${content}</a>`;
+	}
+
+	/**
+	 * Updates the window's location to the specified URL
 	 */
 	set(update: string | Partial<URL>): this {
 		let url: URL;
 		if (typeof update === `string`) {
-			url = new URL(update, baseUrl);
+			url = new URL(update, this.baseUrl);
 		} else {
 			url = update as URL;
 		}
 		return super.set(url);
 	}
 
+	/**
+	 * Updates the window's location to the url of the specified route name
+	 */
 	to(routeName: keyof RouteMap_) {
 		return this.set(this.urls[routeName]);
 	}
 }
 
 /**
- * Given a route, returns the corresponding Page
+ * Given a route, returns the corresponding View
  */
 export class Resolver<View> extends Emitter<View> {
 	constructor(
