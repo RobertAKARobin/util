@@ -1,4 +1,4 @@
-import { Resolver, Router } from '@robertakarobin/web/router.ts';
+import { Resolver, Router } from '@robertakarobin/util/router.ts';
 
 export const router = new Router({
 	error404: `/404.html`,
