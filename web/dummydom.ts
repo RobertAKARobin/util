@@ -1,4 +1,6 @@
-import { JSDOM } from 'jsdom';
+import { JSDOM, VirtualConsole } from 'jsdom';
+
+const virtualConsole = new VirtualConsole(); // Suppresses CSS errors caused by JSDOM not recognizing some of the latest CSS features, like & for nesting https://stackoverflow.com/a/64319057/2053389
 
 export class DummyDOM {
 	window!: Window;
@@ -8,7 +10,7 @@ export class DummyDOM {
 	}
 
 	refresh() {
-		const dummyDOM = new JSDOM().window;
+		const dummyDOM = new JSDOM(``, { virtualConsole }).window;
 
 		globalThis.customElements = dummyDOM.customElements;
 		globalThis.document = dummyDOM.document;
