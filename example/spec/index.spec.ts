@@ -79,10 +79,17 @@ export const spec = suite(`@robertakarobin/web`,
 		id = 0;
 		$.log(() => widget = new Widget());
 		$.assert(x => x(widget.outerHTML) === `<h1 id="UID1_" is="l-widget" prop="42"></h1>`);
+		$.assert(x => x(widget.innerHTML) === ``);
 		$.assert(x => x(widget.render().outerHTML) === `<h1 id="UID1_" is="l-widget" prop="42">42</h1>`);
+		$.assert(x => x(widget.render().innerHTML) === `42`);
+
 		$.assert(x => x(widget.set({ message: `x` }).outerHTML) === `<h1 id="UID1_" is="l-widget" prop="42" message="x">42</h1>`);
 		$.assert(x => x(widget.render().outerHTML) === `<h1 id="UID1_" is="l-widget" prop="42" message="x">x42</h1>`);
+		$.assert(x => x(widget.render().innerHTML) === `x42`);
+
 		$.assert(x => x(widget.set({ message: undefined }).outerHTML) === `<h1 id="UID1_" is="l-widget" prop="42">x42</h1>`);
 		$.assert(x => x(widget.render().outerHTML) === `<h1 id="UID1_" is="l-widget" prop="42">42</h1>`);
+
+		$.assert(x => x(new Widget().set({ prop: 43 }).getAttribute(`prop`)) === `43`);
 	}),
 );
