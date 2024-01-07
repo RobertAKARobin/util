@@ -9,6 +9,9 @@
 		"jsdom": "^23.1.0",
 		"marked": "^11.1.1"
 	},
+	"devDependencies": {
+		"@robertakarobin/util": "file:../"
+	},
 	"name": "@robertakarobin/web",
 	"scripts": {},
 	"type": "module",

@@ -10,7 +10,7 @@ const style = `
 
 @Component.define({ style })
 export class TransitionTest extends Component.custom(`div`) {
-	async $onPlace() {
+	async onPlace() {
 		this.style.background = `#ff0000`;
 		await new Promise(requestAnimationFrame);
 		this.style.transition = `background 5s`;

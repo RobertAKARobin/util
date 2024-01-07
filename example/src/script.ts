@@ -1,12 +1,13 @@
 import { Page } from '@robertakarobin/web/component.ts';
 
-import { resolver } from '@src/router.ts';
+import { resolver, router } from '@src/router.ts';
 
-const $landingPage = document.querySelector(`[${Page.$pageAttr}]`) as Page;
-resolver.set($landingPage);
+router.init();
 
-resolver.subscribe((newPage, { previous }) => {
-	if (newPage !== previous) {
-		previous.replaceWith(newPage.render());
-	}
-});
+resolver
+	.set(document.querySelector(`[${Page.$pageAttr}]`) as Page)
+	.subscribe((newPage, { previous }) => {
+		if (newPage !== previous) {
+			previous.replaceWith(newPage.render());
+		}
+	});

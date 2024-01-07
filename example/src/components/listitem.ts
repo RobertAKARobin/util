@@ -8,20 +8,20 @@ export class ListItem extends Component.custom(`li`) {
 		name: `data-value`,
 	}) value = ``;
 
-	$onPlace() {
-		const $textbox = this.findDown(Textbox);
-		$textbox.on(`emitValue`, event => {
-			this.emitValue(event.detail);
-			event.stopPropagation();
-		});
-	}
-
 	@Component.event()
 	emitDelete() {}
 
 	@Component.event()
 	emitValue(value: string) {
 		return value;
+	}
+
+	onPlace() {
+		const $textbox = this.findDown(Textbox);
+		$textbox.on(`emitValue`, event => {
+			this.emitValue(event.detail);
+			event.stopPropagation();
+		});
 	}
 
 	template = () => html`

@@ -20,11 +20,13 @@ const colors = [`red`, `yellow`, `green`, `brown`, `scarlet`];
 
 @Component.define({ style })
 export class IndexPage extends Layout {
-	@Component.attribute({
-		name: `data-message`,
-	}) message = ``;
+	@Component.attribute({ name: `data-message` }) message!: string;
 
-	$onPlace() {
+	anchorlessRoute() {
+		router.to(`ssgYes`);
+	}
+
+	onPlace() {
 		const $list = this.findDown(List);
 		const $listItems = $list.findDownAll(ListItem);
 		for (const $listItem of $listItems) {
@@ -39,10 +41,6 @@ export class IndexPage extends Layout {
 			$list.setListItems(state.entries.$);
 			$list.render();
 		});
-	}
-
-	anchorlessRoute() {
-		router.to(`ssgYes`);
 	}
 
 	openModal() {

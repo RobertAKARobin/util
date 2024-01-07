@@ -95,7 +95,7 @@ export class Component extends HTMLElement {
 
 			constructor(...args: Array<any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
 				super();
-				this.$onConstruct(...args); // eslint-disable-line @typescript-eslint/no-unsafe-argument
+				this.onConstruct(...args); // eslint-disable-line @typescript-eslint/no-unsafe-argument
 			}
 		}
 
@@ -216,34 +216,11 @@ export class Component extends HTMLElement {
 	 * Not a static variable because a Component/Page may/may not want to be SSG based on certain conditions
 	*/
 	readonly isSSG: boolean = true;
-	private watchCache = new Map();
 
 	constructor(...args: Array<any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
 		super();
-		this.$onConstruct(...args); // eslint-disable-line @typescript-eslint/no-unsafe-argument
+		this.onConstruct(...args); // eslint-disable-line @typescript-eslint/no-unsafe-argument
 	}
-
-	$onChange(
-		_attributeName: string,
-		_oldValue: string,
-		_newValue: string,
-	) {}
-
-	private $onConstruct(...args: Array<any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
-		const id = typeof args[0] === `string` ? args[0] : undefined;
-		this.id = (id ?? this.getAttribute(`id`) ?? Component.createId()); // If an element has no ID, this.id is empty string, and this.getAttribute(`id`) is null
-		this.setAttribute(Component.$elAttr, this.Ctor.elName);
-	}
-
-	/**
-	 * Called when the instance's element is attached to or moved within a document
-	 */
-	$onPlace() {}
-
-	/**
-	 * Called when the instance's element is removed from a document
-	 */
-	$onRemove() {}
 
 	protected adoptedCallback() {}
 
@@ -252,7 +229,7 @@ export class Component extends HTMLElement {
 		oldValue: string,
 		newValue: string,
 	) {
-		this.$onChange(attributeName, oldValue, newValue);
+		this.onChange(attributeName, oldValue, newValue);
 	}
 
 	bind<
@@ -267,11 +244,11 @@ export class Component extends HTMLElement {
 	}
 
 	protected connectedCallback() {
-		this.$onPlace();
+		this.onPlace();
 	}
 
 	protected disconnectedCallback() {
-		this.$onRemove();
+		this.onRemove();
 	}
 
 	dynamicAttrs(...attrs: Array<string>) {
@@ -346,6 +323,28 @@ export class Component extends HTMLElement {
 		(this as unknown as HTMLElement).addEventListener(eventName, doWhat as EventListener);
 		return this;
 	}
+
+	onChange(
+		_attributeName: string,
+		_oldValue: string,
+		_newValue: string,
+	) {}
+
+	private onConstruct(...args: Array<any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
+		const id = typeof args[0] === `string` ? args[0] : undefined;
+		this.id = (id ?? this.getAttribute(`id`) ?? Component.createId()); // If an element has no ID, this.id is empty string, and this.getAttribute(`id`) is null
+		this.setAttribute(Component.$elAttr, this.Ctor.elName);
+	}
+
+	/**
+	 * Called when the instance's element is attached to or moved within a document
+	 */
+	onPlace() {}
+
+	/**
+	 * Called when the instance's element is removed from a document
+	 */
+	onRemove() {}
 
 	render() {
 		const template = document.createElement(`template`);
@@ -493,18 +492,19 @@ export class Page extends Component.custom(`main`) {
 	static $pageAttr = `data-page-title`;
 
 	isSSG = true;
-	@Component.attribute({
-		name: `data-page-title`,
-	}) pageTitle = ``;
+	@Component.attribute({ name: Page.$pageAttr }) pageTitle!: string;
 
 	constructor(input: Partial<{
 		title: Page[`pageTitle`];
 	}> = {}) {
 		super();
-		this.pageTitle = this.pageTitle ?? input.title ?? this.pageTitle;
+		if (input.title !== undefined) {
+			this.pageTitle = input.title;
+		}
 	}
 
-	onPlace() {
+	protected connectedCallback() {
 		document.title = this.pageTitle;
+		super.connectedCallback();
 	}
 }

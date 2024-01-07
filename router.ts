@@ -18,9 +18,11 @@ export class Router<RouteMap_ extends RouteMap = Record<string, never>> extends 
 
 	constructor(routes: RouteMap_, options: Partial<{
 		baseUrl: string | URL;
-		initial: URL;
 	}> = {}) {
-		super(options.initial);
+		super(globalThis.location !== undefined
+			? new URL(globalThis.location.href)
+			: undefined
+		);
 
 		this.baseUrl = new URL(options.baseUrl ?? baseUrl);
 
@@ -58,8 +60,6 @@ export class Router<RouteMap_ extends RouteMap = Record<string, never>> extends 
 	 * Sets up the router to listen for location changes and intercept click events that cause navigation
 	 */
 	init() {
-		this.set(new URL(window.location.href));
-
 		window.onpopstate = () => { // Popstate is fired only by performing a browser action on the current document, e.g. back, forward, or hashchange
 			this.set(new URL(window.location.href));
 		};
