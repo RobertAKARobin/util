@@ -4,9 +4,7 @@ import { Textbox } from '@src/components/textbox.ts';
 
 @Component.define()
 export class ListItem extends Component.custom(`li`) {
-	@Component.attribute({
-		name: `data-value`,
-	}) value = ``;
+	@Component.attribute({ name: `data-value` }) value!: string;
 
 	@Component.event()
 	emitDelete() {}
