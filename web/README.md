@@ -18,18 +18,17 @@
 
 -	The build script copies the contents of `src` to a `tmp` folder so that it can transpile `<markdown>` tags before the TS is compiled. Without this step the Markdown would need to be compiled in the browser. However, if your `tsconfig.json` has path aliases for `src` then it'll keep the Markdown from getting transpiled correctly. To resolve, point your alias to `tmp` as well as `src`, e.g. `paths: { "@src/*": ["tmp/*", "src/*"]}`
 -	Have to include `tmp` in the tsconfig `includes` for until TSX fixes an issue with decorators: https://github.com/evanw/esbuild/issues/3496
-
-### Render methods
-
-`Component.get`
-
--	Extra step: have to translate to comment
--	Looks stupid
-
-`<component>`
-
--	Not so type-safe
--	Have to manually import
+-	Using `[on]` attributes
+	-	+ Easier to debug in HTML
+	-	+ Don't need to place event listeners
+	-	- Will error if page doesn't have JS
+	-	- Verbose
+-	Using JS expressions instead of HTML tags
+	-	+ Can set private properties inline
+	-	+ Has typing out of the box
+	-	+ Don't have to manually import
+	-	- Will always call constructor and/or chained functions
+	-	- Extra step: have to translate to comment
 
 ### Existing frameworks
 
@@ -54,6 +53,7 @@
 
 ## TODO
 
+-	Don't use `[on]` attributes?
 -	Remove `$` prefix from elements; this isn't jQuery
 -	isHydrated
 
@@ -65,12 +65,14 @@
 -	Remove CSS from JS bundles
 -	Image preprocessing
 
--	Set initial state values?
 -	Autocomplete CSS classes
 -	VS plugin for CSS
 -	VS plugin for HTML
 
 ### WIP
+
+-	Better way of setting attributes on component's root node
+-	Better ID generator that adds some consistency from one build to the next
 
 ### Done:
 

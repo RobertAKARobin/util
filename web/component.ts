@@ -110,12 +110,13 @@ export class Component extends HTMLElement {
 
 	static define<Subclass extends ComponentWithoutGlobals>(
 		options: Partial<{
+			elName: string;
 			style: string;
 		}> = {}
 	) {
 		return function(Subclass: Subclass) {
 			const Constructor = Subclass as unknown as typeof Component;
-			const elName = Constructor.elName ?? `l-${Constructor.name.toLowerCase()}`;
+			const elName = options.elName ?? Constructor.elName ?? `l-${Constructor.name.toLowerCase()}`;
 
 			const selector = `[${Component.$elAttr}='${elName}']`;
 			const style = options.style?.replace(/::?host/g, selector);
