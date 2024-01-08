@@ -54,9 +54,6 @@
 
 ## TODO
 
--	Better way of setting attributes on component's root node
--	Better ID generator that adds some consistency from one build to the next
-
 -	Don't use `[on]` attributes?
 -	Remove `$` prefix from elements; this isn't jQuery
 -	isHydrated

@@ -369,7 +369,7 @@ export class Component extends HTMLElement {
 
 		const newIterator = () => document.createNodeIterator(
 			template.content,
-			NodeFilter.SHOW_COMMENT,
+			NodeFilter.SHOW_COMMENT + NodeFilter.SHOW_ELEMENT,
 			() => NodeFilter.FILTER_ACCEPT,
 		);
 		let iterator = newIterator();
@@ -389,14 +389,19 @@ export class Component extends HTMLElement {
 					if (appContext === `build`) {
 						iterator = newIterator();
 					}
-				} else {
-					continue;
 				}
-			} else {
-				this.renderElement(placeholder);
+			} else if (placeholder instanceof HTMLUnknownElement && placeholder.tagName.toUpperCase() === `HOST`) {
+				const updatedAttributes = {
+					...getAttributes(this),
+					...getAttributes(placeholder),
+				};
+				((placeholder.parentElement ?? this) as Component).set(updatedAttributes); // TODO2: What if host isn't immediate child?
+				placeholder.replaceWith(...placeholder.childNodes);
 				if (appContext === `build`) {
 					iterator = newIterator();
 				}
+			} else {
+				this.renderElement(placeholder);
 			}
 		}
 
@@ -466,6 +471,7 @@ export class Component extends HTMLElement {
 	set(attributes: Record<string, AttributeValue>) {
 		for (const attributeName in attributes) {
 			const attributeKey = attributeName as keyof typeof this;
+
 			let value = attributes[attributeKey] as AttributeValue;
 
 			if (typeof value === `function`) {
@@ -477,7 +483,11 @@ export class Component extends HTMLElement {
 				}
 			}
 
-			this[attributeKey] = value as typeof this[keyof this];
+			if (attributeKey === `class`) {
+				this.classList.add(value as string);
+			} else {
+				this[attributeKey] = value as typeof this[keyof this];
+			}
 		}
 		return this;
 	}

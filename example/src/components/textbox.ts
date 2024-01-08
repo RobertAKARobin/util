@@ -24,20 +24,22 @@ export class Textbox extends Component.custom(`div`) {
 	}
 
 	template = () => html`
-<input
-	class="${(this.value ?? ``).length >= (this.maxLength - 5) ? `warning` : ``}"
-	maxlength="${this.maxLength}"
-	oninput="${this.bind(`onInput`)}"
-	placeholder="Type here"
-	type="text"
-	value="${this.value ?? ``}"
->
+<host>
+	<input
+		class="${(this.value ?? ``).length >= (this.maxLength - 5) ? `warning` : ``}"
+		maxlength="${this.maxLength}"
+		oninput="${this.bind(`onInput`)}"
+		placeholder="Type here"
+		type="text"
+		value="${this.value ?? ``}"
+	>
 
-<span id="${this.id}-remaining">
-	${this.maxLength - (this.value ?? ``).length} / ${this.maxLength} Remaining
-</span>
+	<span id="${this.id}-remaining">
+		${this.maxLength - (this.value ?? ``).length} / ${this.maxLength} Remaining
+	</span>
 
-<p>textbox ID ${this.id}</p>
+	<p>textbox ID ${this.id}</p>
+</host>
 	`;
 }
 
