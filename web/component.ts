@@ -38,11 +38,13 @@ type ComponentWithoutDecorators = Omit<typeof Component,
 >;
 
 type ElAttributes<Subclass extends Component> = {
-	[Key in Exclude<keyof Subclass, `el`>]: (
+	[Key in Exclude<keyof Subclass, `el` | `style`>]: (
 		Subclass[Key] extends EventEmitter<Subclass, infer Value>
 			? (arg: CustomEvent<Value>) => void
 			: (Subclass[Key] | (() => Subclass[Key]))
-	)
+	);
+} & {
+	style: string;
 };
 
 export type EventEmitter<Owner, Value = void> = {
