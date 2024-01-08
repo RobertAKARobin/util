@@ -12,6 +12,7 @@ export class DummyDOM {
 	refresh() {
 		const dummyDOM = new JSDOM(``, { virtualConsole }).window;
 
+		globalThis.Comment = dummyDOM.Comment;
 		globalThis.customElements = dummyDOM.customElements;
 		globalThis.document = dummyDOM.document;
 		globalThis.NodeFilter = dummyDOM.NodeFilter;

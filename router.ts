@@ -1,6 +1,6 @@
 import { baseUrl, defaultBaseUrl } from './context.ts';
 import { Emitter } from './emitter.ts';
-import { toAttributes } from './toAttributes.ts';
+import { toAttributes } from './attributes.ts';
 
 export const hasExtension = /\.\w+$/;
 

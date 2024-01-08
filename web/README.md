@@ -23,6 +23,7 @@
 	-	+ Don't need to place event listeners
 	-	- Will error if page doesn't have JS
 	-	- Verbose
+	-	- Not best practice
 -	Using JS expressions instead of HTML tags
 	-	+ Can set private properties inline
 	-	+ Has typing out of the box
@@ -53,6 +54,9 @@
 
 ## TODO
 
+-	Better way of setting attributes on component's root node
+-	Better ID generator that adds some consistency from one build to the next
+
 -	Don't use `[on]` attributes?
 -	Remove `$` prefix from elements; this isn't jQuery
 -	isHydrated
@@ -68,11 +72,6 @@
 -	Autocomplete CSS classes
 -	VS plugin for CSS
 -	VS plugin for HTML
-
-### WIP
-
--	Better way of setting attributes on component's root node
--	Better ID generator that adds some consistency from one build to the next
 
 ### Done:
 

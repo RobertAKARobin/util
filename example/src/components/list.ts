@@ -7,8 +7,7 @@ import { ListItem } from './listitem.ts';
 export class List extends Component.custom(`ol`) {
 	listItems = [] as Array<Type.ListItem>;
 
-	@Component.event()
-	emitAdd() {}
+	onAdd = this.event<number>(`onAdd`);
 
 	setListItems(listItems: Array<Type.ListItem>) {
 		this.listItems = listItems;
@@ -18,13 +17,16 @@ export class List extends Component.custom(`ol`) {
 	template = () => html`
 	<li>List ID ${this.id}</li>
 
-	${this.dynamicList(`items`, this.listItems.map(({ id, value }) =>
-		ListItem.get(id).set({ value })
-	))}
+	${this.listItems.map(({ value }, index) =>
+		ListItem.el({
+			id: `${this.id}-${index}`,
+			value,
+		})
+	)}
 
 	<li>
 		<button
-			onclick="${this.bind(`emitAdd`)}"
+			onclick="${this.bind(`onAdd`)}"
 			type="button"
 		>Add</button>
 	</li>

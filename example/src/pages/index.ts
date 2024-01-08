@@ -26,7 +26,7 @@ export class IndexPage extends Layout {
 		router.to(`ssgYes`);
 	}
 
-	onPlace() {
+	connectedCallback() {
 		const $list = this.findDown(List);
 		const $listItems = $list.findDownAll(ListItem);
 		for (const $listItem of $listItems) {
@@ -35,12 +35,13 @@ export class IndexPage extends Layout {
 				{ value: $listItem.value },
 			);
 		}
+	}
 
-		$list.on(`emitAdd`, () => {
-			state.add({ value: `` });
-			$list.setListItems(state.entries.$);
-			$list.render();
-		});
+	onAdd() {
+		state.add({ value: `` });
+		const $list = this.findDown(List);
+		$list.setListItems(state.entries.$);
+		$list.render();
 	}
 
 	openModal() {
@@ -50,7 +51,7 @@ export class IndexPage extends Layout {
 	template = () => super.template(html`
 <h1>Hello world!</h1>
 
-${TransitionTest.get()}
+${TransitionTest.el()}
 
 <button
 	onclick="${this.bind(`openModal`)}"
@@ -59,7 +60,11 @@ ${TransitionTest.get()}
 
 <div id="${router.hashes.homeJump1}">Jump 1</div>
 
-${List.get().setListItems(state.entries.$)}
+${List.el({
+	id: `indexList`,
+	listItems: () => state.entries.$,
+	onAdd: () => this.onAdd(),
+})}
 
 <markdown>
 # Headline 1

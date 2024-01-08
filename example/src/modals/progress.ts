@@ -16,11 +16,7 @@ const style = css`
 export class ProgressModal extends Component {
 	static style = style;
 
-	dismiss() {
-		this.findUp(ModalContainer).clear();
-	}
-
-	onPlace() {
+	connectedCallback() {
 		const $circle = this.findDown(ProgressCircle);
 		this.findUp(ModalContainer).transition.subscribe(({ status }) => {
 			switch (status) {
@@ -37,14 +33,18 @@ export class ProgressModal extends Component {
 		});
 	}
 
+	dismiss() {
+		this.findUp(ModalContainer).clear();
+	}
+
 	template = () => html`
-${ProgressCircle.get().set({
+${ProgressCircle.el({
 	borderWidth: 10,
 	diameter: 300,
 	max: 100,
 	min: 0,
 	value: 50,
-}).toString()}
+})}
 
 <button
 	onclick="${this.bind(`dismiss`)}"

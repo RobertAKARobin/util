@@ -13,7 +13,7 @@ import { stringMates, type TagResult } from '@robertakarobin/util/string-mates.t
 import { baseUrl } from '@robertakarobin/util/context.ts';
 import { promiseConsecutive } from '@robertakarobin/util/promiseConsecutive.ts';
 
-import { Component, type Page } from './component.ts';
+import { type Page } from './component.ts';
 
 const bustCache = (pathname: string) => {
 	const url = new URL(`file:///${pathname}?v=${Date.now() + performance.now()}`); // URL is necessary for running on Windows
@@ -219,10 +219,10 @@ import { ${page.Ctor.name} } from '${path.join(`/`, pageCompilepath)}';
 
 				let routeCss = ``;
 				let routeCssPath = ``;
-				for (const $style of document.querySelectorAll(`[${Component.$styleAttr}]`)) {
-					const componentName = $style.getAttribute(Component.$styleAttr);
-					head += `<style ${Component.$styleAttr}="${componentName}"></style>`;
-					routeCss += $style.textContent?.trim() ?? ``;
+				for (const style of document.querySelectorAll(`style`)) {
+					routeCss += style.textContent?.trim() ?? ``;
+					style.innerHTML = ``;
+					head += style.outerHTML;
 				}
 
 				if (routeCss.length > 0) {

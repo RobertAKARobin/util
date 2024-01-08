@@ -8,7 +8,7 @@ export class Layout extends Page {
 		return `
 ${Nav()}
 ${contents}
-${modalContainer}
+${modalContainer.el(`modals`)}
 		`;
 	}
 }

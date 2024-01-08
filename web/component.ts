@@ -1,48 +1,66 @@
+import {
+	type AttributeValue,
+	attributeValueIsEmpty,
+	getAttributes,
+	replaceAttributes,
+} from '@robertakarobin/util/attributes.ts';
 import { appContext } from '@robertakarobin/util/context.ts';
-import { findCommentsByContents } from '@robertakarobin/util/findComment.ts';
-import { indexOn } from '@robertakarobin/util/indexOn.ts';
 import { newUid } from '@robertakarobin/util/uid.ts';
-
 export { css, html } from '@robertakarobin/util/template.ts';
 
 type Constructor<Classtype> = new (...args: any) => Classtype; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-const globalProperty = `El`;
+const Const = {
+	attrDynamic: `data-dynamic`,
+	attrEl: `is`,
+	flagEl: `el:`,
+	flagMap: `map:`,
+	globalProperty: `El`,
+	styleAttr: `data-style`,
+} as const;
+
+export const subclasses = new Map<string, typeof Component>();
+
+const unconnectedAttributes = new Map<string, WeakRef<{
+	$content?: string;
+}>>();
+
 const globalVars = globalThis as typeof globalThis & {
-	[globalProperty]: Record<string, unknown>;
+	[Const.globalProperty]: Record<string, unknown>;
 };
-globalVars[globalProperty] = {};
+globalVars[Const.globalProperty] = {};
 
-type AttributeValue = string | number | boolean | undefined | null | symbol;
-
-type ComponentWithoutGlobals = Omit<typeof Component,
-	| `$elAttr`
-	| `$elDynamicAttrs`
-	| `$elDynamicContent`
-	| `$elDynamicList`
-	| `$styleAttr`
+type ComponentWithoutDecorators = Omit<typeof Component,
 	| `attribute`
-	| `createId`
 	| `custom`
 	| `define`
 	| `event`
-	| `subclasses`
-	| `unconnectedElements`
 >;
 
+type ElAttributes<Subclass extends Component> = {
+	[Key in Exclude<keyof Subclass, `el`>]: (
+		Subclass[Key] extends EventEmitter<Subclass, infer Value>
+			? (arg: CustomEvent<Value>) => void
+			: (Subclass[Key] | (() => Subclass[Key]))
+	)
+};
+
+export type EventEmitter<Owner, Value = void> = {
+	(value: Value): Owner;
+	eventName: string;
+	listen(listener: (event: CustomEvent<Value>) => void): Owner;
+};
+
 export class Component extends HTMLElement {
-	static readonly $elAttr = `is`;
-	static readonly $elDynamicAttrs = `data-dynamic-attrs`;
-	static readonly $elDynamicContent = `data-dynamic-content`;
-	static readonly $elDynamicList = `data-dynamic-list`;
-	static readonly $styleAttr = `data-style`;
 	static readonly elName: string;
 	static readonly observedAttributes = [] as Array<string>;
 	static readonly selector: string;
-	static readonly subclasses = new Set<typeof Component>();
 	static readonly tagName?: keyof HTMLElementTagNameMap;
-	static readonly unconnectedElements = new Map<HTMLElement[`id`], WeakRef<Component>>();
 
+	/**
+	 * Defines a property that will be exposed as an HTML element in the DOM
+	 * @param options.name The name that will be used for the attribute. If not specified, the property name will be used, downcased and prefixed with `l-`
+	 */
 	static attribute(options: Partial<{
 		name: string;
 	}> = {}) {
@@ -67,16 +85,22 @@ export class Component extends HTMLElement {
 					return this.getAttribute(attributeName);
 				},
 				set(this: Component, value: AttributeValue) {
-					this.setAttributes({ [attributeName]: value });
+					if (attributeValueIsEmpty(value)) {
+						this.removeAttribute(attributeName);
+					} else {
+						this.setAttribute(
+							attributeName,
+							(value as Exclude<AttributeValue, undefined | null>).toString()
+						);
+					}
 				},
 			});
 		};
 	}
 
-	static createId() {
-		return `l${newUid()}`;
-	}
-
+	/**
+	 * Adds common component methods/helpers to the specified HTML element constructor
+	 */
 	static custom(tagName: keyof HTMLElementTagNameMap) {
 		const $dummy = document.createElement(tagName);
 		const BaseElement = $dummy.constructor as Constructor<
@@ -85,18 +109,13 @@ export class Component extends HTMLElement {
 
 		interface ComponentBase extends Component {} // eslint-disable-line no-restricted-syntax, @typescript-eslint/no-unsafe-declaration-merging
 		class ComponentBase extends (BaseElement as typeof HTMLElement) { // eslint-disable-line @typescript-eslint/no-unsafe-declaration-merging
+			static readonly el = Component.el;
 			static readonly elName: string;
 			static readonly find = Component.find;
 			static readonly findAll = Component.findAll;
-			static readonly get = Component.get;
 			static readonly observedAttributes = [] as Array<string>;
 			static readonly selector: string;
 			static readonly tagName = tagName;
-
-			constructor(...args: Array<any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
-				super();
-				this.onConstruct(...args); // eslint-disable-line @typescript-eslint/no-unsafe-argument
-			}
 		}
 
 		const instanceProperties = Object.getOwnPropertyDescriptors(Component.prototype);
@@ -108,7 +127,12 @@ export class Component extends HTMLElement {
 		return ComponentBase;
 	}
 
-	static define<Subclass extends ComponentWithoutGlobals>(
+	/**
+	 * Defines a custom web component
+	 * @param options.elName The name that will be used for the component, e.g. `app-foo`
+	 * @param options.style The stylesheet that will be attached to the document the first time the component is used. `:host` will be replaced with the component's selector.
+	 */
+	static define<Subclass extends ComponentWithoutDecorators>(
 		options: Partial<{
 			elName: string;
 			style: string;
@@ -118,15 +142,15 @@ export class Component extends HTMLElement {
 			const Constructor = Subclass as unknown as typeof Component;
 			const elName = options.elName ?? Constructor.elName ?? `l-${Constructor.name.toLowerCase()}`;
 
-			const selector = `[${Component.$elAttr}='${elName}']`;
+			const selector = `[${Const.attrEl}='${elName}']`;
 			const style = options.style?.replace(/::?host/g, selector);
 			if ( // Has to come after elName has been assigned
 				typeof style === `string`
-				&& document.querySelector(`[${Component.$styleAttr}='${elName}']`) === null
+				&& document.querySelector(`[${Const.styleAttr}='${elName}']`) === null
 			) {
 				const $style = document.createElement(`style`);
 				$style.textContent = style;
-				$style.setAttribute(Component.$styleAttr, elName);
+				$style.setAttribute(Const.styleAttr, elName);
 				document.head.appendChild($style);
 			}
 
@@ -136,9 +160,9 @@ export class Component extends HTMLElement {
 				style,
 			});
 
-			globalVars[globalProperty][Constructor.name] = Constructor;
+			globalVars[Const.globalProperty][Constructor.name] = Constructor;
 
-			Component.subclasses.add(Constructor as unknown as typeof Component);
+			subclasses.set(Constructor.name, Constructor as unknown as typeof Component);
 
 			globalThis.customElements.define( // This should come last because when a custom element is defined its constructor runs for all instances on the page
 				elName,
@@ -148,27 +172,25 @@ export class Component extends HTMLElement {
 		};
 	}
 
-	static event(options: Partial<{
-		bubbles: boolean;
-		name: string;
-	}> = {}) {
-		return function(
-			target: Component,
-			propertyName: string,
-			descriptor: PropertyDescriptor,
-		) {
-			const eventName = options.name ?? propertyName;
-			const eventDetailFormatter = descriptor.value as Function;
-			descriptor.value = function(this: Component, ...args: Array<unknown>) {
-				const detail = eventDetailFormatter.call(this, ...args) as unknown;
-				this.dispatchEvent(new CustomEvent(eventName, {
-					bubbles: options.bubbles ?? true,
-					detail,
-				}));
-			};
-		};
+	/**
+	 * Renders a custom element to the document, while setting the given properties/attributes
+	 */
+	static el<Subclass extends Component>(
+		this: Constructor<Subclass>,
+		attributes: Partial<ElAttributes<Subclass>> = {},
+		$content = undefined as string | undefined,
+	) {
+		const id = newUid();
+		unconnectedAttributes.set(id, new WeakRef({
+			...attributes,
+			$content,
+		}));
+		return `<!--${Const.flagEl}${this.name},${id}-->`;
 	}
 
+	/**
+	 * Returns the first element in the document that matches this constructor type
+	 */
 	static find<Subclass extends Component>(
 		this: Constructor<Subclass>,
 		root: Element = document.documentElement,
@@ -177,6 +199,9 @@ export class Component extends HTMLElement {
 		return root.querySelector(selector) as Subclass;
 	}
 
+	/**
+	 * Returns all elements in the document that match this constructor type
+	 */
 	static findAll<Subclass extends Component>(
 		this: Constructor<Subclass>,
 		root: Element = document.documentElement,
@@ -185,32 +210,15 @@ export class Component extends HTMLElement {
 		return [...root.querySelectorAll(selector)] as Array<Subclass>;
 	}
 
-	static get<Subclass extends Component>(
-		this: Constructor<Subclass>,
-		id?: Component[`id`],
-	) {
-		if (id === undefined) {
-			return new this();
-		}
+	content: string | undefined;
 
-		const $existing = document.getElementById(id) as Subclass;
-		if ($existing !== null) {
-			return $existing;
-		}
-
-		return new this(id);
-	}
-
-	/**
-	 * Content that will be rendered inside this element.
-	 */
-	content = `` as string | undefined | null;
 	/**
 	 * @returns The instance's constructor
 	 */
 	get Ctor() {
 		return this.constructor as typeof Component;
 	}
+
 	/**
 	 * If true, if this is a Page it will be compiled into a static `.html` file at the route(s) used for this Page, which serves as a landing page for performance and SEO purposes.
 	 * If this is a Component it will be compiled into static HTML included in the landing page.
@@ -218,20 +226,26 @@ export class Component extends HTMLElement {
 	*/
 	readonly isSSG: boolean = true;
 
-	constructor(...args: Array<any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
-		super();
-		this.onConstruct(...args); // eslint-disable-line @typescript-eslint/no-unsafe-argument
+	/**
+	 * Called when the component is attached to a new document
+	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks
+	 */
+	adoptedCallback() {
+		console.log(`${this.Ctor.name} ${this.id} adopted`);
 	}
 
-	protected adoptedCallback() {}
-
-	protected attributeChangedCallback(
-		attributeName: string,
-		oldValue: string,
-		newValue: string,
-	) {
-		this.onChange(attributeName, oldValue, newValue);
-	}
+	/**
+	 * Called when one of the properties decorated with `@Component.attribute` is modified
+	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks
+	 */
+	attributeChangedCallback<
+		AttributeName extends keyof this,
+		Value extends this[AttributeName],
+	>(
+		_attributeName: AttributeName,
+		_oldValue: Value,
+		_newValue: Value,
+	) {}
 
 	bind<
 		Self extends Record<EventName, (...args: any) => any>, // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -244,27 +258,50 @@ export class Component extends HTMLElement {
 		return `this.closest(\`${(this as unknown as Component).Ctor.selector}\`).${methodName}(event)`;
 	}
 
-	protected connectedCallback() {
-		this.onPlace();
+	/**
+	 * Called when the component is attached to the DOM
+	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks
+	 */
+	connectedCallback() {
+		console.log(`${this.Ctor.name} ${this.id} connected`);
 	}
 
-	protected disconnectedCallback() {
-		this.onRemove();
+	/**
+	 * Called when the component is detached from the DOM
+	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks
+	 */
+	disconnectedCallback() {}
+
+	el(
+		id: string,
+		...[attributes, $content]: Parameters<typeof this.Ctor.el>
+	) {
+		return this.Ctor.el({
+			...attributes,
+			id,
+		}, $content);
 	}
 
-	dynamicAttrs(...attrs: Array<string>) {
-		return ` ${Component.$elDynamicAttrs}="${attrs.join(`,`)}" `;
-	}
-
-	dynamicContent() {
-		return ` ${Component.$elDynamicContent} `;
-	}
-
-	dynamicList(id: string, els: Array<HTMLElement>) {
-		return `<!--${id}-->` + els.map(element => {
-			element.setAttribute(Component.$elDynamicList, id);
-			return element;
-		}).join(``);
+	event<Value>(
+		eventName: string,
+		options: CustomEventInit<Value> = {}
+	) {
+		const emitter = (value: Value) => {
+			const event = new CustomEvent(eventName, {
+				...options,
+				detail: value,
+			});
+			this.dispatchEvent(event);
+			return this;
+		};
+		emitter.eventName = eventName;
+		emitter.listen = (
+			listener: (event: CustomEvent<Value>) => void
+		) => {
+			this.addEventListener(eventName, listener as EventListener);
+			return this;
+		};
+		return emitter as EventEmitter<this, Value>;
 	}
 
 	/**
@@ -299,6 +336,9 @@ export class Component extends HTMLElement {
 		)] as Array<Descendant>;
 	}
 
+	/**
+	 * Looks for and returns the nearest instance of the specified constructor among the current component's ancestors
+	 */
 	findUp<Ancestor extends keyof HTMLElementTagNameMap>(
 		Ancestor: Ancestor
 	): HTMLElementTagNameMap[Ancestor];
@@ -310,74 +350,71 @@ export class Component extends HTMLElement {
 		return this.closest((Ancestor as unknown as typeof Component).selector);
 	}
 
-	on<
-		Self extends Record<EventName, (...args: any) => any>, // eslint-disable-line @typescript-eslint/no-explicit-any
-		EventName extends keyof Self,
-		EventDetailGetter extends Self[EventName],
-		EventDetail extends ReturnType<EventDetailGetter>,
-	>(
-		this: Self,
-		eventKey: EventName,
-		doWhat: (event: CustomEvent<EventDetail>) => void
-	) {
-		const eventName = eventKey.toString();
-		(this as unknown as HTMLElement).addEventListener(eventName, doWhat as EventListener);
-		return this;
-	}
-
-	onChange(
-		_attributeName: string,
-		_oldValue: string,
-		_newValue: string,
-	) {}
-
-	private onConstruct(...args: Array<any>) { // eslint-disable-line @typescript-eslint/no-explicit-any
-		const id = typeof args[0] === `string` ? args[0] : undefined;
-		this.id = (id ?? this.getAttribute(`id`) ?? Component.createId()); // If an element has no ID, this.id is empty string, and this.getAttribute(`id`) is null
-		this.setAttribute(Component.$elAttr, this.Ctor.elName);
-	}
-
 	/**
-	 * Called when the instance's element is attached to or moved within a document
+	 * Makes the component replace its contents with newly-rendered contents
 	 */
-	onPlace() {}
-
-	/**
-	 * Called when the instance's element is removed from a document
-	 */
-	onRemove() {}
-
 	render() {
 		const template = document.createElement(`template`);
 		template.innerHTML = this.template();
 
-		const newCommentIterator = () => document.createNodeIterator(
+		const newIterator = () => document.createTreeWalker(
 			template.content,
 			NodeFilter.SHOW_COMMENT,
 			() => NodeFilter.FILTER_ACCEPT,
 		);
-		let iterator = newCommentIterator();
-		let $placeholder: Comment;
+		let iterator = newIterator();
+		let node: Comment | HTMLElement;
 		while (true) {
-			$placeholder = iterator.nextNode() as Comment;
+			node = iterator.nextNode() as Comment;
 
-			if ($placeholder === null) {
+			if (node === null) {
 				break;
 			}
 
-			const id = $placeholder.textContent!;
-			const el = Component.unconnectedElements.get(id)?.deref();
-			if (el !== undefined) {
-				if (el.innerHTML === ``) {
-					el.innerHTML = el.template(); // Flipping the order of these two lines seems to make the $el 'adopted' an extra time
-				}
-				$placeholder.replaceWith(el);
+			if (node instanceof Comment) {
+				const flag = node.textContent!;
+				if (flag.startsWith(Const.flagEl)) {
+					const [ctorName, key] = flag.substring(Const.flagEl.length).split(`,`);
 
-				if (appContext !== `browser`) {
-					iterator = newCommentIterator();
+					const el = this.renderEl(ctorName, key);
+					node.replaceWith(el);
+
+					if (appContext === `build`) {
+						iterator = newIterator();
+					}
+
+					continue;
 				}
 			}
-			Component.unconnectedElements.delete(id);
+
+			if (node instanceof HTMLElement) {
+				if (!node.hasAttribute(`id`)) { // Only update elements with IDs
+					continue;
+				}
+
+				const existing = document.getElementById(node.id);
+				if (existing === null) {
+					continue; // If existing component, will update it. Otherwise will just use the newly-rendered template
+				}
+
+				const newAttributes = getAttributes(node);
+				const content = newAttributes.$content;
+				delete newAttributes[`$content`];
+
+				node.replaceWith(existing);
+				replaceAttributes(existing, newAttributes);
+
+				if (node.hasAttribute(Const.attrDynamic)) {
+					const newHtml = content ?? node.innerHTML;
+					if (existing.innerHTML !== newHtml) {
+						existing.innerHTML = newHtml;
+					}
+
+					if (appContext === `build`) {
+						iterator = newIterator();
+					}
+				}
+			}
 		}
 
 		this.replaceChildren(...template.content.childNodes);
@@ -385,85 +422,47 @@ export class Component extends HTMLElement {
 		return this;
 	}
 
-	rerender() {
-		const template = document.createElement(`template`);
-		template.innerHTML = this.template();
+	private renderEl(ctorName: string, key: string) {
+		const attributes = unconnectedAttributes.get(key)!.deref()!;
+		const Ctor = subclasses.get(ctorName)!;
 
-		this.rerenderLists(template);
-		this.rerenderAttributes(template);
-		this.rerenderContents(template);
-
-		return this;
-	}
-
-	private rerenderAttributes(template: HTMLTemplateElement) {
-		const updatedEls = template.content.querySelectorAll(`[${Component.$elDynamicAttrs}]`);
-		const existingEls = this.querySelectorAll(`[${Component.$elDynamicAttrs}]`);
-		const existingElsById = indexOn(existingEls, `id`);
-		for (const updatedEl of updatedEls) {
-			const attributeNames = updatedEl.getAttribute(Component.$elDynamicAttrs)!.split(`,`);
-			const id = updatedEl.id;
-			const existingEl = existingElsById[id];
-			for (const attributeName of attributeNames) {
-				const value = updatedEl.getAttribute(attributeName)!;
-				existingEl.setAttribute(attributeName, value);
-			}
+		let el: InstanceType<typeof Ctor> | null = null;
+		if (`id` in attributes) {
+			el = document.getElementById(attributes.id as string) as Component;
 		}
-	}
-
-	private rerenderContents(template: HTMLTemplateElement) {
-		const updatedEls = template.content.querySelectorAll(`[${Component.$elDynamicContent}]`);
-		const existingEls = this.querySelectorAll(`[${Component.$elDynamicContent}]`);
-		const existingElsById = indexOn(existingEls, `id`);
-		for (const updatedEl of updatedEls) {
-			const id = updatedEl.id;
-			const existingEl = existingElsById[id];
-			existingEl.innerHTML = updatedEl.innerHTML;
-		}
-	}
-
-	private rerenderLists(template: HTMLTemplateElement) {
-		const updatedEls = template.content.querySelectorAll(`[${Component.$elDynamicList}]`);
-		const existingEls = this.querySelectorAll(`[${Component.$elDynamicList}]`) as Iterable<HTMLElement>;
-		const existingElsById = indexOn(existingEls, `id`);
-		const elsToRemove = new Set(existingEls);
-		const elStartsById = {} as Record<string, Node>;
-		for (const updatedEl of updatedEls) {
-			const id = updatedEl.id;
-			const elStart = elStartsById[id] ?? (
-				elStartsById[id] = findCommentsByContents(this, id)[0]
-			);
-
-			const existingEl = existingElsById[id];
-			elStart.parentElement!.insertBefore(
-				existingEl ?? updatedEl,
-				elStart
-			);
-
-			elsToRemove.delete(existingEl);
+		if (el === null) {
+			el = new Ctor();
 		}
 
-		for (const elToRemove of elsToRemove) {
-			elToRemove.remove();
+		el.set(attributes);
+
+		if (el.innerHTML === ``) {
+			el.innerHTML = el.template();
 		}
+		unconnectedAttributes.delete(key);
+
+		return el;
 	}
 
-	set(attributes: Partial<this>) {
+	/**
+	 * Sets multiple attributes or properties.
+	 * If a value is a function and the
+	 */
+	set(attributes: Record<string, AttributeValue>) {
 		for (const attributeName in attributes) {
-			const attributeKey = attributeName as keyof this;
-			this[attributeKey] = attributes[attributeKey]!;
-		}
-		return this;
-	}
+			const attributeKey = attributeName as keyof typeof this;
+			let value = attributes[attributeKey] as AttributeValue;
 
-	setAttributes(attributes: Record<string, AttributeValue>) {
-		for (const attributeName in attributes) {
-			const value = attributes[attributeName];
-			if (value === undefined || value === null || value === `undefined` || value === `null` || value === ``) {
-				this.removeAttribute(attributeName);
-			} else {
-				this.setAttribute(attributeName, attributes[attributeName]!.toString());
+			if (typeof value === `function`) {
+				const existing = this[attributeKey];
+				if (typeof existing === `function`) { // Assume it's an event
+					this.addEventListener(attributeName, value);
+				} else {
+					value = (value as Function)() as AttributeValue;
+				}
 			}
+
+			this[attributeKey] = value as typeof this[keyof this];
 		}
 		return this;
 	}
@@ -472,20 +471,7 @@ export class Component extends HTMLElement {
 	 * Defines what is written into the document when this instance is rendered
 	 */
 	template(subclassTemplate?: string) {
-		return subclassTemplate ?? this.content ?? ``;
-	}
-
-	toString() {
-		Component.unconnectedElements.set(this.id, new WeakRef(this));
-		return `<!--${this.id}-->`;
-	}
-
-	/**
-	 * Set the inner content of the element.
-	 */
-	write(content: string | undefined | null) {
-		this.content = content;
-		return this;
+		return subclassTemplate ?? this.innerHTML ?? ``;
 	}
 }
 
@@ -504,8 +490,8 @@ export class Page extends Component.custom(`main`) {
 		}
 	}
 
-	protected connectedCallback() {
-		document.title = this.pageTitle;
+	connectedCallback() {
 		super.connectedCallback();
+		document.title = this.pageTitle;
 	}
 }
