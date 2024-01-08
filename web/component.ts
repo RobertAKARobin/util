@@ -22,7 +22,7 @@ const Const = {
 export const subclasses = new Map<string, typeof Component>();
 
 const unconnectedAttributes = new Map<string, WeakRef<{
-	$content?: string;
+	content?: string;
 }>>();
 
 const globalVars = globalThis as typeof globalThis & {
@@ -154,7 +154,7 @@ export class Component extends HTMLElement {
 			const style = options.style?.replace(/::?host/g, selector);
 			if ( // Has to come after elName has been assigned
 				typeof style === `string`
-				&& document.querySelector(`[${Const.styleAttr}='${elName}']`) === null
+				&& document.head.querySelector(`[${Const.styleAttr}='${elName}']`) === null
 			) {
 				const $style = document.createElement(`style`);
 				$style.textContent = style;
@@ -186,12 +186,12 @@ export class Component extends HTMLElement {
 	static el<Subclass extends Component>(
 		this: Constructor<Subclass>,
 		attributes: Partial<ElAttributes<Subclass>> = {},
-		$content = undefined as string | undefined,
+		content = undefined as string | undefined,
 	) {
 		const id = newUid();
 		unconnectedAttributes.set(id, new WeakRef({
 			...attributes,
-			$content,
+			content,
 		}));
 		return `<!--${Const.flagEl}${this.name},${id}-->`;
 	}
@@ -283,12 +283,12 @@ export class Component extends HTMLElement {
 
 	el(
 		id: string,
-		...[attributes, $content]: Parameters<typeof this.Ctor.el>
+		...[attributes, content]: Parameters<typeof this.Ctor.el>
 	) {
 		return this.Ctor.el({
 			...attributes,
 			id,
-		}, $content);
+		}, content);
 	}
 
 	event<Value>(
