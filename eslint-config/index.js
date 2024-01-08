@@ -54,9 +54,6 @@ module.exports = {
 
 		'curly': [`error`, `all`],
 		'eqeqeq': `error`,
-		'import-newlines/enforce': [`error`, {
-			items: 4,
-		}],
 		'import-quotes/import-quotes': [`error`, `single`],
 		'import/extensions': [`error`, `ignorePackages`],
 		'indent': [`error`, `tab`, {
