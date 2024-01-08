@@ -2,7 +2,7 @@ import {
 	type AttributeValue,
 	attributeValueIsEmpty,
 	getAttributes,
-	replaceAttributes,
+	setAttributes,
 } from '@robertakarobin/util/attributes.ts';
 import { appContext } from '@robertakarobin/util/context.ts';
 import { newUid } from '@robertakarobin/util/uid.ts';
@@ -116,6 +116,11 @@ export class Component extends HTMLElement {
 			static readonly observedAttributes = [] as Array<string>;
 			static readonly selector: string;
 			static readonly tagName = tagName;
+
+			constructor() {
+				super();
+				this.onConstruct();
+			}
 		}
 
 		const instanceProperties = Object.getOwnPropertyDescriptors(Component.prototype);
@@ -226,13 +231,16 @@ export class Component extends HTMLElement {
 	*/
 	readonly isSSG: boolean = true;
 
+	constructor() {
+		super();
+		this.onConstruct();
+	}
+
 	/**
 	 * Called when the component is attached to a new document
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks
 	 */
-	adoptedCallback() {
-		console.log(`${this.Ctor.name} ${this.id} adopted`);
-	}
+	adoptedCallback() {}
 
 	/**
 	 * Called when one of the properties decorated with `@Component.attribute` is modified
@@ -262,9 +270,7 @@ export class Component extends HTMLElement {
 	 * Called when the component is attached to the DOM
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks
 	 */
-	connectedCallback() {
-		console.log(`${this.Ctor.name} ${this.id} connected`);
-	}
+	connectedCallback() {}
 
 	/**
 	 * Called when the component is detached from the DOM
@@ -350,6 +356,10 @@ export class Component extends HTMLElement {
 		return this.closest((Ancestor as unknown as typeof Component).selector);
 	}
 
+	onConstruct() {
+		this.setAttribute(Const.attrEl, this.Ctor.elName);
+	}
+
 	/**
 	 * Makes the component replace its contents with newly-rendered contents
 	 */
@@ -357,62 +367,35 @@ export class Component extends HTMLElement {
 		const template = document.createElement(`template`);
 		template.innerHTML = this.template();
 
-		const newIterator = () => document.createTreeWalker(
+		const newIterator = () => document.createNodeIterator(
 			template.content,
 			NodeFilter.SHOW_COMMENT,
 			() => NodeFilter.FILTER_ACCEPT,
 		);
 		let iterator = newIterator();
-		let node: Comment | HTMLElement;
+		let placeholder: Comment | HTMLElement;
 		while (true) {
-			node = iterator.nextNode() as Comment;
+			placeholder = iterator.nextNode()! as Comment | HTMLElement;
 
-			if (node === null) {
+			if (placeholder === null) {
 				break;
 			}
 
-			if (node instanceof Comment) {
-				const flag = node.textContent!;
+			if (placeholder instanceof Comment) {
+				const flag = placeholder.textContent!;
 				if (flag.startsWith(Const.flagEl)) {
 					const [ctorName, key] = flag.substring(Const.flagEl.length).split(`,`);
-
-					const el = this.renderEl(ctorName, key);
-					node.replaceWith(el);
-
+					this.renderComponent(placeholder, ctorName, key);
 					if (appContext === `build`) {
 						iterator = newIterator();
 					}
-
+				} else {
 					continue;
 				}
-			}
-
-			if (node instanceof HTMLElement) {
-				if (!node.hasAttribute(`id`)) { // Only update elements with IDs
-					continue;
-				}
-
-				const existing = document.getElementById(node.id);
-				if (existing === null) {
-					continue; // If existing component, will update it. Otherwise will just use the newly-rendered template
-				}
-
-				const newAttributes = getAttributes(node);
-				const content = newAttributes.$content;
-				delete newAttributes[`$content`];
-
-				node.replaceWith(existing);
-				replaceAttributes(existing, newAttributes);
-
-				if (node.hasAttribute(Const.attrDynamic)) {
-					const newHtml = content ?? node.innerHTML;
-					if (existing.innerHTML !== newHtml) {
-						existing.innerHTML = newHtml;
-					}
-
-					if (appContext === `build`) {
-						iterator = newIterator();
-					}
+			} else {
+				this.renderElement(placeholder);
+				if (appContext === `build`) {
+					iterator = newIterator();
 				}
 			}
 		}
@@ -422,26 +405,58 @@ export class Component extends HTMLElement {
 		return this;
 	}
 
-	private renderEl(ctorName: string, key: string) {
-		const attributes = unconnectedAttributes.get(key)!.deref()!;
-		const Ctor = subclasses.get(ctorName)!;
-
-		let el: InstanceType<typeof Ctor> | null = null;
-		if (`id` in attributes) {
-			el = document.getElementById(attributes.id as string) as Component;
-		}
-		if (el === null) {
-			el = new Ctor();
-		}
-
-		el.set(attributes);
-
-		if (el.innerHTML === ``) {
-			el.innerHTML = el.template();
-		}
+	private renderComponent(placeholder: Comment, ctorName: string, key: string) {
+		const newAttributes = unconnectedAttributes.get(key)!.deref()!;
 		unconnectedAttributes.delete(key);
 
-		return el;
+		let instance: Component | null = null;
+
+		if (`id` in newAttributes) {
+			const id = newAttributes.id as string;
+			instance = document.getElementById(id) as Component;
+		}
+
+		if (instance === null) {
+			const Ctor = subclasses.get(ctorName)!;
+			instance = new Ctor();
+		}
+
+		placeholder.replaceWith(instance);
+
+		const updatedAttributes = {
+			...getAttributes(instance),
+			...newAttributes,
+		};
+		instance.set(updatedAttributes); // Don't use replaceAttributes here because Components have their own rules for setting attributes
+		instance.innerHTML = instance.template();
+	}
+
+	private renderElement(placeholder: HTMLElement) {
+		const newAttributes = getAttributes(placeholder);
+
+		if (!placeholder.hasAttribute(`id`)) {
+			return;
+		}
+
+		const existingEl = document.getElementById(placeholder.id);
+		if (existingEl === null) {
+			return;
+		}
+
+		placeholder.replaceWith(existingEl);
+
+		const updatedAttributes = {
+			...getAttributes(existingEl),
+			...newAttributes,
+		};
+		setAttributes(existingEl, updatedAttributes);
+
+		if (existingEl.hasAttribute(Const.attrDynamic)) {
+			const newHtml = placeholder.innerHTML;
+			if (existingEl.innerHTML !== newHtml) {
+				existingEl.innerHTML = newHtml;
+			}
+		}
 	}
 
 	/**

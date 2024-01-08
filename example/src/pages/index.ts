@@ -27,6 +27,7 @@ export class IndexPage extends Layout {
 	}
 
 	connectedCallback() {
+		super.connectedCallback();
 		const $list = this.findDown(List);
 		const $listItems = $list.findDownAll(ListItem);
 		for (const $listItem of $listItems) {

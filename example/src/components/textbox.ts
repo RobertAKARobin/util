@@ -26,7 +26,6 @@ export class Textbox extends Component.custom(`div`) {
 	template = () => html`
 <input
 	class="${(this.value ?? ``).length >= (this.maxLength - 5) ? `warning` : ``}"
-	id="${this.id}-input"
 	maxlength="${this.maxLength}"
 	oninput="${this.bind(`onInput`)}"
 	placeholder="Type here"

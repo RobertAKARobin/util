@@ -15,26 +15,6 @@ export function getAttributes(target: HTMLElement) {
 	return attributes;
 }
 
-export function replaceAttributes(
-	target: HTMLElement,
-	newAttributes: Partial<{
-		[Key in keyof typeof target]: typeof target[Key];
-	}>
-) {
-	const attributeNames = new Set(
-		...Object.keys(newAttributes),
-		...target.getAttributeNames(),
-	);
-
-	const updatedAttributes = {} as Record<string, unknown>;
-	for (const attributeName of attributeNames) {
-		const attributeKey = attributeName as keyof typeof newAttributes;
-		updatedAttributes[attributeName] = newAttributes[attributeKey];
-	}
-
-	return setAttributes(target, updatedAttributes);
-}
-
 export function setAttributes(
 	target: HTMLElement,
 	attributes: Partial<{
