@@ -21,7 +21,6 @@ module.exports = {
 	plugins: [
 		`@stylistic`,
 		`eslint-plugin-import`,
-		`eslint-plugin-import-newlines`,
 		`eslint-plugin-import-quotes`,
 	],
 	rules: {

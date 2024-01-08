@@ -44,6 +44,7 @@ type ElAttributes<Subclass extends Component> = {
 			: (Subclass[Key] | (() => Subclass[Key]))
 	);
 } & {
+	class: string;
 	style: string;
 };
 
@@ -486,7 +487,7 @@ export class Component extends HTMLElement {
 			}
 
 			if (attributeKey === `class`) {
-				this.classList.add(value as string);
+				this.setAttribute(`class`, value as string);
 			} else {
 				this[attributeKey] = value as typeof this[keyof this];
 			}
