@@ -56,7 +56,7 @@ export class Emitter<State> {
 			if (filter(state, previous)) {
 				return state;
 			}
-			return IGNORE;
+			return IGNORE as unknown as State;
 		});
 	}
 
@@ -68,7 +68,7 @@ export class Emitter<State> {
 			: (state: State) => state[property];
 		return this.pipe((state, { previous }) => {
 			if (getValue(state) === getValue(previous)) {
-				return IGNORE;
+				return IGNORE as unknown as State;
 			}
 			return state;
 		});
