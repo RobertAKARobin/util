@@ -15,7 +15,7 @@ module.exports = {
 			extends: [
 				`plugin:@typescript-eslint/recommended-type-checked`,
 			],
-			files: [`*.ts`, `*.tsx`],
+			files: [`*.ts`, `*.tsx`, `*.d.ts`],
 			parser: `@typescript-eslint/parser`,
 			parserOptions: {
 				project: true,
@@ -73,6 +73,7 @@ module.exports = {
 				}],
 				'@typescript-eslint/no-empty-interface': `off`,
 				'@typescript-eslint/no-explicit-any': `error`,
+				'@typescript-eslint/no-namespace': `off`,
 				'@typescript-eslint/no-this-alias': `off`,
 				'@typescript-eslint/no-unnecessary-type-assertion': `warn`,
 				'@typescript-eslint/no-unsafe-argument': `warn`,
