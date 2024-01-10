@@ -259,11 +259,11 @@ export class Component extends HTMLElement {
 	) {}
 
 	bind<
-		Self extends Record<EventName, (...args: any) => any>, // eslint-disable-line @typescript-eslint/no-explicit-any
-		EventName extends keyof Self,
+		Self extends Record<MethodKey, (...args: any) => any>, // eslint-disable-line @typescript-eslint/no-explicit-any
+		MethodKey extends keyof Self,
 	>(
 		this: Self,
-		methodKey: EventName,
+		methodKey: MethodKey,
 	) {
 		const methodName = methodKey as string;
 		return `this.closest(\`${(this as unknown as Component).Ctor.selector}\`).${methodName}(event)`;
