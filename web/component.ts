@@ -196,6 +196,30 @@ export class Component extends HTMLElement {
 		return `<!--${Const.flagEl}${this.name},${id}-->`;
 	}
 
+	static event<Value>(
+		options = {} as CustomEventInit<Value>,
+	) {
+		return function(
+			target: Component,
+			propertyName: string,
+			descriptor: PropertyDescriptor,
+		) {
+			const transformer = descriptor.value as ((...args: any) => Value); // eslint-disable-line @typescript-eslint/no-explicit-any
+			descriptor.value = function(
+				this: Component,
+				...args: Parameters<typeof transformer>
+			) {
+				const detail = transformer.call(this, ...args); // eslint-disable-line @typescript-eslint/no-unsafe-argument
+				const event = new CustomEvent(propertyName, {
+					...options,
+					detail,
+				});
+				this.dispatchEvent(event);
+				return detail;
+			};
+		};
+	}
+
 	/**
 	 * Returns the first element in the document that matches this constructor type
 	 */
@@ -289,28 +313,6 @@ export class Component extends HTMLElement {
 			...attributes,
 			id,
 		}, content);
-	}
-
-	event<Value>(
-		eventName: string,
-		options: CustomEventInit<Value> = {}
-	) {
-		const emitter = (value: Value) => {
-			const event = new CustomEvent(eventName, {
-				...options,
-				detail: value,
-			});
-			this.dispatchEvent(event);
-			return this;
-		};
-		emitter.eventName = eventName;
-		emitter.listen = (
-			listener: (event: CustomEvent<Value>) => void
-		) => {
-			this.addEventListener(eventName, listener as EventListener);
-			return this;
-		};
-		return emitter as EventEmitter<this, Value>;
 	}
 
 	/**

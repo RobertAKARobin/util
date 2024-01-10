@@ -11,22 +11,23 @@ input {
 @Component.define({ style })
 export class Textbox extends Component.custom(`div`) {
 	@Component.attribute({ name: `data-max` }) maxLength = 10;
-	onValue = this.event<string>(`onValue`);
 	@Component.attribute({ name: `data-value` }) value = ``;
 
-	onInput(event: Event) {
+	@Component.event()
+	onInput(event: InputEvent) {
 		const updated = (event.currentTarget as HTMLInputElement).value;
 		if (updated !== this.value) {
 			this.value = updated;
 			this.render();
-			this.onValue(updated);
 		}
+		return updated;
 	}
 
 	template = () => html`
 <host>
 	<input
 		class="${(this.value ?? ``).length >= (this.maxLength - 5) ? `warning` : ``}"
+		id="${this.id}-txt"
 		maxlength="${this.maxLength}"
 		oninput="${this.bind(`onInput`)}"
 		placeholder="Type here"

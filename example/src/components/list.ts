@@ -7,7 +7,8 @@ import { ListItem } from './listitem.ts';
 export class List extends Component.custom(`ol`) {
 	listItems = [] as Array<Type.ListItem>;
 
-	onAdd = this.event<number>(`onAdd`);
+	@Component.event()
+	onAdd() {}
 
 	setListItems(listItems: Array<Type.ListItem>) {
 		this.listItems = listItems;
