@@ -14,7 +14,7 @@ export class Textbox extends Component.custom(`div`) {
 	@Component.attribute({ name: `data-value` }) value = ``;
 
 	@Component.event()
-	onInput(event: InputEvent) {
+	onInput(event: Event) {
 		const updated = (event.currentTarget as HTMLInputElement).value;
 		if (updated !== this.value) {
 			this.value = updated;

@@ -7,6 +7,7 @@ import {
 import { appContext } from '@robertakarobin/util/context.ts';
 import { newUid } from '@robertakarobin/util/uid.ts';
 export { css, html } from '@robertakarobin/util/template.ts';
+import { serialize } from '@robertakarobin/util/serialize.ts';
 
 type Constructor<Classtype> = new (...args: any) => Classtype; // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -196,6 +197,9 @@ export class Component extends HTMLElement {
 		return `<!--${Const.flagEl}${this.name},${id}-->`;
 	}
 
+	/**
+	 * Decorates a method so that when the method is called it emits a DOM CustomEvent with the method's name, the `detail` of which is the method's return value
+	 */
 	static event<Value>(
 		options = {} as CustomEventInit<Value>,
 	) {
@@ -242,6 +246,9 @@ export class Component extends HTMLElement {
 		return [...root.querySelectorAll(selector)] as Array<Subclass>;
 	}
 
+	/**
+	 * Stores the component's textual content, if any, which can be inserted into the component's template
+	 */
 	content: string | undefined;
 
 	/**
@@ -282,15 +289,22 @@ export class Component extends HTMLElement {
 		_newValue: Value,
 	) {}
 
+	/**
+	 * Returns a string that can be inserted into an element's `[on*]` attribute that will call the specified function
+	 */
 	bind<
-		Self extends Record<MethodKey, (...args: any) => any>, // eslint-disable-line @typescript-eslint/no-explicit-any
+		Self extends Record<MethodKey, (event: Event, ...args: any) => any>, // eslint-disable-line @typescript-eslint/no-explicit-any
 		MethodKey extends keyof Self,
+		Method extends Self[MethodKey],
+		Args extends Parameters<Method>,
 	>(
 		this: Self,
 		methodKey: MethodKey,
+		...args: Partial<[Args[1], Args[2], Args[3]]> // TODO2: Why TF doesn't `...args: Args` work
 	) {
 		const methodName = methodKey as string;
-		return `this.closest(\`${(this as unknown as Component).Ctor.selector}\`).${methodName}(event)`;
+		const argsString = args.length === 0 ? `` : `,${serialize(args).slice(1, -1)}`; // Removes leading/trailing brackets
+		return `this.closest(\`${(this as unknown as Component).Ctor.selector}\`).${methodName}(event${argsString})`;
 	}
 
 	/**
@@ -305,6 +319,9 @@ export class Component extends HTMLElement {
 	 */
 	disconnectedCallback() {}
 
+	/**
+	 * @see Component.el
+	 */
 	el(
 		id: string,
 		...[attributes, content]: Parameters<typeof this.Ctor.el>
@@ -361,7 +378,7 @@ export class Component extends HTMLElement {
 		return this.closest((Ancestor as unknown as typeof Component).selector);
 	}
 
-	onConstruct() {
+	private onConstruct() {
 		this.setAttribute(Const.attrEl, this.Ctor.elName);
 	}
 
