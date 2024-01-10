@@ -188,7 +188,7 @@ export class Component extends HTMLElement {
 		attributes: Partial<ElAttributes<Subclass>> = {},
 		content = undefined as string | undefined,
 	) {
-		const id = newUid();
+		const id = (attributes.id as string) ?? newUid();
 		unconnectedAttributes.set(id, new WeakRef({
 			...attributes,
 			content,
@@ -368,110 +368,90 @@ export class Component extends HTMLElement {
 	/**
 	 * Makes the component replace its contents with newly-rendered contents
 	 */
-	render() {
+	render() { // TODO1: Add new elements
 		const template = document.createElement(`template`);
 		template.innerHTML = this.template();
 
-		const newIterator = () => document.createNodeIterator(
-			template.content,
+		const templateRoot = template.content.firstElementChild!;
+		if (templateRoot?.tagName.toUpperCase() === `HOST`) {
+			this.set({
+				...getAttributes(this),
+				...getAttributes(templateRoot as HTMLUnknownElement),
+			});
+			templateRoot.replaceWith(...templateRoot.childNodes);
+		}
+
+		const newIterator = () => document.createTreeWalker(
+			this.isConnected ? this : template.content,
 			NodeFilter.SHOW_COMMENT + NodeFilter.SHOW_ELEMENT,
 			() => NodeFilter.FILTER_ACCEPT,
 		);
 		let iterator = newIterator();
-		let placeholder: Comment | HTMLElement;
+		let target: Comment | HTMLElement;
 		while (true) {
-			placeholder = iterator.nextNode()! as Comment | HTMLElement;
+			target = iterator.nextNode()! as Comment | HTMLElement;
 
-			if (placeholder === null) {
+			if (target === null) {
 				break;
 			}
 
-			if (placeholder instanceof Comment) {
+			if (target instanceof Comment) {
+				const placeholder = target;
 				const flag = placeholder.textContent!;
 				if (flag.startsWith(Const.flagEl)) {
-					const [ctorName, key] = flag.substring(Const.flagEl.length).split(`,`);
-					this.renderComponent(placeholder, ctorName, key);
+					const [ctorName, id] = flag.substring(Const.flagEl.length).split(`,`);
+
+					const newAttributes = unconnectedAttributes.get(id)!.deref()!;
+					unconnectedAttributes.delete(id);
+
+					const Ctor = subclasses.get(ctorName)!;
+					const instance = new Ctor();
+					instance.set({
+						...getAttributes(instance),
+						...newAttributes,
+					});
+
+					instance.render();
+
+					placeholder.replaceWith(instance);
+
 					if (appContext === `build`) {
 						iterator = newIterator();
 					}
 				}
-			} else if (placeholder instanceof HTMLUnknownElement && placeholder.tagName.toUpperCase() === `HOST`) {
-				const updatedAttributes = {
-					...getAttributes(this),
-					...getAttributes(placeholder),
-				};
-				((placeholder.parentElement ?? this) as Component).set(updatedAttributes); // TODO2: What if host isn't immediate child?
-				placeholder.replaceWith(...placeholder.childNodes);
-				if (appContext === `build`) {
-					iterator = newIterator();
-				}
+
 			} else {
-				this.renderElement(placeholder);
+				if (!target.hasAttribute(`id`)) {
+					continue;
+				}
+
+				if (!this.isConnected) {
+					continue;
+				}
+
+				const id = target.id;
+				const updated = template.content.getElementById(id)!;
+				if (updated === undefined) {
+					this.remove();
+					continue;
+				}
+
+				target.innerHTML = updated.innerHTML;
+
+				setAttributes(target, getAttributes(updated));
 			}
 		}
 
-		this.replaceChildren(...template.content.childNodes);
+		if (!this.isConnected) {
+			this.replaceChildren(...template.content.childNodes);
+		}
 
 		return this;
 	}
 
-	private renderComponent(placeholder: Comment, ctorName: string, key: string) {
-		const newAttributes = unconnectedAttributes.get(key)!.deref()!;
-		unconnectedAttributes.delete(key);
-
-		let instance: Component | null = null;
-
-		if (`id` in newAttributes) {
-			const id = newAttributes.id as string;
-			instance = document.getElementById(id) as Component;
-		}
-
-		if (instance === null) {
-			const Ctor = subclasses.get(ctorName)!;
-			instance = new Ctor();
-		}
-
-		placeholder.replaceWith(instance);
-
-		const updatedAttributes = {
-			...getAttributes(instance),
-			...newAttributes,
-		};
-		instance.set(updatedAttributes); // Don't use replaceAttributes here because Components have their own rules for setting attributes
-		instance.innerHTML = instance.template();
-	}
-
-	private renderElement(placeholder: HTMLElement) {
-		const newAttributes = getAttributes(placeholder);
-
-		if (!placeholder.hasAttribute(`id`)) {
-			return;
-		}
-
-		const existingEl = document.getElementById(placeholder.id);
-		if (existingEl === null) {
-			return;
-		}
-
-		placeholder.replaceWith(existingEl);
-
-		const updatedAttributes = {
-			...getAttributes(existingEl),
-			...newAttributes,
-		};
-		setAttributes(existingEl, updatedAttributes);
-
-		if (existingEl.hasAttribute(Const.attrDynamic)) {
-			const newHtml = placeholder.innerHTML;
-			if (existingEl.innerHTML !== newHtml) {
-				existingEl.innerHTML = newHtml;
-			}
-		}
-	}
-
 	/**
 	 * Sets multiple attributes or properties.
-	 * If a value is a function and the
+	 * If a value is a function and the property is also a function, this assumes the target is an event and adds the value as an event listener function.
 	 */
 	set(attributes: Record<string, AttributeValue>) {
 		for (const attributeName in attributes) {
