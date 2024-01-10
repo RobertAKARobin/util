@@ -4,3 +4,4 @@ eslint-config-ts
 example
 htmlvalidate
 web
+*.spec.ts
