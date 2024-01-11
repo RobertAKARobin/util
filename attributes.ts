@@ -1,5 +1,4 @@
-export type AttributeValue = string | number | boolean | undefined | null | symbol | URL;
-
+import type { Textish } from './types.d.ts';
 export function attributeValueIsEmpty(value: unknown) {
 	return value === undefined
 		|| value === null
@@ -23,20 +22,20 @@ export function setAttributes(
 ) {
 	for (const attributeName in attributes) {
 		const attributeKey = attributeName as keyof typeof target;
-		const value = attributes[attributeKey] as AttributeValue;
+		const value = attributes[attributeKey] as Textish;
 		if (attributeValueIsEmpty(value)) {
 			target.removeAttribute(attributeName);
 		} else {
 			target.setAttribute(
 				attributeName,
-				(value as Exclude<AttributeValue, null | undefined>).toString()
+				(value as Exclude<Textish, null | undefined>).toString()
 			);
 		}
 	}
 	return target;
 }
 
-export function toAttributes(input: Record<string, AttributeValue>) {
+export function toAttributes(input: Record<string, Textish>) {
 	const out = [];
 	for (const attributeName in input) {
 		let value = input[attributeName];
@@ -44,7 +43,7 @@ export function toAttributes(input: Record<string, AttributeValue>) {
 			continue;
 		}
 		if (typeof value !== `string`) {
-			value = (value as Exclude<AttributeValue, null | undefined>).toString();
+			value = (value as Exclude<Textish, null | undefined>).toString();
 		}
 		out.push(`${attributeName}="${value}"`);
 	}

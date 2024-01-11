@@ -1,5 +1,4 @@
 import {
-	type AttributeValue,
 	attributeValueIsEmpty,
 	getAttributes,
 	setAttributes,
@@ -8,6 +7,7 @@ import { appContext } from '@robertakarobin/util/context.ts';
 import { newUid } from '@robertakarobin/util/uid.ts';
 export { css, html } from '@robertakarobin/util/template.ts';
 import { serialize } from '@robertakarobin/util/serialize.ts';
+import type { Textish } from '@robertakarobin/util/types.d.ts';
 
 type Constructor<Classtype> = new (...args: any) => Classtype; // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -88,13 +88,13 @@ export class Component extends HTMLElement {
 				get(this: Component) {
 					return this.getAttribute(attributeName);
 				},
-				set(this: Component, value: AttributeValue) {
+				set(this: Component, value: Textish) {
 					if (attributeValueIsEmpty(value)) {
 						this.removeAttribute(attributeName);
 					} else {
 						this.setAttribute(
 							attributeName,
-							(value as Exclude<AttributeValue, undefined | null>).toString()
+							(value as Exclude<Textish, undefined | null>).toString()
 						);
 					}
 				},
@@ -385,7 +385,10 @@ export class Component extends HTMLElement {
 	/**
 	 * Makes the component replace its contents with newly-rendered contents
 	 */
-	render() { // TODO1: Add new elements
+	render() {
+		// TODO1: Handle adding new elements
+		// TODO1: Handle just changing attributes
+		// TODO1: Handle nested content (slots?)
 		const template = document.createElement(`template`);
 		template.innerHTML = this.template();
 
@@ -470,18 +473,18 @@ export class Component extends HTMLElement {
 	 * Sets multiple attributes or properties.
 	 * If a value is a function and the property is also a function, this assumes the target is an event and adds the value as an event listener function.
 	 */
-	set(attributes: Record<string, AttributeValue>) {
+	set(attributes: Record<string, Textish>) {
 		for (const attributeName in attributes) {
 			const attributeKey = attributeName as keyof typeof this;
 
-			let value = attributes[attributeKey] as AttributeValue;
+			let value = attributes[attributeKey] as Textish;
 
 			if (typeof value === `function`) {
 				const existing = this[attributeKey];
 				if (typeof existing === `function`) { // Assume it's an event
 					this.addEventListener(attributeName, value);
 				} else {
-					value = (value as Function)() as AttributeValue;
+					value = (value as Function)() as Textish;
 				}
 			}
 

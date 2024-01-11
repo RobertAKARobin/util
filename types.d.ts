@@ -25,4 +25,6 @@ export type AtIndex1<Input> =
 		? Param
 		: never;
 
+export type Textish = string | number | boolean | undefined | null | symbol | URL;
+
 export type Timer = ReturnType<typeof setTimeout>;
