@@ -1,0 +1,3 @@
+package.json merge=ours
+package-lock.json merge=ours
+tsconfig.json merge=ours

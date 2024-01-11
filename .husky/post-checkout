@@ -1,0 +1,16 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+commitPrevious=$1
+commitNew=$2
+isBranchCheckout=$3 # 1 is branch, 0 is file
+
+mainCommit=$(git log -n 1 --pretty=format:"%H" main)
+
+if [[ $isBranchCheckout == 1 ]] && ([[ $commitPrevious == $mainCommit ]] || [[ $commitNew == $mainCommit ]]); then
+	rm -rf web/package-lock.json web/node_modules
+	npm i --prefix web
+
+	rm -rf example/package-lock.json example/node_modules
+	npm i --prefix example
+fi
