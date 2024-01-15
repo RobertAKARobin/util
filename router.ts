@@ -9,14 +9,14 @@ export type RouteMap = Record<string, string>;
 /**
  * Given a dictionary of routes, e.g. { contactPage: `/contact` }, listens to window location changes and emits the new location
  */
-export class Router<RouteMap_ extends RouteMap = Record<string, never>> extends Emitter<URL> {
+export class Router<Routes extends RouteMap = Record<string, never>> extends Emitter<URL> {
 	readonly baseUrl: URL;
-	readonly hashes = {} as Record<keyof RouteMap_, string>;
-	readonly paths = {} as Record<keyof RouteMap_, string>;
-	readonly routeNames = [] as Array<keyof RouteMap_>;
-	readonly urls = {} as Record<keyof RouteMap_, URL>;
+	readonly hashes = {} as Record<keyof Routes, string>;
+	readonly paths = {} as Record<keyof Routes, string>;
+	readonly routeNames = [] as Array<keyof Routes>;
+	readonly urls = {} as Record<keyof Routes, URL>;
 
-	constructor(routes: RouteMap_, options: Partial<{
+	constructor(routes: Routes, options: Partial<{
 		baseUrl: string | URL;
 	}> = {}) {
 		super(globalThis.location !== undefined
@@ -35,7 +35,7 @@ export class Router<RouteMap_ extends RouteMap = Record<string, never>> extends 
 	/**
 	 * Defines a new route
 	 */
-	add(routeName: keyof RouteMap_, path: string) {
+	add(routeName: keyof Routes, path: string) {
 		this.routeNames.push(routeName);
 
 		const url = new URL(path, this.baseUrl);
@@ -101,7 +101,7 @@ export class Router<RouteMap_ extends RouteMap = Record<string, never>> extends 
 	 * Returns the HTML for an anchor <a> element to the specified route
 	 */
 	link(
-		routeName: keyof RouteMap_,
+		routeName: keyof Routes,
 		content: string = ``,
 		attributeOverrides: Record<string, string> = {},
 	) {
@@ -137,7 +137,7 @@ export class Router<RouteMap_ extends RouteMap = Record<string, never>> extends 
 	/**
 	 * Updates the window's location to the url of the specified route name
 	 */
-	to(routeName: keyof RouteMap_) {
+	to(routeName: keyof Routes) {
 		return this.set(this.urls[routeName]);
 	}
 }
