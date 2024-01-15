@@ -211,7 +211,7 @@ export class Component extends HTMLElement {
 	/**
 	 * Stores the component's textual content, if any, which can be inserted into the component's template
 	 */
-	content: string | undefined;
+	content: string | undefined = ``;
 
 	/**
 	 * @returns The instance's constructor

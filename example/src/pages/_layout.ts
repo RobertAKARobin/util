@@ -3,7 +3,7 @@ import { Page } from '@robertakarobin/web/component.ts';
 
 import { Nav } from '@src/components/nav.ts';
 
-export const modalContainer = new ModalContainer();
+export const modalContainer = ModalContainer.find() ?? new ModalContainer();
 
 export class Layout extends Page {
 	template(contents: string) {

@@ -44,7 +44,7 @@ ${new ProgressCircle().set({
 	max: 100,
 	min: 0,
 	value: 50,
-})}
+}).write(`foo`)}
 
 <button
 	onclick="${this.bind(`dismiss`)}"
