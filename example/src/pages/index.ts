@@ -33,9 +33,6 @@ export class IndexPage extends Layout {
 				{ value: $listItem.text },
 			);
 		}
-
-		$list.on(`onAdd`, () => this.onAdd());
-		$list.on(`onDelete`, event => this.onDelete(event.detail));
 	}
 
 	onAdd() {
@@ -68,7 +65,11 @@ ${new TransitionTest()}
 
 <div id="${router.hashes.homeJump1}">Jump 1</div>
 
-${new List().setListItems(state.entries.$)}
+${new List()
+	.setListItems(state.entries.$)
+	.on(`onAdd`, () => this.onAdd())
+	.on(`onDelete`, event => this.onDelete(event.detail))
+}
 
 <markdown>
 # Headline 1

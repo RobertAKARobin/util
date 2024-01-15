@@ -18,7 +18,7 @@ export class Textbox extends Component.custom(`div`) {
 		const updated = (event.currentTarget as HTMLInputElement).value;
 		if (updated !== this.value) {
 			this.value = updated;
-			this.render();
+			this.rerender();
 		}
 		return updated;
 	}
@@ -33,7 +33,10 @@ export class Textbox extends Component.custom(`div`) {
 		value="${this.value ?? ``}"
 	>
 
-	<span id="${this.id}-remaining">
+	<span
+		id="${this.id}-remaining"
+		${Component.const.attrDynamic}="polite"
+	>
 		${this.maxLength - (this.value ?? ``).length} / ${this.maxLength} Remaining
 	</span>
 

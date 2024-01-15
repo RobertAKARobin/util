@@ -10,23 +10,11 @@ import type { Textish } from '@robertakarobin/util/types.d.ts';
 
 type Constructor<Classtype> = new (...args: any) => Classtype; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-const Const = {
-	attrDynamic: `data-dynamic`,
-	attrEl: `is`,
-	flagEl: `el:`,
-	globalProperty: `El`,
-	styleAttr: `data-style`,
-} as const;
-
 export const subclasses = new Map<string, typeof Component>();
-
-const globalVars = globalThis as typeof globalThis & {
-	[Const.globalProperty]: Record<string, unknown>;
-};
-globalVars[Const.globalProperty] = {};
 
 type ComponentWithoutDecorators = Omit<typeof Component,
 	| `attribute`
+	| `const`
 	| `createId`
 	| `custom`
 	| `define`
@@ -36,6 +24,12 @@ type ComponentWithoutDecorators = Omit<typeof Component,
 const componentCache = new Map<string, WeakRef<Component>>();
 
 export class Component extends HTMLElement {
+	static readonly const = {
+		attrDynamic: `aria-live`,
+		attrEl: `is`,
+		flagEl: `el:`,
+		styleAttr: `data-style`,
+	} as const;
 	static readonly elName: string;
 	static readonly observedAttributes = [] as Array<string>;
 	static readonly selector: string;
@@ -134,15 +128,15 @@ export class Component extends HTMLElement {
 			const Constructor = Subclass as unknown as typeof Component;
 			const elName = options.elName ?? Constructor.elName ?? `l-${Constructor.name.toLowerCase()}`;
 
-			const selector = `[${Const.attrEl}='${elName}']`;
+			const selector = `[${Component.const.attrEl}='${elName}']`;
 			const style = options.style?.replace(/::?host/g, selector);
 			if ( // Has to come after elName has been assigned
 				typeof style === `string`
-				&& document.head.querySelector(`[${Const.styleAttr}='${elName}']`) === null
+				&& document.head.querySelector(`[${Component.const.styleAttr}='${elName}']`) === null
 			) {
 				const $style = document.createElement(`style`);
 				$style.textContent = style;
-				$style.setAttribute(Const.styleAttr, elName);
+				$style.setAttribute(Component.const.styleAttr, elName);
 				document.head.appendChild($style);
 			}
 
@@ -151,8 +145,6 @@ export class Component extends HTMLElement {
 				selector,
 				style,
 			});
-
-			globalVars[Const.globalProperty][Constructor.name] = Constructor;
 
 			subclasses.set(Constructor.name, Constructor as unknown as typeof Component);
 
@@ -351,16 +343,13 @@ export class Component extends HTMLElement {
 
 	private onConstruct() {
 		this.id = [undefined, null, ``].includes(this.id) ? Component.createId() : this.id;
-		this.setAttribute(Const.attrEl, this.Ctor.elName);
+		this.setAttribute(Component.const.attrEl, this.Ctor.elName);
 	}
 
 	/**
 	 * Makes the component replace its contents with newly-rendered contents
 	 */
 	render() {
-		// TODO1: Handle adding new elements
-		// TODO1: Handle just changing attributes
-		// TODO1: Handle nested content (slots?)
 		const template = document.createElement(`template`);
 		template.innerHTML = this.template();
 
@@ -375,7 +364,7 @@ export class Component extends HTMLElement {
 		}
 
 		const iterator = document.createTreeWalker(
-			this.isConnected ? this : template.content,
+			template.content,
 			NodeFilter.SHOW_COMMENT + NodeFilter.SHOW_ELEMENT,
 			() => NodeFilter.FILTER_ACCEPT,
 		);
@@ -390,46 +379,79 @@ export class Component extends HTMLElement {
 			if (target instanceof Comment) {
 				const placeholder = target;
 				const flag = placeholder.textContent!;
-				if (flag.startsWith(Const.flagEl)) {
-					const id = flag.substring(Const.flagEl.length);
-					const instance = componentCache.get(id)!.deref()!;
+				if (flag.startsWith(Component.const.flagEl)) {
+					const id = flag.substring(Component.const.flagEl.length);
+					const cached = componentCache.get(id)!.deref()!;
 					componentCache.delete(id);
-
-					iterator.previousNode(); // The current target node is about to be replaced, so moving to previous target
-
-					placeholder.replaceWith(instance);
-
-					instance.render();
-				}
-
-			} else {
-				if (!target.hasAttribute(`id`)) {
-					continue;
-				}
-
-				if (!this.isConnected) {
-					continue;
-				}
-
-				const id = target.id;
-				const updated = template.content.getElementById(id)!;
-				if (updated === null) {
 					iterator.previousNode();
-					target.remove();
-					continue;
+					placeholder.replaceWith(cached);
 				}
+				continue;
+			}
 
-				if (target instanceof Component) {
-					target.render();
-				} else {
-					target.replaceChildren(...updated.childNodes);
-					setAttributes(target, getAttributes(updated));
-				}
+			const id = target.id;
+			if (id === null) {
+				continue;
+			}
+
+			const isComponent = target.hasAttribute(Component.const.attrEl);
+			if (isComponent) {
+				(target as Component).render();
 			}
 		}
 
-		if (!this.isConnected) {
-			this.replaceChildren(...template.content.childNodes);
+		this.replaceChildren(...template.content.childNodes);
+
+		return this;
+	}
+
+	rerender() {
+		const template = document.createElement(`template`);
+		template.innerHTML = this.template();
+
+		const iterator = document.createTreeWalker(
+			this,
+			NodeFilter.SHOW_ELEMENT,
+			() => NodeFilter.FILTER_ACCEPT,
+		);
+		let target: HTMLElement;
+		while (true) {
+			target = iterator.nextNode()! as HTMLElement;
+
+			if (target === null) {
+				break;
+			}
+
+			const id = target.getAttribute(`id`);
+			if (id === null) {
+				continue;
+			}
+
+			const existing = target;
+			const isComponent = target.hasAttribute(Component.const.attrEl);
+			let updated: HTMLElement | null | undefined;
+			if (isComponent) {
+				updated = componentCache.get(id)!.deref();
+				componentCache.delete(id);
+			} else {
+				updated = template.content.getElementById(id);
+			}
+
+			if (updated === null || updated === undefined) {
+				iterator.previousNode();
+				existing.remove();
+				continue;
+			}
+
+			if (isComponent) {
+				(updated as Component).render();
+			}
+
+			setAttributes(existing, getAttributes(updated));
+
+			if (updated.hasAttribute(Component.const.attrDynamic)) {
+				existing.replaceChildren(...updated.childNodes);
+			}
 		}
 
 		return this;
@@ -461,7 +483,7 @@ export class Component extends HTMLElement {
 
 	toString() {
 		componentCache.set(this.id, new WeakRef(this));
-		return `<!--${Const.flagEl}${this.id}-->`;
+		return `<!--${Component.const.flagEl}${this.id}-->`;
 	}
 
 	write(input: string) {

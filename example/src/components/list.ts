@@ -7,11 +7,6 @@ import { ListItem } from './listitem.ts';
 export class List extends Component.custom(`ol`) {
 	listItems = [] as Array<Type.ListItem>;
 
-	connectedCallback() {
-		const listItem = this.findDown(ListItem);
-		listItem.on(`onDelete`, () => this.onDelete(listItem.id));
-	}
-
 	@Component.event()
 	onAdd() {}
 
@@ -30,7 +25,9 @@ export class List extends Component.custom(`ol`) {
 	<li>List ID ${this.id}</li>
 
 	${this.listItems.map(({ id, value }) =>
-		new ListItem().set({ id, text: value })
+		new ListItem()
+			.set({ id, text: value })
+			.on(`onDelete`, () => this.onDelete(id!))
 	).join(``)}
 
 	<li>
