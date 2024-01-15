@@ -1,5 +1,6 @@
 import {
 	attributeValueIsEmpty,
+	type ElAttributes,
 	getAttributes,
 	setAttributes,
 } from '@robertakarobin/util/attributes.ts';
@@ -88,14 +89,14 @@ export class Component extends HTMLElement {
 	/**
 	 * Adds common component methods/helpers to the specified HTML element constructor
 	 */
-	static custom(tagName: keyof HTMLElementTagNameMap) {
+	static custom<
+		TagName extends keyof HTMLElementTagNameMap,
+	>(tagName: TagName) {
 		const $dummy = document.createElement(tagName);
-		const BaseElement = $dummy.constructor as Constructor<
-			HTMLElementTagNameMap[keyof HTMLElementTagNameMap]
-		>;
+		const BaseElement = $dummy.constructor as Constructor<HTMLElementTagNameMap[TagName]>;
 
 		interface ComponentBase extends Component {} // eslint-disable-line no-restricted-syntax, @typescript-eslint/no-unsafe-declaration-merging
-		class ComponentBase extends (BaseElement as typeof HTMLElement) { // eslint-disable-line @typescript-eslint/no-unsafe-declaration-merging
+		class ComponentBase extends (BaseElement as unknown as new() => object) { // eslint-disable-line @typescript-eslint/no-unsafe-declaration-merging
 			static readonly elName: string;
 			static readonly find = Component.find;
 			static readonly findAll = Component.findAll;
@@ -115,7 +116,7 @@ export class Component extends HTMLElement {
 			Object.defineProperty(ComponentBase.prototype, instancePropertyName, instanceProperty);
 		}
 
-		return ComponentBase;
+		return ComponentBase as typeof ComponentBase & typeof BaseElement;
 	}
 
 	/**
@@ -365,10 +366,11 @@ export class Component extends HTMLElement {
 
 		const templateRoot = template.content.firstElementChild!;
 		if (templateRoot?.tagName.toUpperCase() === `HOST`) {
-			this.set({
-				...getAttributes(this) as Partial<this>,
+			const updatedAttributes = {
+				...getAttributes(this),
 				...getAttributes(templateRoot as HTMLUnknownElement),
-			});
+			} as Partial<ElAttributes<this>>;
+			this.set(updatedAttributes);
 			templateRoot.replaceWith(...templateRoot.childNodes);
 		}
 
@@ -435,27 +437,16 @@ export class Component extends HTMLElement {
 
 	/**
 	 * Sets multiple attributes or properties.
-	 * If a value is a function and the property is also a function, this assumes the target is an event and adds the value as an event listener function.
 	 */
-	set(attributes: Partial<this>) {
+	set(attributes: Partial<ElAttributes<this>>) {
 		for (const attributeName in attributes) {
-			const attributeKey = attributeName as keyof typeof this;
+			const attributeKey = attributeName as keyof ElAttributes<this>;
 
-			let value = attributes[attributeKey] as Textish;
-
-			if (typeof value === `function`) {
-				const existing = this[attributeKey];
-				if (typeof existing === `function`) { // Assume it's an event
-					this.addEventListener(attributeName, value);
-				} else {
-					value = (value as Function)() as Textish;
-				}
-			}
-
+			const value = attributes[attributeKey] as Textish;
 			if (attributeKey === `class`) {
 				this.setAttribute(`class`, value as string);
 			} else {
-				this[attributeKey] = value as typeof this[keyof this];
+      	this[attributeKey] = value as this[typeof attributeKey]; // This triggers the setter which removes empty attributes
 			}
 		}
 		return this;

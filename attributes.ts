@@ -1,4 +1,15 @@
 import type { Textish } from './types.d.ts';
+
+export type ElAttributes<Subclass extends HTMLElement> =
+	& Omit<Subclass,
+		| `class`
+		| `style`
+	>
+	& {
+	class: string;
+	style: string;
+};
+
 export function attributeValueIsEmpty(value: unknown) {
 	return value === undefined
 		|| value === null
@@ -11,17 +22,15 @@ export function getAttributes(target: HTMLElement) {
 	for (const attributeName of target.getAttributeNames()) {
 		attributes[attributeName] = target.getAttribute(attributeName);
 	}
-	return attributes;
+	return attributes as Partial<ElAttributes<typeof target>>;
 }
 
-export function setAttributes(
-	target: HTMLElement,
-	attributes: Partial<{
-		[Key in keyof typeof target]: typeof target[Key];
-	}>
+export function setAttributes<Subclass extends HTMLElement>(
+	target: Subclass,
+	attributes: Partial<ElAttributes<typeof target>>
 ) {
 	for (const attributeName in attributes) {
-		const attributeKey = attributeName as keyof typeof target;
+		const attributeKey = attributeName as keyof ElAttributes<Subclass>;
 		const value = attributes[attributeKey] as Textish;
 		if (attributeValueIsEmpty(value)) {
 			target.removeAttribute(attributeName);

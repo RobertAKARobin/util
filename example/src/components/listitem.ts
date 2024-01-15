@@ -4,7 +4,7 @@ import { Textbox } from '@src/components/textbox.ts';
 
 @Component.define()
 export class ListItem extends Component.custom(`li`) {
-	@Component.attribute({ name: `data-value` }) value!: string;
+	@Component.attribute({ name: `data-text` }) text!: string;
 
 	@Component.event()
 	onDelete() {}
@@ -14,7 +14,7 @@ export class ListItem extends Component.custom(`li`) {
 
 	${new Textbox().set({
 		id: `${this.id}-text`,
-		value: this.value,
+		value: this.text,
 	})}
 
 	<button

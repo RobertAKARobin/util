@@ -30,7 +30,7 @@ export class IndexPage extends Layout {
 		for (const $listItem of $listItems) {
 			state.upsert(
 				$listItem.id,
-				{ value: $listItem.value },
+				{ value: $listItem.text },
 			);
 		}
 

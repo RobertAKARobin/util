@@ -30,7 +30,7 @@ export class List extends Component.custom(`ol`) {
 	<li>List ID ${this.id}</li>
 
 	${this.listItems.map(({ id, value }) =>
-		new ListItem().set({ id, value })
+		new ListItem().set({ id, text: value })
 	).join(``)}
 
 	<li>
