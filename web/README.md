@@ -30,6 +30,13 @@
 	-	+ Don't have to manually import
 	-	- Will always call constructor and/or chained functions
 	-	- Extra step: have to translate to comment
+-	Router outlet
+	-	Page extends RouterOutlet
+		-	- Rebuilds page on every route
+	-	Argument to Resolver
+		-	- Resolver is just to map routes to views; shouldn't actually _do_ anything
+	-	Renderer
+		-	- Importing would import/cache everthing else?
 
 ### Existing frameworks
 
@@ -55,7 +62,6 @@
 ## TODO
 
 -	Don't use `[on]` attributes?
--	Remove `$` prefix from elements; this isn't jQuery
 -	isHydrated
 
 -	CSS class mapping

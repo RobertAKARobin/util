@@ -16,7 +16,5 @@
 
 	"html-validate.validate": [
 		"html",
-	],
-
-	"lit-plugin.rules.no-incompatible-type-binding": "off"
+	]
 }
