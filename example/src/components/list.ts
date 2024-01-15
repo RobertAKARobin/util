@@ -18,11 +18,8 @@ export class List extends Component.custom(`ol`) {
 	template = () => /*html*/`
 	<li>List ID ${this.id}</li>
 
-	${this.listItems.map(({ value }, index) =>
-		new ListItem().set({
-			id: `${this.id}-${index}`,
-			value,
-		})
+	${this.listItems.map(({ id, value }) =>
+		new ListItem().set({ id, value })
 	).join(``)}
 
 	<li>

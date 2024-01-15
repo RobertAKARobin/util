@@ -3,7 +3,6 @@ import {
 	getAttributes,
 	setAttributes,
 } from '@robertakarobin/util/attributes.ts';
-import { appContext } from '@robertakarobin/util/context.ts';
 import { newUid } from '@robertakarobin/util/uid.ts';
 import { serialize } from '@robertakarobin/util/serialize.ts';
 import type { Textish } from '@robertakarobin/util/types.d.ts';
@@ -27,6 +26,7 @@ globalVars[Const.globalProperty] = {};
 
 type ComponentWithoutDecorators = Omit<typeof Component,
 	| `attribute`
+	| `createId`
 	| `custom`
 	| `define`
 	| `event`
@@ -79,6 +79,10 @@ export class Component extends HTMLElement {
 				},
 			});
 		};
+	}
+
+	static createId() {
+		return `l${newUid()}`;
 	}
 
 	/**
@@ -345,7 +349,7 @@ export class Component extends HTMLElement {
 	}
 
 	private onConstruct() {
-		this.id = [undefined, null, ``].includes(this.id) ? `l${newUid()}` : this.id;
+		this.id = [undefined, null, ``].includes(this.id) ? Component.createId() : this.id;
 		this.setAttribute(Const.attrEl, this.Ctor.elName);
 	}
 
@@ -368,12 +372,11 @@ export class Component extends HTMLElement {
 			templateRoot.replaceWith(...templateRoot.childNodes);
 		}
 
-		const newIterator = () => document.createTreeWalker(
+		const iterator = document.createTreeWalker(
 			this.isConnected ? this : template.content,
 			NodeFilter.SHOW_COMMENT + NodeFilter.SHOW_ELEMENT,
 			() => NodeFilter.FILTER_ACCEPT,
 		);
-		let iterator = newIterator();
 		let target: Comment | HTMLElement;
 		while (true) {
 			target = iterator.nextNode()! as Comment | HTMLElement;
@@ -390,13 +393,11 @@ export class Component extends HTMLElement {
 					const instance = componentCache.get(id)!.deref()!;
 					componentCache.delete(id);
 
+					iterator.previousNode(); // The current target node is about to be replaced, so moving to previous target
+
 					placeholder.replaceWith(instance);
 
 					instance.render();
-
-					if (appContext === `build`) {
-						iterator = newIterator();
-					}
 				}
 
 			} else {
@@ -410,7 +411,7 @@ export class Component extends HTMLElement {
 
 				const id = target.id;
 				const updated = template.content.getElementById(id)!;
-				if (updated === undefined) {
+				if (updated === null) {
 					this.remove();
 					continue;
 				}

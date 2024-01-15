@@ -25,8 +25,7 @@ export class IndexPage extends Layout {
 	}
 
 	connectedCallback() {
-		super.connectedCallback();
-		const $list = this.findDown(List);
+		const $list = List.find();
 		const $listItems = $list.findDownAll(ListItem);
 		for (const $listItem of $listItems) {
 			state.upsert(
@@ -60,7 +59,6 @@ ${new TransitionTest()}
 <div id="${router.hashes.homeJump1}">Jump 1</div>
 
 ${new List()
-	.set({ id: `indexList` })
 	.setListItems(state.entries.$)
 	.on(`onAdd`, () => this.onAdd())
 }
