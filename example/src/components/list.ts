@@ -25,8 +25,8 @@ export class List extends Component.custom(`ol`) {
 	<li>List ID ${this.id}</li>
 
 	${this.listItems.map(({ id, value }) =>
-		new ListItem()
-			.set({ id, text: value })
+		new ListItem(id!)
+			.set({ text: value })
 			.on(`onDelete`, () => this.onDelete(id!))
 	).join(``)}
 

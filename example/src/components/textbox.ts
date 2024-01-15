@@ -13,6 +13,10 @@ export class Textbox extends Component.custom(`div`) {
 	@Component.attribute({ name: `data-max` }) maxLength = 10;
 	@Component.attribute({ name: `data-value` }) value = ``;
 
+	constructor(id: string) {
+		super(id);
+	}
+
 	@Component.event()
 	onInput(event: Event) {
 		const updated = (event.currentTarget as HTMLInputElement).value;

@@ -6,14 +6,17 @@ import { Textbox } from '@src/components/textbox.ts';
 export class ListItem extends Component.custom(`li`) {
 	@Component.attribute({ name: `data-text` }) text!: string;
 
+	constructor(id: string) {
+		super(id);
+	}
+
 	@Component.event()
 	onDelete() {}
 
 	template = () => /*html*/`
 	<p>List item ID ${this.id}</p>
 
-	${new Textbox().set({
-		id: `${this.id}-text`,
+	${new Textbox(`${this.id}-text`).set({
 		value: this.text,
 	})}
 

@@ -15,7 +15,6 @@ export const subclasses = new Map<string, typeof Component>();
 type ComponentWithoutDecorators = Omit<typeof Component,
 	| `attribute`
 	| `const`
-	| `createId`
 	| `custom`
 	| `define`
 	| `event`
@@ -76,10 +75,6 @@ export class Component extends HTMLElement {
 		};
 	}
 
-	static createId() {
-		return `l${newUid()}`;
-	}
-
 	/**
 	 * Adds common component methods/helpers to the specified HTML element constructor
 	 */
@@ -98,9 +93,9 @@ export class Component extends HTMLElement {
 			static readonly selector: string;
 			static readonly tagName = tagName;
 
-			constructor() {
+			constructor(id?: Component[`id`]) {
 				super();
-				this.onConstruct();
+				this.onConstruct(id);
 			}
 		}
 
@@ -224,9 +219,9 @@ export class Component extends HTMLElement {
 	*/
 	readonly isSSG: boolean = true;
 
-	constructor() {
+	constructor(id?: Component[`id`]) {
 		super();
-		this.onConstruct();
+		this.onConstruct(id);
 	}
 
 	/**
@@ -341,8 +336,10 @@ export class Component extends HTMLElement {
 		return this;
 	}
 
-	private onConstruct() {
-		this.id = [undefined, null, ``].includes(this.id) ? Component.createId() : this.id;
+	private onConstruct(id?: Component[`id`]) {
+		if (id !== undefined) {
+			this.id = id;
+		}
 		this.setAttribute(Component.const.attrEl, this.Ctor.elName);
 	}
 
@@ -380,9 +377,9 @@ export class Component extends HTMLElement {
 				const placeholder = target;
 				const flag = placeholder.textContent!;
 				if (flag.startsWith(Component.const.flagEl)) {
-					const id = flag.substring(Component.const.flagEl.length);
-					const cached = componentCache.get(id)!.deref()!;
-					componentCache.delete(id);
+					const tempId = flag.substring(Component.const.flagEl.length);
+					const cached = componentCache.get(tempId)!.deref()!;
+					componentCache.delete(tempId);
 					iterator.previousNode();
 					placeholder.replaceWith(cached);
 				}
@@ -409,6 +406,16 @@ export class Component extends HTMLElement {
 		const template = document.createElement(`template`);
 		template.innerHTML = this.template();
 
+		const templateRoot = template.content.firstElementChild!;
+		if (templateRoot?.tagName.toUpperCase() === `HOST`) {
+			const updatedAttributes = {
+				...getAttributes(this),
+				...getAttributes(templateRoot as HTMLUnknownElement),
+			} as Partial<ElAttributes<this>>;
+			this.set(updatedAttributes);
+			templateRoot.replaceWith(...templateRoot.childNodes);
+		}
+
 		const iterator = document.createTreeWalker(
 			this,
 			NodeFilter.SHOW_ELEMENT,
@@ -431,16 +438,10 @@ export class Component extends HTMLElement {
 			const isComponent = target.hasAttribute(Component.const.attrEl);
 			let updated: HTMLElement | null | undefined;
 			if (isComponent) {
-				updated = componentCache.get(id)!.deref();
+				updated = componentCache.get(id)!.deref()!;
 				componentCache.delete(id);
 			} else {
-				updated = template.content.getElementById(id);
-			}
-
-			if (updated === null || updated === undefined) {
-				iterator.previousNode();
-				existing.remove();
-				continue;
+				updated = template.content.getElementById(id)!;
 			}
 
 			if (isComponent) {
@@ -482,8 +483,9 @@ export class Component extends HTMLElement {
 	}
 
 	toString() {
-		componentCache.set(this.id, new WeakRef(this));
-		return `<!--${Component.const.flagEl}${this.id}-->`;
+		const tempId = [undefined, null, ``].includes(this.id) ? newUid() : this.id;
+		componentCache.set(tempId, new WeakRef(this));
+		return `<!--${Component.const.flagEl}${tempId}-->`;
 	}
 
 	write(input: string) {
