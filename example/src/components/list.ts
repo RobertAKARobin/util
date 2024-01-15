@@ -1,4 +1,4 @@
-import { Component, html } from '@robertakarobin/web/component.ts';
+import { Component } from '@robertakarobin/web/component.ts';
 
 import type * as Type from '@src/types.js';
 import { ListItem } from './listitem.ts';
@@ -15,15 +15,15 @@ export class List extends Component.custom(`ol`) {
 		return this;
 	}
 
-	template = () => html`
+	template = () => /*html*/`
 	<li>List ID ${this.id}</li>
 
 	${this.listItems.map(({ value }, index) =>
-		ListItem.el({
+		new ListItem().set({
 			id: `${this.id}-${index}`,
 			value,
 		})
-	)}
+	).join(``)}
 
 	<li>
 		<button

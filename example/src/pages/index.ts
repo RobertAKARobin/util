@@ -1,16 +1,14 @@
-import { Component, css, html } from '@robertakarobin/web/component.ts';
+import { Component } from '@robertakarobin/web/component.ts';
 
-import { Layout } from './_layout.ts';
+import { Layout, modalContainer } from './_layout.ts';
 import { List } from '@src/components/list.ts';
 import { ListItem } from '@src/components/listitem.ts';
-import { router } from '@src/router.ts';
-
-import { modalContainer } from '@src/modals/_container.ts';
 import { ProgressModal } from '@src/modals/progress.ts';
+import { router } from '@src/router.ts';
 import { state } from '@src/state.ts';
 import { TransitionTest } from '@src/components/transition-test.ts';
 
-const style = css`
+const style = /*css*/`
 :host h1 {
 	color: red;
 }
@@ -49,10 +47,10 @@ export class IndexPage extends Layout {
 		modalContainer.place(new ProgressModal());
 	}
 
-	template = () => super.template(html`
+	template = () => super.template(/*html*/`
 <h1>Hello world!</h1>
 
-${TransitionTest.el()}
+${new TransitionTest()}
 
 <button
 	onclick="${this.bind(`openModal`)}"
@@ -61,11 +59,11 @@ ${TransitionTest.el()}
 
 <div id="${router.hashes.homeJump1}">Jump 1</div>
 
-${List.el({
-	id: `indexList`,
-	listItems: () => state.entries.$,
-	onAdd: () => this.onAdd(),
-})}
+${new List()
+	.set({ id: `indexList` })
+	.setListItems(state.entries.$)
+	.on(`onAdd`, () => this.onAdd())
+}
 
 <markdown>
 # Headline 1

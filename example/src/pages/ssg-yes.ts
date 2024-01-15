@@ -12,7 +12,7 @@ h1 {
 @Component.define({ style })
 export class YesSSGPage extends Layout {
 	isSSG = true;
-	template = () => super.template(`
+	template = () => super.template(/*html*/`
 <h1>SSG yes</h1>
 
 <div id="${router.hashes.ssgYesJump1}">Jump 1</div>

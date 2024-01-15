@@ -1,4 +1,4 @@
-import { Component, html } from '@robertakarobin/web/component.ts';
+import { Component } from '@robertakarobin/web/component.ts';
 
 import { types } from '@src/theme.ts';
 
@@ -23,7 +23,7 @@ export class Textbox extends Component.custom(`div`) {
 		return updated;
 	}
 
-	template = () => html`
+	template = () => /*html*/`
 <host>
 	<input
 		maxlength="${this.maxLength}"

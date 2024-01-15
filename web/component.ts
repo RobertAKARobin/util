@@ -5,7 +5,6 @@ import {
 } from '@robertakarobin/util/attributes.ts';
 import { appContext } from '@robertakarobin/util/context.ts';
 import { newUid } from '@robertakarobin/util/uid.ts';
-export { css, html } from '@robertakarobin/util/template.ts';
 import { serialize } from '@robertakarobin/util/serialize.ts';
 import type { Textish } from '@robertakarobin/util/types.d.ts';
 
@@ -15,16 +14,11 @@ const Const = {
 	attrDynamic: `data-dynamic`,
 	attrEl: `is`,
 	flagEl: `el:`,
-	flagMap: `map:`,
 	globalProperty: `El`,
 	styleAttr: `data-style`,
 } as const;
 
 export const subclasses = new Map<string, typeof Component>();
-
-const unconnectedAttributes = new Map<string, WeakRef<{
-	content?: string;
-}>>();
 
 const globalVars = globalThis as typeof globalThis & {
 	[Const.globalProperty]: Record<string, unknown>;
@@ -38,22 +32,7 @@ type ComponentWithoutDecorators = Omit<typeof Component,
 	| `event`
 >;
 
-type ElAttributes<Subclass extends Component> = {
-	[Key in Exclude<keyof Subclass, `el` | `style`>]: (
-		Subclass[Key] extends EventEmitter<Subclass, infer Value>
-			? (arg: CustomEvent<Value>) => void
-			: (Subclass[Key] | (() => Subclass[Key]))
-	);
-} & {
-	class: string;
-	style: string;
-};
-
-export type EventEmitter<Owner, Value = void> = {
-	(value: Value): Owner;
-	eventName: string;
-	listen(listener: (event: CustomEvent<Value>) => void): Owner;
-};
+const componentCache = new Map<string, WeakRef<Component>>();
 
 export class Component extends HTMLElement {
 	static readonly elName: string;
@@ -113,7 +92,6 @@ export class Component extends HTMLElement {
 
 		interface ComponentBase extends Component {} // eslint-disable-line no-restricted-syntax, @typescript-eslint/no-unsafe-declaration-merging
 		class ComponentBase extends (BaseElement as typeof HTMLElement) { // eslint-disable-line @typescript-eslint/no-unsafe-declaration-merging
-			static readonly el = Component.el;
 			static readonly elName: string;
 			static readonly find = Component.find;
 			static readonly findAll = Component.findAll;
@@ -179,22 +157,6 @@ export class Component extends HTMLElement {
 				Subclass.tagName === undefined ? undefined : { extends: Subclass.tagName }
 			);
 		};
-	}
-
-	/**
-	 * Renders a custom element to the document, while setting the given properties/attributes
-	 */
-	static el<Subclass extends Component>(
-		this: Constructor<Subclass>,
-		attributes: Partial<ElAttributes<Subclass>> = {},
-		content = undefined as string | undefined,
-	) {
-		const id = (attributes.id as string) ?? newUid();
-		unconnectedAttributes.set(id, new WeakRef({
-			...attributes,
-			content,
-		}));
-		return `<!--${Const.flagEl}${this.name},${id}-->`;
 	}
 
 	/**
@@ -320,19 +282,6 @@ export class Component extends HTMLElement {
 	disconnectedCallback() {}
 
 	/**
-	 * @see Component.el
-	 */
-	el(
-		id: string,
-		...[attributes, content]: Parameters<typeof this.Ctor.el>
-	) {
-		return this.Ctor.el({
-			...attributes,
-			id,
-		}, content);
-	}
-
-	/**
 	 * Looks for and returns the first instance of the specified constructor, or element of the specified selector, within the current component's template
 	 */
 	findDown<Descendant extends keyof HTMLElementTagNameMap>(
@@ -378,7 +327,25 @@ export class Component extends HTMLElement {
 		return this.closest((Ancestor as unknown as typeof Component).selector);
 	}
 
+	on<
+		Self extends Record<EventName, (...args: any) => any>, // eslint-disable-line @typescript-eslint/no-explicit-any
+		EventName extends keyof Self,
+		EventDetail extends ReturnType<Self[EventName]>,
+	>(
+		this: Self,
+		eventName: EventName,
+		doWhat: (event: CustomEvent<EventDetail>) => void
+	) {
+		const self = (this as unknown as HTMLElement);
+		self.addEventListener(
+			eventName as string,
+			doWhat as EventListener
+		);
+		return this;
+	}
+
 	private onConstruct() {
+		this.id = [undefined, null, ``].includes(this.id) ? `l${newUid()}` : this.id;
 		this.setAttribute(Const.attrEl, this.Ctor.elName);
 	}
 
@@ -395,7 +362,7 @@ export class Component extends HTMLElement {
 		const templateRoot = template.content.firstElementChild!;
 		if (templateRoot?.tagName.toUpperCase() === `HOST`) {
 			this.set({
-				...getAttributes(this),
+				...getAttributes(this) as Partial<this>,
 				...getAttributes(templateRoot as HTMLUnknownElement),
 			});
 			templateRoot.replaceWith(...templateRoot.childNodes);
@@ -419,21 +386,13 @@ export class Component extends HTMLElement {
 				const placeholder = target;
 				const flag = placeholder.textContent!;
 				if (flag.startsWith(Const.flagEl)) {
-					const [ctorName, id] = flag.substring(Const.flagEl.length).split(`,`);
-
-					const newAttributes = unconnectedAttributes.get(id)!.deref()!;
-					unconnectedAttributes.delete(id);
-
-					const Ctor = subclasses.get(ctorName)!;
-					const instance = new Ctor();
-					instance.set({
-						...getAttributes(instance),
-						...newAttributes,
-					});
-
-					instance.render();
+					const id = flag.substring(Const.flagEl.length);
+					const instance = componentCache.get(id)!.deref()!;
+					componentCache.delete(id);
 
 					placeholder.replaceWith(instance);
+
+					instance.render();
 
 					if (appContext === `build`) {
 						iterator = newIterator();
@@ -473,7 +432,7 @@ export class Component extends HTMLElement {
 	 * Sets multiple attributes or properties.
 	 * If a value is a function and the property is also a function, this assumes the target is an event and adds the value as an event listener function.
 	 */
-	set(attributes: Record<string, Textish>) {
+	set(attributes: Partial<this>) {
 		for (const attributeName in attributes) {
 			const attributeKey = attributeName as keyof typeof this;
 
@@ -502,6 +461,16 @@ export class Component extends HTMLElement {
 	 */
 	template(subclassTemplate?: string) {
 		return subclassTemplate ?? this.innerHTML ?? ``;
+	}
+
+	toString() {
+		componentCache.set(this.id, new WeakRef(this));
+		return `<!--${Const.flagEl}${this.id}-->`;
+	}
+
+	write(input: string) {
+		this.content = input;
+		return this;
 	}
 }
 
