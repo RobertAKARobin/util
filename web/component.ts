@@ -412,13 +412,17 @@ export class Component extends HTMLElement {
 				const id = target.id;
 				const updated = template.content.getElementById(id)!;
 				if (updated === null) {
-					this.remove();
+					iterator.previousNode();
+					target.remove();
 					continue;
 				}
 
-				target.innerHTML = updated.innerHTML;
-
-				setAttributes(target, getAttributes(updated));
+				if (target instanceof Component) {
+					target.render();
+				} else {
+					target.replaceChildren(...updated.childNodes);
+					setAttributes(target, getAttributes(updated));
+				}
 			}
 		}
 

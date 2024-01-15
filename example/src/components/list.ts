@@ -7,8 +7,19 @@ import { ListItem } from './listitem.ts';
 export class List extends Component.custom(`ol`) {
 	listItems = [] as Array<Type.ListItem>;
 
+	connectedCallback() {
+		const listItem = this.findDown(ListItem);
+		listItem.on(`onDelete`, () => this.onDelete(listItem.id));
+	}
+
 	@Component.event()
 	onAdd() {}
+
+	@Component.event()
+	onDelete(id: string) {
+		console.log(id);
+		return id;
+	}
 
 	setListItems(listItems: Array<Type.ListItem>) {
 		this.listItems = listItems;

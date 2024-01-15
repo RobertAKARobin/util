@@ -33,10 +33,20 @@ export class IndexPage extends Layout {
 				{ value: $listItem.value },
 			);
 		}
+
+		$list.on(`onAdd`, () => this.onAdd());
+		$list.on(`onDelete`, event => this.onDelete(event.detail));
 	}
 
 	onAdd() {
 		state.add({ value: `` });
+		const $list = this.findDown(List);
+		$list.setListItems(state.entries.$);
+		$list.render();
+	}
+
+	onDelete(id: string) {
+		state.remove(id);
 		const $list = this.findDown(List);
 		$list.setListItems(state.entries.$);
 		$list.render();
@@ -58,10 +68,7 @@ ${new TransitionTest()}
 
 <div id="${router.hashes.homeJump1}">Jump 1</div>
 
-${new List()
-	.setListItems(state.entries.$)
-	.on(`onAdd`, () => this.onAdd())
-}
+${new List().setListItems(state.entries.$)}
 
 <markdown>
 # Headline 1
