@@ -9,7 +9,7 @@ import { Component } from '@robertakarobin/web/component.ts';
 import fs from 'fs';
 
 let id = 0;
-EntityStateEmitter.prototype.createId = Component.createId = () => { // Easy to strip out with RegEx
+EntityStateEmitter.prototype.createId = () => { // Easy to strip out with RegEx
 	return `UID${++id}_`;
 };
 
@@ -38,6 +38,12 @@ class Widget extends Component.custom(`h1`) {
 	template = () => `${this.message ?? ``}${this.prop}`;
 }
 
+@Component.define()
+class IsLive extends Component.custom(`div`) {
+	val = `foo`;
+	template = () => `<a title="${this.val}">${this.val}</a><a id="ID" title="${this.val}">${this.val}</a><a id="ID" aria-live="polite" title="${this.val}">${this.val}</a>`;
+}
+
 export const spec = suite(`@robertakarobin/web`,
 	{
 		args: async() => {
@@ -63,33 +69,37 @@ export const spec = suite(`@robertakarobin/web`,
 	}),
 
 	test(`component`, $ => {
-		$.assert(x => x(new Widget().set({ id: `ID` }).outerHTML) === `<h1 id="ID" is="l-widget" prop="42"></h1>`);
+		$.assert(x => x(new Widget(`ID`).outerHTML) === `<h1 id="ID" is="l-widget" prop="42"></h1>`);
 
-		id = 0;
-		$.assert(x => x(new Widget().outerHTML) === `<h1 id="UID1_" is="l-widget" prop="42"></h1>`);
+		$.assert(x => x(new Widget().outerHTML) === `<h1 is="l-widget" prop="42"></h1>`);
 
-		id = 0;
-		$.assert(x => x(new Widget().set({ message: `x` }).outerHTML) === `<h1 id="UID1_" is="l-widget" prop="42" message="x"></h1>`);
+		$.assert(x => x(new Widget().set({ message: `x` }).outerHTML) === `<h1 is="l-widget" prop="42" message="x"></h1>`);
 
-		id = 0;
-		$.assert(x => x(new Widget().set({ message: `x` }).render().outerHTML) === `<h1 id="UID1_" is="l-widget" prop="42" message="x">x42</h1>`);
+		$.assert(x => x(new Widget().set({ message: `x` }).render().outerHTML) === `<h1 is="l-widget" prop="42" message="x">x42</h1>`);
 
 
 		let widget: Widget;
-		id = 0;
+
 		$.log(() => widget = new Widget());
-		$.assert(x => x(widget.outerHTML) === `<h1 id="UID1_" is="l-widget" prop="42"></h1>`);
+		$.assert(x => x(widget.outerHTML) === `<h1 is="l-widget" prop="42"></h1>`);
 		$.assert(x => x(widget.innerHTML) === ``);
-		$.assert(x => x(widget.render().outerHTML) === `<h1 id="UID1_" is="l-widget" prop="42">42</h1>`);
-		$.assert(x => x(widget.render().innerHTML) === `42`);
+		$.assert(x => x(widget.render({ force: true }).outerHTML) === `<h1 is="l-widget" prop="42">42</h1>`);
+		$.assert(x => x(widget.render({ force: true }).innerHTML) === `42`);
 
-		$.assert(x => x(widget.set({ message: `x` }).outerHTML) === `<h1 id="UID1_" is="l-widget" prop="42" message="x">42</h1>`);
-		$.assert(x => x(widget.render().outerHTML) === `<h1 id="UID1_" is="l-widget" prop="42" message="x">x42</h1>`);
-		$.assert(x => x(widget.render().innerHTML) === `x42`);
+		$.assert(x => x(widget.set({ message: `x` }).outerHTML) === `<h1 is="l-widget" prop="42" message="x">42</h1>`);
+		$.assert(x => x(widget.render({ force: true }).outerHTML) === `<h1 is="l-widget" prop="42" message="x">x42</h1>`); //
+		$.assert(x => x(widget.render({ force: true }).innerHTML) === `x42`);
 
-		$.assert(x => x(widget.set({ message: undefined }).outerHTML) === `<h1 id="UID1_" is="l-widget" prop="42">x42</h1>`);
-		$.assert(x => x(widget.render().outerHTML) === `<h1 id="UID1_" is="l-widget" prop="42">42</h1>`);
+		$.assert(x => x(widget.set({ message: undefined }).outerHTML) === `<h1 is="l-widget" prop="42">x42</h1>`);
+		$.assert(x => x(widget.render({ force: true }).outerHTML) === `<h1 is="l-widget" prop="42">42</h1>`);
 
 		$.assert(x => x(new Widget().set({ prop: 43 }).getAttribute(`prop`)) === `43`);
+
+		let isLive: IsLive;
+		$.log(() => isLive = new IsLive());
+		$.assert(x => x(isLive.outerHTML) === `<div is="l-islive"></div>`);
+		$.assert(x => x(isLive.render().innerHTML) === `<a title="foo">foo</a><a id="ID" title="foo">foo</a><a id="ID" aria-live="polite" title="foo">foo</a>`);
+		$.log(() => isLive.set({ val: `bar` }));
+		$.assert(x => x(isLive.render().innerHTML) === `<a title="foo">foo</a><a id="ID" title="bar">foo</a><a id="ID" aria-live="polite" title="bar">bar</a>`);
 	}),
 );

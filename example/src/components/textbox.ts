@@ -13,6 +13,10 @@ export class Textbox extends Component.custom(`div`) {
 	@Component.attribute({ name: `data-max` }) maxLength = 10;
 	@Component.attribute({ name: `data-value` }) value = ``;
 
+	constructor(id: string) {
+		super(id);
+	}
+
 	@Component.event()
 	onInput(event: Event) {
 		const updated = (event.currentTarget as HTMLInputElement).value;
@@ -33,7 +37,10 @@ export class Textbox extends Component.custom(`div`) {
 		value="${this.value ?? ``}"
 	>
 
-	<span id="${this.id}-remaining">
+	<span
+		id="${this.id}-remaining"
+		${Component.const.attrDynamic}="polite"
+	>
 		${this.maxLength - (this.value ?? ``).length} / ${this.maxLength} Remaining
 	</span>
 

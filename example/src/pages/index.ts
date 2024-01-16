@@ -1,3 +1,4 @@
+import { appContext } from '@robertakarobin/util/context.ts';
 import { Component } from '@robertakarobin/web/component.ts';
 
 import { Layout, modalContainer } from './_layout.ts';
@@ -25,31 +26,28 @@ export class IndexPage extends Layout {
 	}
 
 	connectedCallback() {
-		const $list = List.find();
-		const $listItems = $list.findDownAll(ListItem);
-		for (const $listItem of $listItems) {
+		const list = List.find();
+		const listItems = list.findDownAll(ListItem);
+		for (const listItem of listItems) {
 			state.upsert(
-				$listItem.id,
-				{ value: $listItem.text },
+				listItem.id,
+				{ value: listItem.text },
 			);
 		}
-
-		$list.on(`onAdd`, () => this.onAdd());
-		$list.on(`onDelete`, event => this.onDelete(event.detail));
 	}
 
 	onAdd() {
 		state.add({ value: `` });
-		const $list = this.findDown(List);
-		$list.setListItems(state.entries.$);
-		$list.render();
+		const list = this.findDown(List);
+		list.setListItems(state.entries.$);
+		list.render({ force: true });
 	}
 
 	onDelete(id: string) {
 		state.remove(id);
-		const $list = this.findDown(List);
-		$list.setListItems(state.entries.$);
-		$list.render();
+		const list = this.findDown(List);
+		list.setListItems(state.entries.$);
+		list.render({ force: true });
 	}
 
 	openModal() {
@@ -68,7 +66,17 @@ ${new TransitionTest()}
 
 <div id="${router.hashes.homeJump1}">Jump 1</div>
 
-${new List().setListItems(state.entries.$)}
+${new List()
+	.setListItems(state.entries.$)
+	.on(`onAdd`, () => this.onAdd())
+	.on(`onDelete`, event => this.onDelete(event.detail))
+	.on(`onInput`, event => state.update(event.detail.id, event.detail))
+}
+
+${appContext === `build`
+	? /*html*/`<h1>This should be in the source, not browser.</h1>`
+	: /*html*/`<h1>This should be in the browser, not source.</h1>`
+}
 
 <markdown>
 # Headline 1

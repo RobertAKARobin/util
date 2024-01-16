@@ -37,6 +37,26 @@
 		-	- Resolver is just to map routes to views; shouldn't actually _do_ anything
 	-	Renderer
 		-	- Importing would import/cache everthing else?
+-	Rerendering
+	-	toString
+		-	returns comment with ID
+			-	On first render
+				-	If comment with ID
+					-	Replace comment with cached component
+			-	On rerender
+				-	If element with ID
+					-	If Component
+						-	Replace attributes
+						-	cachedComponent.render()
+					-	If not component
+						-	Replace attributes
+						-	Replace children with updatedComponent.childNodes
+		-	renders and returns outerHTML
+			-	- Requires rendering the template twice, which would instantiate double the components
+		-	returns outerHTML
+			-	On new component, has no content
+			-	On existing component, has outdated content
+			-	Then render template
 
 ### Existing frameworks
 

@@ -10,24 +10,11 @@ import type { Textish } from '@robertakarobin/util/types.d.ts';
 
 type Constructor<Classtype> = new (...args: any) => Classtype; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-const Const = {
-	attrDynamic: `data-dynamic`,
-	attrEl: `is`,
-	flagEl: `el:`,
-	globalProperty: `El`,
-	styleAttr: `data-style`,
-} as const;
-
 export const subclasses = new Map<string, typeof Component>();
-
-const globalVars = globalThis as typeof globalThis & {
-	[Const.globalProperty]: Record<string, unknown>;
-};
-globalVars[Const.globalProperty] = {};
 
 type ComponentWithoutDecorators = Omit<typeof Component,
 	| `attribute`
-	| `createId`
+	| `const`
 	| `custom`
 	| `define`
 	| `event`
@@ -36,6 +23,12 @@ type ComponentWithoutDecorators = Omit<typeof Component,
 const componentCache = new Map<string, WeakRef<Component>>();
 
 export class Component extends HTMLElement {
+	static readonly const = {
+		attrDynamic: `aria-live`,
+		attrEl: `is`,
+		flagEl: `el:`,
+		styleAttr: `data-style`,
+	} as const;
 	static readonly elName: string;
 	static readonly observedAttributes = [] as Array<string>;
 	static readonly selector: string;
@@ -82,10 +75,6 @@ export class Component extends HTMLElement {
 		};
 	}
 
-	static createId() {
-		return `l${newUid()}`;
-	}
-
 	/**
 	 * Adds common component methods/helpers to the specified HTML element constructor
 	 */
@@ -104,9 +93,9 @@ export class Component extends HTMLElement {
 			static readonly selector: string;
 			static readonly tagName = tagName;
 
-			constructor() {
+			constructor(id?: Component[`id`]) {
 				super();
-				this.onConstruct();
+				this.onConstruct(id);
 			}
 		}
 
@@ -134,15 +123,15 @@ export class Component extends HTMLElement {
 			const Constructor = Subclass as unknown as typeof Component;
 			const elName = options.elName ?? Constructor.elName ?? `l-${Constructor.name.toLowerCase()}`;
 
-			const selector = `[${Const.attrEl}='${elName}']`;
+			const selector = `[${Component.const.attrEl}='${elName}']`;
 			const style = options.style?.replace(/::?host/g, selector);
 			if ( // Has to come after elName has been assigned
 				typeof style === `string`
-				&& document.head.querySelector(`[${Const.styleAttr}='${elName}']`) === null
+				&& document.head.querySelector(`[${Component.const.styleAttr}='${elName}']`) === null
 			) {
 				const $style = document.createElement(`style`);
 				$style.textContent = style;
-				$style.setAttribute(Const.styleAttr, elName);
+				$style.setAttribute(Component.const.styleAttr, elName);
 				document.head.appendChild($style);
 			}
 
@@ -151,8 +140,6 @@ export class Component extends HTMLElement {
 				selector,
 				style,
 			});
-
-			globalVars[Const.globalProperty][Constructor.name] = Constructor;
 
 			subclasses.set(Constructor.name, Constructor as unknown as typeof Component);
 
@@ -225,6 +212,8 @@ export class Component extends HTMLElement {
 		return this.constructor as typeof Component;
 	}
 
+	isRendered = false;
+
 	/**
 	 * If true, if this is a Page it will be compiled into a static `.html` file at the route(s) used for this Page, which serves as a landing page for performance and SEO purposes.
 	 * If this is a Component it will be compiled into static HTML included in the landing page.
@@ -232,9 +221,9 @@ export class Component extends HTMLElement {
 	*/
 	readonly isSSG: boolean = true;
 
-	constructor() {
+	constructor(id?: Component[`id`]) {
 		super();
-		this.onConstruct();
+		this.onConstruct(id);
 	}
 
 	/**
@@ -349,33 +338,36 @@ export class Component extends HTMLElement {
 		return this;
 	}
 
-	private onConstruct() {
-		this.id = [undefined, null, ``].includes(this.id) ? Component.createId() : this.id;
-		this.setAttribute(Const.attrEl, this.Ctor.elName);
+	private onConstruct(id?: Component[`id`]) {
+		if (id !== undefined) {
+			this.id = id;
+		}
+		this.setAttribute(Component.const.attrEl, this.Ctor.elName);
 	}
 
 	/**
 	 * Makes the component replace its contents with newly-rendered contents
 	 */
-	render() {
-		// TODO1: Handle adding new elements
-		// TODO1: Handle just changing attributes
-		// TODO1: Handle nested content (slots?)
+	render(options: Partial<{ force: boolean; }> = {}) {
 		const template = document.createElement(`template`);
 		template.innerHTML = this.template();
 
-		const templateRoot = template.content.firstElementChild!;
-		if (templateRoot?.tagName.toUpperCase() === `HOST`) {
+		const root = template.content.firstElementChild!;
+		if (root?.tagName.toUpperCase() === `HOST`) {
 			const updatedAttributes = {
 				...getAttributes(this),
-				...getAttributes(templateRoot as HTMLUnknownElement),
+				...getAttributes(root as HTMLUnknownElement),
 			} as Partial<ElAttributes<this>>;
 			this.set(updatedAttributes);
-			templateRoot.replaceWith(...templateRoot.childNodes);
+			root.replaceWith(...root.childNodes);
+		}
+
+		if (options.force === true || !this.isRendered) {
+			this.replaceChildren(...template.content.childNodes);
 		}
 
 		const iterator = document.createTreeWalker(
-			this.isConnected ? this : template.content,
+			this,
 			NodeFilter.SHOW_COMMENT + NodeFilter.SHOW_ELEMENT,
 			() => NodeFilter.FILTER_ACCEPT,
 		);
@@ -390,46 +382,48 @@ export class Component extends HTMLElement {
 			if (target instanceof Comment) {
 				const placeholder = target;
 				const flag = placeholder.textContent!;
-				if (flag.startsWith(Const.flagEl)) {
-					const id = flag.substring(Const.flagEl.length);
-					const instance = componentCache.get(id)!.deref()!;
-					componentCache.delete(id);
+				if (flag.startsWith(Component.const.flagEl)) {
+					const tempId = flag.substring(Component.const.flagEl.length);
+					const cached = componentCache.get(tempId)!.deref()!;
+					componentCache.delete(tempId);
+					iterator.previousNode();
+					placeholder.replaceWith(cached);
+				}
+				continue;
+			}
 
-					iterator.previousNode(); // The current target node is about to be replaced, so moving to previous target
-
-					placeholder.replaceWith(instance);
-
+			const isComponent = target.hasAttribute(Component.const.attrEl);
+			if (isComponent) {
+				const instance = (target as Component);
+				if (!instance.isRendered) {
 					instance.render();
 				}
+			}
 
-			} else {
-				if (!target.hasAttribute(`id`)) {
-					continue;
-				}
+			const id = target.id;
+			if (id === ``) {
+				continue;
+			}
 
-				if (!this.isConnected) {
-					continue;
-				}
+			const updated = (
+				componentCache.get(id)?.deref()
+				?? template.content.getElementById(id)
+				?? document.getElementById(id)
+			);
 
-				const id = target.id;
-				const updated = template.content.getElementById(id)!;
-				if (updated === null) {
-					iterator.previousNode();
-					target.remove();
-					continue;
-				}
+			if (updated === null) {
+				continue;
+			}
 
-				if (target instanceof Component) {
-					target.render();
-				} else {
-					target.replaceChildren(...updated.childNodes);
-					setAttributes(target, getAttributes(updated));
-				}
+			setAttributes(target, getAttributes(updated));
+
+			if (options.force === true || target.hasAttribute(Component.const.attrDynamic)) {
+				target.replaceChildren(...updated.childNodes);
 			}
 		}
 
-		if (!this.isConnected) {
-			this.replaceChildren(...template.content.childNodes);
+		if (!this.isRendered) {
+			this.isRendered = true;
 		}
 
 		return this;
@@ -460,8 +454,9 @@ export class Component extends HTMLElement {
 	}
 
 	toString() {
-		componentCache.set(this.id, new WeakRef(this));
-		return `<!--${Const.flagEl}${this.id}-->`;
+		const tempId = [undefined, null, ``].includes(this.id) ? newUid() : this.id;
+		componentCache.set(tempId, new WeakRef(this));
+		return `<!--${Component.const.flagEl}${tempId}-->`;
 	}
 
 	write(input: string) {
