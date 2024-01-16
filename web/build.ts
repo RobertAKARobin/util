@@ -178,9 +178,6 @@ export class Builder {
 
 			document.head.innerHTML = ``;
 
-			const page = await resolver.resolve(route);
-			resolver.set(page);
-
 			const url = new URL(route);
 			url.hash = ``;
 			if (!hasExtension.test(url.pathname)) {
@@ -193,6 +190,9 @@ export class Builder {
 				logBreak();
 				return;
 			}
+
+			const page = await resolver.resolve(route);
+			resolver.set(page);
 
 			builtRoutes.add(serveFileRel);
 

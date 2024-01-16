@@ -37,7 +37,7 @@ export abstract class BaseApp<
 				if (newPage !== previous) {
 					this.page = newPage;
 					document.title = this.page.pageTitle;
-					this.render();
+					this.render({ force: true });
 				}
 			});
 

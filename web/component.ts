@@ -213,6 +213,8 @@ export class Component extends HTMLElement {
 		return this.constructor as typeof Component;
 	}
 
+	isRendered = false;
+
 	/**
 	 * If true, if this is a Page it will be compiled into a static `.html` file at the route(s) used for this Page, which serves as a landing page for performance and SEO purposes.
 	 * If this is a Component it will be compiled into static HTML included in the landing page.
@@ -347,7 +349,7 @@ export class Component extends HTMLElement {
 	/**
 	 * Makes the component replace its contents with newly-rendered contents
 	 */
-	render() {
+	render(input: Partial<{ force: boolean; }> = {}) {
 		const template = document.createElement(`template`);
 		template.innerHTML = this.template();
 
@@ -361,30 +363,71 @@ export class Component extends HTMLElement {
 			root.replaceWith(...root.childNodes);
 		}
 
-		const iterator = document.createTreeWalker(
+		let iterator = document.createTreeWalker(
 			template.content,
 			NodeFilter.SHOW_ELEMENT,
 			() => NodeFilter.FILTER_ACCEPT,
 		);
-		let target: HTMLElement;
+		let target: Node | null;
 		while (true) {
-			target = iterator.nextNode()! as HTMLElement;
+			target = iterator.nextNode()!;
 
 			if (target === null) {
 				break;
 			}
 
-			if (target.tagName.toUpperCase() === `PLACEHOLDER`) {
-				const id = target.id;
+			const updated = target as HTMLElement;
+			if (updated.tagName.toUpperCase() === `PLACEHOLDER`) {
+				const id = updated.id;
 				const cached = componentCache.get(id)!.deref()!;
 				componentCache.delete(id);
 				iterator.previousNode();
-				target.replaceWith(cached);
+				updated.replaceWith(cached);
 				continue;
 			}
 		}
 
-		this.replaceChildren(...template.content.childNodes);
+		if (!this.isRendered || input?.force === true) {
+			this.replaceChildren(...template.content.childNodes);
+			this.isRendered = true;
+			return this;
+		}
+
+		iterator = document.createTreeWalker(
+			this,
+			NodeFilter.SHOW_ELEMENT,
+			() => NodeFilter.FILTER_ACCEPT,
+		);
+		while (true) {
+			if (target === null) {
+				break;
+			}
+
+			const updated = target as HTMLElement;
+			if (updated.id === ``) {
+				continue;
+			}
+
+			const existing = document.getElementById(updated.id)!;
+			const renderMode = existing.getAttribute(Component.const.attrRender) as RenderMode ?? `static`;
+
+			if (renderMode === `attr`) {
+				setAttributes(existing, getAttributes(updated));
+				target = iterator.nextSibling();
+			} else if (renderMode === `inner`) {
+				existing.replaceChildren(...target.childNodes);
+				target = iterator.nextNode();
+			} else if (renderMode === `outer`) {
+				setAttributes(existing, getAttributes(updated));
+				existing.replaceChildren(...target.childNodes);
+				target = iterator.nextNode();
+			} else if (renderMode === `el`) {
+				target = iterator.previousNode();
+				existing.replaceWith(updated);
+			} else {
+				target = iterator.nextSibling();
+			}
+		}
 
 		return this;
 	}
