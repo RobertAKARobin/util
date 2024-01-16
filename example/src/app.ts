@@ -1,4 +1,5 @@
-import { Resolver, Router } from '@robertakarobin/util/router.ts';
+import { BaseApp, Resolver, Router } from '@robertakarobin/web/app.ts';
+import { Component } from '@robertakarobin/web/component.ts';
 
 export const router = new Router({
 	error404: `/404.html`,
@@ -37,3 +38,9 @@ export const resolver = new Resolver(router, async(route: URL) => {
 		title: `Error 404`,
 	});
 });
+
+@Component.define()
+export class App extends BaseApp {
+	resolver = resolver;
+	router = router;
+}

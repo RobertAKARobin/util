@@ -5,7 +5,7 @@ import { Layout, modalContainer } from './_layout.ts';
 import { List } from '@src/components/list.ts';
 import { ListItem } from '@src/components/listitem.ts';
 import { ProgressModal } from '@src/modals/progress.ts';
-import { router } from '@src/router.ts';
+import { router } from '@src/app.ts';
 import { state } from '@src/state.ts';
 import { TransitionTest } from '@src/components/transition-test.ts';
 

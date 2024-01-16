@@ -15,6 +15,7 @@ export class DummyDOM {
 		globalThis.Comment = dummyDOM.Comment;
 		globalThis.customElements = dummyDOM.customElements;
 		globalThis.document = dummyDOM.document;
+		globalThis.history = dummyDOM.history;
 		globalThis.NodeFilter = dummyDOM.NodeFilter;
 		globalThis.requestAnimationFrame = () => 0;
 

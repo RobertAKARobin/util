@@ -8,12 +8,12 @@ import { marked } from 'marked';
 import path from 'path';
 
 import type * as $ from '@robertakarobin/util/types.d.ts';
-import { hasExtension, type Resolver, type Router } from '@robertakarobin/util/router.ts';
 import { stringMates, type TagResult } from '@robertakarobin/util/string-mates.ts';
 import { baseUrl } from '@robertakarobin/util/context.ts';
+import { hasExtension } from '@robertakarobin/util/router.ts';
 import { promiseConsecutive } from '@robertakarobin/util/promiseConsecutive.ts';
 
-import { type Page } from './component.ts';
+import type { BaseApp } from './app.ts';
 
 const bustCache = (pathname: string) => {
 	const url = new URL(`file:///${pathname}?v=${Date.now() + performance.now()}`); // URL is necessary for running on Windows
@@ -33,18 +33,18 @@ const trimNewlines = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
 const compilePathsByExportName = {} as Record<string, string>;
 
 export class Builder {
+	readonly appSrcFileAbs: string;
+	readonly appSrcFileRel: string;
 	readonly assetsSrcDirRel: string | Array<string>;
 	readonly baseDirAbs: string;
 	readonly baseUri: string;
+	readonly browserServeFileAbs: string | undefined;
+	readonly browserServeFileName: string | undefined;
+	readonly browserServeFileRel: string | undefined;
+	readonly browserSrcFileAbs: string | undefined;
+	readonly browserSrcFileRel: string | undefined;
 	readonly metaFileRel: string | undefined;
 	readonly minify: boolean;
-	readonly routerSrcFileAbs: string;
-	readonly routerSrcFileRel: string;
-	readonly scriptServeFileAbs: string | undefined;
-	readonly scriptServeFileName: string | undefined;
-	readonly scriptServeFileRel: string | undefined;
-	readonly scriptSrcFileAbs: string | undefined;
-	readonly scriptSrcFileRel: string | undefined;
 	readonly serveDirAbs: string;
 	readonly srcDirAbs: string;
 	readonly srcRawDirAbs: string;
@@ -59,22 +59,22 @@ export class Builder {
 	 * @param input.assetsSrcDirRel The relative path/paths to directories that should be copied to the `dist/` folder
 	 * @param input.baseDirAbs The root directory for this project. Determines where the Builder looks for other files. Defaults to `process.cwd()`
 	 * @param input.baseUri The base URL used when defining routes
+	 * @param input.browserSrcFileRel Relative path to the JS script that will be run when a page loads, e.g. the "entry point" for CSR bootstrapping. Not needed for apps that are SSG-only
 	 * @param input.minify Sets ESBuild's `minify` option
 	 * @param input.routerSrcFileRel Relative path to the file containing the router, resolver, and renderer. Defaults to `./router.ts`
-	 * @param input.scriptSrcFileRel Relative path to the JS script that will be run when a page loads, e.g. the "entry point" for CSR bootstrapping. Not needed for apps that are SSG-only
 	 * @param input.serveDirRel Relative path to the directory from which the application will be served. Defaults to `./dist`
 	 * @param input.srcRawDirRel Relative path to the source code. Defaults to `./src`
 	 * @param input.srcTmpDirRel Relative path to the directory to which the source code will be copied and pre-processed before being compiled, e.g. for rendering Markdown. Defaults to `./tmp`
 	 * @param input.styleServeFileRel Relative path to the root CSS file that will be loaded on all pages. Defaults to `./styles.css`
 	 */
 	constructor(input: Partial<{
+		appSrcFileRel: string;
 		assetsSrcDirRel: string | Array<string>;
 		baseDirAbs: string;
 		baseUri: string;
+		browserSrcFileRel: string | undefined;
 		metaFileRel: string;
 		minify: boolean;
-		routerSrcFileRel: string;
-		scriptSrcFileRel: string | undefined;
 		serveDirRel: string;
 		srcRawDirRel: string;
 		srcTmpDirRel: string;
@@ -93,15 +93,15 @@ export class Builder {
 
 		this.metaFileRel = input.metaFileRel;
 
-		this.routerSrcFileRel = input.routerSrcFileRel ?? `./router.ts`;
-		this.routerSrcFileAbs = path.join(this.srcDirAbs, this.routerSrcFileRel);
+		this.appSrcFileRel = input.appSrcFileRel ?? `./app.ts`;
+		this.appSrcFileAbs = path.join(this.srcDirAbs, this.appSrcFileRel);
 
-		this.scriptSrcFileRel = `scriptSrcFileRel` in input ? input.scriptSrcFileRel : `./script.ts`;
-		if (this.scriptSrcFileRel !== undefined) {
-			this.scriptSrcFileAbs = path.join(this.srcDirAbs, this.scriptSrcFileRel);
-			this.scriptServeFileName = path.parse(this.scriptSrcFileRel).name;
-			this.scriptServeFileAbs = path.join(this.serveDirAbs, this.scriptSrcFileRel);
-			this.scriptServeFileRel = path.relative(this.serveDirAbs, `${this.scriptServeFileName}.js`);
+		this.browserSrcFileRel = input.browserSrcFileRel ?? `./browser.ts`;
+		if (this.browserSrcFileRel !== undefined) {
+			this.browserSrcFileAbs = path.join(this.srcDirAbs, this.browserSrcFileRel);
+			this.browserServeFileName = path.parse(this.browserSrcFileRel).name;
+			this.browserServeFileAbs = path.join(this.serveDirAbs, this.browserSrcFileRel);
+			this.browserServeFileRel = path.relative(this.serveDirAbs, `${this.browserServeFileName}.js`);
 		}
 
 		this.styleServeFileRel = input.styleServeFileRel ?? `./styles.css`;
@@ -151,119 +151,104 @@ export class Builder {
 
 	async buildRoutes() {
 		header(`Building routes`);
-		const { resolver, router } = (
-			await bustCache(this.routerSrcFileAbs)
-		) as {
-			resolver: Resolver<Page>;
-			router: Router<never>;
-		};
+
+		const { App } = await import(this.appSrcFileAbs) as { App: new() => BaseApp; };
+		const app = new App();
+		const { resolver, router } = app;
+
+		document.body.replaceWith(app);
 
 		const builtRoutes = new Set<string>();
 
-		const cacheBuster = `?cache=${Date.now().toString()}`;
+		const routes = router.routeNames.map(routeName => async() => {
+			const route = router.urls[routeName];
 
-		await promiseConsecutive(
-			Object.entries(router.urls).map(([routeName, route]) => async() => {
-				log(`${routeName.toString()}: ${route.pathname}`);
+			log(`${routeName.toString()}: ${route.pathname}`);
 
-				for (const style of document.querySelectorAll(`style`)) { // Remove styles so that the only ones that exist on this page are for components used on this page
-					style.remove();
-				}
-
-				if (route.origin !== baseUrl.origin) {
-					console.log(`Route is external. Skipping...`);
-					logBreak();
-					return;
-				}
-
-				const url = new URL(route);
-				url.hash = ``;
-				if (!hasExtension.test(url.pathname)) {
-					url.pathname += `index.html`;
-				}
-
-				const serveFileRel = url.pathname;
-				if (builtRoutes.has(serveFileRel)) {
-					console.log(`Route '${routeName.toString()}' matches already-built route. Skipping...`);
-					logBreak();
-					return;
-				}
-
-				builtRoutes.add(serveFileRel);
-
-				const serveFileAbs = path.join(this.serveDirAbs, serveFileRel);
-				const serveDirAbs = path.dirname(serveFileAbs);
-				fs.mkdirSync(serveDirAbs, { recursive: true });
-
-				const page = await resolver.resolve(route);
-				const pageCompilepath = compilePathsByExportName[page.Ctor.name];
-
-				if (!page.isSSG) {
-					console.warn(`Route '${routeName.toString()}' is not SSG. Skipping...`);
-					logBreak();
-					return;
-				}
-
-				if (page === undefined) {
-					console.warn(`Route '${routeName.toString()}' does not resolve to a page. Skipping...`);
-					logBreak();
-					return;
-				}
-
-				const body = this.formatBody(page.render());
-
-				let head = `
-<script type="module">
-import { ${page.Ctor.name} } from '${path.join(`/`, pageCompilepath)}';
-</script>`;
-
-				let routeCss = ``;
-				let routeCssPath = ``;
-				for (const style of document.querySelectorAll(`style`)) {
-					routeCss += style.textContent?.trim() ?? ``;
-					style.innerHTML = ``;
-					head += style.outerHTML;
-				}
-
-				if (routeCss.length > 0) {
-					routeCss = await this.formatCss(routeCss);
-					routeCssPath = `${serveFileRel}.css`;
-					const routeCssAbs = path.join(this.serveDirAbs, routeCssPath);
-					log(local(routeCssAbs));
-					fs.writeFileSync(routeCssAbs, routeCss);
-				}
-
-				const html = await this.formatHtml({
-					baseUri: this.baseUri,
-					body,
-					cacheBuster,
-					head,
-					mainCssPath: path.join(`/`, this.styleServeFileRel),
-					mainJsPath: this.scriptServeFileRel === undefined ? undefined : path.join(`/`, this.scriptServeFileRel),
-					routeCssPath: typeof routeCssPath === `string` ? path.join(`/`, routeCssPath) : undefined,
-					title: page.pageTitle,
-				});
-
-				log(local(serveFileAbs));
-				fs.writeFileSync(serveFileAbs, html);
+			if (route.origin !== baseUrl.origin) {
+				console.log(`Route is external. Skipping...`);
 				logBreak();
-			})
-		);
+				return;
+			}
+
+			const page = await resolver.resolve(route);
+			resolver.set(page);
+
+			const url = new URL(route);
+			url.hash = ``;
+			if (!hasExtension.test(url.pathname)) {
+				url.pathname += `index.html`;
+			}
+
+			const serveFileRel = url.pathname;
+			if (builtRoutes.has(serveFileRel)) {
+				console.log(`Route '${routeName}' matches already-built route. Skipping...`);
+				logBreak();
+				return;
+			}
+
+			builtRoutes.add(serveFileRel);
+
+			const serveFileAbs = path.join(this.serveDirAbs, serveFileRel);
+			const serveDirAbs = path.dirname(serveFileAbs);
+			fs.mkdirSync(serveDirAbs, { recursive: true });
+			// const pageCompilepath = compilePathsByExportName[page.Ctor.name];
+
+			if (!page.isSSG) {
+				console.warn(`Route '${routeName}' is not SSG. Skipping...`);
+				logBreak();
+				return;
+			}
+
+			if (page === undefined) {
+				console.warn(`Route '${routeName}' does not resolve to a page. Skipping...`);
+				logBreak();
+				return;
+			}
+
+			// 			let head = `
+			// <script type="module">
+			// import { ${page.Ctor.name} } from '${path.join(`/`, pageCompilepath)}';
+			// </script>`;
+
+			let routeCss = ``;
+			let routeCssPath = ``;
+			for (const style of document.querySelectorAll(`style`)) {
+				routeCss += style.textContent?.trim() ?? ``;
+				style.textContent = ``;
+			}
+
+			if (routeCss.length > 0) {
+				routeCss = await this.formatCss(routeCss);
+				routeCssPath = `${serveFileRel}.css`;
+				const routeCssAbs = path.join(this.serveDirAbs, routeCssPath);
+				log(local(routeCssAbs));
+				fs.writeFileSync(routeCssAbs, routeCss);
+			}
+
+			const html = await this.formatHtml(`<!DOCTYPE html>` + document.documentElement.outerHTML);
+
+			log(local(serveFileAbs));
+			fs.writeFileSync(serveFileAbs, html);
+			logBreak();
+		});
+
+		await promiseConsecutive(routes);
 	}
 
 	async buildScript() {
-		if (this.scriptServeFileAbs === undefined) {
+		if (this.browserServeFileAbs === undefined) {
 			return;
 		}
 		header(`Bundling JS`);
-		log(local(this.scriptServeFileAbs));
+		log(local(this.browserServeFileAbs));
 		logBreak();
 		const buildResults = await esbuild.build({
 			absWorkingDir: this.serveDirAbs,
 			bundle: true,
 			entryPoints: [{
-				in: this.scriptSrcFileAbs!,
-				out: this.scriptServeFileName!,
+				in: this.browserSrcFileAbs!,
+				out: this.browserServeFileName!,
 			}],
 			format: `esm`,
 			keepNames: true,
@@ -329,8 +314,8 @@ import { ${page.Ctor.name} } from '${path.join(`/`, pageCompilepath)}';
 		return css;
 	}
 
-	formatHtml(...[input]: Parameters<typeof defaultLayout>): string | Promise<string> {
-		let html = defaultLayout(input);
+	formatHtml(input: string): string | Promise<string> {
+		let html = input;
 		html = trimNewlines(html);
 		html = jsBeautify.html(html, {
 			end_with_newline: true, // TODO2: Once we're using editorconfig, use the `--editorconfig` option
@@ -393,67 +378,3 @@ import { ${page.Ctor.name} } from '${path.join(`/`, pageCompilepath)}';
 		void retryPort();
 	}
 }
-
-/**
- * The default layout used to render static HTML files for SSG routes
- */
-export const defaultLayout = (input: {
-	baseUri: string;
-	body?: string;
-	cacheBuster: string;
-	head?: string;
-	loadScript?: string;
-	mainCssPath: string;
-	mainJsPath: string | undefined;
-	meta?: string;
-	routeCssPath?: string;
-	title: string;
-}) => `
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<title>${input.title}</title>
-		<base href="${input.baseUri}">
-
-		${typeof input.meta === `string`
-			?	input.meta
-			: `
-				<meta name="viewport" content="width=device-width, initial-scale=1">
-				<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-			`
-		}
-
-		${typeof input.mainJsPath === `string`
-			? `<script src="${input.mainJsPath}${input.cacheBuster}" type="module"></script>`
-			: ``
-		}
-
-		${typeof input.mainCssPath === `string`
-			? `<link rel="stylesheet" href="${input.mainCssPath}${input.cacheBuster}">`
-			: ``
-		}
-
-		${typeof input.head === `string`
-			? input.head
-			: ``
-		}
-
-		${typeof input.routeCssPath === `string`
-			? `<link rel="stylesheet" href="${input.routeCssPath}${input.cacheBuster}">`
-			: ``
-		}
-
-		${typeof input.loadScript === `string`
-			? `<script>${input.loadScript}</script>`
-			: ``
-		}
-	</head>
-
-	<body>
-		${typeof input.body === `string`
-			? input.body
-			: ``
-		}
-	</body>
-</html>
-`;

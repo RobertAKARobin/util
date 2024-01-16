@@ -1,7 +1,7 @@
 import { Component } from '@robertakarobin/web/component.ts';
 
 import { Layout } from './_layout.ts';
-import { router } from '@src/router.ts';
+import { router } from '@src/app.ts';
 
 const style = `
 h1 {

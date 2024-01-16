@@ -1,4 +1,4 @@
-import { router } from '@src/router.ts';
+import { router } from '@src/app.ts';
 
 export const Nav = () => /*html*/`
 <nav>
