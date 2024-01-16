@@ -1,9 +1,9 @@
+import { Component, Page } from '@robertakarobin/web/component.ts';
 import { appContext } from '@robertakarobin/util/context.ts';
-import { Component } from '@robertakarobin/web/component.ts';
 
-import { Layout, modalContainer } from './_layout.ts';
 import { List } from '@src/components/list.ts';
 import { ListItem } from '@src/components/listitem.ts';
+import { modalContainer } from '@src/app.ts';
 import { ProgressModal } from '@src/modals/progress.ts';
 import { router } from '@src/app.ts';
 import { state } from '@src/state.ts';
@@ -18,7 +18,7 @@ const style = /*css*/`
 const colors = [`red`, `yellow`, `green`, `brown`, `scarlet`];
 
 @Component.define({ style })
-export class IndexPage extends Layout {
+export class IndexPage extends Page {
 	@Component.attribute({ name: `data-message` }) message!: string;
 
 	anchorlessRoute() {
@@ -54,7 +54,7 @@ export class IndexPage extends Layout {
 		modalContainer.place(new ProgressModal());
 	}
 
-	template = () => super.template(/*html*/`
+	template = () => /*html*/`
 <h1>Hello world!</h1>
 
 ${new TransitionTest()}
@@ -116,5 +116,5 @@ Joseph's coat was ${colors.join(` and `)}.
 </markdown>
 
 <div id="${router.hashes.homeJump2}">Jump 2</div>
-`);
+`;
 };

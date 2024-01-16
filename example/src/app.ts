@@ -1,5 +1,10 @@
 import { BaseApp, Resolver, Router } from '@robertakarobin/web/app.ts';
 import { Component } from '@robertakarobin/web/component.ts';
+import { ModalContainer } from '@robertakarobin/web/components/modal-container.ts';
+
+import { Nav } from '@src/components/nav.ts';
+
+export const modalContainer = ModalContainer.find() ?? new ModalContainer();
 
 export const router = new Router({
 	error404: `/404.html`,
@@ -43,4 +48,10 @@ export const resolver = new Resolver(router, async(route: URL) => {
 export class App extends BaseApp {
 	resolver = resolver;
 	router = router;
+
+	template = () => /*html*/`
+${Nav()}
+${this.page}
+${modalContainer}
+	`;
 }

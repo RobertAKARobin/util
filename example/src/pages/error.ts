@@ -1,9 +1,7 @@
-import { Component } from '@robertakarobin/web/component.ts';
-
-import { Layout } from './_layout.ts';
+import { Component, Page } from '@robertakarobin/web/component.ts';
 
 @Component.define()
-export class ErrorPage extends Layout {
+export class ErrorPage extends Page {
 	template = () => super.template(/*html*/`
 <h1>404 page :(</h1>
 `);

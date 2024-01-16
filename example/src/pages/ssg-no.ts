@@ -1,11 +1,9 @@
-import { Component } from '@robertakarobin/web/component.ts';
-
-import { Layout } from './_layout.ts';
+import { Component, Page } from '@robertakarobin/web/component.ts';
 
 @Component.define()
-export class NoSSGPage extends Layout {
+export class NoSSGPage extends Page {
 	isSSG = false;
-	template = () => super.template(/*html*/`
+	template = () => /*html*/`
 <h1>SSG no</h1>
-`);
+`;
 }
