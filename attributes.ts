@@ -29,6 +29,9 @@ export function setAttributes<Subclass extends HTMLElement>(
 	target: Subclass,
 	attributes: Partial<ElAttributes<typeof target>>
 ) {
+	for (const attribute of target.attributes) {
+		target.removeAttribute(attribute.name);
+	}
 	for (const attributeName in attributes) {
 		const attributeKey = attributeName as keyof ElAttributes<Subclass>;
 		const value = attributes[attributeKey] as Textish;

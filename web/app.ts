@@ -33,18 +33,18 @@ export abstract class BaseApp<
 
 		await Promise.all(componentsLoaded);
 
-		const landingPage: Page = this.querySelector(`[${Page.$pageAttr}]`)!;
+		this.page = this.querySelector(`[${Page.$pageAttr}]`)!;
 
-		if (landingPage !== null) {
-			this.resolver.set(landingPage);
-			landingPage.render();
+		if (appContext === `browser`) {
+			this.page.render();
 		}
 
 		this.resolver
 			.subscribe((newPage, { previous }) => {
 				if (newPage !== previous) {
+					this.page.replaceWith(newPage);
 					this.page = newPage;
-					this.render({ force: true });
+					this.render();
 					document.title = this.page.pageTitle;
 				}
 			});

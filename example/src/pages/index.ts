@@ -40,14 +40,14 @@ export class IndexPage extends Page {
 		state.add({ value: `` });
 		const list = this.findDown(List);
 		list.setListItems(state.entries.$);
-		list.render({ force: true });
+		list.render({ renderMode: `outer` });
 	}
 
 	onDelete(id: string) {
 		state.remove(id);
 		const list = this.findDown(List);
 		list.setListItems(state.entries.$);
-		list.render({ force: true });
+		list.render({ renderMode: `outer` });
 	}
 
 	openModal() {

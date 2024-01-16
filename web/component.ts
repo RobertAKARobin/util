@@ -4,6 +4,7 @@ import {
 	getAttributes,
 	setAttributes,
 } from '@robertakarobin/util/attributes.ts';
+import { enumy } from '@robertakarobin/util/enumy.ts';
 import { newUid } from '@robertakarobin/util/uid.ts';
 import { serialize } from '@robertakarobin/util/serialize.ts';
 import type { Textish } from '@robertakarobin/util/types.d.ts';
@@ -22,11 +23,20 @@ type ComponentWithoutDecorators = Omit<typeof Component,
 
 const componentCache = new Map<string, WeakRef<Component>>();
 
+export type RenderMode = keyof typeof Component.const.renderMode;
+
 export class Component extends HTMLElement {
 	static readonly const = {
-		attrDynamic: `aria-live`,
 		attrEl: `is`,
+		attrRender: `data-render`,
 		flagEl: `el:`,
+		renderMode: enumy(
+			`static`,
+			`attr`,
+			`inner`,
+			`outer`,
+			`el`,
+		),
 		styleAttr: `data-style`,
 	} as const;
 	static readonly elName: string;
@@ -41,14 +51,6 @@ export class Component extends HTMLElement {
 	static attribute(options: Partial<{
 		name: string;
 	}> = {}) {
-		// typeof defaultValue === `number` ? Number
-		// 	: typeof defaultValue === `boolean` ? Boolean
-		// 		: (input: string) => (
-		// 			input === null ? null
-		// 				: input === undefined ? undefined
-		// 					: input === `` ? undefined
-		// 						: input
-		// 		)
 		return function(
 			target: Component,
 			propertyName: string,
@@ -348,7 +350,7 @@ export class Component extends HTMLElement {
 	/**
 	 * Makes the component replace its contents with newly-rendered contents
 	 */
-	render(options: Partial<{ force: boolean; }> = {}) {
+	render(options: Partial<{ renderMode: RenderMode; }> = {}) {
 		const template = document.createElement(`template`);
 		template.innerHTML = this.template();
 
@@ -362,7 +364,7 @@ export class Component extends HTMLElement {
 			root.replaceWith(...root.childNodes);
 		}
 
-		if (options.force === true || !this.isRendered) {
+		if (!this.isRendered || [`outer`, `inner`].includes(options.renderMode ?? ``)) {
 			this.replaceChildren(...template.content.childNodes);
 		}
 
@@ -415,10 +417,21 @@ export class Component extends HTMLElement {
 				continue;
 			}
 
-			setAttributes(target, getAttributes(updated));
+			const renderMode = updated.getAttribute(Component.const.attrRender) as RenderMode
+				?? Component.const.renderMode.outer;
 
-			if (options.force === true || target.hasAttribute(Component.const.attrDynamic)) {
+			if (renderMode === `static`) {
+				continue;
+			}
+
+			if (renderMode !== `inner`) {
+				setAttributes(target, getAttributes(updated));
+			}
+
+			if (renderMode === `inner` || renderMode === `outer`) {
 				target.replaceChildren(...updated.childNodes);
+			} else if (renderMode === `el`) {
+				target.replaceWith(updated);
 			}
 		}
 
