@@ -33,7 +33,7 @@ export abstract class BaseApp<
 
 		await Promise.all(componentsLoaded);
 
-		const landingPage = this.findDown(Page);
+		const landingPage: Page = this.querySelector(`[${Page.$pageAttr}]`)!;
 
 		if (landingPage !== null) {
 			this.resolver.set(landingPage);
