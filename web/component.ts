@@ -29,7 +29,6 @@ export class Component extends HTMLElement {
 	static readonly const = {
 		attrEl: `is`,
 		attrRender: `data-render`,
-		flagEl: `el:`,
 		renderMode: enumy(
 			`static`,
 			`attr`,
@@ -214,8 +213,6 @@ export class Component extends HTMLElement {
 		return this.constructor as typeof Component;
 	}
 
-	isRendered = false;
-
 	/**
 	 * If true, if this is a Page it will be compiled into a static `.html` file at the route(s) used for this Page, which serves as a landing page for performance and SEO purposes.
 	 * If this is a Component it will be compiled into static HTML included in the landing page.
@@ -350,7 +347,7 @@ export class Component extends HTMLElement {
 	/**
 	 * Makes the component replace its contents with newly-rendered contents
 	 */
-	render(options: Partial<{ renderMode: RenderMode; }> = {}) {
+	render() {
 		const template = document.createElement(`template`);
 		template.innerHTML = this.template();
 
@@ -366,78 +363,28 @@ export class Component extends HTMLElement {
 
 		const iterator = document.createTreeWalker(
 			template.content,
-			NodeFilter.SHOW_COMMENT + NodeFilter.SHOW_ELEMENT,
+			NodeFilter.SHOW_ELEMENT,
 			() => NodeFilter.FILTER_ACCEPT,
 		);
-		let target: Comment | HTMLElement;
+		let target: HTMLElement;
 		while (true) {
-			target = iterator.nextNode()! as Comment | HTMLElement;
+			target = iterator.nextNode()! as HTMLElement;
 
 			if (target === null) {
 				break;
 			}
 
-			if (target instanceof Comment) {
-				const placeholder = target;
-				const flag = placeholder.textContent!;
-				if (flag.startsWith(Component.const.flagEl)) {
-					const tempId = flag.substring(Component.const.flagEl.length);
-					const cached = componentCache.get(tempId)!.deref()!;
-					componentCache.delete(tempId);
-					iterator.previousNode();
-					placeholder.replaceWith(cached);
-				}
+			if (target.tagName.toUpperCase() === `PLACEHOLDER`) {
+				const id = target.id;
+				const cached = componentCache.get(id)!.deref()!;
+				componentCache.delete(id);
+				iterator.previousNode();
+				target.replaceWith(cached);
 				continue;
-			}
-
-			const isComponent = target.hasAttribute(Component.const.attrEl);
-			if (isComponent) {
-				const instance = (target as Component);
-				if (!instance.isRendered) {
-					instance.render();
-				}
-			}
-
-			if (!this.isRendered) {
-				continue;
-			}
-
-			const id = target.id;
-			if (id === ``) {
-				continue;
-			}
-
-			const existing = document.getElementById(id);
-
-			if (existing === null) {
-				continue;
-			}
-
-			const renderMode = target.getAttribute(Component.const.attrRender) as RenderMode
-				?? Component.const.renderMode.outer;
-
-			if (renderMode === `static`) {
-				continue;
-			}
-
-			if (renderMode !== `inner`) {
-				setAttributes(existing, getAttributes(target));
-			}
-
-			if (renderMode === `inner` || renderMode === `outer`) {
-				existing.replaceChildren(...target.childNodes);
-			} else if (renderMode === `el`) {
-				existing.replaceWith(target);
 			}
 		}
 
-		if (!this.isRendered || [`outer`, `inner`].includes(options.renderMode ?? ``)) {
-			this.replaceChildren(...template.content.childNodes);
-		}
-
-		if (!this.isRendered) {
-			this.isRendered = true;
-		}
+		this.replaceChildren(...template.content.childNodes);
 
 		return this;
 	}
@@ -468,8 +415,9 @@ export class Component extends HTMLElement {
 
 	toString() {
 		const tempId = [undefined, null, ``].includes(this.id) ? newUid() : this.id;
+		this.innerHTML = this.template();
 		componentCache.set(tempId, new WeakRef(this));
-		return `<!--${Component.const.flagEl}${tempId}-->`;
+		return `<placeholder id="${tempId}"></placeholder>`;
 	}
 
 	write(input: string) {
@@ -488,8 +436,6 @@ export class Page extends Component.custom(`main`) {
 		title: Page[`pageTitle`];
 	}> = {}) {
 		super();
-		this.id = `app-page`;
-		this.setAttribute(Component.const.attrRender, `el`);
 		if (input.title !== undefined) {
 			this.pageTitle = input.title;
 		}

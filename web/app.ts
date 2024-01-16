@@ -11,7 +11,6 @@ export abstract class BaseApp<
 	static elName = `l-app`;
 	page!: Page;
 	abstract readonly resolver: Resolver<Page>;
-	@Component.attribute() routeName!: keyof Routes;
 	abstract readonly router: Router<Routes>;
 
 	async connectedCallback() {
@@ -37,8 +36,8 @@ export abstract class BaseApp<
 			.subscribe((newPage, { previous }) => {
 				if (newPage !== previous) {
 					this.page = newPage;
-					this.render();
 					document.title = this.page.pageTitle;
+					this.render();
 				}
 			});
 
