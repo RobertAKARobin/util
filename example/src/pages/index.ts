@@ -90,10 +90,7 @@ Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ 
 
 <p>${router.link(`ssgYes`, `Link to SSG Yes`)}</p>
 
-<button
-	onclick="${this.bind(`anchorlessRoute`)}"
-	type="button"
->Go to SSG Yes</button>
+<button onclick="${this.bind(`anchorlessRoute`)}"><host type="button">Go to SSG Yes</host></button>
 
 <markdown>
 ## Headline 2

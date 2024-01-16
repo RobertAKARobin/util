@@ -129,9 +129,8 @@ export const spec = suite(`@robertakarobin/web`,
 		widget.render();
 		$.assert(x => x(widget.getAttribute(`title`)) === `foo`);
 
-		$.log(() => widget.template = () => `<host color="red">${widget.content ?? ``}</host>`);
+		$.log(() => widget.template = () => `<host foo="red">${widget.content ?? ``}</host>`);
 		widget.render();
-		$.assert(x => x(widget.getAttribute(`color`)) === null);
-		$.assert(x => x(widget.color) === `red`);
+		$.assert(x => x(widget.getAttribute(`foo`)) === `red`);
 	}),
 );

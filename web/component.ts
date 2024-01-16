@@ -355,39 +355,42 @@ export class Component extends HTMLElement {
 		const template = document.createElement(`template`);
 		template.innerHTML = this.template();
 
-		const root = template.content.firstElementChild!;
-		if (root?.tagName.toUpperCase() === `HOST`) {
-			const updatedAttributes = {
-				...getAttributes(this),
-				...getAttributes(root as HTMLUnknownElement),
-			} as Partial<ElAttributes<this>>;
-			this.set(updatedAttributes);
-			root.replaceWith(...root.childNodes);
-		}
-
 		let iterator = document.createTreeWalker(
 			template.content,
 			NodeFilter.SHOW_ELEMENT,
 			() => NodeFilter.FILTER_ACCEPT,
 		);
-		let target: Node | null;
+		let target = iterator.nextNode();
 		while (true) {
-			target = iterator.nextNode()!;
-
 			if (target === null) {
 				break;
 			}
 
 			const updated = target as HTMLElement;
-			if (updated.tagName.toUpperCase() === `PLACEHOLDER`) {
+			const tagName = updated.tagName.toUpperCase();
+
+			if (tagName === `PLACEHOLDER`) {
 				const placeholder = updated as HTMLUnknownElement;
 				const id = placeholder.id;
 				const cached = componentCache.get(id)!.deref()!;
 				componentCache.delete(id);
-				iterator.previousNode();
+				target = iterator.previousNode();
 				placeholder.replaceWith(cached);
 				continue;
+
+			} else if (tagName === `HOST`) {
+				const parent = updated.parentElement! ?? this;
+				const updatedAttributes = {
+					...getAttributes(parent),
+					...getAttributes(updated),
+				} as Partial<ElAttributes<this>>;
+				setAttributes(parent, updatedAttributes);
+				target = iterator.previousNode();
+				updated.replaceWith(...updated.childNodes);
+				continue;
 			}
+
+			target = iterator.nextNode();
 		}
 
 		if (!this.isRendered || input?.force === true) {
