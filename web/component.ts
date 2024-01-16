@@ -378,11 +378,12 @@ export class Component extends HTMLElement {
 
 			const updated = target as HTMLElement;
 			if (updated.tagName.toUpperCase() === `PLACEHOLDER`) {
-				const id = updated.id;
+				const placeholder = updated as HTMLUnknownElement;
+				const id = placeholder.id;
 				const cached = componentCache.get(id)!.deref()!;
 				componentCache.delete(id);
 				iterator.previousNode();
-				updated.replaceWith(cached);
+				placeholder.replaceWith(cached);
 				continue;
 			}
 		}
@@ -398,31 +399,39 @@ export class Component extends HTMLElement {
 			NodeFilter.SHOW_ELEMENT,
 			() => NodeFilter.FILTER_ACCEPT,
 		);
+		target = iterator.nextNode();
 		while (true) {
 			if (target === null) {
 				break;
 			}
 
-			const updated = target as HTMLElement;
-			if (updated.id === ``) {
+			const existing = target as HTMLElement;
+
+			const id = existing.id;
+			if (id === ``) {
+				target = iterator.nextNode();
 				continue;
 			}
 
-			const existing = document.getElementById(updated.id)!;
-			const renderMode = existing.getAttribute(Component.const.attrRender) as RenderMode ?? `static`;
+			const updated = template.content.getElementById(id)!;
+			if (updated === null) {
+				target = iterator.nextNode();
+				continue;
+			}
+
+			const renderMode = updated.getAttribute(Component.const.attrRender) as RenderMode ?? `outer`;
 
 			if (renderMode === `attr`) {
 				setAttributes(existing, getAttributes(updated));
-				target = iterator.nextSibling();
+				target = iterator.nextNode();
 			} else if (renderMode === `inner`) {
-				existing.replaceChildren(...target.childNodes);
+				existing.replaceChildren(...updated.childNodes);
 				target = iterator.nextNode();
 			} else if (renderMode === `outer`) {
 				setAttributes(existing, getAttributes(updated));
-				existing.replaceChildren(...target.childNodes);
+				existing.replaceChildren(...updated.childNodes);
 				target = iterator.nextNode();
 			} else if (renderMode === `el`) {
-				target = iterator.previousNode();
 				existing.replaceWith(updated);
 			} else {
 				target = iterator.nextSibling();
