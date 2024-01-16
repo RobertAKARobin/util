@@ -161,7 +161,6 @@ export class Builder {
 		const { resolver, router } = app;
 
 		document.body.replaceWith(app);
-		document.body.innerHTML = `<div data-page-title></div>`;
 		document.documentElement.lang = `en`;
 
 		const builtRoutes = new Set<string>();

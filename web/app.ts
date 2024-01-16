@@ -33,21 +33,18 @@ export abstract class BaseApp<
 
 		await Promise.all(componentsLoaded);
 
-		this.page = this.querySelector(`[${Page.$pageAttr}]`)!;
-
-		if (appContext === `browser`) {
-			this.page.render();
-		}
-
 		this.resolver
 			.subscribe((newPage, { previous }) => {
 				if (newPage !== previous) {
-					this.page.replaceWith(newPage);
 					this.page = newPage;
 					this.render();
 					document.title = this.page.pageTitle;
 				}
 			});
+
+		if (appContext === `browser`) {
+			this.resolver.set(this.querySelector(`[${Page.$pageAttr}]`)!);
+		}
 	}
 
 	// TODO2: Move formatHead from build to here

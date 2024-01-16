@@ -431,7 +431,9 @@ export class Component extends HTMLElement {
 			if (renderMode === `inner` || renderMode === `outer`) {
 				target.replaceChildren(...updated.childNodes);
 			} else if (renderMode === `el`) {
+				iterator.previousNode();
 				target.replaceWith(updated);
+				updated.removeAttribute(`data-render`);
 			}
 		}
 
@@ -488,6 +490,8 @@ export class Page extends Component.custom(`main`) {
 		title: Page[`pageTitle`];
 	}> = {}) {
 		super();
+		this.id = `app-page`;
+		this.setAttribute(Component.const.attrRender, `el`);
 		if (input.title !== undefined) {
 			this.pageTitle = input.title;
 		}
