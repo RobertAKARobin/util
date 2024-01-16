@@ -268,7 +268,9 @@ export class Component extends HTMLElement {
 	 * Called when the component is attached to the DOM
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks
 	 */
-	connectedCallback() {}
+	connectedCallback() {
+		this.isRendered = true;
+	}
 
 	/**
 	 * Called when the component is detached from the DOM
