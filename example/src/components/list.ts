@@ -12,8 +12,12 @@ export class List extends Component.custom(`ol`) {
 
 	@Component.event()
 	onDelete(id: string) {
-		console.log(id);
 		return id;
+	}
+
+	@Component.event()
+	onInput(id: string, value: string) {
+		return { id, value };
 	}
 
 	setListItems(listItems: Array<Type.ListItem>) {
@@ -28,6 +32,7 @@ export class List extends Component.custom(`ol`) {
 		new ListItem(id!)
 			.set({ text: value })
 			.on(`onDelete`, () => this.onDelete(id!))
+			.on(`onInput`, event => this.onInput(id!, event.detail))
 	).join(``)}
 
 	<li>

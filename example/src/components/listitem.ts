@@ -13,12 +13,18 @@ export class ListItem extends Component.custom(`li`) {
 	@Component.event()
 	onDelete() {}
 
+	@Component.event()
+	onInput(event: CustomEvent<string>) {
+		return event.detail;
+	}
+
 	template = () => /*html*/`
 	<p>List item ID ${this.id}</p>
 
-	${new Textbox(`${this.id}-text`).set({
-		value: this.text,
-	})}
+	${new Textbox(`${this.id}-text`)
+		.set({ value: this.text })
+		.on(`onInput`, event => this.onInput(event))
+	}
 
 	<button
 		onclick="${this.bind(`onDelete`)}"

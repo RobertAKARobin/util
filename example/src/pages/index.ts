@@ -40,14 +40,14 @@ export class IndexPage extends Layout {
 		state.add({ value: `` });
 		const list = this.findDown(List);
 		list.setListItems(state.entries.$);
-		list.render();
+		list.render({ force: true });
 	}
 
 	onDelete(id: string) {
 		state.remove(id);
 		const list = this.findDown(List);
 		list.setListItems(state.entries.$);
-		list.render();
+		list.render({ force: true });
 	}
 
 	openModal() {
@@ -70,6 +70,7 @@ ${new List()
 	.setListItems(state.entries.$)
 	.on(`onAdd`, () => this.onAdd())
 	.on(`onDelete`, event => this.onDelete(event.detail))
+	.on(`onInput`, event => state.update(event.detail.id, event.detail))
 }
 
 ${appContext === `build`
