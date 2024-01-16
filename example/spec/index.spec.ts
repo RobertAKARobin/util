@@ -32,6 +32,7 @@ const hasSSG = (page: string) =>
 
 @Component.define()
 class Widget extends Component.custom(`h1`) {
+	color: string = ``;
 	@Component.attribute() message = undefined as undefined | string | number;
 	@Component.attribute() prop = 42;
 
@@ -122,5 +123,15 @@ export const spec = suite(`@robertakarobin/web`,
 		$.log(() => set({ message: 7 }));
 		$.assert(x => x(a().getAttribute(`message`)) === `7`);
 		$.assert(x => x(a().textContent) === `7`);
+
+		widget = new Widget();
+		$.log(() => widget.template = () => `<host title="foo">${widget.content ?? ``}</host>`);
+		widget.render();
+		$.assert(x => x(widget.getAttribute(`title`)) === `foo`);
+
+		$.log(() => widget.template = () => `<host color="red">${widget.content ?? ``}</host>`);
+		widget.render();
+		$.assert(x => x(widget.getAttribute(`color`)) === null);
+		$.assert(x => x(widget.color) === `red`);
 	}),
 );
