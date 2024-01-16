@@ -212,6 +212,8 @@ export class Component extends HTMLElement {
 		return this.constructor as typeof Component;
 	}
 
+	isRendered = false;
+
 	/**
 	 * If true, if this is a Page it will be compiled into a static `.html` file at the route(s) used for this Page, which serves as a landing page for performance and SEO purposes.
 	 * If this is a Component it will be compiled into static HTML included in the landing page.
@@ -346,22 +348,26 @@ export class Component extends HTMLElement {
 	/**
 	 * Makes the component replace its contents with newly-rendered contents
 	 */
-	render() {
+	render(options: Partial<{ force: boolean; }> = {}) {
 		const template = document.createElement(`template`);
 		template.innerHTML = this.template();
 
-		const templateRoot = template.content.firstElementChild!;
-		if (templateRoot?.tagName.toUpperCase() === `HOST`) {
+		const root = template.content.firstElementChild!;
+		if (root?.tagName.toUpperCase() === `HOST`) {
 			const updatedAttributes = {
 				...getAttributes(this),
-				...getAttributes(templateRoot as HTMLUnknownElement),
+				...getAttributes(root as HTMLUnknownElement),
 			} as Partial<ElAttributes<this>>;
 			this.set(updatedAttributes);
-			templateRoot.replaceWith(...templateRoot.childNodes);
+			root.replaceWith(...root.childNodes);
+		}
+
+		if (options.force === true || !this.isRendered) {
+			this.replaceChildren(...template.content.childNodes);
 		}
 
 		const iterator = document.createTreeWalker(
-			template.content,
+			this,
 			NodeFilter.SHOW_COMMENT + NodeFilter.SHOW_ELEMENT,
 			() => NodeFilter.FILTER_ACCEPT,
 		);
@@ -386,73 +392,38 @@ export class Component extends HTMLElement {
 				continue;
 			}
 
+			const isComponent = target.hasAttribute(Component.const.attrEl);
+			if (isComponent) {
+				const instance = (target as Component);
+				if (!instance.isRendered) {
+					instance.render();
+				}
+			}
+
 			const id = target.id;
-			if (id === null) {
+			if (id === ``) {
 				continue;
 			}
 
-			const isComponent = target.hasAttribute(Component.const.attrEl);
-			if (isComponent) {
-				(target as Component).render();
-			}
-		}
+			const updated = (
+				componentCache.get(id)?.deref()
+				?? template.content.getElementById(id)
+				?? document.getElementById(id)
+			);
 
-		this.replaceChildren(...template.content.childNodes);
-
-		return this;
-	}
-
-	rerender() {
-		const template = document.createElement(`template`);
-		template.innerHTML = this.template();
-
-		const templateRoot = template.content.firstElementChild!;
-		if (templateRoot?.tagName.toUpperCase() === `HOST`) {
-			const updatedAttributes = {
-				...getAttributes(this),
-				...getAttributes(templateRoot as HTMLUnknownElement),
-			} as Partial<ElAttributes<this>>;
-			this.set(updatedAttributes);
-			templateRoot.replaceWith(...templateRoot.childNodes);
-		}
-
-		const iterator = document.createTreeWalker(
-			this,
-			NodeFilter.SHOW_ELEMENT,
-			() => NodeFilter.FILTER_ACCEPT,
-		);
-		let target: HTMLElement;
-		while (true) {
-			target = iterator.nextNode()! as HTMLElement;
-
-			if (target === null) {
-				break;
-			}
-
-			const id = target.getAttribute(`id`);
-			if (id === null) {
+			if (updated === null) {
 				continue;
 			}
 
-			const existing = target;
-			const isComponent = target.hasAttribute(Component.const.attrEl);
-			let updated: HTMLElement | null | undefined;
-			if (isComponent) {
-				updated = componentCache.get(id)!.deref()!;
-				componentCache.delete(id);
-			} else {
-				updated = template.content.getElementById(id)!;
-			}
+			setAttributes(target, getAttributes(updated));
 
-			if (isComponent) {
-				(updated as Component).render();
+			if (options.force === true || target.hasAttribute(Component.const.attrDynamic)) {
+				target.replaceChildren(...updated.childNodes);
 			}
+		}
 
-			setAttributes(existing, getAttributes(updated));
-
-			if (updated.hasAttribute(Component.const.attrDynamic)) {
-				existing.replaceChildren(...updated.childNodes);
-			}
+		if (!this.isRendered) {
+			this.isRendered = true;
 		}
 
 		return this;

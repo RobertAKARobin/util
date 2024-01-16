@@ -22,7 +22,7 @@ export class Textbox extends Component.custom(`div`) {
 		const updated = (event.currentTarget as HTMLInputElement).value;
 		if (updated !== this.value) {
 			this.value = updated;
-			this.rerender();
+			this.render();
 		}
 		return updated;
 	}
