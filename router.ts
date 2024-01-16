@@ -56,6 +56,20 @@ export class Router<Routes extends RouteMap = Record<string, never>> extends Emi
 		}
 	}
 
+	findCurrentRouteName() {
+		return this.findRouteName(this.value);
+	}
+
+	findRouteName(route: URL | string) {
+		const currentRoute = route instanceof URL ? route.toString() : route;
+		for (const routeName in this.urls) {
+			const route = this.urls[routeName].toString();
+			if (route === currentRoute || route === `${currentRoute}/`) {
+				return routeName;
+			}
+		}
+	}
+
 	/**
 	 * Sets up the router to listen for location changes and intercept click events that cause navigation
 	 */

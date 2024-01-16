@@ -25,4 +25,7 @@ export const spec = test(`Router`, $ => {
 
 	$.assert(x => x(router.urls.profile.toString() === x(routeMap.profile + `/`)));
 	$.assert(x => x(router.link(`profile`, `Profile`)) === `<a href="https://robertakarobin.com/" rel="noopener" target="_blank">Profile</a>`);
+
+	$.assert(x => x(router.findRouteName(`https://b.b/login`)) === `login`);
+	$.assert(x => x(router.findRouteName(`https://b.b/login/`)) === `login`);
 });
