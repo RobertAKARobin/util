@@ -364,12 +364,8 @@ export class Component extends HTMLElement {
 			root.replaceWith(...root.childNodes);
 		}
 
-		if (!this.isRendered || [`outer`, `inner`].includes(options.renderMode ?? ``)) {
-			this.replaceChildren(...template.content.childNodes);
-		}
-
 		const iterator = document.createTreeWalker(
-			this,
+			template.content,
 			NodeFilter.SHOW_COMMENT + NodeFilter.SHOW_ELEMENT,
 			() => NodeFilter.FILTER_ACCEPT,
 		);
@@ -402,22 +398,22 @@ export class Component extends HTMLElement {
 				}
 			}
 
+			if (!this.isRendered) {
+				continue;
+			}
+
 			const id = target.id;
 			if (id === ``) {
 				continue;
 			}
 
-			const updated = (
-				componentCache.get(id)?.deref()
-				?? template.content.getElementById(id)
-				?? document.getElementById(id)
-			);
+			const existing = document.getElementById(id);
 
-			if (updated === null) {
+			if (existing === null) {
 				continue;
 			}
 
-			const renderMode = updated.getAttribute(Component.const.attrRender) as RenderMode
+			const renderMode = target.getAttribute(Component.const.attrRender) as RenderMode
 				?? Component.const.renderMode.outer;
 
 			if (renderMode === `static`) {
@@ -425,16 +421,18 @@ export class Component extends HTMLElement {
 			}
 
 			if (renderMode !== `inner`) {
-				setAttributes(target, getAttributes(updated));
+				setAttributes(existing, getAttributes(target));
 			}
 
 			if (renderMode === `inner` || renderMode === `outer`) {
-				target.replaceChildren(...updated.childNodes);
+				existing.replaceChildren(...target.childNodes);
 			} else if (renderMode === `el`) {
-				iterator.previousNode();
-				target.replaceWith(updated);
-				updated.removeAttribute(`data-render`);
+				existing.replaceWith(target);
 			}
+		}
+
+		if (!this.isRendered || [`outer`, `inner`].includes(options.renderMode ?? ``)) {
+			this.replaceChildren(...template.content.childNodes);
 		}
 
 		if (!this.isRendered) {
