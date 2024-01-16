@@ -2,35 +2,35 @@
 <html lang="en">
 
 <head>
-	<title>Home page</title>
-	<base href="/">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"> <script src="/script.js?cache=1705375929365" type="module"></script>
-	<link rel="stylesheet" href="/styles.css?cache=1705375929365"> <script type="module">import { IndexPage } from '/pages-AAMEQYO3.js';</script>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<title>Home page</title>
+	<base href="/"> <script src="/browser.js?cache=1705421219692" type="module"></script>
+	<link rel="stylesheet" href="/styles.css?cache=1705421219692">
+	<link rel="stylesheet" href="/index.html.css?cache=1705421219692"> <script type="module">import { IndexPage } from '/pages-I6FAYUF5.js';</script>
 	<style data-style="l-textbox"></style>
 	<style data-style="l-progressmodal"></style>
 	<style data-style="l-transitiontest"></style>
 	<style data-style="l-indexpage"></style>
-	<link rel="stylesheet" href="/index.html.css?cache=1705375929365">
 </head>
 
-<body>
+<body is="l-app">
+	<nav>
+		<ul>
+			<li><a href="/404.html">Go error404</a></li>
+			<li><a href="https://example.com/" rel="noopener" target="_blank">Go external</a></li>
+			<li><a href="/">Go home</a></li>
+			<li><a href="/#jump1">Go homeJump1</a></li>
+			<li><a href="/#jump2">Go homeJump2</a></li>
+			<li><a href="/ssg/no/">Go ssgNo</a></li>
+			<li><a href="/ssg/yes/">Go ssgYes</a></li>
+			<li><a href="/ssg/yes/#jump1">Go ssgYesJump1</a></li>
+			<li><a href="/ssg/yes/#jump2">Go ssgYesJump2</a></li>
+		</ul>
+	</nav>
 	<main is="l-indexpage" data-page-title="Home page" data-message="This is a variable">
-		<nav>
-			<ul>
-				<li><a href="/404.html">Go error404</a></li>
-				<li><a href="https://example.com/" rel="noopener" target="_blank">Go external</a></li>
-				<li><a href="/">Go home</a></li>
-				<li><a href="/#jump1">Go homeJump1</a></li>
-				<li><a href="/#jump2">Go homeJump2</a></li>
-				<li><a href="/ssg/no/">Go ssgNo</a></li>
-				<li><a href="/ssg/yes/">Go ssgYes</a></li>
-				<li><a href="/ssg/yes/#jump1">Go ssgYesJump1</a></li>
-				<li><a href="/ssg/yes/#jump2">Go ssgYesJump2</a></li>
-			</ul>
-		</nav>
 		<h1>Hello world!</h1>
-		<div is="l-transitiontest"></div><button onclick="this.closest(`[is='l-indexpage']`).openModal(event)" type="button">Modal</button>
+		<div is="l-transitiontest" style="background: rgb(255, 0, 0);"></div><button onclick="this.closest(`[is='l-indexpage']`).openModal(event)" type="button">Modal</button>
 		<div id="jump1">Jump 1</div>
 		<ol is="l-list">
 			<li>List ID </li>
@@ -78,8 +78,8 @@
 			<li> ut aliquip ex</li>
 		</ol>
 		<div id="jump2">Jump 2</div>
-		<div is="l-modalcontainer" data-duration="0.2" data-transition-state="inactive"></div>
 	</main>
+	<div is="l-modalcontainer" data-duration="0.2" data-transition-state="inactive"></div>
 </body>
 
 </html>

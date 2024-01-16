@@ -1,7 +1,7 @@
 import { Resolver, type RouteMap, Router } from '@robertakarobin/util/router.ts';
+import { appContext } from '@robertakarobin/util/context.ts';
 
 import { Component, Page } from './component.ts';
-import { appContext } from '../context.ts';
 
 export { Resolver, RouteMap, Router };
 
@@ -19,9 +19,6 @@ export abstract class BaseApp<
 
 		if (appContext === `browser`) {
 			this.router.init();
-			const onRoute = () => this.routeName = this.router.findCurrentRouteName()!;
-			onRoute();
-			this.router.subscribe(() => onRoute());
 		}
 
 		const components: Array<Component> = Array.from(
@@ -48,9 +45,12 @@ export abstract class BaseApp<
 				if (newPage !== previous) {
 					this.page = newPage;
 					this.render({ force: true });
+					document.title = this.page.pageTitle;
 				}
 			});
 	}
+
+	// TODO2: Move formatHead from build to here
 
 	template() {
 		return `${this.page}`;

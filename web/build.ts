@@ -14,6 +14,7 @@ import { hasExtension } from '@robertakarobin/util/router.ts';
 import { promiseConsecutive } from '@robertakarobin/util/promiseConsecutive.ts';
 
 import type { BaseApp } from './app.ts';
+import type { Page } from './component.ts';
 
 const bustCache = (pathname: string) => {
 	const url = new URL(`file:///${pathname}?v=${Date.now() + performance.now()}`); // URL is necessary for running on Windows
@@ -43,6 +44,9 @@ export class Builder {
 	readonly browserServeFileRel: string | undefined;
 	readonly browserSrcFileAbs: string | undefined;
 	readonly browserSrcFileRel: string | undefined;
+	get cacheBuster() {
+		return `?cache=${Date.now().toString()}`;
+	}
 	readonly metaFileRel: string | undefined;
 	readonly minify: boolean;
 	readonly serveDirAbs: string;
@@ -157,6 +161,7 @@ export class Builder {
 		const { resolver, router } = app;
 
 		document.body.replaceWith(app);
+		document.documentElement.lang = `en`;
 
 		const builtRoutes = new Set<string>();
 
@@ -170,6 +175,8 @@ export class Builder {
 				logBreak();
 				return;
 			}
+
+			document.head.innerHTML = ``;
 
 			const page = await resolver.resolve(route);
 			resolver.set(page);
@@ -206,11 +213,6 @@ export class Builder {
 				return;
 			}
 
-			// 			let head = `
-			// <script type="module">
-			// import { ${page.Ctor.name} } from '${path.join(`/`, pageCompilepath)}';
-			// </script>`;
-
 			let routeCss = ``;
 			let routeCssPath = ``;
 			for (const style of document.querySelectorAll(`style`)) {
@@ -225,6 +227,13 @@ export class Builder {
 				log(local(routeCssAbs));
 				fs.writeFileSync(routeCssAbs, routeCss);
 			}
+
+			const pageCompilePath = compilePathsByExportName[page.Ctor.name];
+			document.head.innerHTML = this.formatHead(page, {
+				pageCompilePath,
+				routeCss,
+				routeCssPath,
+			});
 
 			const html = await this.formatHtml(`<!DOCTYPE html>` + document.documentElement.outerHTML);
 
@@ -298,10 +307,6 @@ export class Builder {
 
 	cleanup(): void | Promise<void> {}
 
-	formatBody($root: HTMLElement) {
-		return $root.outerHTML;
-	}
-
 	formatCss(input: string): string | Promise<string> {
 		let css = input;
 		css = trimNewlines(input);
@@ -313,6 +318,34 @@ export class Builder {
 		});
 		return css;
 	}
+
+	formatHead = (page: Page, meta: Partial<{
+		pageCompilePath: string;
+		routeCss: string;
+		routeCssPath: string;
+	}> = {}) => /*html*/`
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+
+		<title>${document.title}</title>
+		<base href="${this.baseUri}">
+
+		${typeof this.browserServeFileRel === `string` ? /*html*/`
+			<script src="${path.join(`/`, this.browserServeFileRel)}${this.cacheBuster}" type="module"></script>
+		` : ``}
+
+		${typeof this.styleServeFileRel === `string` ? /*html*/`
+			<link rel="stylesheet" href="${path.join(`/`, this.styleServeFileRel)}${this.cacheBuster}">
+		` : ``}
+
+		${typeof meta.routeCss === `string` && meta.routeCss.length > 0 ? /*html*/`
+			<link rel="stylesheet" href="${path.join(`/`, meta.routeCssPath!)}${this.cacheBuster}">
+		` : ``}
+
+		<script type="module">import { ${page.Ctor.name} } from '${path.join(`/`, meta.pageCompilePath!)}';</script>
+
+		${Array.from(document.querySelectorAll(`style`)).map(style => style.outerHTML).join(``)}
+	`;
 
 	formatHtml(input: string): string | Promise<string> {
 		let html = input;

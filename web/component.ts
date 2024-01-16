@@ -479,9 +479,4 @@ export class Page extends Component.custom(`main`) {
 			this.pageTitle = input.title;
 		}
 	}
-
-	connectedCallback() {
-		super.connectedCallback();
-		document.title = this.pageTitle;
-	}
 }
