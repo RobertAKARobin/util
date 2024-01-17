@@ -180,7 +180,7 @@ export class Resolver<View> extends Emitter<View> {
 				this.set(await this.resolve(to, previous));
 
 				if (previous !== undefined) {
-					window.history.pushState({}, ``, to.pathname); // Setting the hash here causes the jumpanchor to not be activated for some reason, so we do it on the next line
+					window.history.pushState({}, ``, `${to.pathname}${to.search}`); // Setting the hash here causes the jumpanchor to not be activated for some reason, so we do it on the next line
 					if (to.hash.length > 0) {
 						location.hash = to.hash;
 					}
