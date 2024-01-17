@@ -296,7 +296,9 @@ export class Component extends HTMLElement {
 	): HTMLElementTagNameMap[Descendant];
 	findDown<Descendant>(Descendant: Constructor<Descendant>): Descendant;
 	findDown<Descendant>(Descendant: keyof HTMLElementTagNameMap | Constructor<Descendant>) {
-		if (typeof Descendant === `string`) {
+		if ((Descendant as Function) === Page) {
+			return this.querySelector(`[${Page.$pageAttr}]`);
+		} else if (typeof Descendant === `string`) {
 			return this.querySelector(Descendant);
 		}
 		return this.querySelector(
@@ -312,7 +314,9 @@ export class Component extends HTMLElement {
 	): Array<HTMLElementTagNameMap[Descendant]>;
 	findDownAll<Descendant>(Descendant: Constructor<Descendant>): Array<Descendant>;
 	findDownAll<Descendant>(Descendant: keyof HTMLElementTagNameMap | Constructor<Descendant>) {
-		if (typeof Descendant === `string`) {
+		if ((Descendant as Function) === Page) {
+			return this.querySelectorAll(`[${Page.$pageAttr}]`);
+		} else if (typeof Descendant === `string`) {
 			return [...this.querySelectorAll(Descendant)];
 		}
 		return [...this.querySelectorAll(
@@ -328,7 +332,9 @@ export class Component extends HTMLElement {
 	): HTMLElementTagNameMap[Ancestor];
 	findUp<Ancestor>(Ancestor: Constructor<Ancestor>): Ancestor;
 	findUp<Ancestor>(Ancestor: keyof HTMLElementTagNameMap | Constructor<Ancestor>) {
-		if (typeof Ancestor === `string`) {
+		if ((Ancestor as Function) === Page) {
+			return this.closest(`[${Page.$pageAttr}]`);
+		} else if (typeof Ancestor === `string`) {
 			return this.closest(Ancestor);
 		}
 		return this.closest((Ancestor as unknown as typeof Component).selector);

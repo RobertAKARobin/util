@@ -42,7 +42,7 @@ export abstract class BaseApp<
 			});
 
 		if (appContext === `browser`) {
-			this.resolver.set(this.querySelector(`[${Page.$pageAttr}]`)!);
+			this.resolver.set(this.findDown(Page));
 		}
 	}
 
