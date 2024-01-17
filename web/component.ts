@@ -19,6 +19,7 @@ type ComponentWithoutDecorators = Omit<typeof Component,
 	| `custom`
 	| `define`
 	| `event`
+	| `renderMode`
 >;
 
 const componentCache = new Map<string, WeakRef<Component>>();
@@ -201,6 +202,13 @@ export class Component extends HTMLElement {
 		return [...root.querySelectorAll(selector)] as Array<Subclass>;
 	}
 
+	static renderMode(
+		renderMode: RenderMode,
+		ariaLive: `polite` | `assertive` | `off` | undefined = `polite`
+	) {
+		return `${Component.const.attrRender}="${renderMode}"${typeof ariaLive === `string` ? ` aria-live="polite"` : ``}`;
+	}
+
 	/**
 	 * Stores the component's textual content, if any, which can be inserted into the component's template
 	 */
@@ -221,6 +229,8 @@ export class Component extends HTMLElement {
 	 * Not a static variable because a Component/Page may/may not want to be SSG based on certain conditions
 	*/
 	readonly isSSG: boolean = true;
+
+	@Component.attribute({ name: Component.const.attrRender }) renderMode!: RenderMode;
 
 	constructor(id?: Component[`id`]) {
 		super();

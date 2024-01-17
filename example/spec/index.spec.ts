@@ -91,7 +91,7 @@ export const spec = suite(`@robertakarobin/web`,
 			message: number;
 			render?: RenderMode;
 		}) => {
-			widget.template = () =>  `<a id="ID" ${typeof input.render === `string` ? `data-render="${input.render}" ` : ``}message="${widget.message}">${widget.message}</a>`;
+			widget.template = () =>  `<a id="ID" ${typeof input.render === `string` ? Component.renderMode(input.render) : ``}message="${widget.message}">${widget.message}</a>`;
 			widget.set({ message: input.message }).render();
 		};
 		const a = () => widget.querySelector(`a`)!;

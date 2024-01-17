@@ -29,7 +29,7 @@ export class Textbox extends Component.custom(`div`) {
 
 	template = () => /*html*/`
 <input
-	data-render="static"
+	${Component.renderMode(`static`)}
 	maxlength="${this.maxLength}"
 	oninput="${this.bind(`onInput`)}"
 	placeholder="Type here"
@@ -38,8 +38,8 @@ export class Textbox extends Component.custom(`div`) {
 >
 
 <span
+	${Component.renderMode(`inner`)}
 	id="${this.id}-remaining"
-	data-render="inner"
 >
 	${this.maxLength - (this.value ?? ``).length} / ${this.maxLength} Remaining
 </span>
