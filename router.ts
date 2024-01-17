@@ -177,13 +177,14 @@ export class Resolver<View> extends Emitter<View> {
 			}
 
 			if (to.pathname !== previous?.pathname) { // On new page
+				if (previous !== undefined) {
+					window.history.pushState({}, ``, `${to.pathname}${to.search}`);
+				}
+
 				this.set(await this.resolve(to, previous));
 
-				if (previous !== undefined) {
-					window.history.pushState({}, ``, `${to.pathname}${to.search}`); // Setting the hash here causes the jumpanchor to not be activated for some reason, so we do it on the next line
-					if (to.hash.length > 0) {
-						location.hash = to.hash;
-					}
+				if (to.hash.length > 0) {
+					location.hash = to.hash;
 				}
 
 				return;
