@@ -17,8 +17,9 @@ export type Subscription<
 	Source extends Emitter<State> = Emitter<State>,
 > = WeakRef<OnEmit<State, Source>> | OnEmit<State, Source>;
 
-export type EmitterOptions = EmitterCacheOptions & {
+export type EmitterOptions<State> = EmitterCacheOptions & {
 	emitOnInit: boolean;
+	reset: () => State;
 };
 
 const IGNORE = `_IGNORE_` as const;
@@ -32,6 +33,7 @@ export class Emitter<State> {
 	get last() {
 		return this.cache.list[this.cache.list.length - 1];
 	}
+	resetter?: () => State;
 	readonly subscriptions = new Set<Subscription<State>>();
 	get value() {
 		return this.last;
@@ -39,7 +41,7 @@ export class Emitter<State> {
 
 	constructor(
 		initial?: State | undefined | null,
-		options: Partial<EmitterOptions> = {}
+		options: Partial<EmitterOptions<State>> = {}
 	) {
 		this.cache = new EmitterCache(options ?? {});
 		if (initial !== undefined && initial !== null) {
@@ -49,6 +51,7 @@ export class Emitter<State> {
 				this.cache.add(initial);
 			}
 		}
+		this.resetter = options.reset;
 	}
 
 	filter(filter: (updated: State, previous: State) => boolean) {
@@ -101,6 +104,13 @@ export class Emitter<State> {
 			return emitter.set(value);
 		});
 		return emitter;
+	}
+
+	reset() {
+		if (this.resetter) {
+			this.set(this.resetter());
+		}
+		return this;
 	}
 
 	set(update: State) {

@@ -23,5 +23,5 @@
 		"test": "npm run lint && npm run spec && npm run test --prefix example"
 	},
 	"type": "module",
-	"version": "0.0.261"
+	"version": "0.0.262"
 }

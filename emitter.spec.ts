@@ -198,4 +198,18 @@ export const spec = suite(`Emitter`, {},
 		$.log(() => person.age(1));
 		$.assert(x => x(incrementsWhenOlder) === 2);
 	}),
+
+	test(`reset`, $ => {
+		const reset = () => ({
+			age: undefined as undefined | number,
+			name: ``,
+		});
+		const emitter = new Emitter(reset(), { reset });
+
+		$.assert(x => x(emitter.$.name) === ``);
+		$.log(() => emitter.patch({ name: `steve` }));
+		$.assert(x => x(emitter.$.name) === `steve`);
+		$.log(() => emitter.reset());
+		$.assert(x => x(emitter.$.name) === ``);
+	}),
 );
