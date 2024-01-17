@@ -100,6 +100,11 @@ export class Router<Routes extends RouteMap = Record<string, never>> extends Emi
 				return;
 			}
 
+			const target = $link.getAttribute(`target`); // Specifying a [target] causes a normal page load/refresh
+			if (target !== null) {
+				return;
+			}
+
 			const url = new URL(href, baseUrl);
 			if (url.origin !== baseUrl.origin) { // External URLs
 				return;
