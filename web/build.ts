@@ -323,11 +323,12 @@ export class Builder {
 		return css;
 	}
 
-	formatHead = (page: Page, meta: Partial<{
+	formatHead(page: Page, meta: Partial<{
 		pageCompilePath: string;
 		routeCss: string;
 		routeCssPath: string;
-	}> = {}) => /*html*/`
+	}> = {}) {
+		return /*html*/`
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
@@ -349,7 +350,8 @@ export class Builder {
 		<script type="module">import { ${page.Ctor.name} } from '${path.join(`/`, meta.pageCompilePath!)}';</script>
 
 		${Array.from(document.querySelectorAll(`style`)).map(style => style.outerHTML).join(``)}
-	`;
+		`;
+	}
 
 	formatHtml(input: string): string | Promise<string> {
 		let html = input;
