@@ -12,8 +12,10 @@ class CustomBuilder extends Builder {
 }
 
 const builder = new CustomBuilder({
+	esbuild: {
+		minify: false,
+	},
 	metaFileRel: `./meta.json`,
-	minify: false,
 });
 
 await builder.build({ serve: process.argv.includes(`--serve`) });

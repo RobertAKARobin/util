@@ -47,8 +47,8 @@ export class Builder {
 	get cacheBuster() {
 		return `?cache=${Date.now().toString()}`;
 	}
+	esbuildOverride: Partial<esbuild.BuildOptions>;
 	readonly metaFileRel: string | undefined;
-	readonly minify: boolean;
 	readonly serveDirAbs: string;
 	readonly srcDirAbs: string;
 	readonly srcRawDirAbs: string;
@@ -77,14 +77,16 @@ export class Builder {
 		baseDirAbs: string;
 		baseUri: string;
 		browserSrcFileRel: string | undefined;
+		esbuild: Partial<esbuild.BuildOptions>;
 		metaFileRel: string;
-		minify: boolean;
 		serveDirRel: string;
 		srcRawDirRel: string;
 		srcTmpDirRel: string;
 		styleServeFileRel: string;
 		tsconfigFileRel: string;
 	}> = {}) {
+		this.esbuildOverride = input.esbuild ?? {};
+
 		this.baseUri = input.baseUri ?? `/`;
 
 		this.baseDirAbs = input.baseDirAbs ?? process.cwd();
@@ -111,8 +113,6 @@ export class Builder {
 		this.styleServeFileRel = input.styleServeFileRel ?? `./styles.css`;
 		this.stylesSrcFileAbs = path.join(this.srcDirAbs, `${this.styleServeFileRel}.ts`);
 		this.stylesServeFileAbs = path.join(this.serveDirAbs, this.styleServeFileRel);
-
-		this.minify = input.minify ?? true;
 	}
 
 	async build(input: { serve?: boolean; } = {}) {
@@ -252,7 +252,8 @@ export class Builder {
 		header(`Bundling JS`);
 		log(local(this.browserServeFileAbs));
 		logBreak();
-		const buildResults = await esbuild.build({
+
+		const buildOptions: esbuild.BuildOptions = {
 			absWorkingDir: this.serveDirAbs,
 			bundle: true,
 			entryPoints: [{
@@ -261,12 +262,15 @@ export class Builder {
 			}],
 			format: `esm`,
 			keepNames: true,
-			metafile: true,
-			minify: this.minify,
+			metafile: true, // Required for compilePaths
 			outdir: this.serveDirAbs,
 			splitting: true,
 			tsconfig: this.tsconfigFileAbs, // I thought esbuild would figure this out by itself, but when this isn't specified it does all kinds of weird behavior like not transpiling decorators
-		});
+			...this.esbuildOverride,
+		};
+
+		const buildResults = await esbuild.build(buildOptions)
+		;
 		if (this.metaFileRel !== undefined) {
 			const metaFileAbs = path.join(this.serveDirAbs, this.metaFileRel);
 			header(`Outputting metafile`);
@@ -274,8 +278,8 @@ export class Builder {
 			fs.writeFileSync(metaFileAbs, JSON.stringify(buildResults.metafile));
 			logBreak();
 		}
-		for (const filepath in buildResults.metafile.outputs) {
-			const output = buildResults.metafile.outputs[filepath];
+		for (const filepath in buildResults.metafile!.outputs) {
+			const output = buildResults.metafile!.outputs[filepath];
 			for (const exportName of output.exports) {
 				compilePathsByExportName[exportName] = filepath;
 			}
