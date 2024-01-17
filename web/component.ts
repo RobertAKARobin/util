@@ -371,11 +371,12 @@ export class Component extends HTMLElement {
 		const template = document.createElement(`template`);
 		template.innerHTML = this.template();
 
-		let iterator = document.createTreeWalker(
+		const restartIterator = () => document.createTreeWalker(
 			template.content,
 			NodeFilter.SHOW_ELEMENT,
 			() => NodeFilter.FILTER_ACCEPT,
 		);
+		let iterator = restartIterator();
 		let target = iterator.nextNode();
 		while (true) {
 			if (target === null) {
@@ -392,6 +393,10 @@ export class Component extends HTMLElement {
 				componentCache.delete(id);
 				target = iterator.previousNode();
 				placeholder.replaceWith(cached);
+				if (target === null) { // If placeholder is the first element, the iterator apparently gets stuck and needs to restart
+					iterator = restartIterator();
+				}
+				target = iterator.nextNode();
 				continue;
 
 			} else if (tagName === `HOST`) {
@@ -403,6 +408,7 @@ export class Component extends HTMLElement {
 				setAttributes(parent, updatedAttributes);
 				target = iterator.previousNode();
 				updated.replaceWith(...updated.childNodes);
+				target = iterator.nextNode();
 				continue;
 			}
 
