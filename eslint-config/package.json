@@ -8,5 +8,5 @@
 	"main": "index.js",
 	"name": "@robertakarobin/eslint-config",
 	"scripts": {},
-	"version": "0.0.17"
+	"version": "0.0.18"
 }

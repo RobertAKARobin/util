@@ -76,6 +76,7 @@ module.exports = {
 				'@typescript-eslint/no-unsafe-member-access': `warn`,
 				'@typescript-eslint/no-unused-vars': [`warn`, {
 					argsIgnorePattern: `^_`,
+					destructuredArrayIgnorePattern: `^_`,
 				}],
 				'@typescript-eslint/object-curly-spacing': [`error`, `always`],
 				'@typescript-eslint/restrict-template-expressions': `off`,
