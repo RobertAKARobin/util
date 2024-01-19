@@ -14,7 +14,6 @@ import { hasExtension } from '@robertakarobin/util/router.ts';
 import { promiseConsecutive } from '@robertakarobin/util/promiseConsecutive.ts';
 
 import type { BaseApp } from './app.ts';
-import type { Page } from './component.ts';
 
 const bustCache = (pathname: string) => {
 	const url = new URL(`file:///${pathname}?v=${Date.now() + performance.now()}`); // URL is necessary for running on Windows
@@ -228,11 +227,16 @@ export class Builder {
 				fs.writeFileSync(routeCssAbs, routeCss);
 			}
 
-			const pageCompilePath = compilePathsByExportName[page.Ctor.name];
-			document.head.innerHTML = this.formatHead(page, {
-				pageCompilePath,
+			document.head.innerHTML = this.formatHead({
+				baseUri: this.baseUri,
+				browserScriptPath: this.browserServeFileRel,
+				cacheBuster: this.cacheBuster,
+				mainCssPath: this.styleServeFileRel,
 				routeCss,
 				routeCssPath,
+				title: document.title,
+				viewCompilePath: compilePathsByExportName[page.Ctor.name],
+				viewCtorName: page.Ctor.name,
 			});
 
 			const html = await this.formatHtml(`<!DOCTYPE html>` + document.documentElement.outerHTML);
@@ -323,33 +327,51 @@ export class Builder {
 		return css;
 	}
 
-	formatHead(page: Page, meta: Partial<{
+	formatHead(input: Partial<{
+		baseUri: string;
+		browserScriptPath: string;
+		cacheBuster: string;
 		description: string;
-		pageCompilePath: string;
+		mainCssPath: string;
 		routeCss: string;
 		routeCssPath: string;
+		title: string;
+		viewCompilePath: string;
+		viewCtorName: string;
 	}> = {}) {
 		return /*html*/`
-		<meta name="description" content="${meta.description ?? document.title}">
+		<meta name="description" content="${input.description ?? input.title ?? ``}">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
-		<title>${document.title}</title>
-		<base href="${this.baseUri}">
+		${typeof input.title === `string`
+			? /*html*/`<title>${input.title}</title>`
+			: ``
+		}
 
-		${typeof this.browserServeFileRel === `string` ? /*html*/`
-			<script src="${path.join(`/`, this.browserServeFileRel)}${this.cacheBuster}" type="module"></script>
-		` : ``}
+		${typeof input.baseUri === `string`
+			? /*html*/`<base href="${input.baseUri}">`
+			: ``
+		}
 
-		${typeof this.styleServeFileRel === `string` ? /*html*/`
-			<link rel="stylesheet" href="${path.join(`/`, this.styleServeFileRel)}${this.cacheBuster}">
-		` : ``}
+		${typeof input.browserScriptPath === `string`
+			? /*html*/`<script src="${path.join(`/`, input.browserScriptPath)}${input.cacheBuster ?? ``}" type="module"></script>`
+			: ``
+		}
 
-		${typeof meta.routeCss === `string` && meta.routeCss.length > 0 ? /*html*/`
-			<link rel="stylesheet" href="${path.join(`/`, meta.routeCssPath!)}${this.cacheBuster}">
-		` : ``}
+		${typeof input.mainCssPath === `string`
+			? /*html*/`<link rel="stylesheet" href="${path.join(`/`, input.mainCssPath)}${input.cacheBuster ?? ``}">`
+			: ``}
 
-		<script type="module">import { ${page.Ctor.name} } from '${path.join(`/`, meta.pageCompilePath!)}';</script>
+		${typeof input.routeCssPath === `string` && typeof input.routeCss === `string` && input.routeCss.length > 0
+			? /*html*/`<link rel="stylesheet" href="${path.join(`/`, input.routeCssPath)}${input.cacheBuster ?? ``}">`
+			: ``
+		}
+
+		${typeof input.viewCtorName === `string` && typeof input.viewCompilePath === `string`
+			? /*html*/`<script type="module">import { ${input.viewCtorName} } from '${path.join(`/`, input.viewCompilePath)}';</script>`
+			: ``
+		}
 
 		${Array.from(document.querySelectorAll(`style`)).map(style => style.outerHTML).join(``)}
 		`;
