@@ -85,46 +85,75 @@ export const spec = suite(`@robertakarobin/web`,
 		$.assert(x => x(widget.render({ force: true }).outerHTML) === `<h1 is="l-widget" prop="42">42</h1>`);
 
 		$.assert(x => x(new Widget().set({ prop: 43 }).getAttribute(`prop`)) === `43`);
+	}),
 
-		widget = new Widget();
+	test(`rendering`, $ => {
+		const widget = new Widget();
+
+		let count = 0;
 		const set = (input: {
 			message: number;
 			render?: RenderMode;
 		}) => {
-			widget.template = () =>  `<a id="ID" ${typeof input.render === `string` ? Component.renderMode(input.render) : ``}message="${widget.message}">${widget.message}</a>`;
+			widget.template = function() {
+				return /*html*/`${count++}<a id="ID" ${typeof input.render === `string` ? Component.renderMode(input.render) : ``}message="${widget.message}">${widget.message}</a>`;
+			};
 			widget.set({ message: input.message }).render();
 		};
 		const a = () => widget.querySelector(`a`)!;
 
 		$.log(() => set({ message: 1 }));
+		$.assert(x => x(a().hasAttribute(Component.const.attrRender)) === false);
 		$.assert(x => x(a().getAttribute(`message`)) === `1`);
 		$.assert(x => x(a().textContent) === `1`);
 
 		$.log(() => set({ message: 2, render: `static` }));
+		$.assert(x => x(a().hasAttribute(Component.const.attrRender)) === false);
 		$.assert(x => x(a().getAttribute(`message`)) === `1`);
 		$.assert(x => x(a().textContent) === `1`);
 
 		$.log(() => set({ message: 3, render: `attr` }));
+		$.assert(x => x(a().getAttribute(Component.const.attrRender)) === `attr`);
 		$.assert(x => x(a().getAttribute(`message`)) === `3`);
 		$.assert(x => x(a().textContent) === `1`);
 
 		$.log(() => set({ message: 4, render: `inner` }));
+		$.assert(x => x(a().getAttribute(Component.const.attrRender)) === `attr`);
 		$.assert(x => x(a().getAttribute(`message`)) === `3`);
 		$.assert(x => x(a().textContent) === `4`);
 
 		$.log(() => set({ message: 5, render: `outer` }));
+		$.assert(x => x(a().getAttribute(Component.const.attrRender)) === `outer`);
 		$.assert(x => x(a().getAttribute(`message`)) === `5`);
 		$.assert(x => x(a().textContent) === `5`);
 
 		$.log(() => set({ message: 6, render: `el` }));
+		$.assert(x => x(a().getAttribute(Component.const.attrRender)) === `el`);
 		$.assert(x => x(a().getAttribute(`message`)) === `6`);
 		$.assert(x => x(a().textContent) === `6`);
 
 		$.log(() => set({ message: 7 }));
+		$.assert(x => x(a().getAttribute(Component.const.attrRender)) === `el`);
 		$.assert(x => x(a().getAttribute(`message`)) === `7`);
 		$.assert(x => x(a().textContent) === `7`);
 
-		widget = new Widget();
+		widget.template = function() {
+			return /*html*/`<i id="div1">${this.prop}</i><i id="div2">${this.prop}</i>`;
+		};
+
+		$.log(() => widget.set({ prop: 1 }).render({ force: true }));
+		$.assert(x => x(widget.innerHTML) === `<i id="div1">1</i><i id="div2">1</i>`);
+
+		$.log(() => widget.set({ prop: 2 }).render());
+		$.assert(x => x(widget.innerHTML) === `<i id="div1">2</i><i id="div2">2</i>`);
+
+		$.log(() => widget.set({ prop: 3 }).render({ rootSelector: `#div2` }));
+		$.assert(x => x(widget.innerHTML) === `<i id="div1">2</i><i id="div2">3</i>`);
+	}),
+
+	test(`<host>`, $ => {
+		const widget = new Widget();
+
 		$.log(() => widget.template = () => `<host title="foo">${widget.content ?? ``}</host>`);
 		widget.render();
 		$.assert(x => x(widget.getAttribute(`title`)) === `foo`);

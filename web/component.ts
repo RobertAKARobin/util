@@ -367,12 +367,23 @@ export class Component extends HTMLElement {
 	/**
 	 * Makes the component replace its contents with newly-rendered contents
 	 */
-	render(input: Partial<{ force: boolean; }> = {}) {
+	render(input: Partial<{
+		force: boolean;
+		rootSelector: string;
+	}> = {}) {
 		const template = document.createElement(`template`);
 		template.innerHTML = this.template();
 
+		const templateRoot = input.rootSelector !== undefined
+			?	template.content.querySelector(input.rootSelector) as Node
+			: template.content as Node;
+
+		const targetRoot = input.rootSelector !== undefined
+			? this.querySelector(input.rootSelector) as HTMLElement
+			: this as HTMLElement;
+
 		const restartIterator = () => document.createTreeWalker(
-			template.content,
+			templateRoot,
 			NodeFilter.SHOW_ELEMENT,
 			() => NodeFilter.FILTER_ACCEPT,
 		);
@@ -400,7 +411,7 @@ export class Component extends HTMLElement {
 				continue;
 
 			} else if (tagName === `HOST`) {
-				const parent = updated.parentElement! ?? this;
+				const parent = updated.parentElement! ?? targetRoot;
 				const updatedAttributes = {
 					...getAttributes(parent),
 					...getAttributes(updated),
@@ -416,17 +427,17 @@ export class Component extends HTMLElement {
 		}
 
 		if (!this.isRendered || input?.force === true) {
-			this.replaceChildren(...template.content.childNodes);
+			targetRoot.replaceChildren(...template.content.childNodes);
 			this.isRendered = true;
 			return this;
 		}
 
 		iterator = document.createTreeWalker(
-			this,
+			targetRoot,
 			NodeFilter.SHOW_ELEMENT,
 			() => NodeFilter.FILTER_ACCEPT,
 		);
-		target = iterator.nextNode();
+		target = targetRoot;
 		while (true) {
 			if (target === null) {
 				break;
