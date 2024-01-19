@@ -427,7 +427,7 @@ export class Component extends HTMLElement {
 		}
 
 		if (!this.isRendered || input?.force === true) {
-			targetRoot.replaceChildren(...template.content.childNodes);
+			targetRoot.replaceChildren(...templateRoot.childNodes);
 			this.isRendered = true;
 			return this;
 		}
