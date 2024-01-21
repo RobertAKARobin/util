@@ -52,7 +52,7 @@ export class Router<Routes extends RouteMap = Record<string, never>> extends Emi
 					url.pathname += `/`;
 				}
 			}
-			this.paths[routeName] = `${url.pathname}${url.hash}`;
+			this.paths[routeName] = `${url.pathname}${url.hash}${url.search}`;
 		}
 	}
 
@@ -61,9 +61,16 @@ export class Router<Routes extends RouteMap = Record<string, never>> extends Emi
 	}
 
 	findRouteName(route: URL | string) {
-		const currentRoute = route instanceof URL ? route.toString() : route;
+		const url = route instanceof URL
+			? route
+			: route.match(/^https?:/)
+				? new URL(route)
+				: undefined;
+		const currentRoute = url === undefined
+			? route
+			: `${url.pathname}${url.hash}${url.search}`;
 		for (const routeName in this.urls) {
-			const route = this.urls[routeName].toString();
+			const route = this.paths[routeName];
 			if (route === currentRoute || route === `${currentRoute}/`) {
 				return routeName;
 			}
@@ -171,36 +178,38 @@ export class Resolver<View> extends Emitter<View> {
 	) {
 		super();
 
-		router.subscribe(async(to, { previous }) => {
-			if (to.href === previous?.href) { // On no change
-				return;
+		router.subscribe((...args) => this.onPage(...args));
+	}
+
+	async onPage(to: URL, { previous }: { previous: URL; }) {
+		if (to.href === previous?.href) { // On no change
+			return;
+		}
+
+		if (to.pathname !== previous?.pathname) { // On new page
+			if (previous !== undefined) {
+				window.history.pushState({}, ``, `${to.pathname}${to.search}`);
 			}
 
-			if (to.pathname !== previous?.pathname) { // On new page
-				if (previous !== undefined) {
-					window.history.pushState({}, ``, `${to.pathname}${to.search}`);
-				}
+			this.set(await this.resolve(to, previous));
 
-				this.set(await this.resolve(to, previous));
-
-				if (to.hash.length > 0) {
-					location.hash = to.hash;
-				}
-
-				return;
-			}
-
-			if (to.origin !== baseUrl.origin && to.origin !== defaultBaseUrl.origin) { // On external
-				location.href = to.href;
-				return;
-			}
-
-			if (to.hash !== previous?.hash) { // On same page with new hash
+			if (to.hash.length > 0) {
 				location.hash = to.hash;
-				if (to.hash?.length === 0) {
-					window.history.replaceState({}, ``, to.pathname); // Turns out `location.hash = ''` will still set a hash of `#`. So, if going from a path with hash to path without hash, we'll need to handle the hash differently
-				}
 			}
-		});
+
+			return;
+		}
+
+		if (to.origin !== baseUrl.origin && to.origin !== defaultBaseUrl.origin) { // On external
+			location.href = to.href;
+			return;
+		}
+
+		if (to.hash !== previous?.hash) { // On same page with new hash
+			location.hash = to.hash;
+			if (to.hash?.length === 0) {
+				window.history.replaceState({}, ``, to.pathname); // Turns out `location.hash = ''` will still set a hash of `#`. So, if going from a path with hash to path without hash, we'll need to handle the hash differently
+			}
+		}
 	}
 }

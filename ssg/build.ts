@@ -8,12 +8,13 @@ import { marked } from 'marked';
 import path from 'path';
 
 import type * as $ from '@robertakarobin/util/types.js';
+import { hasExtension, Resolver } from '@robertakarobin/util/router.ts';
 import { stringMates, type TagResult } from '@robertakarobin/util/string-mates.ts';
 import { baseUrl } from '@robertakarobin/util/context.ts';
-import { hasExtension } from '@robertakarobin/util/router.ts';
 import { promiseConsecutive } from '@robertakarobin/util/promiseConsecutive.ts';
 
 import type { BaseApp } from '@robertakarobin/util/components/app.ts';
+import type { Page } from '@robertakarobin/util/component.ts';
 
 const bustCache = (pathname: string) => {
 	const url = new URL(`file:///${pathname}?v=${Date.now() + performance.now()}`); // URL is necessary for running on Windows
@@ -31,6 +32,10 @@ const logBreak = () => console.log(``);
 const trimNewlines = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
 
 const compilePathsByExportName = {} as Record<string, string>;
+
+Resolver.prototype.onPage = async function(to: URL, { previous }: { previous: URL; }) {
+	this.set(await this.resolve(to, previous));
+};
 
 export class Builder {
 	readonly appSrcFileAbs: string;
@@ -190,8 +195,10 @@ export class Builder {
 				return;
 			}
 
-			const page = await resolver.resolve(route);
-			resolver.set(page);
+			const page = await new Promise<Page>(resolve => {
+				resolver.subscribe(resolve);
+				router.set(route);
+			});
 
 			builtRoutes.add(serveFileRel);
 
