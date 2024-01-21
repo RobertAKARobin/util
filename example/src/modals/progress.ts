@@ -1,6 +1,6 @@
-import { Component } from '@robertakarobin/web/component.ts';
-import { ModalContainer } from '@robertakarobin/web/components/modal-container.ts';
-import { ProgressCircle } from '@robertakarobin/web/components/progress-circle.ts';
+import { Component } from '@robertakarobin/util/component.ts';
+import { ModalContainer } from '@robertakarobin/util/components/modal-container.ts';
+import { ProgressCircle } from '@robertakarobin/util/components/progress-circle.ts';
 import { repaint } from '@robertakarobin/util/repaint.ts';
 
 const style = /*css*/`

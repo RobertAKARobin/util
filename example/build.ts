@@ -1,6 +1,6 @@
 import { execSync } from 'child_process';
 
-import { Builder } from '@robertakarobin/web/build.ts';
+import { Builder } from '@robertakarobin/ssg/build.ts';
 
 class CustomBuilder extends Builder {
 	cleanup() {

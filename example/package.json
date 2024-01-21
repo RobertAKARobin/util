@@ -1,7 +1,7 @@
 {
 	"dependencies": {
-		"@robertakarobin/util": "file:../",
-		"@robertakarobin/web": "file:../web"
+		"@robertakarobin/ssg": "file:../ssg",
+		"@robertakarobin/util": "file:../"
 	},
 	"devDependencies": {
 		"@robertakarobin/csslint": "file:../csslint",

@@ -1,6 +1,5 @@
-import { Transition } from '@robertakarobin/util/transition.ts';
-
 import { Component } from '../component.ts';
+import { Transition } from '../transition.ts';
 
 @Component.define()
 export class ModalContainer extends Component.custom(`div`) {

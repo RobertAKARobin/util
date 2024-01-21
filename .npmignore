@@ -3,5 +3,5 @@ eslint-config
 eslint-config-ts
 example
 htmlvalidate
-web
+ssg
 *.spec.ts

@@ -1,4 +1,4 @@
-import { Component, Page } from '@robertakarobin/web/component.ts';
+import { Component, Page } from '@robertakarobin/util/component.ts';
 import { appContext } from '@robertakarobin/util/context.ts';
 
 import { List } from '@src/components/list.ts';

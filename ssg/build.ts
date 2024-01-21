@@ -7,13 +7,13 @@ import jsBeautify from 'js-beautify';
 import { marked } from 'marked';
 import path from 'path';
 
-import type * as $ from '@robertakarobin/util/types.d.ts';
+import type * as $ from '@robertakarobin/util/types.js';
 import { stringMates, type TagResult } from '@robertakarobin/util/string-mates.ts';
 import { baseUrl } from '@robertakarobin/util/context.ts';
 import { hasExtension } from '@robertakarobin/util/router.ts';
 import { promiseConsecutive } from '@robertakarobin/util/promiseConsecutive.ts';
 
-import type { BaseApp } from './app.ts';
+import type { BaseApp } from '@robertakarobin/util/components/app.ts';
 
 const bustCache = (pathname: string) => {
 	const url = new URL(`file:///${pathname}?v=${Date.now() + performance.now()}`); // URL is necessary for running on Windows

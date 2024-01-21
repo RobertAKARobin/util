@@ -1,10 +1,9 @@
-import '@robertakarobin/web/dummydom.ts';
+import '@robertakarobin/ssg/dummydom.ts';
 
+import { Component, type RenderMode } from '@robertakarobin/util/component.ts';
 import { suite, test } from '@robertakarobin/util/spec/index.ts';
 import { diff } from '@robertakarobin/util/spec/diff.ts';
 import { EntityStateEmitter } from '@robertakarobin/util/entities.ts';
-
-import { Component, type RenderMode } from '@robertakarobin/web/component.ts';
 
 import fs from 'fs';
 

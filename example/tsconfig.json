@@ -12,7 +12,8 @@
 	],
 	"include": [
 		"../*.ts",
-		"../web/**/*.ts",
+		"../components/*.ts",
+		"../ssg/*.ts",
 		"build.ts",
 		"spec/**/*.ts",
 		"src/**/*.ts",

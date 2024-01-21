@@ -1,6 +1,6 @@
-import { BaseApp, Resolver, Router } from '@robertakarobin/web/app.ts';
-import { Component } from '@robertakarobin/web/component.ts';
-import { ModalContainer } from '@robertakarobin/web/components/modal-container.ts';
+import { BaseApp, Resolver, Router } from '@robertakarobin/util/components/app.ts';
+import { Component } from '@robertakarobin/util/component.ts';
+import { ModalContainer } from '@robertakarobin/util/components/modal-container.ts';
 
 import { Nav } from '@src/components/nav.ts';
 

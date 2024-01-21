@@ -1,5 +1,5 @@
 import { $transitionStateAttr, transitionStatus } from '@robertakarobin/util/transition.ts';
-import { ModalContainer } from '@robertakarobin/web/components/modal-container.ts';
+import { ModalContainer } from '@robertakarobin/util/components/modal-container.ts';
 
 import { bp, theme, types } from '@src/theme.ts';
 

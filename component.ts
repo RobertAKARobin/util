@@ -3,11 +3,11 @@ import {
 	type ElAttributes,
 	getAttributes,
 	setAttributes,
-} from '@robertakarobin/util/attributes.ts';
-import { enumy } from '@robertakarobin/util/enumy.ts';
-import { newUid } from '@robertakarobin/util/uid.ts';
-import { serialize } from '@robertakarobin/util/serialize.ts';
-import type { Textish } from '@robertakarobin/util/types.d.ts';
+} from './attributes.ts';
+import { enumy } from './enumy.ts';
+import { newUid } from './uid.ts';
+import { serialize } from './serialize.ts';
+import type { Textish } from './types.d.ts';
 
 type Constructor<Classtype> = new (...args: any) => Classtype; // eslint-disable-line @typescript-eslint/no-explicit-any
 

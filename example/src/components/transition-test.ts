@@ -1,4 +1,4 @@
-import { Component } from '@robertakarobin/web/component.ts';
+import { Component } from '@robertakarobin/util/component.ts';
 
 const style = /*css*/`
 :host {
