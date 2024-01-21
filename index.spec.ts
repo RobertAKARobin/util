@@ -1,4 +1,4 @@
-import { print, suite } from './spec/index.ts';
+import { run, suite } from './spec/index.ts';
 
 export const spec = suite(`@robertakarobin/js`, {},
 	(await import(`./spec/index.spec.ts`)).spec,
@@ -12,4 +12,4 @@ export const spec = suite(`@robertakarobin/js`, {},
 	(await import(`./template.spec.ts`)).spec,
 );
 
-print(await spec({}));
+run(await spec({}));
