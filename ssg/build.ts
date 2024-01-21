@@ -10,11 +10,10 @@ import path from 'path';
 import type * as $ from '@robertakarobin/util/types.js';
 import { hasExtension, Resolver } from '@robertakarobin/util/router.ts';
 import { stringMates, type TagResult } from '@robertakarobin/util/string-mates.ts';
-import { baseUrl } from '@robertakarobin/util/context.ts';
-import { promiseConsecutive } from '@robertakarobin/util/promiseConsecutive.ts';
-
 import type { BaseApp } from '@robertakarobin/util/components/app.ts';
+import { baseUrl } from '@robertakarobin/util/context.ts';
 import type { Page } from '@robertakarobin/util/component.ts';
+import { promiseConsecutive } from '@robertakarobin/util/promiseConsecutive.ts';
 
 const bustCache = (pathname: string) => {
 	const url = new URL(`file:///${pathname}?v=${Date.now() + performance.now()}`); // URL is necessary for running on Windows
