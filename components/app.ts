@@ -32,18 +32,22 @@ export abstract class BaseApp<
 
 		await Promise.all(componentsLoaded);
 
-		this.resolver
-			.subscribe((newPage, { previous }) => {
-				if (newPage !== previous) {
-					this.page = newPage;
-					document.title = this.page.pageTitle;
-					this.render({ force: true });
-				}
-			});
+		this.resolver.subscribe((newPage, { previous }) => {
+			this.onPage(newPage, previous);
+		});
 
 		if (appContext === `browser`) {
 			this.resolver.set(this.findDown(Page));
 		}
+	}
+
+	onPage(newPage: Page, previous: Page) {
+		if (newPage === previous) {
+			return;
+		}
+		this.page = newPage;
+		document.title = this.page.pageTitle;
+		this.render({ force: true });
 	}
 
 	// TODO2: Move formatHead from build to here
