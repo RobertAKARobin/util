@@ -375,7 +375,7 @@ export class Component extends HTMLElement {
 		template.innerHTML = this.template();
 
 		const templateRoot = input.rootSelector !== undefined
-			?	template.content.querySelector(input.rootSelector) as Node
+			? template.content.querySelector(input.rootSelector) as Node
 			: template.content as Node;
 
 		const targetRoot = input.rootSelector !== undefined
