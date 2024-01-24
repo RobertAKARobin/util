@@ -111,20 +111,15 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ## TODO
 
--	Don't use `[on]` attributes?
--	isHydrated
+-	TODO2: Don't use `[on]` attributes?
 
--	CSS class mapping
--	Declare CSS variables inline
--	Import from other file (ergo SVG)
+-	TODO3: CSS class mapping
+-	TODO3: Declare CSS variables inline
+-	TODO2: Import from other file (ergo SVG)
 
--	Match routes with params
--	Remove CSS from JS bundles
--	Image preprocessing
-
--	Autocomplete CSS classes
--	VS plugin for CSS
--	VS plugin for HTML
+-	TODO2: Match routes with params
+-	TODO3: Remove CSS from JS bundles
+-	TODO2: Image preprocessing
 
 ### Done:
 

@@ -56,21 +56,21 @@ Assertion | Execution | 1 per test | - | No
 
 ## TODO
 
--	Can log from within args
--	Exit with proper exit code
--	Shuffle
--	Catch errors?
--	Print as you go
--	Deferred tests
--	Make `suite()` support no options
--	Add caching, e.g. for valueWrapMatcher
--	Suppress iteration details; assertions should not count toward total if in suppressed iteration (but failures should still override status)
--	Verify results are POJOs
--	Dollar sign as valueWrapper gets a `2` appended to it?
--	Add examples with more complex assertionhelper names
+-	TODO2: Can log from within args
+-	TODO2: Shuffle
+-	TODO2: Catch errors?
+-	TODO2: Print as you go
+-	TODO1: Deferred tests
+-	TODO2: Make `suite()` support no options
+-	TODO3: Add caching, e.g. for valueWrapMatcher
+-	TODO2: Suppress iteration details; assertions should not count toward total if in suppressed iteration (but failures should still override status)
+-	TODO3: Verify results are POJOs
+-	TODO2: Dollar sign as valueWrapper gets a `2` appended to it?
+-	TODO2: Add examples with more complex assertionhelper names
 
 ### Done
 
+-	Exit with proper exit code
 -	Async assertions
 -	Pass render options to `print` and `render`
 -	Bind `suite` and `test` in constructor
