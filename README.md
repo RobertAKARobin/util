@@ -82,11 +82,39 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 						-	Replace attributes
 						-	Replace children with updatedComponent.childNodes
 		-	renders and returns outerHTML
-			-	- Requires rendering the template twice, which would instantiate double the components
+			-	Requires rendering the template twice, which would instantiate double the components
 		-	returns outerHTML
 			-	On new component, has no content
 			-	On existing component, has outdated content
 			-	Then render template
+-	Layout
+	-	Set arbitrary flags on page that determine which outer components get turned on/off?
+		-	Gets messy if outer is complicated
+	-	Layout component instances
+		-	`pageInstace.layout = (new LayoutInstance() || existingLayoutInstance)`
+		-	`layout.template = () => this.page`
+-	Rerendering
+	-	Replace what?
+		-	Replace element
+			-	/default/
+			-	Descending to contents doesn't make sense
+		-	Replace element attributes + replace contents
+			-	outerHTML
+		-	Replace element attributes + evaluate contents
+			-	attributes
+		-	Replace element attributes
+			-	attributes-skip
+		-	Replace contents
+			-	innerHTML
+			-	Descending to contents doesn't make sense
+		-	Replace nothing + evaluate contents
+			-	static
+		-	Replace nothing
+			-	static-skip
+		-	...replace element + keep contents?
+			-	Is that useful?
+-	Components need a UID so that SSG pages have a way of differentiating between instances
+	-	...unless every instance is a new one?
 
 ### Existing frameworks
 
@@ -118,7 +146,10 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 -	TODO2: Import from other file (ergo SVG)
 
 -	TODO2: Match routes with params
+
 -	TODO3: Remove CSS from JS bundles
+-	TODO2: CSS minify
+-	TODO2: HTML minify
 -	TODO2: Image preprocessing
 
 ### Done:
@@ -162,8 +193,3 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 -	Bundle all components/pages together
 -	Markdown support
 -	Include CSS on fallback pages
-
-## Notes
-
--	Components need a UID so that SSG pages have a way of differentiating between instances
-	-	...unless every instance is a new one?
