@@ -15,18 +15,7 @@ import { baseUrl } from '@robertakarobin/util/context.ts';
 import type { Page } from '@robertakarobin/util/component.ts';
 import { promiseConsecutive } from '@robertakarobin/util/promiseConsecutive.ts';
 
-const bustCache = (pathname: string) => {
-	const url = new URL(`file:///${pathname}?v=${Date.now() + performance.now()}`); // URL is necessary for running on Windows
-	return import(url.toString());
-};
-
-const header = (input: string) => console.log(`...${input}...\n`);
-
 const local = (input: string) => path.relative(process.cwd(), input);
-
-const log = (...args: Array<string>) => console.log(args.join(`\n`));
-
-const logBreak = () => console.log(``);
 
 const trimNewlines = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
 
@@ -52,6 +41,7 @@ export class Builder {
 	}
 	esbuildOverride: Partial<esbuild.BuildOptions>;
 	readonly metaFileRel: string | undefined;
+	readonly quiet: boolean;
 	readonly serveDirAbs: string;
 	readonly srcDirAbs: string;
 	readonly srcRawDirAbs: string;
@@ -82,6 +72,7 @@ export class Builder {
 		browserSrcFileRel: string | undefined;
 		esbuild: Partial<esbuild.BuildOptions>;
 		metaFileRel: string;
+		quiet: boolean;
 		serveDirRel: string;
 		srcRawDirRel: string;
 		srcTmpDirRel: string;
@@ -89,6 +80,7 @@ export class Builder {
 		tsconfigFileRel: string;
 	}> = {}) {
 		this.esbuildOverride = input.esbuild ?? {};
+		this.quiet = input.quiet ?? false;
 
 		this.baseUri = input.baseUri ?? `/`;
 
@@ -141,7 +133,7 @@ export class Builder {
 	}
 
 	buildAssets(): void | Promise<void> {
-		header(`Building assets`);
+		this.logHeader(`Building assets`);
 		const assetsSrcDirRels = typeof this.assetsSrcDirRel === `string`
 			?	[this.assetsSrcDirRel]
 			:	this.assetsSrcDirRel;
@@ -149,15 +141,15 @@ export class Builder {
 			const assetsSrcDirAbs = path.join(this.baseDirAbs, assetsSrcDirRel);
 			const assetsServeDirAbs = path.join(this.serveDirAbs, assetsSrcDirRel);
 			if (fs.existsSync(assetsSrcDirAbs)) {
-				log(local(assetsServeDirAbs));
+				this.log(local(assetsServeDirAbs));
 				fs.cpSync(assetsSrcDirAbs, assetsServeDirAbs, { recursive: true });
 			}
 		}
-		logBreak();
+		this.logBreak();
 	}
 
 	async buildRoutes() {
-		header(`Building routes`);
+		this.logHeader(`Building routes`);
 
 		const { App } = await import(this.appSrcFileAbs) as { App: new() => BaseApp; };
 		const app = new App();
@@ -171,11 +163,11 @@ export class Builder {
 		const routes = router.routeNames.map(routeName => async() => {
 			const route = router.urls[routeName];
 
-			log(`${routeName.toString()}: ${router.paths[routeName]}`);
+			this.log(`${routeName.toString()}: ${router.paths[routeName]}`);
 
 			if (route.origin !== baseUrl.origin) {
-				console.log(`Route is external. Skipping...`);
-				logBreak();
+				this.log(`Route is external. Skipping...`);
+				this.logBreak();
 				return;
 			}
 
@@ -189,8 +181,8 @@ export class Builder {
 
 			const serveFileRel = url.pathname;
 			if (builtRoutes.has(serveFileRel)) {
-				console.log(`Route '${routeName}' matches already-built route. Skipping...`);
-				logBreak();
+				this.log(`Route '${routeName}' matches already-built route. Skipping...`);
+				this.logBreak();
 				return;
 			}
 
@@ -207,14 +199,14 @@ export class Builder {
 			// const pageCompilepath = compilePathsByExportName[page.Ctor.name];
 
 			if (!page.isSSG) {
-				console.warn(`Route '${routeName}' is not SSG. Skipping...`);
-				logBreak();
+				this.log(`Route '${routeName}' is not SSG. Skipping...`);
+				this.logBreak();
 				return;
 			}
 
 			if (page === undefined) {
-				console.warn(`Route '${routeName}' does not resolve to a page. Skipping...`);
-				logBreak();
+				this.log(`Route '${routeName}' does not resolve to a page. Skipping...`);
+				this.logBreak();
 				return;
 			}
 
@@ -229,7 +221,7 @@ export class Builder {
 				routeCss = await this.formatCss(routeCss);
 				routeCssPath = `${serveFileRel}.css`;
 				const routeCssAbs = path.join(this.serveDirAbs, routeCssPath);
-				log(local(routeCssAbs));
+				this.log(local(routeCssAbs));
 				fs.writeFileSync(routeCssAbs, routeCss);
 			}
 
@@ -247,9 +239,9 @@ export class Builder {
 
 			const html = await this.formatHtml(`<!DOCTYPE html>` + document.documentElement.outerHTML);
 
-			log(local(serveFileAbs));
+			this.log(local(serveFileAbs));
 			fs.writeFileSync(serveFileAbs, html);
-			logBreak();
+			this.logBreak();
 		});
 
 		await promiseConsecutive(routes);
@@ -259,9 +251,9 @@ export class Builder {
 		if (this.browserServeFileAbs === undefined) {
 			return;
 		}
-		header(`Bundling JS`);
-		log(local(this.browserServeFileAbs));
-		logBreak();
+		this.logHeader(`Bundling JS`);
+		this.log(local(this.browserServeFileAbs));
+		this.logBreak();
 
 		const buildOptions: esbuild.BuildOptions = {
 			absWorkingDir: this.serveDirAbs,
@@ -283,10 +275,10 @@ export class Builder {
 		;
 		if (this.metaFileRel !== undefined) {
 			const metaFileAbs = path.join(this.serveDirAbs, this.metaFileRel);
-			header(`Outputting metafile`);
-			log(local(metaFileAbs));
+			this.logHeader(`Outputting metafile`);
+			this.log(local(metaFileAbs));
 			fs.writeFileSync(metaFileAbs, JSON.stringify(buildResults.metafile));
-			logBreak();
+			this.logBreak();
 		}
 		for (const filepath in buildResults.metafile!.outputs) {
 			const output = buildResults.metafile!.outputs[filepath];
@@ -297,27 +289,32 @@ export class Builder {
 	}
 
 	async buildStyles() {
-		header(`Building root styles`);
-		let styles = (await bustCache(this.stylesSrcFileAbs)).default as string; // eslint-disable-line @typescript-eslint/no-unsafe-member-access
+		this.logHeader(`Building root styles`);
+		let styles = (await this.bustCache(this.stylesSrcFileAbs)).default as string; // eslint-disable-line @typescript-eslint/no-unsafe-member-access
 		styles = await this.formatCss(styles);
-		log(local(this.stylesServeFileAbs));
+		this.log(local(this.stylesServeFileAbs));
 		fs.writeFileSync(this.stylesServeFileAbs, styles);
-		logBreak();
+		this.logBreak();
 	}
 
 	async buildTSSource() {
-		header(`Formatting TS source files`);
+		this.logHeader(`Formatting TS source files`);
 		const tsSrcsAbs = await glob(`${this.srcDirAbs}/**/*.ts`, { absolute: true });
 		for (const tsSrcAbs of tsSrcsAbs) {
 			const tsSrc = fs.readFileSync(tsSrcAbs, { encoding: `utf8` });
 			const tsSrcModified = await this.formatTSSource(tsSrc);
 			if (tsSrc !== tsSrcModified) {
-				log(local(tsSrcAbs));
+				this.log(local(tsSrcAbs));
 			}
 			fs.writeFileSync(tsSrcAbs, tsSrcModified);
 		}
-		logBreak();
+		this.logBreak();
 	}
+
+	bustCache(pathname: string) {
+		const url = new URL(`file:///${pathname}?v=${Date.now() + performance.now()}`); // URL is necessary for running on Windows
+		return import(url.toString());
+	};
 
 	cleanup(): void | Promise<void> {}
 
@@ -429,6 +426,24 @@ export class Builder {
 		return this.formatMarkdown(input);
 	}
 
+	log(...args: Array<string>) {
+		if (!this.quiet) {
+			console.log(args.join(`\n`));
+		}
+	}
+
+	logBreak() {
+		if (!this.quiet) {
+			console.log(``);
+		}
+	}
+
+	logHeader(input: string) {
+		if (!this.quiet) {
+			console.log(`...${input}...\n`);
+		}
+	}
+
 	serve(options: (esbuild.ServeOptions) = {}) {
 		const port = isNaN(options.port as number) ? 3000 : options.port;
 		const retryPort = () => esbuild.context({}).then(context => {
@@ -436,9 +451,9 @@ export class Builder {
 				port,
 				servedir: this.serveDirAbs,
 			}).then(() => {
-				header(`Serving`);
-				log(local(this.serveDirAbs), `http://localhost:${port}`);
-				logBreak();
+				this.logHeader(`Serving`);
+				this.log(local(this.serveDirAbs), `http://localhost:${port}`);
+				this.logBreak();
 			}).catch(() => {
 				void retryPort();
 			});
