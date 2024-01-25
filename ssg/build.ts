@@ -171,7 +171,7 @@ export class Builder {
 		const routes = router.routeNames.map(routeName => async() => {
 			const route = router.urls[routeName];
 
-			log(`${routeName.toString()}: ${route.pathname}`);
+			log(`${routeName.toString()}: ${router.paths[routeName]}`);
 
 			if (route.origin !== baseUrl.origin) {
 				console.log(`Route is external. Skipping...`);
