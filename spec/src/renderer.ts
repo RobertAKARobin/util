@@ -147,7 +147,7 @@ export class SpecRenderer<
 			let value = values.shift() as string;
 			const lines = value.split(`\n`);
 			const linePaddingWithIndent = `\n${linePadding} `;
-			if (lines.length > 1 || value.length > 40) {
+			if (lines.length > 1 || value.length > 20) {
 				value = linePaddingWithIndent + lines.join(linePaddingWithIndent) + `\n${linePadding}`;
 			}
 			return `(${value})`;
