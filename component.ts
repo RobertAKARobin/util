@@ -1,11 +1,8 @@
 import {
 	attributeValueIsEmpty,
 	type ElAttributes,
-	getAttributes,
 	mergeAttributes,
-	setAttributes,
 } from './attributes.ts';
-import { enumy } from './enumy.ts';
 import { newUid } from './uid.ts';
 import { serialize } from './serialize.ts';
 import type { Textish } from './types.d.ts';
@@ -21,24 +18,13 @@ type ComponentWithoutDecorators = Omit<typeof Component,
 	| `define`
 	| `event`
 	| `hydrate`
-	| `renderMode`
 >;
 
 const componentCache = new Map<string, WeakRef<Component>>();
 
-export type RenderMode = keyof typeof Component.const.renderMode;
-
 export class Component extends HTMLElement {
 	static readonly const = {
 		attrEl: `is`,
-		attrRender: `data-render`,
-		renderMode: enumy(
-			`static`,
-			`attr`,
-			`inner`,
-			`outer`,
-			`el`,
-		),
 		styleAttr: `data-style`,
 	} as const;
 	static readonly elName: string;
@@ -250,13 +236,6 @@ export class Component extends HTMLElement {
 		}
 	}
 
-	static renderMode(
-		renderMode: RenderMode,
-		ariaLive: `polite` | `assertive` | `off` | undefined = `polite`
-	) {
-		return `${Component.const.attrRender}="${renderMode}"${typeof ariaLive === `string` ? ` aria-live="polite"` : ``}`;
-	}
-
 	/**
 	 * Stores the component's textual content, if any, which can be inserted into the component's template
 	 */
@@ -277,8 +256,6 @@ export class Component extends HTMLElement {
 	 * Not a static variable because a Component/Page may/may not want to be SSG based on certain conditions
 	*/
 	readonly isSSG: boolean = true;
-
-	@Component.attribute({ name: Component.const.attrRender }) renderMode!: RenderMode;
 
 	constructor(id?: Component[`id`]) {
 		super();
@@ -415,77 +392,25 @@ export class Component extends HTMLElement {
 	/**
 	 * Makes the component replace its contents with newly-rendered contents
 	 */
-	render(input: Partial<{
-		force: boolean;
-		rootSelector: string;
-	}> = {}) {
+	render(rootSelector?: string) {
 		const template = document.createElement(`template`);
 		template.innerHTML = this.template();
 
-		if (input.rootSelector !== undefined) {
+		if (rootSelector !== undefined) {
 			template.content.replaceChildren(
-				template.content.querySelector(input.rootSelector)!
+				template.content.querySelector(rootSelector)!
 			);
 		}
 
 		Component.hydrate(template);
 
-		const targetRoot = input.rootSelector !== undefined
-			? this.querySelector(input.rootSelector) as HTMLElement
+		const targetRoot = rootSelector !== undefined
+			? this.querySelector(rootSelector) as HTMLElement
 			: this as HTMLElement;
 
 		mergeAttributes(targetRoot, template);
 
-		if (!this.isRendered || input?.force === true) {
-			targetRoot.replaceChildren(...template.content.childNodes);
-			this.isRendered = true;
-			return this;
-		}
-
-		const iterator = document.createTreeWalker(
-			targetRoot,
-			NodeFilter.SHOW_ELEMENT,
-			() => NodeFilter.FILTER_ACCEPT,
-		);
-		let target = targetRoot as Node | null;
-		while (true) {
-			if (target === null) {
-				break;
-			}
-
-			const existing = target as HTMLElement;
-
-			const id = existing.id;
-			if (id === ``) {
-				target = iterator.nextNode();
-				continue;
-			}
-
-			const updated = template.content.getElementById(id)!;
-			if (updated === null) {
-				target = iterator.nextNode();
-				continue;
-			}
-
-			const renderMode = updated.getAttribute(Component.const.attrRender) as RenderMode ?? `outer`;
-
-			if (renderMode === `attr`) {
-				setAttributes(existing, getAttributes(updated));
-				target = iterator.nextNode();
-			} else if (renderMode === `inner`) {
-				existing.replaceChildren(...updated.childNodes);
-				target = iterator.nextNode();
-			} else if (renderMode === `outer`) {
-				setAttributes(existing, getAttributes(updated));
-				existing.replaceChildren(...updated.childNodes);
-				target = iterator.nextNode();
-			} else if (renderMode === `el`) {
-				existing.replaceWith(updated);
-			} else {
-				target = iterator.nextSibling();
-			}
-		}
-
+		targetRoot.replaceChildren(...template.content.childNodes);
 		return this;
 	}
 

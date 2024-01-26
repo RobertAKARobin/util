@@ -47,7 +47,7 @@ export abstract class BaseApp<
 		}
 		this.page = newPage;
 		document.title = this.page.pageTitle;
-		this.render({ force: true });
+		this.render();
 	}
 
 	// TODO2: Move formatHead from build to here
