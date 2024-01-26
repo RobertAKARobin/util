@@ -10,6 +10,14 @@ export type ElAttributes<Subclass extends HTMLElement> =
 	style: string;
 };
 
+export function attributesToDict(target: HTMLElement) {
+	const attributes: Record<string, string> = {};
+	for (const attribute of target.attributes) {
+		attributes[attribute.name] = attribute.value;
+	}
+	return attributes;
+}
+
 export function attributeValueIsEmpty(value: unknown) {
 	return value === undefined
 		|| value === null
@@ -23,6 +31,26 @@ export function getAttributes(target: HTMLElement) {
 		attributes[attributeName] = target.getAttribute(attributeName);
 	}
 	return attributes as Partial<ElAttributes<typeof target>>;
+}
+
+export function mergeAttributes(target: HTMLElement, source: HTMLElement) {
+	for (const attribute of target.attributes) { // All this work keeps the attributes in more-or-less the same order, which has no impact on the page's performance, but does make things look more consistent and easier to test
+		const name = attribute.name;
+		if (source.hasAttribute(name)) {
+			const value = source.getAttribute(name);
+			if (attributeValueIsEmpty(value)) {
+				target.removeAttribute(attribute.name);
+			} else {
+				target.setAttribute(attribute.name, value!);
+			}
+			source.removeAttribute(name);
+		}
+	}
+	for (const attribute of source.attributes) {
+		const name = attribute.name;
+		const value = attribute.value;
+		target.setAttribute(name, value);
+	}
 }
 
 export function setAttributes<Subclass extends HTMLElement>(

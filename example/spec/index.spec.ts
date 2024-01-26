@@ -65,23 +65,23 @@ export const spec = suite(`@robertakarobin/web`,
 	test(`component`, $ => {
 		let widget: Widget;
 
-		$.assert(x => x(new Widget(`ID`).outerHTML) === `<h1 id="ID" is="l-widget" prop="42"></h1>`);
-		$.assert(x => x(new Widget().outerHTML) === `<h1 is="l-widget" prop="42"></h1>`);
-		$.assert(x => x(new Widget().set({ message: `x` }).outerHTML) === `<h1 is="l-widget" prop="42" message="x"></h1>`);
-		$.assert(x => x(new Widget().set({ message: `x` }).render().outerHTML) === `<h1 is="l-widget" prop="42" message="x">x42</h1>`);
+		$.assert(x => x(new Widget(`ID`).outerHTML) === x(`<h1 id="ID" is="l-widget" prop="42"></h1>`));
+		$.assert(x => x(new Widget().outerHTML) === x(`<h1 is="l-widget" prop="42"></h1>`));
+		$.assert(x => x(new Widget().set({ message: `x` }).outerHTML) === x(`<h1 is="l-widget" prop="42" message="x"></h1>`));
+		$.assert(x => x(new Widget().set({ message: `x` }).render().outerHTML) === x(`<h1 is="l-widget" prop="42" message="x">x42</h1>`));
 
 		$.log(() => widget = new Widget());
-		$.assert(x => x(widget.outerHTML) === `<h1 is="l-widget" prop="42"></h1>`);
+		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" prop="42"></h1>`));
 		$.assert(x => x(widget.innerHTML) === ``);
-		$.assert(x => x(widget.render().outerHTML) === `<h1 is="l-widget" prop="42">42</h1>`);
+		$.assert(x => x(widget.render().outerHTML) === x(`<h1 is="l-widget" prop="42">42</h1>`));
 		$.assert(x => x(widget.innerHTML) === `42`);
 
-		$.assert(x => x(widget.set({ message: `x` }).outerHTML) === `<h1 is="l-widget" prop="42" message="x">42</h1>`);
-		$.assert(x => x(widget.render({ force: true }).outerHTML) === `<h1 is="l-widget" prop="42" message="x">x42</h1>`);
+		$.assert(x => x(widget.set({ message: `x` }).outerHTML) === x(`<h1 is="l-widget" prop="42" message="x">42</h1>`));
+		$.assert(x => x(widget.render({ force: true }).outerHTML) === x(`<h1 is="l-widget" prop="42" message="x">x42</h1>`));
 		$.assert(x => x(widget.innerHTML) === `x42`);
 
-		$.assert(x => x(widget.set({ message: undefined }).outerHTML) === `<h1 is="l-widget" prop="42">x42</h1>`);
-		$.assert(x => x(widget.render({ force: true }).outerHTML) === `<h1 is="l-widget" prop="42">42</h1>`);
+		$.assert(x => x(widget.set({ message: undefined }).outerHTML) === x(`<h1 is="l-widget" prop="42">x42</h1>`));
+		$.assert(x => x(widget.render({ force: true }).outerHTML) === x(`<h1 is="l-widget" prop="42">42</h1>`));
 
 		$.assert(x => x(new Widget().set({ prop: 43 }).getAttribute(`prop`)) === `43`);
 	}),
@@ -141,24 +141,29 @@ export const spec = suite(`@robertakarobin/web`,
 		};
 
 		$.log(() => widget.set({ prop: 1 }).render({ force: true }));
-		$.assert(x => x(widget.innerHTML) === `<i id="div1">1</i><i id="div2">1</i>`);
+		$.assert(x => x(widget.innerHTML) === x(`<i id="div1">1</i><i id="div2">1</i>`));
 
 		$.log(() => widget.set({ prop: 2 }).render());
-		$.assert(x => x(widget.innerHTML) === `<i id="div1">2</i><i id="div2">2</i>`);
+		$.assert(x => x(widget.innerHTML) === x(`<i id="div1">2</i><i id="div2">2</i>`));
 
 		$.log(() => widget.set({ prop: 3 }).render({ rootSelector: `#div2` }));
-		$.assert(x => x(widget.innerHTML) === `<i id="div1">2</i><i id="div2">3</i>`);
+		$.assert(x => x(widget.innerHTML) === x(`<i id="div1">2</i><i id="div2">3</i>`));
 	}),
 
 	test(`<host>`, $ => {
 		const widget = new Widget();
 
 		$.log(() => widget.template = () => `<host title="foo">${widget.content ?? ``}</host>`);
-		widget.render();
+		widget.render({ force: true });
 		$.assert(x => x(widget.getAttribute(`title`)) === `foo`);
 
-		$.log(() => widget.template = () => `<host foo="red">${widget.content ?? ``}</host>`);
-		widget.render();
-		$.assert(x => x(widget.getAttribute(`foo`)) === `red`);
+		$.log(() => widget.template = () => `<host attr="aaa">${widget.content ?? ``}</host>`);
+		widget.render({ force: true });
+		$.assert(x => x(widget.getAttribute(`attr`)) === `aaa`);
+
+		$.log(() => widget.template = () => `<b><host attr="bbb">${widget.content ?? ``}</host></b>`);
+		widget.render({ force: true });
+		$.assert(x => x(widget.getAttribute(`attr`)) === `aaa`);
+		$.assert(x => x(widget.findDown(`b`).getAttribute(`attr`)) === `bbb`);
 	}),
 );

@@ -2,6 +2,7 @@ import {
 	attributeValueIsEmpty,
 	type ElAttributes,
 	getAttributes,
+	mergeAttributes,
 	setAttributes,
 } from './attributes.ts';
 import { enumy } from './enumy.ts';
@@ -19,6 +20,7 @@ type ComponentWithoutDecorators = Omit<typeof Component,
 	| `custom`
 	| `define`
 	| `event`
+	| `hydrate`
 	| `renderMode`
 >;
 
@@ -202,6 +204,52 @@ export class Component extends HTMLElement {
 		return [...root.querySelectorAll(selector)] as Array<Subclass>;
 	}
 
+	static hydrate(targetRoot: Node) {
+		const restartIterator = () => document.createTreeWalker(
+			targetRoot instanceof HTMLTemplateElement ? targetRoot.content : targetRoot,
+			NodeFilter.SHOW_ELEMENT,
+			() => NodeFilter.FILTER_ACCEPT,
+		);
+		let iterator = restartIterator();
+		let target = iterator.nextNode();
+		while (true) {
+			if (target === null) {
+				break;
+			}
+
+			if (!(target instanceof HTMLElement)) {
+				target = iterator.nextNode();
+				continue;
+			}
+
+			const tagName = target.tagName.toUpperCase();
+
+			if (tagName === `PLACEHOLDER`) {
+				const placeholder = target as HTMLUnknownElement;
+				const id = placeholder.id;
+				const cached = componentCache.get(id)!.deref()!;
+				componentCache.delete(id);
+				target = iterator.previousNode();
+				placeholder.replaceWith(cached);
+				if (target === null) { // If placeholder is the first element, the iterator apparently gets stuck and needs to restart
+					iterator = restartIterator();
+				}
+				target = iterator.nextNode();
+				continue;
+
+			} else if (tagName === `HOST`) {
+				const parent = target.parentElement! ?? targetRoot;
+				mergeAttributes(parent, target);
+				iterator.previousNode();
+				target.replaceWith(...target.childNodes);
+				target = iterator.nextNode();
+				continue;
+			}
+
+			target = iterator.nextNode();
+		}
+	}
+
 	static renderMode(
 		renderMode: RenderMode,
 		ariaLive: `polite` | `assertive` | `off` | undefined = `polite`
@@ -374,70 +422,32 @@ export class Component extends HTMLElement {
 		const template = document.createElement(`template`);
 		template.innerHTML = this.template();
 
-		const templateRoot = input.rootSelector !== undefined
-			? template.content.querySelector(input.rootSelector) as Node
-			: template.content as Node;
+		if (input.rootSelector !== undefined) {
+			template.content.replaceChildren(
+				template.content.querySelector(input.rootSelector)!
+			);
+		}
+
+		Component.hydrate(template);
 
 		const targetRoot = input.rootSelector !== undefined
 			? this.querySelector(input.rootSelector) as HTMLElement
 			: this as HTMLElement;
 
-		const restartIterator = () => document.createTreeWalker(
-			templateRoot,
-			NodeFilter.SHOW_ELEMENT,
-			() => NodeFilter.FILTER_ACCEPT,
-		);
-		let iterator = restartIterator();
-		let target = iterator.nextNode();
-		while (true) {
-			if (target === null) {
-				break;
-			}
-
-			const updated = target as HTMLElement;
-			const tagName = updated.tagName.toUpperCase();
-
-			if (tagName === `PLACEHOLDER`) {
-				const placeholder = updated as HTMLUnknownElement;
-				const id = placeholder.id;
-				const cached = componentCache.get(id)!.deref()!;
-				componentCache.delete(id);
-				target = iterator.previousNode();
-				placeholder.replaceWith(cached);
-				if (target === null) { // If placeholder is the first element, the iterator apparently gets stuck and needs to restart
-					iterator = restartIterator();
-				}
-				target = iterator.nextNode();
-				continue;
-
-			} else if (tagName === `HOST`) {
-				const parent = updated.parentElement! ?? targetRoot;
-				const updatedAttributes = {
-					...getAttributes(parent),
-					...getAttributes(updated),
-				} as Partial<ElAttributes<this>>;
-				setAttributes(parent, updatedAttributes);
-				target = iterator.previousNode();
-				updated.replaceWith(...updated.childNodes);
-				target = iterator.nextNode();
-				continue;
-			}
-
-			target = iterator.nextNode();
-		}
+		mergeAttributes(targetRoot, template);
 
 		if (!this.isRendered || input?.force === true) {
-			targetRoot.replaceChildren(...templateRoot.childNodes);
+			targetRoot.replaceChildren(...template.content.childNodes);
 			this.isRendered = true;
 			return this;
 		}
 
-		iterator = document.createTreeWalker(
+		const iterator = document.createTreeWalker(
 			targetRoot,
 			NodeFilter.SHOW_ELEMENT,
 			() => NodeFilter.FILTER_ACCEPT,
 		);
-		target = targetRoot;
+		let target = targetRoot as Node | null;
 		while (true) {
 			if (target === null) {
 				break;
