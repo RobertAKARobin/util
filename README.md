@@ -139,8 +139,11 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ## TODO
 
+-	TODO1: Add reducer functions
+
 -	TODO2: Don't use `[on]` attributes?
 
+-	TODO2: Style setter
 -	TODO3: CSS class mapping
 -	TODO3: Declare CSS variables inline
 -	TODO2: Import from other file (ergo SVG)
