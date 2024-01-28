@@ -5,8 +5,8 @@
 		"@robertakarobin/htmlvalidate": "file:./htmlvalidate",
 		"@types/diff": "^5.0.9",
 		"diff": "^5.1.0",
-		"husky": "^8.0.3",
-		"npm-check-updates": "^16.14.12",
+		"husky": "^9.0.6",
+		"npm-check-updates": "^16.14.14",
 		"tsx": "^4.7.0"
 	},
 	"name": "@robertakarobin/util",
@@ -23,5 +23,5 @@
 		"test": "npm run lint && npm run spec && npm run test --prefix example"
 	},
 	"type": "module",
-	"version": "0.0.269"
+	"version": "0.0.270"
 }

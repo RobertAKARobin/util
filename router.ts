@@ -1,4 +1,4 @@
-import { baseUrl, defaultBaseUrl } from './context.ts';
+import { appContext, baseUrl, defaultBaseUrl } from './context.ts';
 import { Emitter } from './emitter.ts';
 import { toAttributes } from './attributes.ts';
 
@@ -81,12 +81,12 @@ export class Router<Routes extends RouteMap = Record<string, never>> extends Emi
 	 * Sets up the router to listen for location changes and intercept click events that cause navigation
 	 */
 	init() {
-		window.onpopstate = () => { // Popstate is fired only by performing a browser action on the current document, e.g. back, forward, or hashchange
-			this.set(new URL(window.location.href));
+		globalThis.onpopstate = () => { // Popstate is fired only by performing a browser action on the current document, e.g. back, forward, or hashchange
+			this.set(new URL(globalThis.location.href));
 		};
 
-		window.onhashchange = () => { // Hashchange is fired _after_ popstate
-			this.set(new URL(window.location.href));
+		globalThis.onhashchange = () => { // Hashchange is fired _after_ popstate
+			this.set(new URL(globalThis.location.href));
 		};
 
 		document.addEventListener(`click`, event => {
@@ -187,8 +187,8 @@ export class Resolver<View> extends Emitter<View> {
 		}
 
 		if (to.pathname !== previous?.pathname) { // On new page
-			if (previous !== undefined) {
-				window.history.pushState({}, ``, `${to.pathname}${to.search}`);
+			if (previous !== undefined && appContext === `browser`) {
+				globalThis.history.pushState({}, ``, `${to.pathname}${to.search}`);
 			}
 
 			this.set(await this.resolve(to, previous));
@@ -208,7 +208,7 @@ export class Resolver<View> extends Emitter<View> {
 		if (to.hash !== previous?.hash) { // On same page with new hash
 			location.hash = to.hash;
 			if (to.hash?.length === 0) {
-				window.history.replaceState({}, ``, to.pathname); // Turns out `location.hash = ''` will still set a hash of `#`. So, if going from a path with hash to path without hash, we'll need to handle the hash differently
+				globalThis.history.replaceState({}, ``, to.pathname); // Turns out `location.hash = ''` will still set a hash of `#`. So, if going from a path with hash to path without hash, we'll need to handle the hash differently
 			}
 		}
 	}
