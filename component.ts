@@ -1,7 +1,7 @@
 import {
 	attributeValueIsEmpty,
 	type ElAttributes,
-	mergeAttributes,
+	setAttributes,
 } from './attributes.ts';
 import { newUid } from './uid.ts';
 import { serialize } from './serialize.ts';
@@ -225,7 +225,7 @@ export class Component extends HTMLElement {
 
 			} else if (tagName === `HOST`) {
 				const parent = target.parentElement! ?? targetRoot;
-				mergeAttributes(parent, target);
+				setAttributes(parent, target);
 				iterator.previousNode();
 				target.replaceWith(...target.childNodes);
 				target = iterator.nextNode();
@@ -408,7 +408,7 @@ export class Component extends HTMLElement {
 			? this.querySelector(rootSelector) as HTMLElement
 			: this as HTMLElement;
 
-		mergeAttributes(targetRoot, template);
+		setAttributes(targetRoot, template);
 
 		targetRoot.replaceChildren(...template.content.childNodes);
 		return this;
@@ -418,17 +418,7 @@ export class Component extends HTMLElement {
 	 * Sets multiple attributes or properties.
 	 */
 	set(attributes: Partial<ElAttributes<this>>) {
-		for (const attributeName in attributes) {
-			const attributeKey = attributeName as keyof ElAttributes<this>;
-
-			const value = attributes[attributeKey] as Textish;
-			if (attributeKey === `class`) {
-				this.setAttribute(`class`, value as string);
-			} else {
-      	this[attributeKey] = value as this[typeof attributeKey]; // This triggers the setter which removes empty attributes
-			}
-		}
-		return this;
+		return setAttributes(this, attributes);
 	}
 
 	/**

@@ -7,69 +7,44 @@ export type ElAttributes<Subclass extends HTMLElement> =
 	>
 	& {
 	class: string;
-	style: string;
+	style: Partial<CSSStyleDeclaration>;
 };
 
-export function attributesToDict(target: HTMLElement) {
+export const attributeValueIsEmpty = (value: unknown) =>
+	value === undefined
+	|| value === null
+	|| value === `undefined`
+	|| value === `null`;
+
+export function getAttributes(target: HTMLElement) {
 	const attributes: Record<string, string> = {};
 	for (const attribute of target.attributes) {
 		attributes[attribute.name] = attribute.value;
 	}
-	return attributes;
-}
-
-export function attributeValueIsEmpty(value: unknown) {
-	return value === undefined
-		|| value === null
-		|| value === `undefined`
-		|| value === `null`;
-}
-
-export function getAttributes(target: HTMLElement) {
-	const attributes = {} as Record<string, string | null>;
-	for (const attributeName of target.getAttributeNames()) {
-		attributes[attributeName] = target.getAttribute(attributeName);
-	}
 	return attributes as Partial<ElAttributes<typeof target>>;
-}
-
-export function mergeAttributes(target: HTMLElement, source: HTMLElement) {
-	for (const attribute of target.attributes) { // All this work keeps the attributes in more-or-less the same order, which has no impact on the page's performance, but does make things look more consistent and easier to test
-		const name = attribute.name;
-		if (source.hasAttribute(name)) {
-			const value = source.getAttribute(name);
-			if (attributeValueIsEmpty(value)) {
-				target.removeAttribute(attribute.name);
-			} else {
-				target.setAttribute(attribute.name, value!);
-			}
-			source.removeAttribute(name);
-		}
-	}
-	for (const attribute of source.attributes) {
-		const name = attribute.name;
-		const value = attribute.value;
-		target.setAttribute(name, value);
-	}
 }
 
 export function setAttributes<Subclass extends HTMLElement>(
 	target: Subclass,
-	attributes: Partial<ElAttributes<typeof target>>
+	source: HTMLElement | Partial<ElAttributes<typeof target>>
 ) {
-	for (const attribute of target.attributes) {
-		target.removeAttribute(attribute.name);
-	}
-	for (const attributeName in attributes) {
-		const attributeKey = attributeName as keyof ElAttributes<Subclass>;
-		const value = attributes[attributeKey] as Textish;
+	const updates = {
+		...source instanceof HTMLElement ? getAttributes(source) : source,
+	};
+	for (const attributeName in updates) {
+		const attributeKey = attributeName as keyof Subclass;
+		const value = updates[attributeName as keyof typeof updates];
 		if (attributeValueIsEmpty(value)) {
 			target.removeAttribute(attributeName);
+		} else if (attributeKey === `style`) {
+			const properties = value as unknown as CSSStyleDeclaration;
+			for (const propertyName in properties) {
+				target.style.setProperty(propertyName, properties[propertyName]);
+			}
+		} else if (attributeKey in target) {
+			target[attributeKey] = value as Subclass[typeof attributeKey];
 		} else {
-			target.setAttribute(
-				attributeName,
-				(value as Exclude<Textish, null | undefined>).toString()
-			);
+			target.setAttribute(attributeKey as string, value as string);
 		}
 	}
 	return target;
