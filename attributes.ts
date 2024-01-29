@@ -7,7 +7,7 @@ export type ElAttributes<Subclass extends HTMLElement> =
 	>
 	& {
 	class: string;
-	style: Partial<CSSStyleDeclaration>;
+	style: string;
 };
 
 export const attributeValueIsEmpty = (value: unknown) =>
@@ -34,24 +34,22 @@ export function setAttributes<Subclass extends HTMLElement>(
 	for (const attributeName in updates) {
 		const attributeKey = attributeName as keyof Subclass;
 		const value = updates[attributeName as keyof typeof updates];
+		if (attributeKey in target) {
+			target[attributeKey] = value as Subclass[typeof attributeKey];
+		}
 		if (attributeValueIsEmpty(value)) {
 			target.removeAttribute(attributeName);
-		} else if (attributeKey === `style`) {
-			if (typeof value === `string`) {
-				target.setAttribute(`style`, value);
-			} else {
-				const properties = value as unknown as CSSStyleDeclaration;
-				for (const propertyName in properties) {
-					target.style.setProperty(propertyName, properties[propertyName]);
-				}
-			}
-		} else if (attributeKey in target) {
-			target[attributeKey] = value as Subclass[typeof attributeKey];
-		} else {
+		} else if (!(attributeKey in target)) {
 			target.setAttribute(attributeKey as string, value as string);
 		}
 	}
 	return target;
+}
+
+export function style(target: HTMLElement, properties: Partial<CSSStyleDeclaration>) {
+	for (const propertyName in properties) {
+		target.style.setProperty(propertyName, properties[propertyName]!);
+	}
 }
 
 export function toAttributes(input: Record<string, Textish>) {

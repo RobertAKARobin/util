@@ -11,6 +11,16 @@ class Widget extends Component.custom(`h1`) {
 	template = () => `content:${this.content ?? ``}`;
 }
 
+@Component.define()
+class Parent extends Component.custom(`div`) {
+	@Component.attribute() widgetClass = undefined as undefined | string;
+	template = () => new Widget().set({
+		attr: undefined,
+		class: this.widgetClass,
+		dataAttr: undefined,
+	}).toString();
+}
+
 export const spec = suite(`Component`, {},
 	test(`contents`, $ => {
 		let widget: Widget;
@@ -54,15 +64,17 @@ export const spec = suite(`Component`, {},
 		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" attr="attrDefault" data-attr="dataAttrDefault"></h1>`));
 
 		$.assert(x => x(widget.style.color) === ``);
-		$.log(() => widget.set({ style: { color: `red` } }));
+		$.log(() => widget.css({ color: `red` }));
 		$.assert(x => x(widget.style.color) === `red`);
 		$.assert(x => x(widget.getAttribute(`style`)) === `color: red;`);
 		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" attr="attrDefault" data-attr="dataAttrDefault" style="${widget.getAttribute(`style`)}"></h1>`));
 		$.assert(x => x(widget.style.top) === ``);
-		$.log(() => widget.set({ style: { top: `1px` } }));
+		$.log(() => widget.css({ top: `1px` }));
 		$.assert(x => x(widget.style.top) === `1px`);
 		$.assert(x => x(widget.getAttribute(`style`)) === `color: red; top: 1px;`);
 		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" attr="attrDefault" data-attr="dataAttrDefault" style="${widget.getAttribute(`style`)}"></h1>`));
+		$.log(() => widget.set({ style: `color: green` }));
+		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" attr="attrDefault" data-attr="dataAttrDefault" style="color: green;"></h1>`));
 		$.log(() => widget.set({ style: undefined }));
 		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" attr="attrDefault" data-attr="dataAttrDefault"></h1>`));
 
@@ -106,5 +118,14 @@ export const spec = suite(`Component`, {},
 		widget.render();
 		$.assert(x => x(widget.getAttribute(`attr`)) === `attrDefault`);
 		$.assert(x => x(widget.findDown(`b`).getAttribute(`attr`)) === `bbb`);
+	}),
+
+	test(`nested`, $ => {
+		const parent = new Parent();
+
+		$.assert(x => x(parent.outerHTML) === x(`<div is="l-parent"></div>`));
+		$.log(() => parent.render());
+		$.assert(x => x(parent.outerHTML) === x(`<div is="l-parent"><h1 is="l-widget">content:</h1></div>`));
+		$.log(() => parent.widgetClass = `foo`);
 	}),
 );

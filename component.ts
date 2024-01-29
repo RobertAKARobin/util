@@ -2,6 +2,7 @@ import {
 	attributeValueIsEmpty,
 	type ElAttributes,
 	setAttributes,
+	style,
 } from './attributes.ts';
 import { newUid } from './uid.ts';
 import { serialize } from './serialize.ts';
@@ -302,6 +303,10 @@ export class Component extends HTMLElement {
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks
 	 */
 	connectedCallback() {}
+
+	css(input: Partial<CSSStyleDeclaration>) {
+		return style(this, input);
+	}
 
 	/**
 	 * Called when the component is detached from the DOM
