@@ -394,7 +394,7 @@ export class Component extends HTMLElement {
 
 		if (rootSelector !== undefined) {
 			template.content.replaceChildren(
-				template.content.querySelector(rootSelector)!
+				...template.content.querySelector(rootSelector)!.childNodes // Using `.childNodes` since that's most similar to the root component's `.innerHTML`. TODO1: Rerender _including_ the root node?
 			);
 		}
 

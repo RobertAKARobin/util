@@ -30,6 +30,12 @@ export const spec = suite(`Component`, {},
 		$.assert(x => x(widget.render().innerHTML) === `content:x`);
 		$.assert(x => x(widget.write(`y`).outerHTML) === x(`<h1 is="l-widget" attr="attrDefault" data-attr="dataAttrDefault">content:x</h1>`));
 		$.assert(x => x(widget.render().innerHTML) === x(`content:y`));
+
+		$.log(() => widget.template = () => `<b>${widget.content ?? ``}</b>`);
+		widget!.render();
+		$.assert(x => x(widget.innerHTML) === `<b>y</b>`);
+		$.log(() => widget.render(`b`));
+		$.assert(x => x(widget.innerHTML) === `<b>y</b>`);
 	}),
 
 	test(`attributes`, $ => {
