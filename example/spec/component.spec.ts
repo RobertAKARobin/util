@@ -126,6 +126,9 @@ export const spec = suite(`Component`, {},
 		$.assert(x => x(parent.outerHTML) === x(`<div is="l-parent"></div>`));
 		$.log(() => parent.render());
 		$.assert(x => x(parent.outerHTML) === x(`<div is="l-parent"><h1 is="l-widget">content:</h1></div>`));
-		$.log(() => parent.widgetClass = `foo`);
+		$.log(() => parent.set({ widgetClass: `foo` }));
+		$.assert(x => x(parent.outerHTML) === x(`<div is="l-parent" widgetclass="foo"><h1 is="l-widget">content:</h1></div>`));
+		$.log(() => parent.render());
+		$.assert(x => x(parent.outerHTML) === x(`<div is="l-parent" widgetclass="foo"><h1 is="l-widget" class="foo">content:</h1></div>`));
 	}),
 );

@@ -397,21 +397,27 @@ export class Component extends HTMLElement {
 		const template = document.createElement(`template`);
 		template.innerHTML = this.template();
 
+		const updateRoot = rootSelector === undefined
+			? template
+			: template.content.querySelector(rootSelector)!;
+
 		if (rootSelector !== undefined) {
-			template.content.replaceChildren(
-				...template.content.querySelector(rootSelector)!.childNodes // Using `.childNodes` since that's most similar to the root component's `.innerHTML`. TODO1: Rerender _including_ the root node?
-			);
+			template.content.replaceChildren(updateRoot);
 		}
 
 		Component.hydrate(template);
 
-		const targetRoot = rootSelector !== undefined
-			? this.querySelector(rootSelector) as HTMLElement
-			: this as HTMLElement;
+		const targetRoot = rootSelector === undefined
+			? this as HTMLElement
+			: this.querySelector(rootSelector) as HTMLElement;
 
-		setAttributes(targetRoot, template);
+		setAttributes(targetRoot, updateRoot);
 
-		targetRoot.replaceChildren(...template.content.childNodes);
+		const childrenRoot = rootSelector === undefined
+			? template.content
+			: updateRoot;
+
+		targetRoot.replaceChildren(...childrenRoot.childNodes);
 		return this;
 	}
 
