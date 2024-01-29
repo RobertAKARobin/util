@@ -1,5 +1,16 @@
 import { isPrimitive } from './isPrimitive.ts';
 
+export type Formatter<
+	State,
+	Source extends Emitter<State> = Emitter<State>,
+> = (
+	value: State,
+	meta: {
+		emitter: Source;
+		previous: State;
+	}
+) => State;
+
 export type OnEmit<
 	State,
 	Source extends Emitter<State> = Emitter<State>,
@@ -19,6 +30,7 @@ export type Subscription<
 
 export type EmitterOptions<State> = EmitterCacheOptions & {
 	emitOnInit: boolean;
+	format: Formatter<State>;
 	reset: () => State;
 };
 
@@ -30,6 +42,7 @@ export class Emitter<State> {
 		return this.value;
 	}
 	readonly cache: EmitterCache<State>;
+	formatter?: Formatter<State>;
 	get last() {
 		return this.cache.list[this.cache.list.length - 1];
 	}
@@ -51,6 +64,7 @@ export class Emitter<State> {
 				this.cache.add(initial);
 			}
 		}
+		this.formatter = options.format;
 		this.resetter = options.reset;
 	}
 
@@ -114,17 +128,21 @@ export class Emitter<State> {
 	}
 
 	set(update: State) {
-		if (update === IGNORE) { // Need a way to indicate that an event _shouldn't_ emit. Can't just do `value === undefined` because there are times when `undefined` is a value we do want to emit
-			return this;
-		}
-
 		const previous = this.value;
 		const meta = {
 			emitter: this,
 			previous,
 		};
 
-		this.cache.add(update);
+		const formatted = this.formatter === undefined
+			? update
+			: this.formatter(update, meta);
+
+		if (update === IGNORE) { // Need a way to indicate that an event _shouldn't_ emit. Can't just do `value === undefined` because there are times when `undefined` is a value we do want to emit
+			return this;
+		}
+
+		this.cache.add(formatted);
 
 		for (const subscription of this.subscriptions.values()) {
 			const onEmit = subscription instanceof WeakRef

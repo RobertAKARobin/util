@@ -212,4 +212,20 @@ export const spec = suite(`Emitter`, {},
 		$.log(() => emitter.reset());
 		$.assert(x => x(emitter.$.name) === ``);
 	}),
+
+	test(`formatter`, $ => {
+		const reset = () => ({
+			name: ``,
+		});
+		const emitter = new Emitter(reset(), {
+			format: update => ({
+				...update,
+				name: update.name.toUpperCase(),
+			}),
+			reset,
+		});
+
+		$.log(() => emitter.patch({ name: `steve` }));
+		$.assert(x => x(emitter.$.name) === `STEVE`);
+	}),
 );
