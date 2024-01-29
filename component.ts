@@ -248,8 +248,6 @@ export class Component extends HTMLElement {
 		return this.constructor as typeof Component;
 	}
 
-	isRendered = false;
-
 	/**
 	 * If true, if this is a Page it will be compiled into a static `.html` file at the route(s) used for this Page, which serves as a landing page for performance and SEO purposes.
 	 * If this is a Component it will be compiled into static HTML included in the landing page.
@@ -303,9 +301,7 @@ export class Component extends HTMLElement {
 	 * Called when the component is attached to the DOM
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks
 	 */
-	connectedCallback() {
-		this.isRendered = true;
-	}
+	connectedCallback() {}
 
 	/**
 	 * Called when the component is detached from the DOM
