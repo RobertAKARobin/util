@@ -37,9 +37,13 @@ export function setAttributes<Subclass extends HTMLElement>(
 		if (attributeValueIsEmpty(value)) {
 			target.removeAttribute(attributeName);
 		} else if (attributeKey === `style`) {
-			const properties = value as unknown as CSSStyleDeclaration;
-			for (const propertyName in properties) {
-				target.style.setProperty(propertyName, properties[propertyName]);
+			if (typeof value === `string`) {
+				target.setAttribute(`style`, value);
+			} else {
+				const properties = value as unknown as CSSStyleDeclaration;
+				for (const propertyName in properties) {
+					target.style.setProperty(propertyName, properties[propertyName]);
+				}
 			}
 		} else if (attributeKey in target) {
 			target[attributeKey] = value as Subclass[typeof attributeKey];
