@@ -44,7 +44,7 @@ export class Emitter<State> {
 	readonly cache: EmitterCache<State>;
 	formatter?: Formatter<State>;
 	get last() {
-		return this.cache.list[this.cache.list.length - 1];
+		return this.cache.list[0];
 	}
 	resetter?: () => State;
 	readonly subscriptions = new Set<Subscription<State>>();

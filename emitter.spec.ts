@@ -77,6 +77,7 @@ export const spec = suite(`Emitter`, {},
 		$.assert(x => x(JSON.stringify(emitterCache0.cache.list[0])) === undefined);
 		$.assert(x => x(JSON.stringify(emitterCache1.cache.list[0])) === `{"age":0}`);
 		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[0])) === `{"age":0}`);
+		$.assert(x => x(JSON.stringify(emitterCache2.value)) === `{"age":0}`);
 
 
 		$.log(() => emitterCache0.set({ age: 42 }));
@@ -90,6 +91,7 @@ export const spec = suite(`Emitter`, {},
 		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[0])) === `{"age":42}`);
 		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[1])) === `{"age":0}`);
 		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[2])) === undefined);
+		$.assert(x => x(JSON.stringify(emitterCache2.value)) === `{"age":42}`);
 
 
 		$.log(() => emitterCache0.set({ age: 43 }));
@@ -103,6 +105,7 @@ export const spec = suite(`Emitter`, {},
 		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[0])) === `{"age":43}`);
 		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[1])) === `{"age":42}`);
 		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[2])) === undefined);
+		$.assert(x => x(JSON.stringify(emitterCache2.value)) === `{"age":43}`);
 
 
 		$.log(() => emitterCache0.set({ age: 44 }));

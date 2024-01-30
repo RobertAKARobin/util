@@ -1,5 +1,5 @@
 import { appContext, baseUrl, defaultBaseUrl } from './context.ts';
-import { Emitter } from './emitter.ts';
+import { Emitter, type EmitterOptions } from './emitter.ts';
 import { toAttributes } from './attributes.ts';
 
 export const hasExtension = /\.\w+$/;
@@ -16,14 +16,14 @@ export class Router<Routes extends RouteMap = Record<string, never>> extends Emi
 	readonly routeNames = [] as Array<keyof Routes>;
 	readonly urls = {} as Record<keyof Routes, URL>;
 
-	constructor(routes: Routes, options: Partial<{
+	constructor(routes: Routes, options: Partial<EmitterOptions<URL> & {
 		baseUrl: string | URL;
 	}> = {}) {
 		const landingUrl = globalThis.location !== undefined
 			? new URL(globalThis.location.href)
 			: undefined;
 
-		super(landingUrl);
+		super(landingUrl, options);
 
 		this.baseUrl = new URL(options.baseUrl ?? baseUrl);
 
