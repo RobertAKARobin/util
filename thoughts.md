@@ -1,0 +1,90 @@
+# Thinking through things
+
+-	Using `[on]` attributes
+	-	+ Easier to debug in HTML
+	-	+ Don't need to place event listeners
+	-	- Will error if page doesn't have JS
+	-	- Verbose
+	-	- Not best practice
+-	Using JS expressions instead of HTML tags
+	-	+ Can set private properties inline
+	-	+ Has typing out of the box
+	-	+ Don't have to manually import
+	-	- Will always call constructor and/or chained functions
+	-	- Extra step: have to translate to comment
+-	Router outlet
+	-	Page extends RouterOutlet
+		-	- Rebuilds page on every route
+	-	Argument to Resolver
+		-	- Resolver is just to map routes to views; shouldn't actually _do_ anything
+	-	Renderer
+		-	- Importing would import/cache everthing else?
+-	Rerendering
+	-	toString
+		-	returns comment with ID
+			-	On first render
+				-	If comment with ID
+					-	Replace comment with cached component
+			-	On rerender
+				-	If element with ID
+					-	If Component
+						-	Replace attributes
+						-	cachedComponent.render()
+					-	If not component
+						-	Replace attributes
+						-	Replace children with updatedComponent.childNodes
+		-	renders and returns outerHTML
+			-	Requires rendering the template twice, which would instantiate double the components
+		-	returns outerHTML
+			-	On new component, has no content
+			-	On existing component, has outdated content
+			-	Then render template
+-	Layout
+	-	Set arbitrary flags on page that determine which outer components get turned on/off?
+		-	Gets messy if outer is complicated
+	-	Layout component instances
+		-	`pageInstace.layout = (new LayoutInstance() || existingLayoutInstance)`
+		-	`layout.template = () => this.page`
+-	Rerendering
+	-	Replace what?
+		-	Replace element
+			-	/default/
+			-	Descending to contents doesn't make sense
+		-	Replace element attributes + replace contents
+			-	outerHTML
+		-	Replace element attributes + evaluate contents
+			-	attributes
+		-	Replace element attributes
+			-	attributes-skip
+		-	Replace contents
+			-	innerHTML
+			-	Descending to contents doesn't make sense
+		-	Replace nothing + evaluate contents
+			-	static
+		-	Replace nothing
+			-	static-skip
+		-	...replace element + keep contents?
+			-	Is that useful?
+-	Components need a UID so that SSG pages have a way of differentiating between instances
+	-	...unless every instance is a new one?
+
+## Existing frameworks
+
+-	Lit
+	-	Have to extend HTMLElement
+	-	HTML tagged templates are a little annoying
+	-	Have to use shadow DOM for lit-ssr
+	-	Have to render first before can rerender
+-	Svelte
+	-	Magic syntax, e.g. `$` state prefixes
+	-	Don't care for route structure
+-	Preact
+	-	Clunky state management
+-	lwc
+	-	Limited Typescript support
+-	Marko
+	-	Weird custom syntax
+-	Riot.js
+	-	Old and not actively maintained?
+-	Stencil
+	-
