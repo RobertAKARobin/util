@@ -19,10 +19,11 @@ export class Router<Routes extends RouteMap = Record<string, never>> extends Emi
 	constructor(routes: Routes, options: Partial<{
 		baseUrl: string | URL;
 	}> = {}) {
-		super(globalThis.location !== undefined
+		const landingUrl = globalThis.location !== undefined
 			? new URL(globalThis.location.href)
-			: undefined
-		);
+			: undefined;
+
+		super(landingUrl);
 
 		this.baseUrl = new URL(options.baseUrl ?? baseUrl);
 
