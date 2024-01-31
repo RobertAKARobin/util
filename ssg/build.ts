@@ -14,6 +14,7 @@ import type { BaseApp } from '@robertakarobin/util/components/app.ts';
 import { baseUrl } from '@robertakarobin/util/context.ts';
 import type { Page } from '@robertakarobin/util/component.ts';
 import { promiseConsecutive } from '@robertakarobin/util/promiseConsecutive.ts';
+import { type RouteMap } from '@robertakarobin/util/components/app.ts';
 
 const local = (input: string) => path.relative(process.cwd(), input);
 
@@ -21,8 +22,8 @@ const trimNewlines = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
 
 const compilePathsByExportName = {} as Record<string, string>;
 
-Resolver.prototype.onPage = async function(to: URL, { previous }: { previous: URL; }) {
-	this.set(await this.resolve(to, previous));
+Resolver.prototype.onPage = async function(to, { previous }) {
+	this.set(await this.resolve(to.url, previous?.url));
 };
 
 export class Builder {
@@ -151,7 +152,7 @@ export class Builder {
 	async buildRoutes() {
 		this.logHeader(`Building routes`);
 
-		const { App } = await import(this.appSrcFileAbs) as { App: new() => BaseApp; };
+		const { App } = await import(this.appSrcFileAbs) as { App: new() => BaseApp<RouteMap>; };
 		const app = new App();
 		const { resolver, router } = app;
 
@@ -188,7 +189,7 @@ export class Builder {
 
 			const page = await new Promise<Page>(resolve => {
 				resolver.subscribe(resolve);
-				router.set(route);
+				router.to(route);
 			});
 
 			builtRoutes.add(serveFileRel);

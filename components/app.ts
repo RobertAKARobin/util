@@ -6,7 +6,7 @@ import { Component, Page } from '../component.ts';
 export { Resolver, RouteMap, Router };
 
 export abstract class BaseApp<
-	Routes extends RouteMap = Record<string, never>,
+	Routes extends RouteMap = any, // eslint-disable-line @typescript-eslint/no-explicit-any
 > extends Component.custom(`body`) {
 	static elName = `l-app`;
 	page!: Page;

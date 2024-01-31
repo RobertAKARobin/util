@@ -6,24 +6,57 @@ export const hasExtension = /\.\w+$/;
 
 export type RouteMap = Record<string, string>;
 
+export type RouterEventType = Extract<keyof WindowEventHandlersEventMap, `hashchange` | `popstate`> | `navigate`;
+
+export type RouterEvent<Routes extends RouteMap> = {
+	routeName: keyof Routes | undefined;
+	type: RouterEventType;
+	url: URL;
+};
+
 /**
  * Given a dictionary of routes, e.g. { contactPage: `/contact` }, listens to window location changes and emits the new location
  */
-export class Router<Routes extends RouteMap = Record<string, never>> extends Emitter<URL> {
+export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>> {
+
+	static findRouteName(route: URL | string, routes: RouteMap) {
+		const url = route instanceof URL
+			? route
+			: route.match(/^https?:/)
+				? new URL(route)
+				: undefined;
+		const currentRoute = url === undefined
+			? route
+			: `${url.pathname}${url.hash}${url.search}`;
+		for (const routeName in routes) {
+			const route = routes[routeName];
+			if (route === currentRoute || route === `${currentRoute}/`) {
+				return routeName;
+			}
+		}
+	}
+
 	readonly baseUrl: URL;
 	readonly hashes = {} as Record<keyof Routes, string>;
 	readonly paths = {} as Record<keyof Routes, string>;
 	readonly routeNames = [] as Array<keyof Routes>;
 	readonly urls = {} as Record<keyof Routes, URL>;
 
-	constructor(routes: Routes, options: Partial<EmitterOptions<URL> & {
+	constructor(routes: Routes, options: Partial<EmitterOptions<RouterEvent<Routes>> & {
 		baseUrl: string | URL;
 	}> = {}) {
 		const landingUrl = globalThis.location !== undefined
 			? new URL(globalThis.location.href)
 			: undefined;
 
-		super(landingUrl, options);
+		super(
+			landingUrl === undefined ? undefined : {
+				routeName: Router.findRouteName(landingUrl, routes),
+				type: `navigate`,
+				url: landingUrl,
+			},
+			options,
+		);
 
 		this.baseUrl = new URL(options.baseUrl ?? baseUrl);
 
@@ -58,24 +91,11 @@ export class Router<Routes extends RouteMap = Record<string, never>> extends Emi
 	}
 
 	findCurrentRouteName() {
-		return this.findRouteName(this.value);
+		return this.findRouteName(this.value.url);
 	}
 
 	findRouteName(route: URL | string) {
-		const url = route instanceof URL
-			? route
-			: route.match(/^https?:/)
-				? new URL(route)
-				: undefined;
-		const currentRoute = url === undefined
-			? route
-			: `${url.pathname}${url.hash}${url.search}`;
-		for (const routeName in this.urls) {
-			const route = this.paths[routeName];
-			if (route === currentRoute || route === `${currentRoute}/`) {
-				return routeName;
-			}
-		}
+		return Router.findRouteName(route, this.paths);
 	}
 
 	/**
@@ -83,11 +103,11 @@ export class Router<Routes extends RouteMap = Record<string, never>> extends Emi
 	 */
 	init() {
 		globalThis.onpopstate = () => { // Popstate is fired only by performing a browser action on the current document, e.g. back, forward, or hashchange
-			this.set(new URL(globalThis.location.href));
+			this.to(new URL(globalThis.location.href), `popstate`);
 		};
 
 		globalThis.onhashchange = () => { // Hashchange is fired _after_ popstate
-			this.set(new URL(globalThis.location.href));
+			this.to(new URL(globalThis.location.href), `hashchange`);
 		};
 
 		document.addEventListener(`click`, event => {
@@ -120,7 +140,7 @@ export class Router<Routes extends RouteMap = Record<string, never>> extends Emi
 
 			event.preventDefault();
 
-			this.set(href);
+			this.to(href);
 		});
 	}
 
@@ -149,32 +169,43 @@ export class Router<Routes extends RouteMap = Record<string, never>> extends Emi
 	}
 
 	/**
-	 * Updates the window's location to the specified URL
-	 */
-	set(update: string | Partial<URL>): this {
-		let url: URL;
-		if (typeof update === `string`) {
-			url = new URL(update, this.baseUrl);
-		} else {
-			url = update as URL;
-		}
-		return super.set(url);
-	}
-
-	/**
 	 * Updates the window's location to the url of the specified route name
 	 */
-	to(routeName: keyof Routes) {
-		return this.set(this.urls[routeName]);
+	to(
+		update: keyof Routes | URL,
+		navigationType: RouterEventType = `navigate`
+	) {
+		let url: URL;
+		let routeName: keyof Routes | undefined;
+
+		if (update instanceof URL) {
+			url = update;
+		} else if (update in this.paths) {
+			routeName = update;
+			url = this.urls[routeName];
+		} else {
+			url = new URL(update as string, this.baseUrl);
+			routeName = this.findRouteName(url);
+		}
+
+		return this.set({
+			routeName,
+			type: navigationType,
+			url,
+		});
 	}
 }
 
 /**
  * Given a route, returns the corresponding View
  */
-export class Resolver<View> extends Emitter<View> {
+export class Resolver<
+	View,
+	Routes extends RouteMap = any, // eslint-disable-line @typescript-eslint/no-explicit-any
+	AppRouter extends Router<Routes> = Router<Routes>,
+> extends Emitter<View> {
 	constructor(
-		readonly router: Router<never>,
+		readonly router: AppRouter, // eslint-disable-line @typescript-eslint/no-explicit-any
 		readonly resolve: (to: URL, from?: URL) => View | Promise<View>,
 	) {
 		super();
@@ -182,22 +213,14 @@ export class Resolver<View> extends Emitter<View> {
 		router.subscribe((...args) => this.onPage(...args));
 	}
 
-	async onPage(to: URL, { previous }: { previous: URL; }) {
-		if (to.href === previous?.href) { // On no change
-			return;
-		}
+	async onPage<PageEvent extends RouterEvent<Routes>>(
+		event: PageEvent,
+		{ previous }: { previous: PageEvent; }
+	) {
+		const to = event.url;
+		const from = previous?.url;
 
-		if (to.pathname !== previous?.pathname) { // On new page
-			if (previous !== undefined && appContext === `browser`) {
-				globalThis.history.pushState({}, ``, `${to.pathname}${to.search}`);
-			}
-
-			this.set(await this.resolve(to, previous));
-
-			if (to.hash.length > 0) {
-				location.hash = to.hash;
-			}
-
+		if (to.href === from?.href) { // On no change
 			return;
 		}
 
@@ -206,7 +229,21 @@ export class Resolver<View> extends Emitter<View> {
 			return;
 		}
 
-		if (to.hash !== previous?.hash) { // On same page with new hash
+		if (to.pathname !== from?.pathname) { // On new page
+			if (from !== undefined && appContext === `browser` && event.type === `navigate`) {
+				globalThis.history.pushState({}, ``, `${to.pathname}${to.search}`);
+			}
+
+			this.set(await this.resolve(to, from));
+
+			if (to.hash.length > 0) {
+				location.hash = to.hash;
+			}
+
+			return;
+		}
+
+		if (to.hash !== from?.hash) { // On same page with new hash
 			location.hash = to.hash;
 			if (to.hash?.length === 0) {
 				globalThis.history.replaceState({}, ``, to.pathname); // Turns out `location.hash = ''` will still set a hash of `#`. So, if going from a path with hash to path without hash, we'll need to handle the hash differently
