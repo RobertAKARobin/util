@@ -21,11 +21,15 @@ const activeStatuses = byIndex(
 	transitionStatus.active,
 );
 
+export type TransitionStatusActive = keyof typeof activeStatuses;
+
 const inactiveStatuses = byIndex(
 	transitionStatus.inactivate,
 	transitionStatus.inactivating,
 	transitionStatus.inactive,
 );
+
+export type TransitionStatusInactive = keyof typeof inactiveStatuses;
 
 export type TransitionStatus = typeof transitionStatuses[number];
 
@@ -58,11 +62,15 @@ export class Transition extends Emitter<TransitionState> {
 		update: TransitionState,
 		{ previous }: { previous: TransitionState; }
 	) {
-		if (
-			activeStatuses[update.status] - activeStatuses[previous?.status] < 0 // If either is undefined, evaluates to NaN, and false
-			|| inactiveStatuses[update.status] - inactiveStatuses[previous?.status] < 0
-		) {
-			return;
+		const isActiveStatus = update.status in activeStatuses;
+		const status = isActiveStatus
+			? activeStatuses[update.status as TransitionStatusActive]
+			: inactiveStatuses[update.status as TransitionStatusInactive];
+		const previousStatus = isActiveStatus
+			? activeStatuses[previous?.status as TransitionStatusActive]
+			: inactiveStatuses[previous?.status as TransitionStatusInactive];
+		if (status - previousStatus < 0) { // If either is undefined, evaluates to NaN, and false
+			return 0;
 		}
 
 		if (this.$.$target !== undefined) {
