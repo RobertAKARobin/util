@@ -2,7 +2,7 @@ import { $transitionStateAttr, Transition, transitionStatus } from '../transitio
 import { Component } from '../component.ts';
 
 @Component.define()
-export class ModalContainer extends Component.custom(`div`) {
+export class ModalContainer extends Component.custom(`div`) { // TODO2: Replace with `<dialog>`
 	static defaultDuration = .2;
 
 	@Component.attribute({
