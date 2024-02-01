@@ -358,17 +358,17 @@ export class Builder {
 			: ``
 		}
 
-		${typeof input.browserScriptPath === `string`
-			? /*html*/`<script src="${path.join(`/`, input.browserScriptPath)}${input.cacheBuster ?? ``}" type="module"></script>`
-			: ``
-		}
-
 		${typeof input.mainCssPath === `string`
 			? /*html*/`<link rel="stylesheet" href="${path.join(`/`, input.mainCssPath)}${input.cacheBuster ?? ``}">`
 			: ``}
 
 		${typeof input.routeCssPath === `string` && typeof input.routeCss === `string` && input.routeCss.length > 0
 			? /*html*/`<link rel="stylesheet" href="${path.join(`/`, input.routeCssPath)}${input.cacheBuster ?? ``}">`
+			: ``
+		}
+
+		${typeof input.browserScriptPath === `string`
+			? /*html*/`<script src="${path.join(`/`, input.browserScriptPath)}${input.cacheBuster ?? ``}" type="module"></script>`
 			: ``
 		}
 
