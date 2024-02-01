@@ -305,7 +305,7 @@ export class Component extends HTMLElement {
 	connectedCallback() {}
 
 	css(input: Partial<CSSStyleDeclaration>) {
-		return style(this, input);
+		return style(this, input) as this;
 	}
 
 	/**

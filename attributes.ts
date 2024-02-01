@@ -50,6 +50,7 @@ export function style(target: HTMLElement, properties: Partial<CSSStyleDeclarati
 	for (const propertyName in properties) {
 		target.style.setProperty(propertyName, properties[propertyName]!);
 	}
+	return target;
 }
 
 export function toAttributes(input: Record<string, Textish>) {
