@@ -10,7 +10,7 @@ export const appContext: AppContext = typeof window !== `undefined`
 	? `browser`
 	: `build`;
 
-export const defaultBaseUrl = new URL(`https://a.a`);
+export const defaultBaseUrl = new URL(`https://a.test`);
 
 export const baseUrl = appContext === `browser`
 	? new URL(document.baseURI)

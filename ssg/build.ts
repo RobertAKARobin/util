@@ -197,7 +197,6 @@ export class Builder {
 			const serveFileAbs = path.join(this.serveDirAbs, serveFileRel);
 			const serveDirAbs = path.dirname(serveFileAbs);
 			fs.mkdirSync(serveDirAbs, { recursive: true });
-			// const pageCompilepath = compilePathsByExportName[page.Ctor.name];
 
 			if (!page.isSSG) {
 				this.log(`Route '${routeName}' is not SSG. Skipping...`);
