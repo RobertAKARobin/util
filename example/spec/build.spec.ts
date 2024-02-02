@@ -35,6 +35,7 @@ export const spec = suite(`Build`, {},
 		$.assert(x => x(distMatchesGolden(`ssg/yes/index.html`)) === ``);
 		$.assert(x => x(distMatchesGolden(`ssg/yes/index.html.css`)) === ``);
 		$.assert(x => x(distMatchesGolden(`404.html`)) === ``);
+		$.assert(x => x(distMatchesGolden(`404.html.css`)) === ``);
 		$.assert(x => x(distMatchesGolden(`index.html`)) === ``);
 		$.assert(x => x(distMatchesGolden(`index.html.css`)) === ``);
 		$.assert(x => x(distMatchesGolden(`styles.css`)) === ``);

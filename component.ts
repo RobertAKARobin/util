@@ -10,8 +10,6 @@ import type { Textish } from './types.d.ts';
 
 type Constructor<Classtype> = new (...args: any) => Classtype; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-export const subclasses = new Map<string, typeof Component>();
-
 type ComponentWithoutDecorators = Omit<typeof Component,
 	| `attribute`
 	| `const`
@@ -131,8 +129,6 @@ export class Component extends HTMLElement {
 				selector,
 				style,
 			});
-
-			subclasses.set(Constructor.name, Constructor as unknown as typeof Component);
 
 			globalThis.customElements.define( // This should come last because when a custom element is defined its constructor runs for all instances on the page
 				elName,

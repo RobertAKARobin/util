@@ -12,7 +12,7 @@ import { hasExtension, Resolver } from '@robertakarobin/util/router.ts';
 import { stringMates, type TagResult } from '@robertakarobin/util/string-mates.ts';
 import type { BaseApp } from '@robertakarobin/util/components/app.ts';
 import { baseUrl } from '@robertakarobin/util/context.ts';
-import type { Page } from '@robertakarobin/util/component.ts';
+import { type Page } from '@robertakarobin/util/component.ts';
 import { promiseConsecutive } from '@robertakarobin/util/promiseConsecutive.ts';
 import { type RouteMap } from '@robertakarobin/util/components/app.ts';
 
@@ -156,6 +156,7 @@ export class Builder {
 		const app = new App();
 		const { resolver, router } = app;
 
+		const appStyles = document.head.querySelectorAll(`[data-style]`); // TODO2: Import this from Component; not doing it now because stupid decorator errors
 		document.body.replaceWith(app);
 		document.documentElement.lang = `en`;
 
@@ -172,7 +173,10 @@ export class Builder {
 				return;
 			}
 
-			document.head.innerHTML = ``;
+			document.head.replaceChildren();
+			for (const appStyle of appStyles) {
+				document.head.appendChild(appStyle.cloneNode(true));
+			}
 
 			const url = new URL(route);
 			url.hash = ``;

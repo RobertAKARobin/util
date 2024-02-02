@@ -50,7 +50,7 @@ export class App extends BaseApp {
 	router = router;
 
 	template = () => /*html*/`
-${Nav()}
+${new Nav()}
 ${this.page}
 ${modalContainer}
 	`;

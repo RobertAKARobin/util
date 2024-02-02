@@ -1,3 +1,7 @@
+[is='l-nav'] {
+	color: #444444;
+}
+
 input {
 	--typeface-name: 'body';
 	font-family: monospace;
