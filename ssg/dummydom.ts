@@ -12,9 +12,10 @@ export class DummyDOM {
 	refresh() {
 		const dummyDOM = new JSDOM(``, { virtualConsole }).window;
 
-		globalThis.Comment = dummyDOM.Comment;
+		globalThis.Comment = dummyDOM.Comment; // TODO2: Add these automatically instead of piecemeal?
 		globalThis.customElements = dummyDOM.customElements;
 		globalThis.document = dummyDOM.document;
+		globalThis.DOMParser = dummyDOM.DOMParser;
 		globalThis.location = dummyDOM.location;
 		globalThis.history = dummyDOM.history;
 		globalThis.NodeFilter = dummyDOM.NodeFilter;
