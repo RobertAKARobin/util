@@ -17,6 +17,9 @@ export const spec = test(`proxyDeep`, $ => {
 
 	let subject: (...args: Array<any>) => string;
 
+	$.log(() => subject = (a: string, b: number, c: string) => `a ${a} b ${(b as any)[42]} c ${(c as any)()}`);
+	$.assert(x => x(subject(...(proxyDeep(`$`) as []))) === `a $ b $ c $`);
+
 	$.log(() => subject = ({ param }: { param: string; }) => `a ${param} b ${param}`);
 	$.assert(x => x(subject(proxyDeep(`$`))) === `a $ b $`);
 
