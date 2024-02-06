@@ -1,7 +1,5 @@
 import { Component, Page } from '@robertakarobin/util/component.ts';
 
-import { router } from '@src/app.ts';
-
 const style = `
 h1 {
 	color: purple;
@@ -14,8 +12,7 @@ export class YesSSGPage extends Page {
 	template = () => /*html*/`
 <h1>SSG yes</h1>
 
-<div id="${router.hashes.ssgYesJump1}">Jump 1</div>
-
-<div id="${router.hashes.ssgYesJump2}">Jump 2</div>
+<div id="jump1">Jump 1</div>
+<div id="jump2">Jump 2</div>
 `;
 }

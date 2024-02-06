@@ -1,6 +1,7 @@
 import { Component, Page } from '@robertakarobin/util/component.ts';
 import { appContext } from '@robertakarobin/util/context.ts';
 
+import { link } from '@src/components/link.ts';
 import { List } from '@src/components/list.ts';
 import { ListItem } from '@src/components/listitem.ts';
 import { modalContainer } from '@src/app.ts';
@@ -22,7 +23,7 @@ export class IndexPage extends Page {
 	@Component.attribute({ name: `data-message` }) message!: string;
 
 	anchorlessRoute() {
-		router.to(`ssgYes`);
+		router.go(`ssgYes`);
 	}
 
 	connectedCallback() {
@@ -64,7 +65,7 @@ ${new TransitionTest()}
 	type="button"
 >Modal</button>
 
-<div id="${router.hashes.homeJump1}">Jump 1</div>
+<div id="jump1">Jump 1</div>
 
 ${new List()
 	.setListItems(state.entries.$)
@@ -88,7 +89,7 @@ Lorem ipsum dolor <strong>sit amet</strong>, consectetur *adipiscing elit*, sed 
 Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ nulla pariatur.
 </markdown>
 
-<p>${router.link(`ssgYes`, `Link to SSG Yes`)}</p>
+<p>${link(`ssgYes`, `Link to SSG Yes`)}</p>
 
 <button onclick="${this.bind(`anchorlessRoute`)}"><host type="button">Go to SSG Yes</host></button>
 
@@ -112,6 +113,6 @@ Joseph's coat was ${colors.join(` and `)}.
 1.	ut aliquip ex
 </markdown>
 
-<div id="${router.hashes.homeJump2}">Jump 2</div>
+<div id="jump2">Jump 2</div>
 `;
 };

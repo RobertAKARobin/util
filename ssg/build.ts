@@ -8,7 +8,7 @@ import { marked } from 'marked';
 import path from 'path';
 
 import type * as $ from '@robertakarobin/util/types.js';
-import { hasExtension, Resolver } from '@robertakarobin/util/router.ts';
+import { Resolver, Router } from '@robertakarobin/util/router.ts';
 import { stringMates, type TagResult } from '@robertakarobin/util/string-mates.ts';
 import type { BaseApp } from '@robertakarobin/util/components/app.ts';
 import { baseUrl } from '@robertakarobin/util/context.ts';
@@ -52,19 +52,19 @@ export class Builder {
 	readonly tsconfigFileAbs: string | undefined;
 
 	/**
-	 *
-	 * @param input
-	 * @param input.assetsSrcDirRel The relative path/paths to directories that should be copied to the `dist/` folder
-	 * @param input.baseDirAbs The root directory for this project. Determines where the Builder looks for other files. Defaults to `process.cwd()`
-	 * @param input.baseUri The base URL used when defining routes
-	 * @param input.browserSrcFileRel Relative path to the JS script that will be run when a page loads, e.g. the "entry point" for CSR bootstrapping. Not needed for apps that are SSG-only
-	 * @param input.minify Sets ESBuild's `minify` option
-	 * @param input.routerSrcFileRel Relative path to the file containing the router, resolver, and renderer. Defaults to `./router.ts`
-	 * @param input.serveDirRel Relative path to the directory from which the application will be served. Defaults to `./dist`
-	 * @param input.srcRawDirRel Relative path to the source code. Defaults to `./src`
-	 * @param input.srcTmpDirRel Relative path to the directory to which the source code will be copied and pre-processed before being compiled, e.g. for rendering Markdown. Defaults to `./tmp`
-	 * @param input.styleServeFileRel Relative path to the root CSS file that will be loaded on all pages. Defaults to `./styles.css`
-	 */
+	*
+	* @param input
+	* @param input.assetsSrcDirRel The relative path/paths to directories that should be copied to the `dist/` folder
+	* @param input.baseDirAbs The root directory for this project. Determines where the Builder looks for other files. Defaults to `process.cwd()`
+	* @param input.baseUri The base URL used when defining routes
+	* @param input.browserSrcFileRel Relative path to the JS script that will be run when a page loads, e.g. the "entry point" for CSR bootstrapping. Not needed for apps that are SSG-only
+	* @param input.minify Sets ESBuild's `minify` option
+	* @param input.routerSrcFileRel Relative path to the file containing the router, resolver, and renderer. Defaults to `./router.ts`
+	* @param input.serveDirRel Relative path to the directory from which the application will be served. Defaults to `./dist`
+	* @param input.srcRawDirRel Relative path to the source code. Defaults to `./src`
+	* @param input.srcTmpDirRel Relative path to the directory to which the source code will be copied and pre-processed before being compiled, e.g. for rendering Markdown. Defaults to `./tmp`
+	* @param input.styleServeFileRel Relative path to the root CSS file that will be loaded on all pages. Defaults to `./styles.css`
+	*/
 	constructor(input: Partial<{
 		appSrcFileRel: string;
 		assetsSrcDirRel: string | Array<string>;
@@ -162,12 +162,13 @@ export class Builder {
 
 		const builtRoutes = new Set<string>();
 
-		const routes = router.routeNames.map(routeName => async() => {
-			const route = router.urls[routeName];
+		const routes = [...router.routeNames].map(routeName => async() => {
+			const route = router.routes[routeName] as string;
 
-			this.log(`${routeName.toString()}: ${router.paths[routeName]}`);
+			this.log(`${routeName.toString()}: ${route}`);
 
-			if (route.origin !== baseUrl.origin) {
+			const url = new URL(route, baseUrl);
+			if (url.origin !== baseUrl.origin) {
 				this.log(`Route is external. Skipping...`);
 				this.logBreak();
 				return;
@@ -178,10 +179,9 @@ export class Builder {
 				document.head.appendChild(appStyle.cloneNode(true));
 			}
 
-			const url = new URL(route);
 			url.hash = ``;
-			if (!hasExtension.test(url.pathname)) {
-				url.pathname += `index.html`;
+			if (!Router.hasExtension.test(url.pathname)) {
+				url.pathname += `/index.html`;
 			}
 
 			const serveFileRel = url.pathname;
@@ -193,7 +193,7 @@ export class Builder {
 
 			const page = await new Promise<Page>(resolve => {
 				resolver.subscribe(resolve);
-				router.to(route);
+				router.go(route);
 			});
 
 			builtRoutes.add(serveFileRel);
@@ -352,36 +352,36 @@ export class Builder {
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
 		${typeof input.title === `string`
-			? /*html*/`<title>${input.title}</title>`
-			: ``
-		}
+		? /*html*/`<title>${input.title}</title>`
+		: ``
+	}
 
-		${typeof input.baseUri === `string`
-			? /*html*/`<base href="${input.baseUri}">`
-			: ``
-		}
+	${typeof input.baseUri === `string`
+		? /*html*/`<base href="${input.baseUri}">`
+		: ``
+	}
 
-		${typeof input.mainCssPath === `string`
-			? /*html*/`<link rel="stylesheet" href="${path.join(`/`, input.mainCssPath)}${input.cacheBuster ?? ``}">`
-			: ``}
+	${typeof input.mainCssPath === `string`
+	? /*html*/`<link rel="stylesheet" href="${path.join(`/`, input.mainCssPath)}${input.cacheBuster ?? ``}">`
+	: ``}
 
-		${typeof input.routeCssPath === `string` && typeof input.routeCss === `string` && input.routeCss.length > 0
-			? /*html*/`<link rel="stylesheet" href="${path.join(`/`, input.routeCssPath)}${input.cacheBuster ?? ``}">`
-			: ``
-		}
+	${typeof input.routeCssPath === `string` && typeof input.routeCss === `string` && input.routeCss.length > 0
+	? /*html*/`<link rel="stylesheet" href="${path.join(`/`, input.routeCssPath)}${input.cacheBuster ?? ``}">`
+	: ``
+	}
 
-		${typeof input.browserScriptPath === `string`
-			? /*html*/`<script src="${path.join(`/`, input.browserScriptPath)}${input.cacheBuster ?? ``}" type="module"></script>`
-			: ``
-		}
+	${typeof input.browserScriptPath === `string`
+	? /*html*/`<script src="${path.join(`/`, input.browserScriptPath)}${input.cacheBuster ?? ``}" type="module"></script>`
+	: ``
+	}
 
-		${typeof input.viewCtorName === `string` && typeof input.viewCompilePath === `string`
-			? /*html*/`<script type="module">import { ${input.viewCtorName} } from '${path.join(`/`, input.viewCompilePath)}';</script>`
-			: ``
-		}
+	${typeof input.viewCtorName === `string` && typeof input.viewCompilePath === `string`
+	? /*html*/`<script type="module">import { ${input.viewCtorName} } from '${path.join(`/`, input.viewCompilePath)}';</script>`
+	: ``
+	}
 
-		${Array.from(document.querySelectorAll(`style`)).map(style => style.outerHTML).join(``)}
-		`;
+	${Array.from(document.querySelectorAll(`style`)).map(style => style.outerHTML).join(``)}
+	`;
 	}
 
 	formatHtml(input: string): string | Promise<string> {

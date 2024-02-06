@@ -1,10 +1,12 @@
 import { appContext, baseUrl, defaultBaseUrl } from './context.ts';
 import { Emitter, type EmitterOptions } from './emitter.ts';
-import { toAttributes } from './attributes.ts';
+import { proxyDeep } from './proxyDeep.ts';
 
-export const hasExtension = /\.\w+$/;
+export type RoutePathFunction = (...args: Array<any>) => string | URL; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-export type RouteMap = Record<string, string>;
+export type RouteDefinition = URL | string | RoutePathFunction;
+
+export type RouteMap = Record<string, RouteDefinition>;
 
 export type RouterEventType = Extract<keyof WindowEventHandlersEventMap, `hashchange` | `popstate`> | `navigate`;
 
@@ -18,33 +20,71 @@ export type RouterEvent<Routes extends RouteMap> = {
  * Given a dictionary of routes, e.g. { contactPage: `/contact` }, listens to window location changes and emits the new location
  */
 export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>> {
+	static hasExtension = /\.\w+$/;
+	static paramDelimeter = `[%]`;
 
-	static findRouteName(route: URL | string, routes: RouteMap) {
-		const url = route instanceof URL
-			? route
-			: route.match(/^https?:/)
-				? new URL(route)
-				: undefined;
-		const currentRoute = url === undefined
-			? route
-			: `${url.pathname}${url.hash}${url.search}`;
+	static findRouteName(route: RouteDefinition, routes: RouteMap) {
 		for (const routeName in routes) {
-			const route = routes[routeName];
-			if (route === currentRoute || route === `${currentRoute}/`) {
+			const subject = routes[routeName];
+			if (Router.isMatch(route, subject)) {
 				return routeName;
 			}
 		}
 	}
 
-	readonly baseUrl: URL;
-	readonly hashes = {} as Record<keyof Routes, string>;
-	readonly paths = {} as Record<keyof Routes, string>;
-	readonly routeNames = [] as Array<keyof Routes>;
-	readonly urls = {} as Record<keyof Routes, URL>;
+	static isMatch(source: RouteDefinition, target: RouteDefinition) {
+		if (source === target) {
+			return true;
+		}
 
-	constructor(routes: Routes, options: Partial<EmitterOptions<RouterEvent<Routes>> & {
-		baseUrl: string | URL;
-	}> = {}) {
+		if (typeof source === `function`) {
+			return false;
+		}
+
+		const sourceUrl = Router.toPath(source);
+		const targetUrl = Router.toPath(target);
+
+		if (typeof target === `function`) {
+			const matcher = new RegExp(
+				targetUrl
+					.replace(/[.?]/g, `\\$&`)
+					.replaceAll(Router.paramDelimeter, `\\w+`)
+					+ `$`
+			);
+			return matcher.test(sourceUrl);
+		}
+
+		return (sourceUrl === targetUrl);
+	}
+
+	static toPath(input: RouteDefinition) {
+		const url = Router.toUrl(input);
+		let path = url.href;
+
+		if (!Router.hasExtension.test(path) && path.endsWith(`/`)) {
+			path = path.slice(0, -1);
+		}
+
+		return path;
+
+	}
+
+	static toUrl(input: RouteDefinition) {
+		if (input instanceof URL) {
+			return input;
+		}
+
+		if (typeof input === `string`) {
+			return new URL(input, baseUrl);
+		}
+
+		return new URL(input(proxyDeep(Router.paramDelimeter)), baseUrl);
+	}
+
+	readonly routeNames: Set<keyof Routes>;
+	readonly routes: Routes;
+
+	constructor(routes: Routes, options: Partial<EmitterOptions<RouterEvent<Routes>>> = {}) {
 		const landingUrl = globalThis.location !== undefined
 			? new URL(globalThis.location.href)
 			: undefined;
@@ -58,56 +98,60 @@ export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>
 			options,
 		);
 
-		this.baseUrl = new URL(options.baseUrl ?? baseUrl);
+		this.routes = routes;
+		this.routeNames = new Set(Object.keys(routes));
+	}
 
-		for (const key in routes) {
-			const path = routes[key] as string;
-			this.add(key, path);
-		}
+	findRouteName(route: RouteDefinition): keyof Routes | undefined {
+		return Router.findRouteName(route, this.routes);
 	}
 
 	/**
-	 * Defines a new route
+	 * Updates the window's location to the url of the specified route name
 	 */
-	add(routeName: keyof Routes, path: string) {
-		this.routeNames.push(routeName);
+	go(
+		update: keyof Routes | RouteDefinition,
+		...args: typeof update extends keyof Routes
+			? (
+				Routes[typeof update] extends RoutePathFunction
+					? Parameters<Routes[typeof update]>
+					: []
+			) : []
+	) {
+		const routeName: keyof Routes | undefined = (update as keyof Routes) in this.routes
+			? update as keyof Routes
+			: this.findRouteName(update as RouteDefinition);
 
-		const url = new URL(path, this.baseUrl);
-		this.urls[routeName] = url;
-		this.hashes[routeName] = url.hash.substring(1);
+		const route = routeName === undefined
+			? update as RouteDefinition
+			: this.routes[routeName];
 
-		const isExternal = url.origin !== this.baseUrl.origin;
+		const path: string | URL = route instanceof Function
+			?	route(...args)
+			: route;
 
-		if (isExternal) {
-			this.paths[routeName] = url.href;
-		} else {
-			if (!hasExtension.test(url.pathname)) {
-				if (!url.pathname.endsWith(`/`)) {
-					url.pathname += `/`;
-				}
-			}
-			this.paths[routeName] = `${url.pathname}${url.hash}${url.search}`;
-		}
-	}
+		const url = path instanceof URL
+			? path
+			: new URL(path, baseUrl);
 
-	findCurrentRouteName() {
-		return this.findRouteName(this.value.url);
-	}
-
-	findRouteName(route: URL | string) {
-		return Router.findRouteName(route, this.paths);
+		return this.set({
+			routeName,
+			type: `navigate`,
+			url,
+		});
 	}
 
 	/**
 	 * Sets up the router to listen for location changes and intercept click events that cause navigation
 	 */
 	init() {
-		globalThis.onpopstate = () => { // Popstate is fired only by performing a browser action on the current document, e.g. back, forward, or hashchange
-			this.to(new URL(globalThis.location.href), `popstate`);
-		};
-
-		globalThis.onhashchange = () => { // Hashchange is fired _after_ popstate
-			this.to(new URL(globalThis.location.href), `hashchange`);
+		globalThis.onhashchange = globalThis.onpopstate = () => { // Popstate is fired only by performing a browser action on the current document, e.g. back, forward, or hashchange. Hashchange is fired _after_ popstate
+			const url = new URL(globalThis.location.href);
+			this.set({
+				routeName: this.findRouteName(url),
+				type: `popstate`,
+				url,
+			});
 		};
 
 		document.addEventListener(`click`, event => {
@@ -140,58 +184,11 @@ export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>
 
 			event.preventDefault();
 
-			this.to(href);
-		});
-	}
-
-	/**
-	 * Returns the HTML for an anchor <a> element to the specified route
-	 */
-	link(
-		routeName: keyof Routes,
-		content: string = ``,
-		attributeOverrides: Record<string, string> = {},
-	) {
-		const url = this.urls[routeName];
-		const isExternal = url.origin !== this.baseUrl.origin;
-		const attributes = isExternal
-			? {
-				href: url,
-				rel: `noopener`,
-				target: `_blank`,
-				...attributeOverrides,
-			}
-			: {
-				href: this.paths[routeName],
-				...attributeOverrides,
-			};
-		return `<a ${toAttributes(attributes)}>${content}</a>`;
-	}
-
-	/**
-	 * Updates the window's location to the url of the specified route name
-	 */
-	to(
-		update: keyof Routes | URL,
-		navigationType: RouterEventType = `navigate`
-	) {
-		let url: URL;
-		let routeName: keyof Routes | undefined;
-
-		if (update instanceof URL) {
-			url = update;
-		} else if (update in this.paths) {
-			routeName = update;
-			url = this.urls[routeName];
-		} else {
-			url = new URL(update as string, this.baseUrl);
-			routeName = this.findRouteName(url);
-		}
-
-		return this.set({
-			routeName,
-			type: navigationType,
-			url,
+			this.set({
+				routeName: this.findRouteName(url),
+				type: `navigate`,
+				url,
+			});
 		});
 	}
 }

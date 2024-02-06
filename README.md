@@ -60,8 +60,6 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 -	TODO3: Declare CSS variables inline
 -	TODO2: Import from other file (ergo SVG)
 
--	TODO2: Match routes with params
-
 -	TODO3: Remove CSS from JS bundles
 -	TODO2: CSS minify
 -	TODO2: HTML minify
@@ -69,6 +67,7 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ### Done:
 
+-	Match routes with params
 -	Add reducer functions
 	-	I'm calling them formatters, since (a) reducers involve actions, and (b) "reducer" is a confusing name
 -	onEl => onConstruct

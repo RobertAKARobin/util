@@ -12,29 +12,29 @@ export const router = new Router({
 	home: `/`,
 	homeJump1: `/#jump1`,
 	homeJump2: `/#jump2`,
-	ssgNo: `/ssg/no`,
-	ssgYes: `/ssg/yes`,
+	ssgNo: `/ssg/no/`,
+	ssgYes: `/ssg/yes/`,
 	ssgYesJump1: `/ssg/yes/#jump1`,
 	ssgYesJump2: `/ssg/yes/#jump2`,
 });
 
 export const resolver = new Resolver(router, async(route: URL) => {
-	switch (route.pathname) {
-		case router.paths.home:
-		case router.paths.homeJump1:
-		case router.paths.homeJump2:
+	switch (router.findRouteName(route)) {
+		case `home`:
+		case `homeJump1`:
+		case `homeJump2`:
 			return new (await import(`@src/pages/index.ts`)).IndexPage({
 				title: `Home page`,
 			}).set({
 				message: `This is a variable`,
 			});
-		case router.paths.ssgNo:
+		case `ssgNo`:
 			return new (await import(`@src/pages/ssg-no.ts`)).NoSSGPage({
 				title: `SSG no`,
 			});
-		case router.paths.ssgYes:
-		case router.paths.ssgYesJump1:
-		case router.paths.ssgYesJump2:
+		case `ssgYes`:
+		case `ssgYesJump1`:
+		case `ssgYesJump2`:
 			return new (await import(`@src/pages/ssg-yes.ts`)).YesSSGPage({
 				title: `SSG yes`,
 			});

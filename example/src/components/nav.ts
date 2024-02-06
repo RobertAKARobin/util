@@ -1,5 +1,6 @@
 import { Component } from '@robertakarobin/util/component.ts';
 
+import { link } from '@src/components/link.ts';
 import { router } from '@src/app.ts';
 
 const style = /*css*/`
@@ -12,10 +13,10 @@ const style = /*css*/`
 export class Nav extends Component.custom(`nav`) {
 	template = () => /*html*/`
 <ul>
-	${router.routeNames.map(routeName => /*html*/`
+	${[...router.routeNames].map(routeName => /*html*/`
 		<li id="nav-${routeName}">
-			${routeName === router.findCurrentRouteName() ? `Active: ` : ``}
-			${router.link(routeName, `Go ${routeName}`)}
+			${routeName === router.$.routeName ? `Active: ` : ``}
+			${link(routeName, `Go ${routeName}`)}
 		</li>
 	`).join(``)}
 </ul>

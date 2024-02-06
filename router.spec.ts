@@ -1,31 +1,57 @@
-/* eslint-disable @stylistic/quote-props */
 import { test } from './spec/index.ts';
 
-import { Router } from './router.ts';
+import { type RouteMap, type RoutePathFunction, Router } from './router.ts';
 
-const baseUrl = `https://b.b`;
-const routeMap = {
+const routes = {
+	builder: (param: string) => `/foo/${param}`,
+	dotHtml: `/foo/bar.html`,
+	external: `https://robertakarobin.com`,
 	home: `/`,
-	login: `/login`,
-	profile: `https://robertakarobin.com`,
-	terms: `/legal/terms.html`,
-};
-const router = new Router(routeMap, { baseUrl });
+	internal: `/login`,
+} as const satisfies RouteMap;
 
 export const spec = test(`Router`, $ => {
-	$.assert(x => x(router.paths.home) === `/`);
-	$.assert(x => x(router.link(`home`)) === `<a href="/"></a>`);
+	$.assert(x => x(Router.toUrl(new URL(`https://b.test`)).href) === `https://b.test/`);
+	$.assert(x => x(Router.toUrl(new URL(`https://b.test/`)).href) === `https://b.test/`);
+	$.assert(x => x(Router.toUrl(`https://b.test`)).href === `https://b.test/`);
+	$.assert(x => x(Router.toUrl(`https://b.test/`)).href === `https://b.test/`);
+	$.assert(x => x(Router.toUrl(`./`)).href ===  `https://a.test/`);
+	$.assert(x => x(Router.toUrl(`./foo`)).href ===  `https://a.test/foo`);
+	$.assert(x => x(Router.toUrl(`./foo/index.html`)).href ===  `https://a.test/foo/index.html`);
+	$.assert(x => x(Router.toUrl(() => `/foo`)).href === `https://a.test/foo`);
+	$.assert(x => x(Router.toUrl((p: string) => `/aaa/${p}`)).href === `https://a.test/aaa/[%]`);
+	$.assert(x => x(Router.toUrl((p: string) => `/aaa/${p}/bbb/${p}`)).href === `https://a.test/aaa/[%]/bbb/[%]`);
 
-	$.assert(x => x(router.paths.login) === x(routeMap.login + `/`));
-	$.assert(x => x(router.urls.login.toString()) === x(baseUrl + routeMap.login + `/`));
-	$.assert(x => x(router.link(`login`, `Login`)) === `<a href="/login/">Login</a>`);
-	$.assert(x => x(router.link(`login`, `Login`, { class: `foo` })) === `<a href="/login/" class="foo">Login</a>`);
+	$.assert(x => x(Router.isMatch(`/`, routes.home)));
+	$.assert(x => x(Router.isMatch(routes.home, routes.home)));
+	$.assert(x => x(Router.isMatch(`/foo/bar`, `/foo/bar`)));
+	$.assert(x => x(Router.isMatch(`/foo/bar/`, `/foo/bar`)));
+	$.assert(x => x(Router.isMatch(`/foo/bar`, `/foo/bar/`)));
+	$.assert(x => x(Router.isMatch(`https://a.test`, `https://a.test`)));
+	$.assert(x => x(Router.isMatch(`https://a.test/`, `https://a.test`)));
+	$.assert(x => x(Router.isMatch(`https://a.test`, `https://a.test/`)));
+	$.assert(x => x(Router.isMatch(`/foo/bar.html`, `foo/bar.html`)));
 
-	$.assert(x => x(router.paths.terms) === routeMap.terms);
+	$.assert(x => x(Router.isMatch(`/foo/bar.html/`, `/foo/bar.html`))); // TODO2: These really shouldn't match. But also should never occur
+	$.assert(x => x(Router.isMatch(`/foo/bar.html`, `/foo/bar.html/`)));
 
-	$.assert(x => x(router.urls.profile.toString() === x(routeMap.profile + `/`)));
-	$.assert(x => x(router.link(`profile`, `Profile`)) === `<a href="https://robertakarobin.com/" rel="noopener" target="_blank">Profile</a>`);
+	$.assert(x => x(Router.toPath(routes.builder)) === `https://a.test/foo/[%]`);
+	$.assert(x => x(Router.isMatch(`/foo/bar`, routes.builder)));
+	$.assert(x => x(Router.isMatch(`/foo/bar/`, routes.builder)));
+	$.assert(x => x(!Router.isMatch(`/foo/`, routes.builder)));
+	$.assert(x => x(!Router.isMatch(`/foo/bar/baz`, routes.builder)));
+	$.assert(x => x(!Router.isMatch(`/foo/bar.html`, routes.builder)));
 
-	$.assert(x => x(router.findRouteName(`https://b.b/login`)) === `login`);
-	$.assert(x => x(router.findRouteName(`https://b.b/login/`)) === `login`);
+	let route: RoutePathFunction;
+
+	$.log(() => route = ({ param }: { param: string; }) => `/foo/${param}/bar/${param}`);
+	$.assert(x => x(Router.toPath(route)) === `https://a.test/foo/[%]/bar/[%]`);
+	$.assert(x => x(Router.isMatch(`/foo/aaa/bar/bbb`, route)));
+
+	$.log(() => route = ([ a, [b], [[c]] ]: Array<string>) => `/foo/${a}/bar/${b}/baz/${c}`);
+	$.assert(x => x(Router.toPath(route)) === `https://a.test/foo/[%]/bar/[%]/baz/[%]`);
+	$.assert(x => x(Router.isMatch(`/foo/a/bar/b/baz/c`, route)));
+
+	$.log(() => route = ([{ param }]: Array<{ param: () => string; }>) => `/foo/${param()}`);
+	$.assert(x => x(Router.toPath(route)) === `https://a.test/foo/[%]`);
 });
