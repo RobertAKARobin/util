@@ -36,6 +36,7 @@ export type EmitterOptions<State> = EmitterCacheOptions & {
 
 const IGNORE = `_IGNORE_` as const;
 
+// TODO1: Operators: filter, startWith, once, toPromise
 export class Emitter<State> {
 
 	get $() {

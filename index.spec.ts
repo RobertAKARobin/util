@@ -2,6 +2,8 @@ import { run, suite } from './spec/index.ts';
 
 export const spec = suite(`@robertakarobin/js`, {},
 	(await import(`./spec/index.spec.ts`)).spec,
+
+	(await import(`./capitalize.spec.ts`)).spec,
 	(await import(`./emitter.spec.ts`)).spec,
 	(await import(`./entities.spec.ts`)).spec,
 	(await import(`./keyframes.spec.ts`)).spec,

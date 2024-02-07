@@ -6,6 +6,8 @@ export type EntityState<Type> = {
 	ids: Array<string>;
 };
 
+// TODO1: Allow numbers as IDs
+
 export class EntityStateEmitter<Type extends Record<string, unknown>>
 	extends Emitter<EntityState<Type>> {
 
