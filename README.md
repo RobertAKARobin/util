@@ -53,8 +53,6 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ## TODO
 
--	TODO1: Specify which routes to build in build config, not with `isSSG`
-
 -	TODO2: Don't use `[on]` attributes?
 
 -	TODO2: Style setter
@@ -69,6 +67,7 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ### Done:
 
+-	Specify which routes to build in build config, not with `isSSG`
 -	Match routes with params
 -	Add reducer functions
 	-	I'm calling them formatters, since (a) reducers involve actions, and (b) "reducer" is a confusing name

@@ -2,6 +2,8 @@ import { execSync } from 'child_process';
 
 import { Builder } from '@robertakarobin/ssg/build.ts';
 
+import { routes } from '@src/routes.ts';
+
 class CustomBuilder extends Builder {
 	cleanup() {
 		try {
@@ -11,11 +13,16 @@ class CustomBuilder extends Builder {
 	}
 }
 
+const ssgRoutesByName: Record<string, string> = { ...routes };
+delete ssgRoutesByName[`ssgNo`];
+const ssgRoutes = Object.values(ssgRoutesByName);
+
 const builder = new CustomBuilder({
 	esbuild: {
 		minify: false,
 	},
 	metaFileRel: `./meta.json`,
+	ssgRoutes,
 });
 
 await builder.build({ serve: process.argv.includes(`--serve`) });

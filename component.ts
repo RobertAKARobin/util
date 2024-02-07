@@ -245,13 +245,6 @@ export class Component extends HTMLElement {
 		return this.constructor as typeof Component;
 	}
 
-	/**
-	 * If true, if this is a Page it will be compiled into a static `.html` file at the route(s) used for this Page, which serves as a landing page for performance and SEO purposes.
-	 * If this is a Component it will be compiled into static HTML included in the landing page.
-	 * Not a static variable because a Component/Page may/may not want to be SSG based on certain conditions
-	*/
-	readonly isSSG: boolean = true;
-
 	constructor(id?: Component[`id`]) {
 		super();
 		this.onConstruct(id);
@@ -446,8 +439,6 @@ export class Component extends HTMLElement {
 
 export class Page extends Component.custom(`main`) {
 	static $pageAttr = `data-page-title`;
-
-	isSSG = true;
 	@Component.attribute({ name: Page.$pageAttr }) pageTitle!: string;
 
 	constructor(input: Partial<{

@@ -3,20 +3,11 @@ import { Component } from '@robertakarobin/util/component.ts';
 import { ModalContainer } from '@robertakarobin/util/components/modal-container.ts';
 
 import { Nav } from '@src/components/nav.ts';
+import { routes } from './routes.ts';
 
 export const modalContainer = ModalContainer.find() ?? new ModalContainer();
 
-export const router = new Router({
-	error404: `/404.html`,
-	external: `https://example.com`,
-	home: `/`,
-	homeJump1: `/#jump1`,
-	homeJump2: `/#jump2`,
-	ssgNo: `/ssg/no/`,
-	ssgYes: `/ssg/yes/`,
-	ssgYesJump1: `/ssg/yes/#jump1`,
-	ssgYesJump2: `/ssg/yes/#jump2`,
-});
+export const router = new Router(routes);
 
 export const resolver = new Resolver(router, async(route: URL) => {
 	switch (router.findRouteName(route)) {

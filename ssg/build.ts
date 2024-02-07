@@ -46,6 +46,7 @@ export class Builder {
 	readonly serveDirAbs: string;
 	readonly srcDirAbs: string;
 	readonly srcRawDirAbs: string;
+	readonly ssgRoutes?: Array<string>;
 	readonly styleServeFileRel: string;
 	readonly stylesServeFileAbs: string;
 	readonly stylesSrcFileAbs: string;
@@ -77,6 +78,7 @@ export class Builder {
 		serveDirRel: string;
 		srcRawDirRel: string;
 		srcTmpDirRel: string;
+		ssgRoutes: Array<string>;
 		styleServeFileRel: string;
 		tsconfigFileRel: string;
 	}> = {}) {
@@ -97,6 +99,7 @@ export class Builder {
 
 		this.appSrcFileRel = input.appSrcFileRel ?? `./app.ts`;
 		this.appSrcFileAbs = path.join(this.srcDirAbs, this.appSrcFileRel);
+		this.ssgRoutes = input.ssgRoutes;
 
 		this.browserSrcFileRel = input.browserSrcFileRel ?? `./browser.ts`;
 		if (this.browserSrcFileRel !== undefined) {
@@ -162,10 +165,20 @@ export class Builder {
 
 		const builtRoutes = new Set<string>();
 
-		const routes = [...router.routeNames].map(routeName => async() => {
-			const route = router.routes[routeName] as string;
+		const ssgRoutes = this.ssgRoutes ?? Object.values(router.routes);
 
-			this.log(`${routeName.toString()}: ${route}`);
+		const routes = ssgRoutes.map(route => async() => {
+			this.log(`Route ${route}`);
+
+			const routeName = router.findRouteName(route);
+
+			this.log(`Route ${route} matches route ${routeName}`);
+
+			if (typeof route === `function`) {
+				this.log(`Route ${route} is a function. Skipping...`);
+				this.logBreak();
+				return;
+			}
 
 			const url = new URL(route, baseUrl);
 			if (url.origin !== baseUrl.origin) {
@@ -201,12 +214,6 @@ export class Builder {
 			const serveFileAbs = path.join(this.serveDirAbs, serveFileRel);
 			const serveDirAbs = path.dirname(serveFileAbs);
 			fs.mkdirSync(serveDirAbs, { recursive: true });
-
-			if (!page.isSSG) {
-				this.log(`Route '${routeName}' is not SSG. Skipping...`);
-				this.logBreak();
-				return;
-			}
 
 			if (page === undefined) {
 				this.log(`Route '${routeName}' does not resolve to a page. Skipping...`);
