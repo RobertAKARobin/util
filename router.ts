@@ -21,7 +21,7 @@ export type RouterEvent<Routes extends RouteMap> = {
  */
 export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>> {
 	static hasExtension = /\.\w+(\?.*|$)/;
-	static paramDelimeter = `[%]`;
+	static paramDelimeter = `[()]`;
 
 	static findRouteName(route: RouteDefinition, routes: RouteMap) {
 		for (const routeName in routes) {
@@ -45,14 +45,14 @@ export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>
 			return null;
 		}
 
-		const subjectUrl = Router.toPath(subject);
-		const controlUrl = Router.toPath(control);
+		const subjectUrl = decodeURI(Router.toPath(subject));
+		const controlUrl = decodeURI(Router.toPath(control));
 
 		if (typeof control === `function`) {
 			const matcher = new RegExp(
 				controlUrl
 					.replace(/[.?]/g, `\\$&`)
-					.replaceAll(Router.paramDelimeter, `([\\w%]+)`)
+					.replaceAll(Router.paramDelimeter, `([\\w ]+)`)
 					+ `$`
 			);
 			const match = subjectUrl.match(matcher);
