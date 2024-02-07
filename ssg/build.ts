@@ -468,6 +468,7 @@ export class Builder {
 			context.serve({
 				port,
 				servedir: this.serveDirAbs,
+				...options,
 			}).then(() => {
 				this.logHeader(`Serving`);
 				this.log(local(this.serveDirAbs), `http://localhost:${port}`);
