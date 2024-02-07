@@ -8,6 +8,12 @@
 	font-size: 24px;
 }
 
+@font-face {
+	font-family: myCustomFont;
+	font-weight: 400;
+	src: url('/assets/Wingdings 3.ttf');
+}
+
 .type-body {
 	font-family: monospace;
 	font-size: 24px;
@@ -19,6 +25,10 @@
 
 .type-h2 {
 	color: blue;
+}
+
+.type-wtf {
+	font-family: myCustomFont;
 }
 
 h1 {

@@ -10,6 +10,14 @@ const constants = {
 	fontBase_size: 24,
 };
 
+const fonts = {
+	wingdings: {
+		name: `myCustomFont`,
+		src: `/assets/Wingdings 3.ttf`,
+		weight: 400,
+	},
+} as const;
+
 const typefaces = {
 	body: `
 		font-family: ${constants.fontBase_family};
@@ -21,10 +29,14 @@ const typefaces = {
 	h2: `
 		color: blue;
 	`,
+	wtf: `
+		font-family: ${fonts.wingdings.name};
+	`,
 };
 
 export const theme = new CssTheme({
 	bps: breakpoints,
+	fonts,
 	types: typefaces,
 	val: constants,
 });

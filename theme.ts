@@ -16,6 +16,13 @@ text-decoration: inherit;
 
 type GenericBreakpoints = Record<string, number>;
 type GenericConstants = Record<string, string | number>;
+type GenericFonts = Record<string, {
+	display?: `auto` | `block` | `swap` | `fallback` | `optional`;
+	name?: string;
+	src: string;
+	style?: `normal` | `italic` | `oblique`;
+	weight?: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
+}>;
 type GenericTypefaces = Record<string, string>;
 
 /**
@@ -24,6 +31,7 @@ type GenericTypefaces = Record<string, string>;
 export class CssTheme<
 	Breakpoints extends GenericBreakpoints = GenericBreakpoints,
 	Constants extends GenericConstants = GenericConstants,
+	Fonts extends GenericFonts = GenericFonts,
 	Typefaces extends GenericTypefaces = GenericTypefaces,
 > {
 	/**
@@ -33,6 +41,14 @@ export class CssTheme<
 		lessThan: {} as Record<keyof Breakpoints, string>,
 		moreThan: {} as Record<keyof Breakpoints, string>,
 	};
+	/**
+	 * The contents of `this.fonts` as a string of `@font-face` declarations.
+	 */
+	readonly fontFaces: string;
+	/**
+	 * A map of font names to their font-face configuration properties.
+	 */
+	readonly fonts: Fonts;
 	/**
 	 * A CSS snippet that resets most of the browser's default styles
 	 */
@@ -68,12 +84,24 @@ export class CssTheme<
 
 	constructor(input: Partial<{
 		bps: Breakpoints;
+		fonts: Fonts;
 		types: Typefaces;
 		val: Constants;
 	}> = {}) {
-		const breakpoints = input.bps || {} as Breakpoints;
+		this.fonts = input.fonts ?? {} as Fonts;
+		this.fontFaces = Object.entries(this.fonts).map(([fontName, font]) => /*css*/`
+@font-face {
+	${font.display ? `font-display: ${font.display};` : ``}
+	font-family: ${font.name ?? fontName};
+	${font.style ? `font-style: ${font.style};` : ``}
+	font-weight: ${font.weight ?? 400};
+	src: url('${font.src}');
+}
+		`).join(`\n`);
+
+		const breakpoints = input.bps ?? {} as Breakpoints;
 		this.val = {
-			...input.val || {} as Constants,
+			...input.val ?? {} as Constants,
 			...breakpoints,
 		};
 		for (const constantName in this.val) {
@@ -83,7 +111,7 @@ export class CssTheme<
 		}
 		this.varsDeclarations = this.toCssVariables(this.val);
 
-		const typefaces = input.types || {} as Record<string, string>;
+		const typefaces = input.types ?? {} as Record<string, string>;
 
 		const typeNames = Object.keys(typefaces);
 		this.typeClassNames = typeNames.reduce((typeNames, typeName: keyof Typefaces) => {

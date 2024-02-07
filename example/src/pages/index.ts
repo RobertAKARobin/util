@@ -8,6 +8,7 @@ import { modalContainer } from '@src/app.ts';
 import { ProgressModal } from '@src/modals/progress.ts';
 import { router } from '@src/app.ts';
 import { state } from '@src/state.ts';
+import { theme } from '@src/theme.ts';
 import { TransitionTest } from '@src/components/transition-test.ts';
 
 const style = /*css*/`
@@ -90,6 +91,8 @@ Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ 
 </markdown>
 
 <p>${link(`ssgYes`, `Link to SSG Yes`)}</p>
+
+<p class="${theme.typeClassNames.wtf}">abc123</p>
 
 <button onclick="${this.bind(`anchorlessRoute`)}"><host type="button">Go to SSG Yes</host></button>
 

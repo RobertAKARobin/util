@@ -2,13 +2,14 @@ import { modalContainerDefaultStyle } from '@robertakarobin/util/components/moda
 
 import { bp, theme, types } from '@src/theme.ts';
 
-export default `
+export default /*css*/`
 :root {
 	${theme.varsDeclarations}
 
 	${types.body}
 }
 
+${theme.fontFaces}
 ${theme.typeClasses}
 
 h1 {
