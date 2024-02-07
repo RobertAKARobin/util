@@ -21,6 +21,9 @@ const builder = new CustomBuilder({
 	esbuild: {
 		minify: false,
 	},
+	esbuildServe: {
+		fallback: `dist/index.html`,
+	},
 	metaFileRel: `./meta.json`,
 	ssgRoutes,
 });
