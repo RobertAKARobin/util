@@ -41,6 +41,7 @@ export class Builder {
 		return `?cache=${Date.now().toString()}`;
 	}
 	esbuildOverride: Partial<esbuild.BuildOptions>;
+	esbuildServeOverride: Partial<esbuild.ServeOptions>;
 	readonly metaFileRel: string | undefined;
 	readonly quiet: boolean;
 	readonly serveDirAbs: string;
@@ -73,6 +74,7 @@ export class Builder {
 		baseUri: string;
 		browserSrcFileRel: string | undefined;
 		esbuild: Partial<esbuild.BuildOptions>;
+		esbuildServe: Partial<esbuild.ServeOptions>;
 		metaFileRel: string;
 		quiet: boolean;
 		serveDirRel: string;
@@ -83,6 +85,8 @@ export class Builder {
 		tsconfigFileRel: string;
 	}> = {}) {
 		this.esbuildOverride = input.esbuild ?? {};
+		this.esbuildServeOverride = input.esbuildServe ?? {};
+
 		this.quiet = input.quiet ?? false;
 
 		this.baseUri = input.baseUri ?? `/`;
@@ -132,7 +136,7 @@ export class Builder {
 		await this.cleanup();
 
 		if (input.serve === true) {
-			this.serve();
+			this.serve(this.esbuildServeOverride);
 		}
 	}
 
@@ -458,6 +462,9 @@ export class Builder {
 	serve(options: (esbuild.ServeOptions) = {}) {
 		const port = isNaN(options.port as number) ? 3000 : options.port;
 		const retryPort = () => esbuild.context({}).then(context => {
+			let tries = 0;
+			const triesMax = 10;
+
 			context.serve({
 				port,
 				servedir: this.serveDirAbs,
@@ -466,6 +473,10 @@ export class Builder {
 				this.log(local(this.serveDirAbs), `http://localhost:${port}`);
 				this.logBreak();
 			}).catch(() => {
+				if (tries >= triesMax) {
+					throw new Error(`Tried ${triesMax} times to connect to port ${port}, but couldn't. Is it in use?`);
+				}
+				tries += 1;
 				void retryPort();
 			});
 		});
