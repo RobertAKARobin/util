@@ -52,7 +52,7 @@ export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>
 			const matcher = new RegExp(
 				controlUrl
 					.replace(/[.?]/g, `\\$&`)
-					.replaceAll(Router.paramDelimeter, `(\\w+)`)
+					.replaceAll(Router.paramDelimeter, `([\\w%]+)`)
 					+ `$`
 			);
 			const match = subjectUrl.match(matcher);

@@ -54,6 +54,7 @@ export const spec = test(`Router`, $ => {
 	$.assert(x => x(Router.toPath(route)) === `https://a.test/foo/[%]/bar/[%]`);
 	$.assert(x => x(Router.isMatch(`/foo/aaa/bar/bbb`, route)));
 	$.assert(x => x(Router.match(`/foo/aaa/bar/bbb`, route))?.join(`,`) === `aaa,bbb`);
+	$.assert(x => x(Router.match(`/foo/a a a/bar/bbb`, route))?.join(`,`) === `a%20a%20a,bbb`);
 
 	$.log(() => route = ([ a, [b], [[c]] ]: Array<string>) => `/foo/${a}/bar/${b}/baz/${c}`);
 	$.assert(x => x(Router.toPath(route)) === `https://a.test/foo/[%]/bar/[%]/baz/[%]`);
