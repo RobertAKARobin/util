@@ -26,35 +26,47 @@ export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>
 	static findRouteName(route: RouteDefinition, routes: RouteMap) {
 		for (const routeName in routes) {
 			const subject = routes[routeName];
-			if (Router.isMatch(route, subject)) {
+			if (Router.match(route, subject) !== null) {
 				return routeName;
 			}
 		}
 	}
 
-	static isMatch(source: RouteDefinition, target: RouteDefinition) {
-		if (source === target) {
-			return true;
+	static isMatch(...args: Parameters<typeof Router.match>) {
+		return (Router.match(...args) !== null);
+	}
+
+	static match(subject: RouteDefinition, control: RouteDefinition) {
+		if (subject === control) {
+			return [];
 		}
 
-		if (typeof source === `function`) {
-			return false;
+		if (typeof subject === `function`) {
+			return null;
 		}
 
-		const sourceUrl = Router.toPath(source);
-		const targetUrl = Router.toPath(target);
+		const subjectUrl = Router.toPath(subject);
+		const controlUrl = Router.toPath(control);
 
-		if (typeof target === `function`) {
+		if (typeof control === `function`) {
 			const matcher = new RegExp(
-				targetUrl
+				controlUrl
 					.replace(/[.?]/g, `\\$&`)
-					.replaceAll(Router.paramDelimeter, `\\w+`)
+					.replaceAll(Router.paramDelimeter, `(\\w+)`)
 					+ `$`
 			);
-			return matcher.test(sourceUrl);
+			const match = subjectUrl.match(matcher);
+			if (match === null) {
+				return null;
+			}
+			return match.slice(1);
 		}
 
-		return (sourceUrl === targetUrl);
+		if (subjectUrl !== controlUrl) {
+			return null;
+		}
+
+		return [];
 	}
 
 	static toPath(input: RouteDefinition) {
@@ -190,6 +202,15 @@ export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>
 				url,
 			});
 		});
+	}
+
+	match(subject: RouteDefinition) {
+		const routeName = this.findRouteName(subject); // TODO3: This runs Router.match twice under the hood
+		if (routeName === undefined) {
+			return null;
+		}
+
+		return Router.match(subject, this.routes[routeName]);
 	}
 }
 

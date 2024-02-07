@@ -53,6 +53,8 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ## TODO
 
+-	TODO1: Specify which routes to build in build config, not with `isSSG`
+
 -	TODO2: Don't use `[on]` attributes?
 
 -	TODO2: Style setter
