@@ -59,8 +59,6 @@ export class ProgressCircle extends Component {
     r="${this.radius}"
     cx="${this.diameter / 2}"
     cy="${this.diameter / 2}"
-		x="0"
-		y="0"
 	/>
 </svg>
 	`;

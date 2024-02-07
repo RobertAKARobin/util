@@ -85,6 +85,7 @@ export class Component extends HTMLElement {
 			constructor(id?: Component[`id`]) {
 				super();
 				this.onConstruct(id);
+				this.setAttribute(Component.const.attrEl, this.Ctor.elName);
 			}
 		}
 
@@ -112,7 +113,9 @@ export class Component extends HTMLElement {
 			const Constructor = Subclass as unknown as typeof Component;
 			const elName = options.elName ?? Constructor.elName ?? `l-${Constructor.name.toLowerCase()}`;
 
-			const selector = `[${Component.const.attrEl}='${elName}']`;
+			const selector = Constructor.tagName === undefined
+				? elName
+				: `[${Component.const.attrEl}='${elName}']`;
 			const style = options.style?.replace(/::?host/g, selector);
 			if ( // Has to come after elName has been assigned
 				typeof style === `string`
@@ -376,7 +379,6 @@ export class Component extends HTMLElement {
 		if (id !== undefined) {
 			this.id = id;
 		}
-		this.setAttribute(Component.const.attrEl, this.Ctor.elName);
 	}
 
 	/**
