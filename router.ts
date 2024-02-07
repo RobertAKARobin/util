@@ -20,7 +20,7 @@ export type RouterEvent<Routes extends RouteMap> = {
  * Given a dictionary of routes, e.g. { contactPage: `/contact` }, listens to window location changes and emits the new location
  */
 export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>> {
-	static hasExtension = /\.\w+$/;
+	static hasExtension = /\.\w+(\?.*|$)/;
 	static paramDelimeter = `[%]`;
 
 	static findRouteName(route: RouteDefinition, routes: RouteMap) {
@@ -71,7 +71,7 @@ export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>
 
 	static toPath(input: RouteDefinition) {
 		const url = Router.toUrl(input);
-		let path = url.href;
+		let path = `${url.origin}${url.pathname}`;
 
 		if (!Router.hasExtension.test(path) && path.endsWith(`/`)) {
 			path = path.slice(0, -1);
@@ -214,6 +214,7 @@ export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>
 	}
 }
 
+// TODO1: Consolidate to component/app?
 /**
  * Given a route, returns the corresponding View
  */

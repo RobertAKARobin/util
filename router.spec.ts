@@ -28,6 +28,9 @@ export const spec = test(`Router`, $ => {
 	$.assert(x => x(Router.isMatch(`/foo/bar`, `/foo/bar`)));
 	$.assert(x => x(Router.isMatch(`/foo/bar/`, `/foo/bar`)));
 	$.assert(x => x(Router.isMatch(`/foo/bar`, `/foo/bar/`)));
+	$.assert(x => x(Router.isMatch(`/foo/bar?foo=bar`, `/foo/bar/`)));
+	$.assert(x => x(Router.isMatch(`/foo/bar`, `/foo/bar/?foo=bar`)));
+	$.assert(x => x(!Router.isMatch(`/foo/bar&foo=bar`, `/foo/bar/`)));
 	$.assert(x => x(Router.isMatch(`https://a.test`, `https://a.test`)));
 	$.assert(x => x(Router.isMatch(`https://a.test/`, `https://a.test`)));
 	$.assert(x => x(Router.isMatch(`https://a.test`, `https://a.test/`)));
