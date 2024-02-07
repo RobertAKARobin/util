@@ -28,7 +28,7 @@ module.exports = {
 		'custom-property-empty-line-before': null,
 		'custom-property-pattern': null,
 		'declaration-empty-line-before': null,
-		'font-family-name-quotes': `always-unless-keyword`,
+		'font-family-name-quotes': `always-where-required`,
 		'font-family-no-missing-generic-family-keyword': null,
 		'keyframes-name-pattern': null,
 		'no-descending-specificity': null,
