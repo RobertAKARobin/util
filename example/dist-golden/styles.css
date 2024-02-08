@@ -43,28 +43,3 @@ h1 {
 *:target {
 	outline: 1px solid red;
 }
-
-[is='l-modalcontainer'] {
-	align-items: center;
-	backdrop-filter: blur(5px);
-	background: #000000c0;
-	display: flex;
-	height: 100%;
-	justify-content: center;
-	left: 0;
-	opacity: 0;
-	position: fixed;
-	top: 0;
-	transition: opacity 0.2s linear;
-	width: 100%;
-	z-index: 9999;
-
-	&[data-transition-state='inactive'] {
-		display: none;
-	}
-
-	&[data-transition-state='activating'],
-	&[data-transition-state='active'] {
-		opacity: 1;
-	}
-}

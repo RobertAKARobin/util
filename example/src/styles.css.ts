@@ -1,5 +1,3 @@
-import { modalContainerDefaultStyle } from '@robertakarobin/util/components/modal-container.ts';
-
 import { bp, theme, types } from '@src/theme.ts';
 
 export default /*css*/`
@@ -23,6 +21,4 @@ h1 {
 *:target {
 	outline: 1px solid red;
 }
-
-${modalContainerDefaultStyle}
 `;
