@@ -1,11 +1,10 @@
 import { BaseApp, Resolver, Router } from '@robertakarobin/util/components/app.ts';
+import { appContext } from '@robertakarobin/util/context.ts';
 import { Component } from '@robertakarobin/util/component.ts';
 import { ModalContainer } from '@robertakarobin/util/components/modal-container.ts';
 
 import { Nav } from '@src/components/nav.ts';
 import { routes } from './routes.ts';
-
-export const modalContainer = ModalContainer.find() ?? new ModalContainer();
 
 export const router = new Router(routes);
 
@@ -42,6 +41,11 @@ export class App extends BaseApp {
 
 	async connectedCallback() {
 		await super.connectedCallback();
+
+		if (appContext === `browser`) {
+			this.appendChild(new ModalContainer());
+		}
+
 		this.resolver.subscribe(() => {
 			this.findDown(Nav).render();
 		});
@@ -50,6 +54,5 @@ export class App extends BaseApp {
 	template = () => /*html*/`
 ${new Nav()}
 ${this.page}
-${modalContainer}
 	`;
 }

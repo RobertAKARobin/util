@@ -43,6 +43,7 @@ width: 100%;
  * Each application will presumably need only one, since you only generally only want one dialog to show at a time.
  */
 export abstract class BaseModalContainer extends Component.custom(`dialog`) {
+	clearOnClose = false;
 	duration = defaultDuration;
 	transition: Transition;
 
@@ -56,28 +57,40 @@ export abstract class BaseModalContainer extends Component.custom(`dialog`) {
 		}, {
 			emitOnInit: true,
 		});
+	}
 
+	close() {
+		if (this.transition.isActive) {
+			this.transition.inactivate();
+		}
+		return this;
+	}
+
+	connectedCallback() {
 		this.transition.subscribe(({ status }) => {
 			if (status === `inactive`) {
-				this.replaceChildren();
-				this.close();
+				super.close();
 			}
 		});
 	}
 
-	clear() {
-		this.transition.inactivate();
+	place(...children: Array<Node>) {
+		this.replaceChildren(...children);
+		return this;
 	}
 
-	place(...contents: Array<Node>) {
-		this.replaceChildren(...contents);
-
+	show() {
 		const style = document.createElement(`style`);
 		style.innerHTML = `${this.Ctor.selector}, ${this.Ctor.selector}::backdrop { ${durationVarName}: ${this.duration}s }`;
 		this.appendChild(style);
 
-		this.showModal();
+		super.showModal();
 		this.transition.activate();
+		return this;
+	}
+
+	showModal() {
+		return this.show();
 	}
 }
 

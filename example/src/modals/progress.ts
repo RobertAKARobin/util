@@ -34,7 +34,7 @@ export class ProgressModal extends Component {
 	}
 
 	dismiss() {
-		this.findUp(ModalContainer).clear();
+		this.findUp(ModalContainer).close();
 	}
 
 	template = () => /*html*/`

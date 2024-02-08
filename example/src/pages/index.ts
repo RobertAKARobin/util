@@ -1,10 +1,10 @@
 import { Component, Page } from '@robertakarobin/util/component.ts';
 import { appContext } from '@robertakarobin/util/context.ts';
+import { ModalContainer } from '@robertakarobin/util/components/modal-container.ts';
 
 import { link } from '@src/components/link.ts';
 import { List } from '@src/components/list.ts';
 import { ListItem } from '@src/components/listitem.ts';
-import { modalContainer } from '@src/app.ts';
 import { ProgressModal } from '@src/modals/progress.ts';
 import { router } from '@src/app.ts';
 import { state } from '@src/state.ts';
@@ -53,7 +53,7 @@ export class IndexPage extends Page {
 	}
 
 	openModal() {
-		modalContainer.place(new ProgressModal().render());
+		ModalContainer.find().place(new ProgressModal().render()).show();
 	}
 
 	template = () => /*html*/`
