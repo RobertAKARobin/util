@@ -4,47 +4,45 @@ import { Component } from '../component.ts';
 export const defaultDuration = 0.2;
 const durationVarName = `--modalContainerDuration`;
 
-const style = /*css*/`
-:host {
-	align-items: center;
-	background: transparent;
-	border: 0;
-	display: flex;
-	height: 100%;
-	justify-content: center;
-	padding: 0;
-	width: 100%;
+export const modalContainerDefaultStyles = /*css*/`
+align-items: center;
+background: transparent;
+border: 0;
+display: flex;
+height: 100%;
+justify-content: center;
+padding: 0;
+width: 100%;
 
-	&::backdrop {
-		backdrop-filter: blur(5px);
-		background: #000000b0;
-	}
+&::backdrop {
+	backdrop-filter: blur(5px);
+	background: #000000b0;
+}
 
+&,
+&::backdrop {
+	opacity: 0;
+	transition: opacity var(${durationVarName}) linear;
+}
+
+&[${$transitionStateAttr}='${transitionStatus.inactive}'] {
+	display: none;
+}
+
+&[${$transitionStateAttr}='${transitionStatus.activating}'],
+&[${$transitionStateAttr}='${transitionStatus.active}'] {
 	&,
 	&::backdrop {
-		opacity: 0;
-		transition: opacity var(${durationVarName}) linear;
-	}
-
-	&[${$transitionStateAttr}='${transitionStatus.inactive}'] {
-		display: none;
-	}
-
-	&[${$transitionStateAttr}='${transitionStatus.activating}'],
-	&[${$transitionStateAttr}='${transitionStatus.active}'] {
-		&,
-		&::backdrop {
-			opacity: 1;
-		}
+		opacity: 1;
 	}
 }
 `;
 
 /**
- * A container into which modal content can be injected with `.place()`. Each application will presumably need only one, since you only generally only want one dialog to show at a time.
+ * A container into which modal content can be injected with `.place()`. It's abstract so that it can be subclassed.
+ * Each application will presumably need only one, since you only generally only want one dialog to show at a time.
  */
-@Component.define({ style })
-export class ModalContainer extends Component.custom(`dialog`) {
+export abstract class BaseModalContainer extends Component.custom(`dialog`) {
 	duration = defaultDuration;
 	transition: Transition;
 
@@ -82,3 +80,14 @@ export class ModalContainer extends Component.custom(`dialog`) {
 		this.transition.activate();
 	}
 }
+
+const style = /*css*/`
+:host {
+	${modalContainerDefaultStyles}
+}
+`;
+/**
+ * @see {@link BaseModalContainer}
+ */
+@Component.define({ style })
+export class ModalContainer extends BaseModalContainer {}

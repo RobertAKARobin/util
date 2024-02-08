@@ -144,8 +144,8 @@ export class CssTheme<
 
 	/**
 	 * Outputs a string that declares all vals as CSS variables
-	 * @see css
-	 * @see val
+	 * @see {@link val}
+	 * @see {@link vars}
 	 */
 	toCssVariables(vals: GenericConstants) {
 		return Object.entries(vals).map(([constant, value]) => `
