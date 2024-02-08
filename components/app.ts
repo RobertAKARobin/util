@@ -50,9 +50,16 @@ export abstract class BaseApp<
 		if (newPage === previous) {
 			return;
 		}
-		this.page = newPage;
+
+		if (previous === undefined) {
+			this.page = newPage;
+			this.render();
+		} else {
+			this.page.replaceWith(newPage.render());
+			this.page = newPage;
+		}
+
 		document.title = this.page.pageTitle;
-		this.render();
 	}
 
 	// TODO2: Move formatHead from build to here

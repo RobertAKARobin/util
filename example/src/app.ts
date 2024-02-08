@@ -40,6 +40,13 @@ export class App extends BaseApp {
 	resolver = resolver;
 	router = router;
 
+	async connectedCallback() {
+		await super.connectedCallback();
+		this.resolver.subscribe(() => {
+			this.findDown(Nav).render();
+		});
+	}
+
 	template = () => /*html*/`
 ${new Nav()}
 ${this.page}

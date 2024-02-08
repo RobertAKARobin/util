@@ -26,6 +26,10 @@ const style = /*css*/`
 		transition: opacity var(${durationVarName}) linear;
 	}
 
+	&[${$transitionStateAttr}='${transitionStatus.inactive}'] {
+		display: none;
+	}
+
 	&[${$transitionStateAttr}='${transitionStatus.activating}'],
 	&[${$transitionStateAttr}='${transitionStatus.active}'] {
 		&,
