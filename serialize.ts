@@ -1,5 +1,5 @@
 /**
- * Serialize an object as a native JS value so that it can be included in `[on*]` attributes. TODO2: Use JSON5 or something robust
+ * Serialize an object as a native JS value so that it can be included in `[on*]` attributes. TODO3: Use JSON5 or something robust
  */
 export function serialize(input: unknown): string {
 	let skipCount = 0;

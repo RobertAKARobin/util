@@ -38,7 +38,7 @@ export const spec = test(`Router`, $ => {
 	$.assert(x => x(Router.isMatch(`https://a.test`, `https://a.test/`)));
 	$.assert(x => x(Router.isMatch(`/foo/bar.html`, `foo/bar.html`)));
 
-	$.assert(x => x(Router.isMatch(`/foo/bar.html/`, `/foo/bar.html`))); // TODO2: These really shouldn't match. But also should never occur
+	$.assert(x => x(Router.isMatch(`/foo/bar.html/`, `/foo/bar.html`))); // TODO3: These really shouldn't match. But also should never occur
 	$.assert(x => x(Router.isMatch(`/foo/bar.html`, `/foo/bar.html/`)));
 
 	$.assert(x => x(Router.toPath(routes.builder)) === `https://a.test/foo/${delim}`);

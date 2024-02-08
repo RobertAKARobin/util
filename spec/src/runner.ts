@@ -230,7 +230,7 @@ export class SpecRunner {
 		return result;
 	}
 
-	test = <Args>( // TODO: Error on suites or tests inside of tests
+	test = <Args>( // TODO2: Error on suites or tests inside of tests
 		title: string,
 		testDefinition: typeof Type.TestDefinition<Args>,
 		options: Partial<Type.TestOptions> = {}

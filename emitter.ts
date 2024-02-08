@@ -174,7 +174,7 @@ export class Emitter<State> {
 			isStrong?: boolean;
 		} = {}
 	) {
-		const isStrong = options?.isStrong ?? true;
+		const isStrong = options?.isStrong ?? true; // TODO1: Make weak by default
 		const subscription = isStrong
 			? onEmit
 			: new WeakRef(onEmit);

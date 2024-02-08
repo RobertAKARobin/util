@@ -283,7 +283,7 @@ export class Component extends HTMLElement {
 	>(
 		this: Self,
 		methodKey: MethodKey,
-		...args: Partial<[Args[1], Args[2], Args[3]]> // TODO2: Why TF doesn't `...args: Args` work
+		...args: Partial<[Args[1], Args[2], Args[3]]> // TODO3: Why TF doesn't `...args: Args` work
 	) {
 		const methodName = methodKey as string;
 		const argsString = args.length === 0 ? `` : `,${serialize(args).slice(1, -1)}`; // Removes leading/trailing brackets
