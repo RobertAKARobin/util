@@ -1,8 +1,8 @@
 export function delay(
 	callback: () => unknown,
-	time: number,
+	milliseconds: number,
 ) {
 	return new Promise(resolve => {
-		setTimeout(() => resolve(callback()), time);
+		setTimeout(() => resolve(callback()), milliseconds);
 	});
 }
