@@ -41,7 +41,7 @@ export class FPSLoop {
 			: globalThis.setImmediate;
 	}
 
-	begin() {
+	begin(): Promise<void> {
 		const period = 1000 / this.loopsPerSecond;
 		this.currentLoop_ = new Promise(resolve => {
 			this.resolve_ = resolve;
@@ -62,7 +62,7 @@ export class FPSLoop {
 
 		step();
 
-		return this.currentLoop;
+		return this.currentLoop ?? Promise.resolve();
 	}
 
 	pause() {
