@@ -1,4 +1,4 @@
-import { test } from './spec/index.ts';
+import { test } from '../spec/index.ts';
 
 import { EntityStateEmitter } from './entities.ts';
 

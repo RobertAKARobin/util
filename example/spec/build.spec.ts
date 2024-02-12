@@ -2,7 +2,7 @@ import '@robertakarobin/ssg/dummydom.ts';
 
 import { suite, test } from '@robertakarobin/util/spec/index.ts';
 import { diff } from '@robertakarobin/util/spec/diff.ts';
-import { EntityStateEmitter } from '@robertakarobin/util/entities.ts';
+import { EntityStateEmitter } from '@robertakarobin/util/emitter/entities.ts';
 
 import fs from 'fs';
 

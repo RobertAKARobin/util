@@ -1,5 +1,5 @@
 import { appContext } from '@robertakarobin/util/context.ts';
-import { EntityStateEmitter } from '@robertakarobin/util/entities.ts';
+import { EntityStateEmitter } from '@robertakarobin/util/emitter/entities.ts';
 
 import type * as Type from '@src/types.d.ts';
 

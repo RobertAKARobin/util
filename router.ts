@@ -1,5 +1,5 @@
 import { appContext, baseUrl, defaultBaseUrl } from './context.ts';
-import { Emitter, type EmitterOptions } from './emitter.ts';
+import { Emitter, type EmitterOptions } from './emitter/emitter.ts';
 import { proxyDeep } from './proxyDeep.ts';
 
 export type RoutePathFunction = (...args: Array<any>) => string | URL; // eslint-disable-line @typescript-eslint/no-explicit-any

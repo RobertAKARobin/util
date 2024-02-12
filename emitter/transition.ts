@@ -1,8 +1,9 @@
-import { byIndex } from './byIndex.ts';
+import { byIndex } from '../byIndex.ts';
+import { enumy } from '../enumy.ts';
+import { repaint } from '../repaint.ts';
+import { sleep } from '../sleep.ts';
+
 import { Emitter } from './emitter.ts';
-import { enumy } from './enumy.ts';
-import { repaint } from './repaint.ts';
-import { sleep } from './sleep.ts';
 
 export const transitionStatuses = [
 	`activate`,
@@ -41,7 +42,7 @@ type TransitionState = {
 	status: TransitionStatus;
 };
 
-export class Transition extends Emitter<TransitionState> {
+export class TransitionEmitter extends Emitter<TransitionState> {
 	static readonly $stateAttr = $transitionStateAttr;
 	static readonly status = transitionStatus;
 	static readonly statuses = transitionStatuses;
@@ -74,7 +75,7 @@ export class Transition extends Emitter<TransitionState> {
 		}
 
 		if (this.$.$target !== undefined) {
-			this.$.$target.setAttribute(Transition.$stateAttr, update.status);
+			this.$.$target.setAttribute(TransitionEmitter.$stateAttr, update.status);
 		}
 
 		switch (update.status) {

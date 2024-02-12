@@ -1,5 +1,6 @@
+import { newUid } from '../uid.ts';
+
 import { Emitter } from './emitter.ts';
-import { newUid } from './uid.ts';
 
 export type EntityState<Type> = {
 	byId: Record<string, Type>;

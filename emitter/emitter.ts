@@ -1,4 +1,4 @@
-import { isPrimitive } from './isPrimitive.ts';
+import { isPrimitive } from '../isPrimitive.ts';
 
 export type Formatter<
 	State,

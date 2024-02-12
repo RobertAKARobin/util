@@ -1,4 +1,8 @@
-import { $transitionStateAttr, Transition, transitionStatus } from '../transition.ts';
+import {
+	$transitionStateAttr,
+	TransitionEmitter,
+	transitionStatus,
+} from '../emitter/transition.ts';
 import { Component } from '../component.ts';
 
 export const defaultDuration = 0.2;
@@ -46,19 +50,13 @@ width: 100%;
 export abstract class BaseModalContainer extends Component.custom(`dialog`) {
 	clearOnClose = false;
 	duration = defaultDuration;
-	transition: Transition;
-
-	constructor() {
-		super();
-
-		this.transition = new Transition({
-			$target: this,
-			duration: this.duration,
-			status: `inactive`,
-		}, {
-			emitOnInit: true,
-		});
-	}
+	transition = new TransitionEmitter({
+		$target: this,
+		duration: this.duration,
+		status: `inactive`,
+	}, {
+		emitOnInit: true,
+	});
 
 	close() {
 		if (this.transition.isActive) {

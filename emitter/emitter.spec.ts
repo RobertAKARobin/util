@@ -1,4 +1,4 @@
-import { suite, test } from './spec/index.ts';
+import { suite, test } from '../spec/index.ts';
 
 import { Emitter } from './emitter.ts';
 
