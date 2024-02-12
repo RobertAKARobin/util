@@ -13,6 +13,7 @@ import { stringMates, type TagResult } from '@robertakarobin/util/string-mates.t
 import type { BaseApp } from '@robertakarobin/util/components/app.ts';
 import { baseUrl } from '@robertakarobin/util/context.ts';
 import { type Page } from '@robertakarobin/util/component.ts';
+import { posixPath } from '@robertakarobin/util/posixPath.ts';
 import { promiseConsecutive } from '@robertakarobin/util/promiseConsecutive.ts';
 import { type RouteMap } from '@robertakarobin/util/components/app.ts';
 
@@ -91,7 +92,7 @@ export class Builder {
 
 		this.baseUri = input.baseUri ?? `/`;
 
-		this.baseDirAbs = input.baseDirAbs ?? process.cwd();
+		this.baseDirAbs = posixPath(input.baseDirAbs ?? process.cwd());
 		this.serveDirAbs = path.join(this.baseDirAbs, input.serveDirRel ?? `./dist`);
 		this.srcRawDirAbs = path.join(this.baseDirAbs, input.srcRawDirRel ?? `./src`);
 		this.srcDirAbs = path.join(this.baseDirAbs, input.srcTmpDirRel ?? `./tmp`); // Copying the TS source to `/tmp` is necessary because we want to compile Markdown _before_ we build the JS source. Otherwise we'd be sending Markdown to the browser, and we'd rather send valid HTML and not need to load a Markdown parser
