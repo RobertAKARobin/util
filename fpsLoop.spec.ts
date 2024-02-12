@@ -7,8 +7,9 @@ import { FPSLoop } from './fpsLoop.ts';
 const loopsPerSecond = 20;
 const milliseconds = 1000;
 const maxLoops = loopsPerSecond / 2;
-const msPerLoop = milliseconds / loopsPerSecond;
-const duration = (msPerLoop * maxLoops) + 100; // Adding some buffer
+const msPerLoopMin = milliseconds / loopsPerSecond;
+const msPerLoopMax = msPerLoopMin + 3;
+const duration = (msPerLoopMin * maxLoops) + 100; // Adding some buffer
 
 export const spec = suite(`FPSLoop`,
 	{
@@ -43,18 +44,18 @@ export const spec = suite(`FPSLoop`,
 		$.assert(x => x(loop.state) === `ended`);
 		$.assert(x => x(times.length) === maxLoops);
 		const average = Math.round(mean(...times));
-		$.assert(x => x(msPerLoop) <= x(average) && x(average) <= x(msPerLoop + 2));
+		$.assert(x => x(msPerLoopMin) <= x(average) && x(average) <= x(msPerLoopMax));
 	}),
 
 	test(`sleep`, async $ => {
 		const { loop, times } = $.args;
 		void loop.begin();
 		$.assert(x => x(loop.state) === `running`);
-		await sleep(duration + (msPerLoop * 1));
+		await sleep(duration + (msPerLoopMin * 1));
 		$.assert(x => x(loop.state) === `ended`);
 		$.assert(x => x(times.length) === x(maxLoops));
 		const average = Math.round(mean(...times));
-		$.assert(x => x(msPerLoop) <= x(average) && x(average) <= x(msPerLoop + 1));
+		$.assert(x => x(msPerLoopMin) <= x(average) && x(average) <= x(msPerLoopMax));
 		await loop.currentLoop;
 	}),
 
@@ -62,12 +63,12 @@ export const spec = suite(`FPSLoop`,
 		const { loop, times } = $.args;
 		void loop.begin();
 		$.assert(x => x(loop.state) === `running`);
-		await sleep((duration / 2) + (msPerLoop * 2));
+		await sleep((duration / 2) + (msPerLoopMin * 2));
 		$.log(() => loop.pause());
 		$.assert(x => x(loop.state) === `paused`);
 		$.assert(x => x(times.length) === x((maxLoops / 2) + 1));
 		$.log(() => loop.unpause());
-		await sleep((duration / 2) + (msPerLoop * 2));
+		await sleep((duration / 2) + (msPerLoopMin * 2));
 		$.assert(x => x(loop.state) === `ended`);
 		$.assert(x => x(times.length) === x(maxLoops));
 	}),

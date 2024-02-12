@@ -37,6 +37,7 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 -	No custom template syntax
 -	No custom CSS syntax
 -	No custom VSCode extension required
+-	No 3rd party modules for front-end code, and for back-end code only when it would otherwise require reinventing a big ol' wheel beyond the day-to-day of making a web app
 -	Automates boring CSS stuff
 -	Produces static HTML/CSS files for SSG
 -	Adds interactivity with JS to static HTML files, without needing to rerender
