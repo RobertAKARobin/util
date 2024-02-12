@@ -14,7 +14,7 @@ export class FPSLoop {
 		return this.currentLoop_;
 	}
 	private currentLoop_?: Promise<void>;
-	doWhat: (loop: FPSLoop) => void;
+	doWhat: () => void;
 	loopsPerSecond: number;
 	private resolve_?: Function;
 	runner: typeof setImmediate | typeof requestAnimationFrame;
@@ -37,7 +37,7 @@ export class FPSLoop {
 			appContext === `browser` ? `requestAnimationFrame` : `setImmediate`
 		);
 		this.runner = runner === `requestAnimationFrame`
-			? globalThis.requestAnimationFrame
+			? globalThis.requestAnimationFrame.bind(globalThis) // Throws "Illegal invocation" if `this` not `null` or `window`
 			: globalThis.setImmediate;
 	}
 
@@ -52,7 +52,7 @@ export class FPSLoop {
 		const step = debounce(() => {
 			switch (this.state) {
 				case `running`:
-					this.doWhat(this);
+					this.doWhat();
 
 				case `paused`:
 				case `running`:

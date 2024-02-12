@@ -17,7 +17,7 @@ export const spec = suite(`FPSLoop`,
 			let lastTime = undefined as number | undefined;
 			const times = [] as Array<number>;
 			const loop = new FPSLoop(
-				loop => {
+				() => {
 					const time = performance.now();
 					if (lastTime !== undefined) {
 						const timeSinceLast = time - lastTime;
