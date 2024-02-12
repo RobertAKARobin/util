@@ -56,17 +56,19 @@ Assertion | Execution | 1 per test | - | No
 
 ## TODO
 
+-	TODO1: Reset args between iterations
+-	TODO1: Deferred tests
+-	TODO1: Print logs to stdout when they're generated, as well as appearing in renderer
 -	TODO2: Can log from within args
 -	TODO2: Shuffle
 -	TODO2: Catch errors?
 -	TODO2: Print as you go
--	TODO1: Deferred tests
 -	TODO2: Make `suite()` support no options
--	TODO3: Add caching, e.g. for valueWrapMatcher
 -	TODO2: Suppress iteration details; assertions should not count toward total if in suppressed iteration (but failures should still override status)
--	TODO3: Verify results are POJOs
--	TODO2: Dollar sign as valueWrapper gets a `2` appended to it?
 -	TODO2: Add examples with more complex assertionhelper names
+-	TODO2: Dollar sign as valueWrapper gets a `2` appended to it?
+-	TODO3: Add caching, e.g. for valueWrapMatcher
+-	TODO3: Verify results are POJOs
 
 ### Done
 
