@@ -1,5 +1,4 @@
 import { appContext } from './context.ts';
-import { debounce } from './debounce.ts';
 export type LoopState =
 	| `unstarted`
 	| `running`
@@ -26,12 +25,12 @@ export class FPSLoop {
 	constructor(
 		doWhat: FPSLoop[`doWhat`],
 		options: Partial<{
-			loopsPerSecond: number;
+			framesPerSecond: number;
 			runner: `requestAnimationFrame` | `setImmediate`;
 		}> = {}
 	) {
 		this.doWhat = doWhat;
-		this.loopsPerSecond = options.loopsPerSecond ?? 60;
+		this.loopsPerSecond = options.framesPerSecond ?? 60;
 
 		const runner = options.runner ?? (
 			appContext === `browser` ? `requestAnimationFrame` : `setImmediate`
@@ -42,25 +41,29 @@ export class FPSLoop {
 	}
 
 	begin(): Promise<void> {
-		const period = 1000 / this.loopsPerSecond;
 		this.currentLoop_ = new Promise(resolve => {
 			this.resolve_ = resolve;
 		});
-
 		this.state_ = `running`;
 
-		const step = debounce(() => {
-			switch (this.state) {
-				case `running`:
+		const period = 1000 / this.loopsPerSecond;
+
+		let timeNextLoop_ = 0;
+		const step = () => {
+			const time = performance.now();
+			if (time >= timeNextLoop_) {
+				timeNextLoop_ = time + period;
+				if (this.state === `running`) {
 					this.doWhat();
-
-				case `paused`:
-				case `running`:
-					this.runner(step);
+				}
 			}
-		}, period);
 
-		step();
+			if (this.state === `paused` || this.state === `running`) {
+				this.runner(step);
+			}
+		};
+
+		void step();
 
 		return this.currentLoop ?? Promise.resolve();
 	}
@@ -73,6 +76,7 @@ export class FPSLoop {
 	resolve() {
 		this.state_ = `ended`;
 		this.resolve_!();
+		return this;
 	}
 
 	unpause() {
@@ -80,5 +84,6 @@ export class FPSLoop {
 			throw new Error(`Cannot unpause; current state is '${this.state_}'`);
 		}
 		this.state_ = `running`;
+		return this;
 	}
 }
