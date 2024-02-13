@@ -17,6 +17,7 @@ export const spec = suite(`@robertakarobin/js`, {},
 	(await import(`./posixPath.spec.ts`)).spec,
 	(await import(`./string-mates.spec.ts`)).spec,
 	(await import(`./template.spec.ts`)).spec,
+	(await import(`./transition.spec.ts`)).spec,
 );
 
 run(await spec({}));
