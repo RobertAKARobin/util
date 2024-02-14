@@ -86,45 +86,46 @@ export class SpecRenderer<
 		const indicator = this.statusIndicators[result.status];
 		const prefix = `${indicator} ${parentPrefix}${this.typeIndicators.assertion}${result.indexAtDefinition + 1} ${indicator}`;
 
-		let title = result.contents;
+		let body = result.contents;
 
-		const lines = title.split(`\n`);
-		if (lines.length > 1) {
-			title = `${lines[0]}...`; // TODO3: Better handling of multiline assertions
-		}
-
-		if (title.startsWith(`async`)) {
-			title = title.substring(`async`.length).trim();
+		if (body.startsWith(`async`)) {
+			body = body.substring(`async`.length).trim();
 		}
 
 		let valueWrapperName: string | undefined;
 
-		if (title.startsWith(`function`)) {
-			title = title.replace(match.functionParam, (_, param: string) => {
+		if (body.startsWith(`function`)) {
+			body = body.replace(match.functionParam, (_, param: string) => {
 				valueWrapperName = param?.trim();
 				return ``;
 			},);
 		} else {
-			title = title.replace(match.fatArrowParam, (_, braces: string, noBraces: string) => {
+			body = body.replace(match.fatArrowParam, (_, braces: string, noBraces: string) => {
 				valueWrapperName = (braces || noBraces)?.trim();
 				return ``;
 			});
 		}
 
-		if (title.startsWith(`{`)) {
-			title = title.slice(1, -1); // Assume begins and ends with curlies
+		if (body.startsWith(`{`)) {
+			body = body.slice(1, -1); // Assume begins and ends with curlies
 		}
 
 		let valueWrapperMatcher: RegExp | undefined;
-		let explanation = title;
+		let explanation = body;
 
 		if (valueWrapperName !== undefined) {
 			const valueWrapperPrefix = valueWrapperName.startsWith(`$`)
 				? `\\$${valueWrapperName.substring(1)}`
 				: `\\b${valueWrapperName}`; // JS variables can start with `$` which is a special character in RegEx that doesn't play nice with `\b`
-			valueWrapperMatcher = new RegExp(`${valueWrapperPrefix}${match.valueWrapper}`, `g`);
+			valueWrapperMatcher = new RegExp(`${valueWrapperPrefix}${match.valueWrapper}`, `gs`);
 
-			title = title.replace(valueWrapperMatcher, (_, value) => `(${value})`);
+			body = body.replace(valueWrapperMatcher, (_, value) => `(${value})`);
+		}
+
+		let title = body;
+		const lines = title.split(`\n`);
+		if (lines.length > 1) {
+			title = `${lines[0]}...`;
 		}
 
 		const out: $.Nested<string> = [
@@ -140,17 +141,23 @@ export class SpecRenderer<
 		}
 
 		const linePadding = ` `.repeat(prefix.length) + ` `;
+		const linePaddingWithIndent = `${linePadding} `;
 
 		const values = [...result.values];
 
 		explanation = explanation.replace(valueWrapperMatcher, () => {
-			let value = values.shift() as string;
+			const value = values.shift() as string;
 			const lines = value.split(`\n`);
-			const linePaddingWithIndent = `\n${linePadding} `;
-			if (lines.length > 1 || value.length > 20) {
-				value = linePaddingWithIndent + lines.join(linePaddingWithIndent) + `\n${linePadding}`;
+			if (lines.length === 1 && value.length < 20) {
+				return `(${value})`;
 			}
-			return `(${value})`;
+
+			const out = [`(`];
+			for (const line of lines) {
+				out.push(`${linePaddingWithIndent}${line}`);
+			}
+			out.push(`${linePadding})`);
+			return out.join(`\n`);
 		});
 
 		if (explanation) {

@@ -11,7 +11,8 @@ export const specs = suite(`DB`, {},
 
 	suite(`when connected`,
 		{
-			args: () => ({ db: new DB() }),
+			args: () => ({ db: new DB() }), // Note that each DB has the same data source, so even a "new" DB will have old data
+			timing: `consecutive`,
 		},
 
 		test(`#disconnect`, ({ args, assert }) => {
@@ -42,15 +43,34 @@ export const specs = suite(`DB`, {},
 			await assert(async x => (await x(args.db.getIds())).includes(record2.id));
 			assert(x => x(record.id) !== x(record2.id));
 		}),
+
+		test(`update`, async $ => {
+			const name = `<
+			this is long
+>`;
+			await $.args.db.create({ name });
+			const recordIds = await $.args.db.getIds();
+			$.assert(x => x(recordIds.length) === 2);
+
+			const recordId = recordIds[recordIds.length - 1];
+			await $.assert(async x => x((await $.args.db.get(recordId)).name) === x(`<
+			this is long
+>`));
+			await $.assert(async x => x((await $.args.db.get(recordId)).name) === x(`<
+			THIS IS LONG
+>`));
+		}),
 	),
 );
 
+
+
 export const expected = `
 ———
-  s1 • DB
+  s1 X DB
   s1t1 • #constructor
 • s1t1a1 • (db.isConnected)===true
-  s1s2 • when connected
+  s1s2 X when connected
   s1s2t1 • #disconnect
 • s1s2t1a1 • (args.db.isConnected)===false
 • s1s2t1a2 • (tryCatch(args.db.disconnect))instanceof Error
@@ -65,12 +85,25 @@ export const expected = `
 • s1s2t2a7 • !(await (args.db.getIds())).includes(record.id)
 • s1s2t2a8 • (await (args.db.getIds())).includes(record2.id)
 • s1s2t2a9 • (record.id)!==(record2.id)
+  s1s2t3 X update
+• s1s2t3a1 • (recordIds.length)===2
+• s1s2t3a2 • ((await $.args.db.get(recordId)).name)===(\`<...
+X s1s2t3a3 X ((await $.args.db.get(recordId)).name)===(\`<...
+             (
+              <
+              			this is long
+              >
+             )===(
+              <
+              			THIS IS LONG
+              >
+             )
 
-Total completed assertions: 12
+Total completed assertions: 15
    0 deferred
-• 12 pass
-X  0 fail
+• 14 pass
+X  1 fail
 
-RESULT: PASS
+RESULT: FAIL
 ———
 `;
