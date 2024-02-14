@@ -5,6 +5,7 @@
 		"@robertakarobin/htmlvalidate": "file:./htmlvalidate",
 		"@types/diff": "^5.0.9",
 		"diff": "^5.1.0",
+		"esbuild": "^0.20.0",
 		"husky": "^9.0.10",
 		"npm-check-updates": "^16.14.14",
 		"tsx": "^4.7.0"
@@ -19,9 +20,10 @@
 		"dev": "npm run dev --prefix example",
 		"lint": "eslint .",
 		"prepare": "husky install",
+		"prepublishOnly": "bin/build.sh",
 		"spec": "tsx index.spec.ts",
 		"test": "npm run lint && npm run spec && npm run test --prefix example"
 	},
 	"type": "module",
-	"version": "0.0.321"
+	"version": "0.0.322"
 }

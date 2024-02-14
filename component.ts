@@ -375,7 +375,7 @@ export class Component extends HTMLElement {
 		return this;
 	}
 
-	private onConstruct(id?: Component[`id`]) {
+	onConstruct(id?: Component[`id`]) { // Would prefer this to be private, but TS won't emit the declaration if it is https://github.com/microsoft/TypeScript/issues/30355
 		if (id !== undefined) {
 			this.id = id;
 		}

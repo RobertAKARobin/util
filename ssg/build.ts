@@ -253,7 +253,7 @@ export class Builder {
 				viewCtorName: page.Ctor.name,
 			});
 
-			const html = await this.formatHtml(`<!DOCTYPE html>` + document.documentElement.outerHTML);
+			const html = await this.formatHtml(`<!DOCTYPE html>` + this.formatDocument(document));
 
 			this.log(local(serveFileAbs));
 			fs.writeFileSync(serveFileAbs, html);
@@ -344,6 +344,10 @@ export class Builder {
 			space_around_selector_separator: true,
 		});
 		return css;
+	}
+
+	formatDocument(document: Document) {
+		return document.documentElement.outerHTML;
 	}
 
 	formatHead(input: Partial<{
