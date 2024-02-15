@@ -1,6 +1,6 @@
-import { test } from './spec/index.ts';
+import { test } from '../spec/index.ts';
 
-import { stringMates as mates, type TagResult } from './string-mates.ts';
+import { stringMates as mates, type TagResult } from './delimiter-pairs.ts';
 
 const tagA = [`<a>`, `</a>`];
 const tag1 = [`<1>`, `</1>`];
