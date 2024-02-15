@@ -1,124 +1,120 @@
-type Tag = string;
-type TagPair = Array<string>; // Not using `[string, string]` because TS throws "not assignable" error
-export type TagResult = {
-	contents: Array<string | TagResult>;
-	tags?: TagPair;
+type Delimiter = string;
+type DelimiterPair = Array<string>; // Not using `[string, string]` because TS throws "not assignable" error
+export type Result = {
+	delimiters: DelimiterPair;
+	indexFrom: number;
+	indexTo: number;
+	inner: Array<string | Result>;
 };
 
-export function stringMates(
+export function delimiterPairs(
 	input: string,
-	tagPairs: Array<TagPair> = [],
-): Array<string | TagResult> {
+	delimiterPairs: Array<DelimiterPair> = [],
+): Result {
 	if (typeof input !== `string`) {
-		throw new Error(`stringMates input must be a string; got ${typeof input}`);
-	}
-	if (input.length === 0 || tagPairs.length === 0) {
-		return [ input ];
+		throw new Error(`delimiterPairs input must be a string; got ${typeof input}`);
 	}
 
-	const pairsByOpenTag = {} as Record<Tag, TagPair>;
-	for (const pair of tagPairs) {
-		if (pair.length !== 2) {
-			throw new Error(`Tag pairs must have 2 elements.`);
-		}
+	const rootResult: Result = {
+		delimiters: [],
+		indexFrom: 0,
+		indexTo: input.length,
+		inner: [],
+	};
 
-		const [openTag] = pair;
-		if (openTag in pairsByOpenTag) {
-			throw new Error(`Tag '${openTag}' used more than once`);
-		}
-
-		pairsByOpenTag[openTag] = pair;
+	if (input.length === 0) {
+		return rootResult;
 	}
 
-	return getNext(input);
+	if (delimiterPairs.length === 0) {
+		rootResult.inner.push(input);
+		return rootResult;
+	}
 
-	function getNext(input: string): Array<string | TagResult> {
-		if (input.length === 0) {
-			return [];
+	const delimiterPairsByOpener = {} as Record<Delimiter, DelimiterPair>;
+	for (const delimiterPair of delimiterPairs) {
+		const [opener] = delimiterPair;
+		if (opener in delimiterPairsByOpener) {
+			throw new Error(`Opener '${opener}' is already used`);
 		}
 
-		const nearest = {
-			closePosition: -1,
-			closeTag: null as unknown as Tag,
-			openPosition: Infinity,
-			openTag: null as unknown as Tag,
-			pair: null as unknown as TagPair,
-		};
-		for (const openTag in pairsByOpenTag) {
-			const closeTag = pairsByOpenTag[openTag][1];
+		delimiterPairsByOpener[opener] = delimiterPair;
+	}
 
-			let openPosition: number = -1;
-			let closePosition: number = -1;
-			let depth = 0;
-			let openOffset = 0;
+	const resultsOpen = [rootResult];
 
-			do {
-				openPosition = input.indexOf(openTag, openOffset);
-				if (openPosition < 0) {
-					openPosition = Infinity;
-				}
+	const matcher = new RegExp(
+		delimiterPairs.flat().map(delimiter => `(${delimiter})`).join(`|`),
+		`g`,
+	);
 
-				let nextClosePosition = input.indexOf(closeTag, openOffset);
-				if (nextClosePosition < 0) {
-					nextClosePosition = Infinity;
-				}
+	let match: RegExpExecArray | null;
+	let result: Result = rootResult;
+	while (match = matcher.exec(input)) {
+		const [delimiter] = match;
+		const delimiterIndex = match.slice(1).findIndex(pattern => pattern === delimiter);
+		const delimiterPairIndex = Math.floor(delimiterIndex / 2);
+		const delimiterPair = delimiterPairs[delimiterPairIndex];
+		const isOpener = delimiterIndex % 2 === 0;
+		// const opener = isOpener ? delimiter : delimiterPair[0];
+		const closer = isOpener ? delimiterPair[1] : delimiter;
 
-				if (nextClosePosition !== Infinity) {
-					closePosition = nextClosePosition;
-				}
+		const lastOpenResult = resultsOpen[resultsOpen.length - 1];
 
-				if (openPosition < nextClosePosition) {
-					depth += 1;
-					openOffset = openPosition + openTag.length;
-				} else {
-					depth -= 1;
-					openOffset = closePosition + closeTag.length;
-				}
+		if (isOpener) {
+			const parentResult = lastOpenResult;
 
-				if (nextClosePosition === Infinity && openPosition === Infinity) {
-					break;
-				}
-			} while (depth > 0);
+			const previousSibling = parentResult.inner[parentResult.inner.length - 1];
+			if (previousSibling === undefined) {
+				parentResult.inner.push(
+					input.slice(parentResult.indexFrom, match.index)
+				);
+			} else if (typeof previousSibling === `object`) {
+				parentResult.inner.push(
+					input.slice(previousSibling.indexTo, match.index)
+				);
+			}
 
-			if (depth >= 0) {
-				openPosition = input.indexOf(openTag);
-				if (openPosition < nearest.openPosition) {
-					nearest.openPosition = openPosition;
-					nearest.openTag = openTag;
-					nearest.closePosition = closePosition;
-					nearest.closeTag = closeTag;
-					nearest.pair = pairsByOpenTag[nearest.openTag];
-				}
+			result = {
+				delimiters: delimiterPair,
+				indexFrom: match.index,
+				indexTo: -1,
+				inner: [],
+			};
+			parentResult.inner.push(result);
+			resultsOpen.push(result);
+
+		} else if(lastOpenResult.delimiters === delimiterPair) {
+			result = lastOpenResult;
+			result.indexTo = match.index + closer.length;
+			resultsOpen.pop();
+
+			const lastChild = result.inner[result.inner.length - 1];
+			if (typeof lastChild === `object`) {
+				result.inner.push(
+					input.slice(lastChild.indexTo, result.indexTo)
+				);
+			} else {
+				result.inner.push(
+					input.slice(result.indexFrom, result.indexTo)
+				);
 			}
 		}
-
-		if (nearest.openPosition < 0 || nearest.closePosition <= 0) {
-			return [ input ];
-		}
-
-		const results = [] as Array<string | TagResult>;
-
-		const beforeContents = input.substring(0, nearest.openPosition);
-		if (beforeContents.length > 0) {
-			results.push(beforeContents);
-		}
-
-		const contents = input.substring(
-			nearest.openPosition + nearest.openTag.length,
-			nearest.closePosition,
-		);
-		results.push({
-			contents: getNext(contents),
-			tags: nearest.pair,
-		});
-
-		const afterContents = input.substring(
-			nearest.closePosition + nearest.closeTag.length
-		);
-		if (afterContents.length > 0) {
-			results.push(...getNext(afterContents));
-		}
-
-		return results;
 	}
+
+	for (const result of resultsOpen) {
+		if (result.indexTo === -1) {
+			throw new Error(`Detected an unclosed '${result.delimiters[0]}' at ${result.indexFrom}`);
+		}
+	}
+
+	const final = input.slice(rootResult.inner.length === 0
+		? rootResult.indexFrom
+		: result.indexTo
+	);
+	if (final.length > 0) {
+		rootResult.inner.push(final);
+	}
+
+	return rootResult;
 }
