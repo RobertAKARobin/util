@@ -16,6 +16,8 @@ display: flex;
 flex-direction: column;
 height: 100%;
 justify-content: center;
+max-height: none;
+max-width: none;
 padding: 0;
 width: 100%;
 
