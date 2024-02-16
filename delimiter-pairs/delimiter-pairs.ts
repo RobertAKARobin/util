@@ -1,22 +1,30 @@
 type Delimiter = string;
-type DelimiterPair = Array<string>; // Not using `[string, string]` because TS throws "not assignable" error
+type DelimiterSet = {
+	closer: Delimiter;
+	opener: Delimiter;
+};
 export type Result = {
-	delimiters: DelimiterPair;
+	delimiters: DelimiterSet;
 	indexFrom: number;
 	indexTo: number;
 	inner: Array<string | Result>;
 };
 
+const escape = (input: string) => input.replace(/([-\/^$*+?.()`|[\]{}])/g, `\\$&`);
+
 export function delimiterPairs(
 	input: string,
-	delimiterPairs: Array<DelimiterPair> = [],
+	delimiterPairs: Array<Array<Delimiter>> = [],
 ): Result {
 	if (typeof input !== `string`) {
 		throw new Error(`delimiterPairs input must be a string; got ${typeof input}`);
 	}
 
 	const rootResult: Result = {
-		delimiters: [],
+		delimiters: {
+			closer: ``,
+			opener: ``,
+		},
 		indexFrom: 0,
 		indexTo: input.length,
 		inner: [],
@@ -31,68 +39,87 @@ export function delimiterPairs(
 		return rootResult;
 	}
 
-	const delimiterPairsByOpener = {} as Record<Delimiter, DelimiterPair>;
+	const delimiterPatterns = [] as Array<string>;
+	const delimitersByOpener = {} as Record<string, DelimiterSet>;
+	const delimitersByCloser = {} as Record<string, DelimiterSet>;
+
 	for (const delimiterPair of delimiterPairs) {
-		const [opener] = delimiterPair;
-		if (opener in delimiterPairsByOpener) {
-			throw new Error(`Opener '${opener}' is already used`);
+		const [opener, closer] = delimiterPair;
+		if (opener in delimitersByOpener) {
+			throw new Error(`Opener in ${delimiterPair} is already used`);
+		}
+		if (closer in delimitersByCloser) {
+			throw new Error(`Closer in ${delimiterPair} is already used`);
 		}
 
-		delimiterPairsByOpener[opener] = delimiterPair;
+		const delimiterSet: DelimiterSet = {
+			closer,
+			opener,
+		};
+		delimitersByOpener[opener] = delimiterSet;
+		delimitersByCloser[closer] = delimiterSet;
+
+		const [openerPattern, closerPattern] = delimiterPair.map(escape);
+		delimiterPatterns.push(openerPattern, closerPattern);
 	}
 
 	const resultsOpen = [rootResult];
 
 	const matcher = new RegExp(
-		delimiterPairs.flat().map(delimiter => `(${delimiter})`).join(`|`),
+		delimiterPatterns.map(delimiter => `(${delimiter})`).join(`|`),
 		`g`,
 	);
 
 	let match: RegExpExecArray | null;
 	let result: Result = rootResult;
 	while (match = matcher.exec(input)) {
-		const [delimiter] = match;
-		const delimiterIndex = match.slice(1).findIndex(pattern => pattern === delimiter);
-		const delimiterPairIndex = Math.floor(delimiterIndex / 2);
-		const delimiterPair = delimiterPairs[delimiterPairIndex];
-		const isOpener = delimiterIndex % 2 === 0;
-		// const opener = isOpener ? delimiter : delimiterPair[0];
-		const closer = isOpener ? delimiterPair[1] : delimiter;
+		const delimiter = match[0];
+		const isOpener = delimiter in delimitersByOpener;
+		const delimiters = isOpener
+			? delimitersByOpener[delimiter]
+			: delimitersByCloser[delimiter];
+		const { opener } = delimiters;
 
 		const lastOpenResult = resultsOpen[resultsOpen.length - 1];
 
 		if (isOpener) {
 			const parentResult = lastOpenResult;
-
 			const previousSibling = parentResult.inner[parentResult.inner.length - 1];
 			if (previousSibling === undefined) {
+
 				parentResult.inner.push(
 					input.slice(parentResult.indexFrom, match.index)
 				);
 			} else if (typeof previousSibling === `object`) {
 				parentResult.inner.push(
-					input.slice(previousSibling.indexTo, match.index)
+					input.slice(
+						previousSibling.indexTo + previousSibling.delimiters.closer.length,
+						match.index
+					)
 				);
 			}
 
 			result = {
-				delimiters: delimiterPair,
-				indexFrom: match.index,
+				delimiters,
+				indexFrom: match.index + opener.length,
 				indexTo: -1,
 				inner: [],
 			};
 			parentResult.inner.push(result);
 			resultsOpen.push(result);
 
-		} else if(lastOpenResult.delimiters === delimiterPair) {
+		} else if(lastOpenResult.delimiters === delimiters) {
 			result = lastOpenResult;
-			result.indexTo = match.index + closer.length;
+			result.indexTo = match.index;
 			resultsOpen.pop();
 
 			const lastChild = result.inner[result.inner.length - 1];
 			if (typeof lastChild === `object`) {
 				result.inner.push(
-					input.slice(lastChild.indexTo, result.indexTo)
+					input.slice(
+						lastChild.indexTo + lastChild.delimiters.closer.length,
+						result.indexTo
+					)
 				);
 			} else {
 				result.inner.push(
@@ -102,15 +129,9 @@ export function delimiterPairs(
 		}
 	}
 
-	for (const result of resultsOpen) {
-		if (result.indexTo === -1) {
-			throw new Error(`Detected an unclosed '${result.delimiters[0]}' at ${result.indexFrom}`);
-		}
-	}
-
 	const final = input.slice(rootResult.inner.length === 0
 		? rootResult.indexFrom
-		: result.indexTo
+		: result.indexTo + result.delimiters.closer.length
 	);
 	if (final.length > 0) {
 		rootResult.inner.push(final);
