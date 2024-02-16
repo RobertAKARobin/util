@@ -470,10 +470,11 @@ export class Builder {
 
 	serve(options: (esbuild.ServeOptions) = {}) {
 		const port = isNaN(options.port as number) ? 3000 : options.port;
-		const retryPort = () => esbuild.context({}).then(context => {
-			let tries = 0;
-			const triesMax = 10;
 
+		let tries = 0;
+		const triesMax = 10;
+
+		const retryPort = () => esbuild.context({}).then(context => {
 			context.serve({
 				port,
 				servedir: this.serveDirAbs,
