@@ -9,9 +9,9 @@ import path from 'path';
 
 import type * as $ from '@robertakarobin/util/types.js';
 import { Resolver, Router } from '@robertakarobin/util/router.ts';
-import { stringMates, type TagResult } from '@robertakarobin/util/string-mates.ts';
 import type { BaseApp } from '@robertakarobin/util/components/app.ts';
 import { baseUrl } from '@robertakarobin/util/context.ts';
+import { delimiterPairs } from '@robertakarobin/util/delimiter-pairs/delimiter-pairs.ts';
 import { type Page } from '@robertakarobin/util/component.ts';
 import { posixPath } from '@robertakarobin/util/posixPath.ts';
 import { promiseConsecutive } from '@robertakarobin/util/promiseConsecutive.ts';
@@ -413,9 +413,13 @@ export class Builder {
 
 	formatMarkdown(input: string): string | Promise<string> {
 		const isMarkdown = [`<markdown>`, `</markdown>`];
-		const isJsTemplate = [`\${`, `}`]; // eslint-disable-line quotes
+		if (!input.includes(isMarkdown[0])) {
+			return input;
+		}
+
+		const isJsTemplate = [`\${`, `}`];
 		const jsChunks: Array<string> = [];
-		const tokens = stringMates(input, [
+		const tokens = delimiterPairs(input, [
 			isMarkdown,
 			isJsTemplate,
 		]);
@@ -424,13 +428,13 @@ export class Builder {
 			.join(``)
 			.replace(/\/%%\//g, () => jsChunks.shift()!);
 
-		function parse(input: Array<string | TagResult>): $.Nested<string> {
-			return input.map(item => {
+		function parse(input: ReturnType<typeof delimiterPairs>): $.Nested<string> {
+			return input.inner.map(item => {
 				if (typeof item === `string`) {
 					return item;
 				}
-				const contents = parse(item.contents).flat().join(``);
-				if (item.tags === isMarkdown) {
+				const contents = parse(item).flat().join(``);
+				if (item.delimiters.opener === isMarkdown[0]) {
 					if (contents.indexOf(`\n`) < 0) {
 						return marked.parseInline(contents, { async: false, gfm: true }) as string;
 					}
