@@ -1,3 +1,5 @@
+export { css } from './template.ts';
+
 export const reset = `
 background: transparent;
 border: 0;

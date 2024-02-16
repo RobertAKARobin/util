@@ -1,6 +1,6 @@
-import { Component } from '@robertakarobin/util/component.ts';
+import { Component, css } from '@robertakarobin/util/component.ts';
 
-const style = /*css*/`
+const style = css`
 :host {
 	background: #ff0000;
 	height: 100px;

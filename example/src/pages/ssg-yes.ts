@@ -1,4 +1,4 @@
-import { Component, Page } from '@robertakarobin/util/component.ts';
+import { Component, html, Page } from '@robertakarobin/util/component.ts';
 
 const style = `
 h1 {
@@ -8,7 +8,7 @@ h1 {
 
 @Component.define({ style })
 export class YesSSGPage extends Page {
-	template = () => /*html*/`
+	template = () => html`
 <h1>SSG yes</h1>
 
 <div id="jump1">Jump 1</div>

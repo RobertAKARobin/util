@@ -3,11 +3,16 @@
 		"@stylistic/stylelint-config": "^1.0.1",
 		"@stylistic/stylelint-plugin": "^2.0.0",
 		"postcss-html": "^1.6.0",
-		"stylelint": "^16.2.0",
+		"postcss-lit": "^1.1.1",
+		"stylelint": "^16.2.1",
 		"stylelint-config-standard": "^36.0.0",
 		"stylelint-order": "^6.0.4"
 	},
 	"main": "index.js",
 	"name": "@robertakarobin/csslint",
+	"scripts": {
+		"test": "stylelint ./test"
+	},
+	"type": "module",
 	"version": "0.0.22"
 }

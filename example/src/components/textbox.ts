@@ -1,8 +1,8 @@
-import { Component } from '@robertakarobin/util/component.ts';
+import { Component, css, html } from '@robertakarobin/util/component.ts';
 
 import { types } from '@src/theme.ts';
 
-const style = `
+const style = css`
 input {
 	${types.body}
 }
@@ -27,13 +27,13 @@ export class Textbox extends Component.custom(`div`) {
 		return updated;
 	}
 
-	template = () => /*html*/`
+	template = () => html`
 <input
 	maxlength="${this.maxLength}"
 	oninput="${this.bind(`onInput`)}"
 	placeholder="Type here"
 	type="text"
-	value="${this.value ?? ``}"
+	value="${this.value}"
 >
 
 <span id="${this.id}-remaining">

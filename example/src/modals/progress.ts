@@ -1,9 +1,9 @@
-import { Component } from '@robertakarobin/util/component.ts';
+import { Component, css, html } from '@robertakarobin/util/component.ts';
 import { ModalContainer } from '@robertakarobin/util/components/modal-container.ts';
 import { ProgressCircle } from '@robertakarobin/util/components/progress-circle.ts';
 import { repaint } from '@robertakarobin/util/repaint.ts';
 
-const style = /*css*/`
+const style = css`
 :host {
 	& circle {
 		stroke: #ff0000;
@@ -37,7 +37,7 @@ export class ProgressModal extends Component {
 		this.findUp(ModalContainer).close();
 	}
 
-	template = () => /*html*/`
+	template = () => html`
 ${new ProgressCircle().set({
 	borderWidth: 10,
 	diameter: 300,

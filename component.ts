@@ -8,6 +8,8 @@ import { newUid } from './uid.ts';
 import { serialize } from './serialize.ts';
 import type { Textish } from './types.d.ts';
 
+export { css, html } from './template.ts';
+
 type Constructor<Classtype> = new (...args: any) => Classtype; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 type ComponentWithoutDecorators = Omit<typeof Component,

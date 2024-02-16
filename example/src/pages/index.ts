@@ -1,4 +1,4 @@
-import { Component, Page } from '@robertakarobin/util/component.ts';
+import { Component, css, html, Page } from '@robertakarobin/util/component.ts';
 import { appContext } from '@robertakarobin/util/context.ts';
 import { ModalContainer } from '@robertakarobin/util/components/modal-container.ts';
 
@@ -11,7 +11,7 @@ import { state } from '@src/state.ts';
 import { theme } from '@src/theme.ts';
 import { TransitionTest } from '@src/components/transition-test.ts';
 
-const style = /*css*/`
+const style = css`
 :host h1 {
 	color: red;
 }
@@ -56,7 +56,7 @@ export class IndexPage extends Page {
 		ModalContainer.find().place(new ProgressModal().render()).show();
 	}
 
-	template = () => /*html*/`
+	template = () => html`
 <h1>Hello world!</h1>
 
 ${new TransitionTest()}
@@ -76,8 +76,8 @@ ${new List()
 }
 
 ${appContext === `build`
-	? /*html*/`<h1>This should be in the source, not browser.</h1>`
-	: /*html*/`<h1>This should be in the browser, not source.</h1>`
+	? html`<h1>This should be in the source, not browser.</h1>`
+	: html`<h1>This should be in the browser, not source.</h1>`
 }
 
 <markdown>

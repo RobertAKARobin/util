@@ -1,4 +1,4 @@
-module.exports = {
+export default {
 	extends: [
 		`@stylistic/stylelint-config`,
 	],
@@ -7,6 +7,13 @@ module.exports = {
 			customSyntax: `postcss-html`,
 			files: [
 				`**/*.md`,
+			],
+		},
+		{
+			customSyntax: `postcss-lit`,
+			files: [
+				`**/*.ts`,
+				`**/*.js`,
 			],
 		},
 	],

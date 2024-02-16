@@ -1,6 +1,7 @@
 import { bp, theme, types } from '@src/theme.ts';
+import { css } from '@robertakarobin/util/theme.ts';
 
-export default /*css*/`
+export default css`
 :root {
 	${theme.varsDeclarations}
 

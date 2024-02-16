@@ -1,4 +1,4 @@
-import { Component } from '@robertakarobin/util/component.ts';
+import { Component, html } from '@robertakarobin/util/component.ts';
 
 import { Textbox } from '@src/components/textbox.ts';
 
@@ -18,7 +18,7 @@ export class ListItem extends Component.custom(`li`) {
 		return event.detail;
 	}
 
-	template = () => /*html*/`
+	template = () => html`
 	<p>List item ID ${this.id}</p>
 
 	${new Textbox(`${this.id}-text`)

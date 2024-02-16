@@ -1,4 +1,4 @@
-import { Component } from '@robertakarobin/util/component.ts';
+import { Component, html } from '@robertakarobin/util/component.ts';
 
 import type * as Type from '@src/types.js';
 import { ListItem } from './listitem.ts';
@@ -25,7 +25,7 @@ export class List extends Component.custom(`ol`) {
 		return this;
 	}
 
-	template = () => /*html*/`
+	template = () => html`
 	<li>List ID ${this.id}</li>
 
 	${this.listItems.map(({ id, value }) =>
@@ -33,7 +33,7 @@ export class List extends Component.custom(`ol`) {
 			.set({ text: value })
 			.on(`onDelete`, () => this.onDelete(id!))
 			.on(`onInput`, event => this.onInput(id!, event.detail))
-	).join(``)}
+	)}
 
 	<li>
 		<button
