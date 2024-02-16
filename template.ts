@@ -6,7 +6,7 @@ import type { Nested, Textish } from './types.d.ts';
  */
 export function taggedTemplate(
 	strings: ReadonlyArray<string>, // Originally had these as <string> but that would reject numbers, URLs, etc
-	...values: Nested<Textish>
+	...values: Nested<Textish | { toString(): string; }>
 ): string {
 	let out = ``;
 	for (let index = 0, length = strings.length; index < length; index += 1) {

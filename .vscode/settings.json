@@ -1,5 +1,11 @@
 {
 	"deno.enable": false,
+
+	"editor.insertSpaces": false,
+	"editor.tabSize": 2,
+	"files.insertFinalNewline": true,
+	"files.trimTrailingWhitespace": true,
+
 	"eslint.options": {
 		"extensions": [".js", ".json", ".ts"],
 		"resolvePluginsRelativeTo": "./eslint-config-ts"
@@ -11,6 +17,7 @@
 		"jsonc",
 		"typescript"
 	],
+
 	"typescript.tsdk": "node_modules/typescript/lib",
 	"typescript.enablePromptUseWorkspaceTsdk": true,
 
