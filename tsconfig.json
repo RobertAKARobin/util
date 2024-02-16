@@ -14,6 +14,7 @@
 		"./eslint-config-ts",
 		"./example",
 		"./htmlvalidate",
+		"./ssg",
 		"./web"
 	],
 	"extends": [
