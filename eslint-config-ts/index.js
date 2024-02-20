@@ -20,7 +20,11 @@ module.exports = {
 			parserOptions: {
 				project: true,
 			},
+			plugins: [
+				`@stylistic/ts`,
+			],
 			rules: {
+				'@stylistic/ts/type-annotation-spacing': [`error`],
 				'@typescript-eslint/array-type': [`error`, {
 					default: `generic`,
 				}],
