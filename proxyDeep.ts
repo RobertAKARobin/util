@@ -20,7 +20,7 @@ export function proxyDeep<Value>(placeholder: Value) {
 
 	function* asArray(): unknown {
 		let index = 0;
-		while(index++ < 10) { // Is there a way to not specify an upper bound?
+		while (index++ < 10) { // Is there a way to not specify an upper bound?
 			yield proxy;
 		}
 	}

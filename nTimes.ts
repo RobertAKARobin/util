@@ -5,8 +5,8 @@ type nTimesCallback<Value> = (
 export function nTimes<Value>(
 	number: number,
 	contents?:
-		| Value
-		| nTimesCallback<Value>,
+		| nTimesCallback<Value>
+		| Value,
 ): Array<Value> {
 	if (contents === null || contents === undefined) {
 		return Array.from(Array(number)) as Array<Value>;

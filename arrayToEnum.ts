@@ -5,5 +5,5 @@ export function arrayToEnum<Value extends string>(
 		(output as Record<Value, number>)[value] = index;
 		(output as Record<number, Value>)[index] = value;
 		return output;
-	}, {} as Record<Value, number> & Record<number, Value>);
+	}, {} as Record<number, Value> & Record<Value, number>);
 }

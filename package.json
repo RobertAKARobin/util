@@ -4,11 +4,11 @@
 		"@robertakarobin/eslint-config-ts": "file:./eslint-config-ts",
 		"@robertakarobin/htmlvalidate": "file:./htmlvalidate",
 		"@types/diff": "^5.0.9",
-		"diff": "^5.1.0",
-		"esbuild": "^0.20.0",
-		"husky": "^9.0.10",
-		"npm-check-updates": "^16.14.14",
-		"tsx": "^4.7.0"
+		"diff": "^5.2.0",
+		"esbuild": "^0.20.1",
+		"husky": "^9.0.11",
+		"npm-check-updates": "^16.14.15",
+		"tsx": "^4.7.1"
 	},
 	"name": "@robertakarobin/util",
 	"repository": {
@@ -25,5 +25,5 @@
 		"test": "npm run lint && npm run spec && npm run test --prefix example"
 	},
 	"type": "module",
-	"version": "0.0.325"
+	"version": "0.0.326"
 }

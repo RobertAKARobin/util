@@ -11,7 +11,7 @@ const readFile = (filepath: string) => {
 	return fs.readFileSync(abspath, { encoding: `utf8` });
 };
 
-function at<ReturnType extends string | Result = string>(result: Result) {
+function at<ReturnType extends Result | string = string>(result: Result) {
 	return (...indexes: Array<number>): ReturnType => {
 		let current = result;
 		let depth = 0;

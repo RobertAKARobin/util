@@ -10,9 +10,9 @@ export type SpecLog = SpecResult & {
 };
 
 export type SpecLogMessage =
-| (() => unknown)
-|	(() => Promise<unknown>)
-| string;
+	| string
+	| (() => Promise<unknown>)
+	| (() => unknown);
 
 
 export function SpecLogFactory(message: SpecLogMessage): void;
@@ -47,7 +47,7 @@ export type SpecStepTypeName = typeof specStepTypes[number];
 //#endregion
 
 //#region Assertion
-export function Assertion(valueWrap: typeof AssertionValueWrap): boolean | Promise<boolean>;
+export function Assertion(valueWrap: typeof AssertionValueWrap): Promise<boolean> | boolean;
 
 export function AssertionFactory(
 	assertion: (valueWrap: typeof AssertionValueWrap) => boolean
@@ -101,7 +101,7 @@ export function TestDefinition<Args>(input: {
 	args: Args;
 	assert: typeof AssertionFactory;
 	log: typeof SpecLogFactory;
-}): void | Promise<void>;
+}): Promise<void> | void;
 
 export type TestIterationResult = SpecStepIterationResult<AssertionResult | SpecLog> & {
 	type: Extract<SpecStepTypeName, `testIteration`>;

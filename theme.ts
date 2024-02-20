@@ -17,12 +17,12 @@ text-decoration: inherit;
 `;
 
 type GenericBreakpoints = Record<string, number>;
-type GenericConstants = Record<string, string | number>;
+type GenericConstants = Record<string, number | string>;
 type GenericFonts = Record<string, {
-	display?: `auto` | `block` | `swap` | `fallback` | `optional`;
+	display?: `auto` | `block` | `fallback` | `optional` | `swap`;
 	name?: string;
 	src: string;
-	style?: `normal` | `italic` | `oblique`;
+	style?: `italic` | `normal` | `oblique`;
 	weight?: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
 }>;
 type GenericTypefaces = Record<string, string>;

@@ -30,7 +30,7 @@ Resolver.prototype.onPage = async function(to, { previous }) {
 export class Builder {
 	readonly appSrcFileAbs: string;
 	readonly appSrcFileRel: string;
-	readonly assetsSrcDirRel: string | Array<string>;
+	readonly assetsSrcDirRel: Array<string> | string;
 	readonly baseDirAbs: string;
 	readonly baseUri: string;
 	readonly browserServeFileAbs: string | undefined;
@@ -70,7 +70,7 @@ export class Builder {
 	*/
 	constructor(input: Partial<{
 		appSrcFileRel: string;
-		assetsSrcDirRel: string | Array<string>;
+		assetsSrcDirRel: Array<string> | string;
 		baseDirAbs: string;
 		baseUri: string;
 		browserSrcFileRel: string | undefined;
@@ -141,7 +141,7 @@ export class Builder {
 		}
 	}
 
-	buildAssets(): void | Promise<void> {
+	buildAssets(): Promise<void> | void {
 		this.logHeader(`Building assets`);
 		const assetsSrcDirRels = typeof this.assetsSrcDirRel === `string`
 			?	[this.assetsSrcDirRel]
@@ -332,9 +332,9 @@ export class Builder {
 		return import(url.toString());
 	};
 
-	cleanup(): void | Promise<void> {}
+	cleanup(): Promise<void> | void {}
 
-	formatCss(input: string): string | Promise<string> {
+	formatCss(input: string): Promise<string> | string {
 		let css = input;
 		css = trimNewlines(input);
 		css = jsBeautify.css(css, {
@@ -400,7 +400,7 @@ export class Builder {
 	`;
 	}
 
-	formatHtml(input: string): string | Promise<string> {
+	formatHtml(input: string): Promise<string> | string {
 		let html = input;
 		html = trimNewlines(html);
 		html = jsBeautify.html(html, {
@@ -411,7 +411,7 @@ export class Builder {
 		return html;
 	}
 
-	formatMarkdown(input: string): string | Promise<string> {
+	formatMarkdown(input: string): Promise<string> | string {
 		const isMarkdown = [`<markdown>`, `</markdown>`];
 		if (!input.includes(isMarkdown[0])) {
 			return input;
@@ -446,7 +446,7 @@ export class Builder {
 		}
 	}
 
-	formatTSSource(input: string): string | Promise<string> {
+	formatTSSource(input: string): Promise<string> | string {
 		return this.formatMarkdown(input);
 	}
 

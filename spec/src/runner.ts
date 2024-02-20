@@ -135,9 +135,9 @@ export class SpecRunner {
 			(args: Args | InheritedArgs) => Promise<Type.SuiteResult | Type.TestResult>
 		>
 	): (
-		inheritedArgs: InheritedArgs,
-		index?: number,
-	) => Promise<Type.SuiteResult> {
+			inheritedArgs: InheritedArgs,
+			index?: number,
+		) => Promise<Type.SuiteResult> {
 		return async(inheritedArgs, index) => {
 			const result: Type.SuiteResult = {
 				count: { ...specStepCountDefault },

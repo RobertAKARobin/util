@@ -28,11 +28,17 @@ module.exports = {
 		'@stylistic/arrow-spacing': `error`,
 		'@stylistic/brace-style': [`error`, `1tbs`],
 		'@stylistic/comma-dangle': [`error`, `always-multiline`],
+		'@stylistic/comma-spacing': [`error`],
+		'@stylistic/indent': [`error`, `tab`, {
+			SwitchCase: 1,
+			ignoredNodes: [`TemplateLiteral *`],
+		}],
 		'@stylistic/key-spacing': [`error`, {
 			afterColon: true,
 			beforeColon: false,
 			mode: `strict`,
 		}],
+		'@stylistic/keyword-spacing': [`error`],
 		'@stylistic/max-len': [`warn`, {
 			code: 100,
 			ignoreComments: true,
@@ -55,10 +61,6 @@ module.exports = {
 		'eqeqeq': `error`,
 		'import-quotes/import-quotes': [`error`, `single`],
 		'import/extensions': [`error`, `ignorePackages`],
-		'indent': [`error`, `tab`, {
-			SwitchCase: 1,
-			ignoredNodes: [`TemplateLiteral *`],
-		}],
 		'no-unused-vars': [`warn`, {
 			argsIgnorePattern: `^_`,
 			destructuredArrayIgnorePattern: `^_`,

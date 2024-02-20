@@ -1,4 +1,4 @@
-export function updateQuerystring(updates: URLSearchParams | Record<string, string>) {
+export function updateQuerystring(updates: Record<string, string> | URLSearchParams) {
 	const location = window.location;
 	const params = new URLSearchParams(location.search);
 	const entries = updates instanceof URLSearchParams

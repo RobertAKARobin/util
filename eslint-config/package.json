@@ -1,6 +1,6 @@
 {
 	"dependencies": {
-		"@stylistic/eslint-plugin": "^1.5.4",
+		"@stylistic/eslint-plugin": "^1.6.2",
 		"eslint": "^8.56.0",
 		"eslint-plugin-import": "^2.29.1",
 		"eslint-plugin-import-quotes": "^0.0.1"
@@ -8,5 +8,5 @@
 	"main": "index.js",
 	"name": "@robertakarobin/eslint-config",
 	"scripts": {},
-	"version": "0.0.19"
+	"version": "0.0.21"
 }

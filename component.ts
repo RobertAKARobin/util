@@ -58,7 +58,7 @@ export class Component extends HTMLElement {
 					} else {
 						this.setAttribute(
 							attributeName,
-							(value as Exclude<Textish, undefined | null>).toString()
+							(value as Exclude<Textish, null | undefined>).toString()
 						);
 					}
 				},
@@ -97,7 +97,7 @@ export class Component extends HTMLElement {
 			Object.defineProperty(ComponentBase.prototype, instancePropertyName, instanceProperty);
 		}
 
-		return ComponentBase as typeof ComponentBase & typeof BaseElement;
+		return ComponentBase as typeof BaseElement & typeof ComponentBase;
 	}
 
 	/**
@@ -315,7 +315,7 @@ export class Component extends HTMLElement {
 		Descendant: Descendant
 	): HTMLElementTagNameMap[Descendant];
 	findDown<Descendant>(Descendant: Constructor<Descendant>): Descendant;
-	findDown<Descendant>(Descendant: keyof HTMLElementTagNameMap | Constructor<Descendant>) {
+	findDown<Descendant>(Descendant: Constructor<Descendant> | keyof HTMLElementTagNameMap) {
 		if ((Descendant as Function) === Page) {
 			return this.querySelector(`[${Page.$pageAttr}]`);
 		} else if (typeof Descendant === `string`) {
@@ -333,7 +333,7 @@ export class Component extends HTMLElement {
 		Descendant: Descendant
 	): Array<HTMLElementTagNameMap[Descendant]>;
 	findDownAll<Descendant>(Descendant: Constructor<Descendant>): Array<Descendant>;
-	findDownAll<Descendant>(Descendant: keyof HTMLElementTagNameMap | Constructor<Descendant>) {
+	findDownAll<Descendant>(Descendant: Constructor<Descendant> | keyof HTMLElementTagNameMap) {
 		if ((Descendant as Function) === Page) {
 			return this.querySelectorAll(`[${Page.$pageAttr}]`);
 		} else if (typeof Descendant === `string`) {
@@ -351,7 +351,7 @@ export class Component extends HTMLElement {
 		Ancestor: Ancestor
 	): HTMLElementTagNameMap[Ancestor];
 	findUp<Ancestor>(Ancestor: Constructor<Ancestor>): Ancestor;
-	findUp<Ancestor>(Ancestor: keyof HTMLElementTagNameMap | Constructor<Ancestor>) {
+	findUp<Ancestor>(Ancestor: Constructor<Ancestor> | keyof HTMLElementTagNameMap) {
 		if ((Ancestor as Function) === Page) {
 			return this.closest(`[${Page.$pageAttr}]`);
 		} else if (typeof Ancestor === `string`) {

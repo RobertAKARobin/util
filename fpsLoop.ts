@@ -1,9 +1,9 @@
 import { appContext } from './context.ts';
 export type LoopState =
-	| `unstarted`
-	| `running`
+	| `ended`
 	| `paused`
-	| `ended`;
+	| `running`
+	| `unstarted`;
 
 /**
  * Loops over the given callback at the given number of iterations/frames per second.
@@ -16,7 +16,7 @@ export class FPSLoop {
 	doWhat: () => void;
 	loopsPerSecond: number;
 	private resolve_?: Function;
-	runner: typeof setImmediate | typeof requestAnimationFrame;
+	runner: typeof requestAnimationFrame | typeof setImmediate;
 	get state() {
 		return this.state_;
 	}

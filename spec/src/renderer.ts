@@ -213,8 +213,8 @@ export class SpecRenderer<
 	renderSuiteOrTestIterationChild(
 		result:
 			| Type.AssertionResult
-			|	Type.SuiteResult
 			| Type.SpecLog
+			| Type.SuiteResult
 			| Type.TestResult,
 		parentPrefix: string,
 		inputOptions: Partial<RenderOptions> = {}
@@ -223,7 +223,7 @@ export class SpecRenderer<
 			...this.renderOptions,
 			...inputOptions,
 		};
-		switch(result.type) {
+		switch (result.type) {
 			case `assertion`:
 				return this.renderAssertion(result, parentPrefix, options);
 			case `suite`:

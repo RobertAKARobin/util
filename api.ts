@@ -8,12 +8,12 @@ export type RequestOptions<
 	Flags extends Record<string, unknown> = Record<string, never>,
 > = {
 	at: string;
-	body?: Record<string, string | number | boolean>;
+	body?: Record<string, boolean | number | string>;
 	flags?: Flags;
 	format?: keyof typeof contentTypes;
 	headers?: RequestInit[`headers`];
-	method?: `GET` | `POST` | `PATCH` | `PUT` | `DELETE`;
-	query?: Record<string, string | number | boolean>;
+	method?: `DELETE` | `GET` | `PATCH` | `POST` | `PUT`;
+	query?: Record<string, boolean | number | string>;
 };
 
 export function apiFactory<

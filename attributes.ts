@@ -6,9 +6,9 @@ export type ElAttributes<Subclass extends HTMLElement> =
 		| `style`
 	>
 	& {
-	class: string;
-	style: string;
-};
+		class: string;
+		style: string;
+	};
 
 export const attributeValueIsEmpty = (value: unknown) =>
 	value === undefined

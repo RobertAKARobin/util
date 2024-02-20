@@ -6,11 +6,11 @@ export type KeysMatching<Type, Value> = { // https://stackoverflow.com/q/7757188
 	[Key in keyof Type]: Type[Key] extends Value ? Key : never
 }[keyof Type];
 
-export type OneOrMany<Type> = Type | Array<Type>;
+export type OneOrMany<Type> = Array<Type> | Type;
 
-export type Nested<Type> = Array<Type | Nested<Type>>;
+export type Nested<Type> = Array<Nested<Type> | Type>;
 
-export type PromiseMaybe<Type> = Type | Promise<Type>;
+export type PromiseMaybe<Type> = Promise<Type> | Type;
 
 export type RequireOnly<_Object, _RequiredKeys extends keyof _Object> = Partial<_Object>
 	& Pick<_Object, _RequiredKeys>;
@@ -25,6 +25,6 @@ export type AtIndex1<Input> =
 		? Param
 		: never;
 
-export type Textish = string | number | boolean | undefined | null | symbol | URL;
+export type Textish = URL | boolean | number | string | symbol | null | undefined;
 
 export type Timer = ReturnType<typeof setTimeout>;

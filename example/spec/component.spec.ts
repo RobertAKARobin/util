@@ -13,7 +13,7 @@ class Widget extends Component.custom(`h1`) {
 
 @Component.define()
 class Parent extends Component.custom(`div`) {
-	@Component.attribute() widgetClass = undefined as undefined | string;
+	@Component.attribute() widgetClass = undefined as string | undefined;
 	template = () => new Widget().set({
 		attr: undefined,
 		class: this.widgetClass,

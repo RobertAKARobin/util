@@ -2,9 +2,9 @@ import { appContext, baseUrl, defaultBaseUrl } from './context.ts';
 import { Emitter, type EmitterOptions } from './emitter/emitter.ts';
 import { proxyDeep } from './proxyDeep.ts';
 
-export type RoutePathFunction = (...args: Array<any>) => string | URL; // eslint-disable-line @typescript-eslint/no-explicit-any
+export type RoutePathFunction = (...args: Array<any>) => URL | string; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-export type RouteDefinition = URL | string | RoutePathFunction;
+export type RouteDefinition = RoutePathFunction | URL | string;
 
 export type RouteMap = Record<string, RouteDefinition>;
 
@@ -122,7 +122,7 @@ export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>
 	 * Updates the window's location to the url of the specified route name
 	 */
 	go(
-		update: keyof Routes | RouteDefinition,
+		update: RouteDefinition | keyof Routes,
 		...args: typeof update extends keyof Routes
 			? (
 				Routes[typeof update] extends RoutePathFunction
@@ -138,7 +138,7 @@ export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>
 			? update as RouteDefinition
 			: this.routes[routeName];
 
-		const path: string | URL = route instanceof Function
+		const path: URL | string = route instanceof Function
 			?	route(...args)
 			: route;
 
@@ -225,7 +225,7 @@ export class Resolver<
 > extends Emitter<View> {
 	constructor(
 		readonly router: AppRouter, // eslint-disable-line @typescript-eslint/no-explicit-any
-		readonly resolve: (to: URL, from?: URL) => View | Promise<View>,
+		readonly resolve: (to: URL, from?: URL) => Promise<View> | View,
 	) {
 		super();
 

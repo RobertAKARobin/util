@@ -26,7 +26,7 @@ export type OnEmit<
 export type Subscription<
 	State,
 	Source extends Emitter<State> = Emitter<State>,
-> = WeakRef<OnEmit<State, Source>> | OnEmit<State, Source>;
+> = OnEmit<State, Source> | WeakRef<OnEmit<State, Source>>;
 
 export type EmitterOptions<State> = EmitterCacheOptions & {
 	emitOnInit: boolean;
@@ -54,7 +54,7 @@ export class Emitter<State> {
 	}
 
 	constructor(
-		initial?: State | undefined | null,
+		initial?: State | null | undefined,
 		options: Partial<EmitterOptions<State>> = {}
 	) {
 		this.cache = new EmitterCache(options ?? {});
@@ -97,7 +97,7 @@ export class Emitter<State> {
 		_meta: Omit<Parameters<OnEmit<State>>[1], `subscription`>
 	) {}
 
-	patch(update: State | Partial<State>) {
+	patch(update: Partial<State> | State) {
 		if (isPrimitive(update)) {
 			return this.set(update as State);
 		}

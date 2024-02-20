@@ -50,7 +50,12 @@ module.exports = {
 							`signature`,
 							`call-signature`,
 
-							[`static-field`, `static-get`, `static-set`],
+							[
+								`static-field`,
+								`static-get`,
+								`static-set`,
+							],
+
 							`static-initialization`,
 							`static-method`,
 
@@ -58,12 +63,19 @@ module.exports = {
 								`abstract-field`,
 								`abstract-get`,
 								`abstract-set`,
+								`field`,
 								`instance-field`,
 								`instance-get`,
 								`instance-set`,
 							],
+
 							`constructor`,
-							[`abstract-method`, `instance-method`],
+
+							[
+								`abstract-method`,
+								`instance-method`,
+								`method`,
+							],
 						],
 						order: `natural-case-insensitive`,
 					},
@@ -85,6 +97,7 @@ module.exports = {
 				'@typescript-eslint/object-curly-spacing': [`error`, `always`],
 				'@typescript-eslint/restrict-template-expressions': `off`,
 				'@typescript-eslint/semi': [`error`, `always`],
+				'@typescript-eslint/sort-type-constituents': [`error`],
 				'@typescript-eslint/space-before-function-paren': [`error`, `never`],
 				'@typescript-eslint/strict-boolean-expressions': `error`,
 				'@typescript-eslint/unbound-method': [`warn`, {
@@ -109,14 +122,11 @@ module.exports = {
 						selector: `TSInterfaceDeclaration`,
 					},
 				],
-				'typescript-sort-keys/interface': `error`,
-				'typescript-sort-keys/string-enum': `error`,
 
 			},
 		},
 	],
 	plugins: [
 		`@typescript-eslint`,
-		`typescript-sort-keys`,
 	],
 };

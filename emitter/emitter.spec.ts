@@ -204,7 +204,7 @@ export const spec = suite(`Emitter`, {},
 
 	test(`reset`, $ => {
 		const reset = () => ({
-			age: undefined as undefined | number,
+			age: undefined as number | undefined,
 			name: ``,
 		});
 		const emitter = new Emitter(reset(), { reset });

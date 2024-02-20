@@ -4,7 +4,7 @@ import { escape } from './escape.ts';
 
 export function posixPath(
 	input: string,
-	originPlatform?: `win32` | `posix`
+	originPlatform?: `posix` | `win32`
 ): string {
 	const localeSeparator = (originPlatform ?? process.platform) === `win32`
 		? `\\`

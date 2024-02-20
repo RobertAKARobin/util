@@ -1,4 +1,4 @@
-export function toKeys<Key extends string | number | symbol, Fill>(
+export function toKeys<Key extends number | string | symbol, Fill>(
 	input: Array<Key> | Readonly<Array<Key>>,
 	fill: Fill
 ) {

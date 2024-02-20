@@ -7,7 +7,7 @@ export type Result = {
 	delimiters: DelimiterSet;
 	indexFrom: number;
 	indexTo: number;
-	inner: Array<string | Result>;
+	inner: Array<Result | string>;
 };
 
 const escape = (input: string) => input.replace(/([-\/^$*+?.()`|[\]{}])/g, `\\$&`);
@@ -108,7 +108,7 @@ export function delimiterPairs(
 			parentResult.inner.push(result);
 			resultsOpen.push(result);
 
-		} else if(lastOpenResult.delimiters === delimiters) {
+		} else if (lastOpenResult.delimiters === delimiters) {
 			result = lastOpenResult;
 			result.indexTo = match.index;
 			resultsOpen.pop();
