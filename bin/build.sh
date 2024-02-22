@@ -1,10 +1,8 @@
 utils=(components delimiter-pairs emitter math spec .)
 
-rm -rf dist
+git clean -xfd util/
 
-for util in ${utils[@]}; do
-	esbuild --outdir=dist/$util $util/*.ts
-	esbuild --outdir=dist/$util --minify --sourcemap --entry-names="[dir]/[name].min" $util/*.ts
-done
+esbuild --outdir=util util/**/*.ts util/*.ts
+esbuild --outdir=util --minify --sourcemap --entry-names="[dir]/[name].min" util/**/*.ts util/*.ts
 tsc
-cp types.d.ts dist
+cp util/types.d.ts dist

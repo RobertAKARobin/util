@@ -1,1 +1,5 @@
 **/dist
+util/**/*.js
+util/**/*.js.map
+util/**/*.d.ts
+!/util/types.d.ts

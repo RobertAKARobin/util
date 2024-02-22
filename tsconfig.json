@@ -4,20 +4,16 @@
 		"declaration": true,
 		"emitDeclarationOnly": true,
 		"noEmit": false,
-		"outDir": "dist",
 		"rootDir": "."
 	},
 	"exclude": [
-		"./csslint",
-		"./dist",
-		"./eslint-config",
-		"./eslint-config-ts",
-		"./example",
-		"./htmlvalidate",
-		"./ssg",
-		"./web"
+		"util/**/*.d.ts",
+		"!util/types.d.ts"
 	],
 	"extends": [
 		"@robertakarobin/eslint-config-ts"
+	],
+	"include": [
+		"util/**/*"
 	]
 }

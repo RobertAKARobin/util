@@ -3,7 +3,7 @@ import { arrayToEnum } from '../../arrayToEnum.ts';
 import { nTimes } from '../../nTimes.ts';
 import { promiseConsecutive } from '../../promiseConsecutive.ts';
 
-import type * as Type from './types.d.ts';
+import type * as Type from './types.js';
 
 const specStepCountDefault: Type.SpecStepCount = {
 	deferred: 0,

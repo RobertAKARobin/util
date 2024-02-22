@@ -9,6 +9,10 @@
 		"**/node_modules/*",
 		"**/tmp/*",
 		"**/package-lock.json",
-		"**/web/example"
+		"**/web/example",
+		"util/**/*.js",
+		"util/**/*.js.map",
+		"util/**/*.d.ts",
+		"!util/**/types.d.ts"
 	]
 }
