@@ -6,7 +6,7 @@ utils=(components delimiter-pairs emitter math spec .)
 
 rm -rf dist
 
-esbuild --outdir=dist util/**/*.ts util/*.ts
-esbuild --outdir=dist --minify --sourcemap --entry-names="[dir]/[name].min" util/**/*.ts util/*.ts
+esbuild --outdir=dist util/**/*.ts
+# esbuild --outdir=dist --minify --sourcemap --entry-names="[dir]/[name].min" util/**/*.ts
 tsc
 cp util/**/*.d.ts dist
