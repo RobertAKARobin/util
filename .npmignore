@@ -1,3 +1,5 @@
+.husky
+.vscode
 bin
 csslint
 eslint-config

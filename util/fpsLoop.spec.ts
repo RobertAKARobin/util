@@ -1,5 +1,5 @@
 import { suite, test } from './spec/index.ts';
-import { mean } from 'util/math/average.ts';
+import { mean } from './math/average.ts';
 import { roundTo } from './roundTo.ts';
 import { sleep } from './sleep.ts';
 

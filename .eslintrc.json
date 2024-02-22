@@ -3,16 +3,10 @@
 		"@robertakarobin/eslint-config-ts"
 	],
 	"ignorePatterns": [
-		"!**/.*.js*",
 		"**/dist/*",
 		"**/dist-golden/*",
 		"**/node_modules/*",
 		"**/tmp/*",
-		"**/package-lock.json",
-		"**/web/example",
-		"util/**/*.js",
-		"util/**/*.js.map",
-		"util/**/*.d.ts",
-		"!util/**/types.d.ts"
+		"**/package-lock.json"
 	]
 }

@@ -4,12 +4,9 @@
 		"declaration": true,
 		"emitDeclarationOnly": true,
 		"noEmit": false,
-		"rootDir": "."
+		"outDir": "dist",
+		"rootDir": "util"
 	},
-	"exclude": [
-		"util/**/*.d.ts",
-		"!util/types.d.ts"
-	],
 	"extends": [
 		"@robertakarobin/eslint-config-ts"
 	],
