@@ -54,6 +54,8 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ## TODO
 
+-	TODO1: Rename `Component.template` so it comes last alphabetically?
+
 -	TODO1: Fully hydrate the template on the landing page -- e.g. with event listeners and stuff -- without needing to rerender it
 -	TODO1: Don't use `[on]` attributes?
 
