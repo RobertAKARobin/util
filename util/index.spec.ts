@@ -17,6 +17,7 @@ export const spec = suite(`@robertakarobin/js`, {},
 	(await import(`./sortOn.spec.ts`)).spec,
 	(await import(`./posixPath.spec.ts`)).spec,
 	(await import(`./querystring.spec.ts`)).spec,
+	(await import(`./sharedEnv.spec.ts`)).spec,
 	(await import(`./template.spec.ts`)).spec,
 	(await import(`./transition.spec.ts`)).spec,
 );
