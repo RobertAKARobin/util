@@ -1,15 +1,30 @@
-export function updateQuerystring(updates: Record<string, string> | URLSearchParams) {
-	const location = window.location;
+export function updateQuerystring(
+	input: Location | URL | string = window?.location,
+	updates: Record<string, string> | URLSearchParams
+) {
+	const location = input instanceof URL
+		? input
+		: typeof input === `string`
+			? new URL(input)
+			: new URL(input.href);
+
 	const params = new URLSearchParams(location.search);
+
+	let output = `${location.origin}${location.pathname}`;
+
 	const entries = updates instanceof URLSearchParams
 		? updates.entries()
 		: Object.entries(updates);
+
 	for (const [paramName, value] of entries) {
 		params.set(paramName, value);
 	}
-	if (params.size === 0) {
-		return;
+
+	if (params.size > 0) {
+		output += `?${params}`;
 	}
-	const path = `${location.pathname}${location.hash}?${params}`;
-	history.replaceState(null, ``, path);
+
+	output += location.hash;
+
+	return output;
 }

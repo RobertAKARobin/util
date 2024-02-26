@@ -16,6 +16,7 @@ export const spec = suite(`@robertakarobin/js`, {},
 	(await import(`./serialize.spec.ts`)).spec,
 	(await import(`./sortOn.spec.ts`)).spec,
 	(await import(`./posixPath.spec.ts`)).spec,
+	(await import(`./querystring.spec.ts`)).spec,
 	(await import(`./template.spec.ts`)).spec,
 	(await import(`./transition.spec.ts`)).spec,
 );
