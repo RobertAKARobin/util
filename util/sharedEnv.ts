@@ -1,10 +1,7 @@
 import type fs from 'fs';
 
-import { appContext } from '@robertakarobin/util/context.ts';
-
-export async function importAs<Type>(filename: string) {
-	return await import(filename) as Type;
-}
+import { appContext } from './context.ts';
+import { importAs } from './importAs.ts';
 
 /**
  * A way of sharing backend variables with the frontend that is (a) type-safe, and (b) lets both environments use the same import.
