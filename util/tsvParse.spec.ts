@@ -28,4 +28,5 @@ export const spec = test(`fetchTsv`, $ => {
 	$.assert(x => x(entries[5].x) === 916);
 	$.assert(x => x(entries[6].y) === 1029);
 	$.assert(x => x(entries[7].scale) === 1.75);
+	$.assert(x => x(tsvParse(``, () => null).length) === 0);
 });

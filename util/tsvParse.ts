@@ -1,5 +1,5 @@
 export function tsvParse<Entry>(
-	text: string,
+	input: string,
 	convert: (input: Array<string>) => Entry,
 	options: Partial<{
 		delimiter: string;
@@ -7,8 +7,14 @@ export function tsvParse<Entry>(
 ) {
 	const delimiter = options.delimiter ?? `\t`;
 
+	const text = input.trim();
+	if (text.length === 0) {
+		return [];
+	}
+
 	const entries: Array<Entry> = [];
-	for (const line of text.trim().split(`\n`)) {
+
+	for (const line of text.split(`\n`)) {
 		const columns = line.trimEnd().split(delimiter);
 		if (columns.length === 0) {
 			continue;
