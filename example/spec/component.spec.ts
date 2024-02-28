@@ -1,7 +1,7 @@
 import '@robertakarobin/ssg/dummydom.ts';
 
 import { suite, test } from '@robertakarobin/util/spec/index.ts';
-import { Component } from '@robertakarobin/util/component.ts';
+import { Component } from '@robertakarobin/util/components/component.ts';
 
 @Component.define()
 class Widget extends Component.custom(`h1`) {

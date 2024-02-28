@@ -1,5 +1,5 @@
 import { FPSLoop } from './fpsLoop.ts';
-import { roundTo } from './roundTo.ts';
+import { roundTo } from './math/roundTo.ts';
 
 export function transition(
 	doWhat: (value: number) => void,

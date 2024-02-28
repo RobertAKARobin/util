@@ -1,7 +1,7 @@
 import { byIndex } from '../byIndex.ts';
 import { enumy } from '../enumy.ts';
-import { repaint } from '../repaint.ts';
-import { sleep } from '../sleep.ts';
+import { repaint } from '../dom/repaint.ts';
+import { sleep } from '../time/sleep.ts';
 
 import { Emitter } from './emitter.ts';
 

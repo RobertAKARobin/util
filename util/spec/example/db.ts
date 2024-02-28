@@ -1,4 +1,4 @@
-import { sleep } from '../../sleep.ts';
+import { sleep } from '../../time/sleep.ts';
 
 type DBRecord = {
 	id: number;

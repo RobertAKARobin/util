@@ -3,7 +3,7 @@ import {
 	TransitionEmitter,
 	transitionStatus,
 } from '../emitter/transition.ts';
-import { Component } from '../component.ts';
+import { Component } from './component.ts';
 
 export const defaultDuration = 0.2;
 const durationVarName = `--modalContainerDuration`;

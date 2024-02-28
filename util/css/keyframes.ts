@@ -1,4 +1,4 @@
-import { roundTo } from './roundTo.ts';
+import { roundTo } from '../math/roundTo.ts';
 
 export function keyframes(
 	...args: [string, ...Array<number | string>]

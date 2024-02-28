@@ -1,4 +1,4 @@
-import { Component, html } from '@robertakarobin/util/component.ts';
+import { Component, html } from '@robertakarobin/util/components/component.ts';
 
 import { Textbox } from '@src/components/textbox.ts';
 

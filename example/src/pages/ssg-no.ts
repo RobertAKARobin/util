@@ -1,4 +1,4 @@
-import { Component, html, Page } from '@robertakarobin/util/component.ts';
+import { Component, html, Page } from '@robertakarobin/util/components/component.ts';
 
 @Component.define()
 export class NoSSGPage extends Page {

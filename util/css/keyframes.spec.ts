@@ -1,6 +1,6 @@
-import { diff } from './spec/diff.ts';
+import { diff } from '../spec/diff.ts';
 import { keyframes } from './keyframes.ts';
-import { test } from './spec/index.ts';
+import { test } from '../spec/index.ts';
 
 const animation = keyframes(`
 	position: absolute;

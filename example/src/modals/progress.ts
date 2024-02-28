@@ -1,7 +1,7 @@
-import { Component, css, html } from '@robertakarobin/util/component.ts';
+import { Component, css, html } from '@robertakarobin/util/components/component.ts';
 import { ModalContainer } from '@robertakarobin/util/components/modal-container.ts';
 import { ProgressCircle } from '@robertakarobin/util/components/progress-circle.ts';
-import { repaint } from '@robertakarobin/util/repaint.ts';
+import { repaint } from '@robertakarobin/util/dom/repaint.ts';
 
 const style = css`
 :host {

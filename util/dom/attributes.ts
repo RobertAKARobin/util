@@ -1,4 +1,4 @@
-import type { Textish } from './types.d.ts';
+import type { Textish } from '../types.d.ts';
 
 export type ElAttributes<Subclass extends HTMLElement> =
 	& Omit<Subclass,

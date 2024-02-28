@@ -1,4 +1,4 @@
-import type { Nested, Textish } from './types.d.ts';
+import type { Nested, Textish } from '../types.d.ts';
 
 /**
  * A tagged template function that just returns the strings passed into it. Lets us use 'lit-html' syntax. TODO3: Find additional uses

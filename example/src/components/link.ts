@@ -1,5 +1,5 @@
 import { baseUrl } from '@robertakarobin/util/context.ts';
-import { toAttributes } from '@robertakarobin/util/attributes.ts';
+import { toAttributes } from '@robertakarobin/util/dom/attributes.ts';
 
 import { router } from '@src/app.ts';
 

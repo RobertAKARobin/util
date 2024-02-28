@@ -1,4 +1,4 @@
-import { roundTo } from './roundTo.ts';
+import { roundTo } from './math/roundTo.ts';
 import { test } from './spec/index.ts';
 
 import { transition } from './transition.ts';

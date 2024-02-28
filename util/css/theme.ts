@@ -1,4 +1,4 @@
-export { css } from './template.ts';
+export { css } from '../string/template.ts';
 
 export const reset = `
 background: transparent;

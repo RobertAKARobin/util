@@ -3,12 +3,12 @@ import {
 	type ElAttributes,
 	setAttributes,
 	style,
-} from '../attributes.ts';
+} from '../dom/attributes.ts';
 import { newUid } from '../uid.ts';
 import { serialize } from '../serialize.ts';
 import type { Textish } from '../types.d.ts';
 
-export { css, html } from '../template.ts';
+export { css, html } from '../string/template.ts';
 
 type Constructor<Classtype> = new (...args: any) => Classtype; // eslint-disable-line @typescript-eslint/no-explicit-any
 

@@ -1,7 +1,7 @@
 import { Resolver, type RouteMap, Router } from '../router.ts';
 import { appContext } from '../context.ts';
 
-import { Component, Page } from '../component.ts';
+import { Component, Page } from './component.ts';
 
 export { Resolver, RouteMap, Router };
 

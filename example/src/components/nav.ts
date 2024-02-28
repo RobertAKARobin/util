@@ -1,4 +1,4 @@
-import { Component, css, html } from '@robertakarobin/util/component.ts';
+import { Component, css, html } from '@robertakarobin/util/components/component.ts';
 
 import { link } from '@src/components/link.ts';
 import { router } from '@src/app.ts';

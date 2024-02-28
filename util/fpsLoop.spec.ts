@@ -1,7 +1,7 @@
 import { suite, test } from './spec/index.ts';
 import { mean } from './math/average.ts';
-import { roundTo } from './roundTo.ts';
-import { sleep } from './sleep.ts';
+import { roundTo } from './math/roundTo.ts';
+import { sleep } from './time/sleep.ts';
 
 import { FPSLoop } from './fpsLoop.ts';
 

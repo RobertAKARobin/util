@@ -11,9 +11,9 @@ import type * as $ from '@robertakarobin/util/types.js';
 import { Resolver, Router } from '@robertakarobin/util/router.ts';
 import type { BaseApp } from '@robertakarobin/util/components/app.ts';
 import { baseUrl } from '@robertakarobin/util/context.ts';
-import { delimiterPairs } from '@robertakarobin/util/delimiter-pairs/delimiter-pairs.ts';
-import { type Page } from '@robertakarobin/util/component.ts';
-import { posixPath } from '@robertakarobin/util/posixPath.ts';
+import { delimiterPairs } from '@robertakarobin/util/string/delimiter-pairs.ts';
+import { type Page } from '@robertakarobin/util/components/component.ts';
+import { posixPath } from '@robertakarobin/util/node/posixPath.ts';
 import { promiseConsecutive } from '@robertakarobin/util/promiseConsecutive.ts';
 import { type RouteMap } from '@robertakarobin/util/components/app.ts';
 

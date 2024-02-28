@@ -1,4 +1,4 @@
-import { Component, css, html } from '@robertakarobin/util/component.ts';
+import { Component, css, html } from '@robertakarobin/util/components/component.ts';
 
 import { types } from '@src/theme.ts';
 

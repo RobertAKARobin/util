@@ -1,6 +1,6 @@
 import path from 'path';
 
-import { escape } from './escape.ts';
+import { escape } from '../string/escape.ts';
 
 export function posixPath(
 	input: string,
