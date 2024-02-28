@@ -1,41 +1,40 @@
 import { FPSLoop } from './fpsLoop.ts';
-import { roundTo } from './math/roundTo.ts';
 
 export function transition(
 	doWhat: (value: number) => void,
-	options: Partial<{
+	options: {
 		duration: number;
-		framesPerSecond: number;
-		valueEnd: number;
-		valueStart: number;
-	}> = {},
+		loopsPerSecond?: number;
+		valueEnd?: number;
+		valueStart?: number;
+	}
 ): FPSLoop {
-	const duration = options.duration ?? .2 * 1000;
-	const framesPerSecond = options.framesPerSecond ?? 60;
-	const loops = duration / (1000 / framesPerSecond);
-
 	const valueStart = options.valueStart ?? 0;
 	const valueEnd = options.valueEnd ?? 1;
-	const difference = valueEnd - valueStart;
-	const differencePerLoop = roundTo(difference / loops, 3);
+	const difference = valueStart - valueEnd;
 
 	let value = valueStart;
+
 	const loop = new FPSLoop(
 		() => {
+			const remainingTime = loop.duration - loop.timeElapsed;
+			const remainingTimeAsPercent = (remainingTime / loop.duration);
+			value = valueEnd + (remainingTimeAsPercent * difference);
+
 			if (
 				(valueStart === valueEnd)
 				|| (valueStart < valueEnd && value >= valueEnd)
 				|| (valueStart > valueEnd && value <= valueEnd)
 			) {
 				doWhat(valueEnd);
-				loop.resolve();
+				loop.end();
 				return;
 			}
 
 			doWhat(value);
-			value += differencePerLoop;
 		},
-		{ framesPerSecond }
+		options,
 	);
+
 	return loop;
 }

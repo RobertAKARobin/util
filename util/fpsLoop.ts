@@ -1,9 +1,32 @@
-import { appContext } from './context.ts';
-export type LoopState =
-	| `ended`
-	| `paused`
-	| `running`
-	| `unstarted`;
+import { byIndex } from './byIndex.ts';
+import { enumy } from './enumy.ts';
+import { setImmediate } from './setImmediate.ts';
+
+export const loopStatuses = [
+	`unstarted`,
+	`starting`,
+	`started`,
+	`ending`,
+	`ended`,
+] as const;
+
+export const loopStatus = enumy(...loopStatuses);
+
+const loopStatuses_start = byIndex(
+	loopStatus.starting,
+	loopStatus.started,
+);
+
+export type LoopStatus_Start = keyof typeof loopStatuses_start;
+
+const loopStatuses_end = byIndex(
+	loopStatus.ending,
+	loopStatus.ended,
+);
+
+export type LoopStatus_End = keyof typeof loopStatuses_end;
+
+export type LoopStatus = typeof loopStatuses[number];
 
 /**
  * Loops over the given callback at the given number of iterations/frames per second.
@@ -13,77 +36,107 @@ export class FPSLoop {
 		return this.currentLoop_;
 	}
 	private currentLoop_?: Promise<void>;
+
 	doWhat: () => void;
-	loopsPerSecond: number;
-	private resolve_?: Function;
-	runner: typeof requestAnimationFrame | typeof setImmediate;
-	get state() {
-		return this.state_;
+
+	duration: number;
+
+	get isPaused() {
+		return this.isPaused_;
 	}
-	private state_: LoopState = `unstarted`;
+	private isPaused_ = false;
+
+	loopsPerSecond?: number;
+
+	private resolve_?: Function;
+
+	get status() {
+		return this.status_;
+	}
+	private set status(value: LoopStatus) {
+		this.status_ = value;
+	}
+	private status_: LoopStatus = `unstarted`;
+
+	get timeElapsed() {
+		return this.timeElapsed_;
+	}
+	private timeElapsed_ = 0;
+
+	get timeStarted() {
+		return this.timeStarted_;
+	}
+	private timeStarted_ = 0;
 
 	constructor(
 		doWhat: FPSLoop[`doWhat`],
 		options: Partial<{
-			framesPerSecond: number;
-			runner: `requestAnimationFrame` | `setImmediate`;
+			duration: FPSLoop[`duration`];
+			loopsPerSecond: FPSLoop[`loopsPerSecond`];
 		}> = {}
 	) {
 		this.doWhat = doWhat;
-		this.loopsPerSecond = options.framesPerSecond ?? 60;
-
-		const runner = options.runner ?? (
-			appContext === `browser` ? `requestAnimationFrame` : `setImmediate`
-		);
-		this.runner = runner === `requestAnimationFrame`
-			? globalThis.requestAnimationFrame.bind(globalThis) // Throws "Illegal invocation" if `this` not `null` or `window`
-			: globalThis.setImmediate;
+		this.duration = options.duration ?? Infinity;
+		this.loopsPerSecond = options.loopsPerSecond;
 	}
 
-	begin(): Promise<void> {
-		this.currentLoop_ = new Promise(resolve => {
-			this.resolve_ = resolve;
-		});
-		this.state_ = `running`;
-
-		const period = 1000 / this.loopsPerSecond;
-
-		let timeNextLoop_ = 0;
-		const step = () => {
-			const time = performance.now();
-			if (time >= timeNextLoop_) {
-				timeNextLoop_ = time + period;
-				if (this.state === `running`) {
-					this.doWhat();
-				}
-			}
-
-			if (this.state === `paused` || this.state === `running`) {
-				this.runner(step);
-			}
-		};
-
-		void step();
-
-		return this.currentLoop ?? Promise.resolve();
+	end() {
+		this.status_ = `ending`;
+		this.resolve_!();
+		this.status_ = `ended`;
+		return this;
 	}
 
 	pause() {
-		this.state_ = `paused`;
+		this.isPaused_ = true;
 		return this;
 	}
 
-	resolve() {
-		this.state_ = `ended`;
-		this.resolve_!();
-		return this;
+	start(): Promise<void> {
+		this.currentLoop_ = new Promise(resolve => {
+			this.resolve_ = resolve;
+		});
+		this.status_ = `starting`;
+		this.timeStarted_ = performance.now();
+		this.timeElapsed_ = 0;
+
+		const period = typeof this.loopsPerSecond === `number`
+			? 1000 / this.loopsPerSecond
+			: 0;
+
+		let timeNextLoop = 0;
+		const step = () => {
+			if (this.isPaused) {
+				return;
+			}
+
+			const timeNow = performance.now();
+			this.timeElapsed_ = timeNow - this.timeStarted;
+
+			if (timeNow >= timeNextLoop) {
+				timeNextLoop = timeNow + period;
+				if (this.status === `started`) {
+					this.doWhat();
+
+					if (this.timeElapsed > this.duration) {
+						this.end();
+					}
+				}
+			}
+
+			if (this.status === `started`) {
+				setImmediate(step);
+			}
+		};
+
+		this.status_ = `started`;
+		step();
+
+		return this.currentLoop_;
 	}
 
 	unpause() {
-		if (this.state_ !== `paused`) {
-			throw new Error(`Cannot unpause; current state is '${this.state_}'`);
-		}
-		this.state_ = `running`;
+		this.isPaused_ = false;
 		return this;
 	}
 }
