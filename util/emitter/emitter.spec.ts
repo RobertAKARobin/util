@@ -1,6 +1,8 @@
 import { suite, test } from '../spec/index.ts';
 
 import { Emitter } from './emitter.ts';
+import { filter } from './pipe/filter.ts';
+import { on } from './pipe/on.ts';
 
 export const spec = suite(`Emitter`, {},
 	test(`values`, $ => {
@@ -174,8 +176,8 @@ export const spec = suite(`Emitter`, {},
 		$.log(() => person = new Person({ age: 10, name: `alice` }));
 		let incrementsOnAge = 0;
 		let incrementsOnRename = 0;
-		$.log(() => person.on(`age`).subscribe(() => incrementsOnAge += 1));
-		$.log(() => person.on(`name`).subscribe(() => incrementsOnRename += 1));
+		$.log(() => person.pipe(on(`age`)).subscribe(() => incrementsOnAge += 1));
+		$.log(() => person.pipe(on(`name`)).subscribe(() => incrementsOnRename += 1));
 
 		$.log(() => person.age(1));
 		$.assert(x => x(person.value.age) === 11);
@@ -191,7 +193,7 @@ export const spec = suite(`Emitter`, {},
 
 		let incrementsWhenOlder = 0;
 		const isOlder = (updated: State, previous: State) => updated.age > previous.age;
-		$.log(() => person.filter(isOlder).subscribe(() => incrementsWhenOlder += 1));
+		$.log(() => person.pipe(filter(isOlder)).subscribe(() => incrementsWhenOlder += 1));
 		$.log(() => person.age(1));
 		$.assert(x => x(incrementsWhenOlder) === 1);
 		$.log(() => person.age(0));

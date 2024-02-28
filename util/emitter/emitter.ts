@@ -34,7 +34,7 @@ export type EmitterOptions<State> = EmitterCacheOptions & {
 	reset: () => State;
 };
 
-const IGNORE = `_IGNORE_` as const;
+export const IGNORE = `_IGNORE_` as const;
 
 // TODO1: Operators: filter, startWith, once, toPromise
 export class Emitter<State> {
@@ -69,29 +69,6 @@ export class Emitter<State> {
 		this.resetter = options.reset;
 	}
 
-	filter(filter: (updated: State, previous: State) => boolean) {
-		return this.pipe((state, { previous }) => {
-			if (filter(state, previous)) {
-				return state;
-			}
-			return IGNORE as unknown as State;
-		});
-	}
-
-	on<PropertyName extends keyof State>(
-		property: PropertyName | ((state: State) => State[PropertyName]),
-	) {
-		const getValue = typeof property === `function`
-			? property
-			: (state: State) => state[property];
-		return this.pipe((state, { previous }) => {
-			if (getValue(state) === getValue(previous)) {
-				return IGNORE as unknown as State;
-			}
-			return state;
-		});
-	}
-
 	onChange(
 		_update: State,
 		_meta: Omit<Parameters<OnEmit<State>>[1], `subscription`>
@@ -111,13 +88,14 @@ export class Emitter<State> {
 		callback: (
 			value: Parameters<OnEmit<State>>[0],
 			meta: Parameters<OnEmit<State>>[1]
-		) => Output
+		) => Output,
+		options: Parameters<Emitter<State>[`subscribe`]>[1] = {}
 	) {
 		const emitter = new Emitter<Output>();
 		this.subscribe((update, meta) => {
 			const value = callback(update, meta);
 			return emitter.set(value);
-		});
+		}, options);
 		return emitter;
 	}
 
