@@ -4,7 +4,7 @@ export const spec = suite(`@robertakarobin/js`, {},
 	(await import(`./spec/index.spec.ts`)).spec,
 
 	(await import(`./capitalize.spec.ts`)).spec,
-	(await import(`./delimiter-pairs/delimiter-pairs.spec.ts`)).spec,
+	(await import(`./delimiter-pairs.spec.ts`)).spec,
 	(await import(`./emitter/emitter.spec.ts`)).spec,
 	(await import(`./emitter/entities.spec.ts`)).spec,
 	(await import(`./fetchText.spec.ts`)).spec,

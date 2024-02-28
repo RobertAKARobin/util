@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-import { suite, test } from '../spec/index.ts';
+import { suite, test } from './spec/index.ts';
 
 import { delimiterPairs, type Result } from './delimiter-pairs.ts';
 
@@ -135,7 +135,7 @@ export const spec = suite(`stringMates`, {},
 			[`/*css*/\``, `\``],
 			[`\${`, `}`],
 		];
-		const template = readFile(`./templates/css.ts`);
+		const template = readFile(`./mock/css.ts`);
 		const result = delimiterPairs(template, tags);
 		const stringAt = at(result);
 		const resultAt = at<Result>(result);
