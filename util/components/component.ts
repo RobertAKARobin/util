@@ -327,6 +327,9 @@ export class Component extends HTMLElement {
 	 */
 	connectedCallback() {}
 
+	/**
+	 * Applies the given CSS rules to the Component's `style` attribute
+	 */
 	css(input: Partial<CSSStyleDeclaration>) {
 		return style(this, input) as this;
 	}
@@ -391,6 +394,9 @@ export class Component extends HTMLElement {
 		return this.closest((Ancestor as unknown as typeof Component).selector);
 	}
 
+	/**
+	 * Define a callback that is called when the specified event defined with `@Component.event` occurs
+	 */
 	on<
 		Self extends Record<EventName, (...args: any) => any>, // eslint-disable-line @typescript-eslint/no-explicit-any
 		EventName extends keyof Self,
@@ -410,6 +416,9 @@ export class Component extends HTMLElement {
 		return this;
 	}
 
+	/**
+	 * Define a callback that is called when the specified property defined with `@Component.attribute` is changed.
+	 */
 	onAttribute<
 		PropertyName extends keyof this,
 		AttributeValue extends this[PropertyName],
@@ -425,7 +434,11 @@ export class Component extends HTMLElement {
 		);
 	}
 
-	onConstruct(id?: Component[`id`]) { // Would prefer this to be private, but TS won't emit the declaration if it is https://github.com/microsoft/TypeScript/issues/30355
+	/**
+	 * Called by the constructor. Needed because customized and autonomous components have different constructors.
+	 * Would prefer this to be private, but TS won't emit the declaration if it is https://github.com/microsoft/TypeScript/issues/30355
+	 */
+	onConstruct(id?: Component[`id`]) {
 		if (id !== undefined) {
 			this.id = id;
 		}
@@ -480,6 +493,9 @@ export class Component extends HTMLElement {
 		return subclassTemplate ?? this.innerHTML ?? ``;
 	}
 
+	/**
+	 * Returns a placeholder element that will be hydrated into the full component during rendering.
+	 */
 	toString() {
 		const tempId = [undefined, null, ``].includes(this.id) ? newUid() : this.id;
 		this.innerHTML = this.template();
@@ -487,6 +503,9 @@ export class Component extends HTMLElement {
 		return `<placeholder id="${tempId}"></placeholder>`;
 	}
 
+	/**
+	 * A shortcut for setting the component's `content` property.
+	 */
 	write(input: string) {
 		this.content = input;
 		return this;

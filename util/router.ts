@@ -214,7 +214,6 @@ export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>
 	}
 }
 
-// TODO1: Consolidate to component/app?
 /**
  * Given a route, returns the corresponding View
  */

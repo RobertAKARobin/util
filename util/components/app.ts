@@ -53,7 +53,9 @@ export abstract class BaseApp<
 
 		if (previous === undefined) {
 			this.page = newPage;
-			this.render();
+			if (appContext !== `browser`) {
+				this.render();
+			}
 		} else {
 			this.page.replaceWith(newPage.render());
 			this.page = newPage;
@@ -61,8 +63,6 @@ export abstract class BaseApp<
 
 		document.title = this.page.pageTitle;
 	}
-
-	// TODO2: Move formatHead from build to here
 
 	template() {
 		return `${this.page}`;

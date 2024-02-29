@@ -54,22 +54,18 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ## TODO
 
--	TODO1: Rename `Component.template` so it comes last alphabetically?
-
--	TODO1: Fully hydrate the template on the landing page -- e.g. with event listeners and stuff -- without needing to rerender it
--	TODO1: Don't use `[on]` attributes?
-
--	TODO3: CSS class mapping
--	TODO3: Declare CSS variables inline
--	TODO2: Import from other file (ergo SVG)
-
--	TODO3: Remove CSS from JS bundles
+-	TODO2: A way to cache DOM queries, like Angular's ViewChild
+-	TODO2: Import SVGs
+-	TODO2: Remove CSS from JS bundles
 -	TODO2: CSS minify
 -	TODO2: HTML minify
 -	TODO2: Image preprocessing
+-	TODO3: CSS class and variable mapping
 
 ### Done:
 
+-	Fully hydrate the template on the landing page -- e.g. with event listeners and stuff -- without needing to rerender it
+-	Don't use `[on]` attributes?
 -	Style setter
 -	Specify which routes to build in build config, not with `isSSG`
 -	Match routes with params
