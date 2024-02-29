@@ -1,7 +1,6 @@
 import { Component, css, html } from '@robertakarobin/util/components/component.ts';
 import { ModalContainer } from '@robertakarobin/util/components/modal-container.ts';
 import { ProgressCircle } from '@robertakarobin/util/components/progress-circle.ts';
-import { repaint } from '@robertakarobin/util/dom/repaint.ts';
 
 const style = css`
 :host {
@@ -18,15 +17,14 @@ export class ProgressModal extends Component {
 
 	connectedCallback() {
 		const $circle = this.findDown(ProgressCircle);
-		this.findUp(ModalContainer).transition.subscribe(({ status }) => {
-			switch (status) {
-				case `activate`:
+		this.findUp(ModalContainer).onAttribute(`status`, ({ detail }) => {
+			switch (detail) {
+				case `activating`:
 					$circle.style.transition = `none`; // Force circle to reset without tweening
 					$circle.set({ value: 100 });
 					break;
-				case `activating`:
+				case `active`:
 					$circle.style.removeProperty(`transition`); // Undo the `style.transition = none`
-					repaint(); // Force browser to start tweening after the modal has rendered; otherwise animations/transitions won't work
 					$circle.set({ value: 0 });
 					break;
 			}
@@ -34,7 +32,7 @@ export class ProgressModal extends Component {
 	}
 
 	dismiss() {
-		this.findUp(ModalContainer).close();
+		void this.findUp(ModalContainer).close();
 	}
 
 	template = () => html`

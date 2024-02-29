@@ -1,18 +1,22 @@
-import {
-	$transitionStateAttr,
-	TransitionEmitter,
-	transitionStatus,
-} from '../emitter/transition.ts';
 import { Component } from './component.ts';
+import { enumy } from '../enumy.ts';
+import { listenOnce } from '../listenOnce.ts';
 
-export const defaultDuration = 0.2;
+export const defaultDuration = .2;
 const durationVarName = `--modalContainerDuration`;
+const modalStatusAttr = `data-modal-status`;
+export const modalStatus = enumy(
+	`activating`,
+	`active`,
+	`inactivating`,
+	`inactive`
+);
+export type ModalStatus = keyof typeof modalStatus;
 
 export const modalContainerDefaultStyles = /*css*/`
 align-items: center;
 background: transparent;
 border: 0;
-display: flex;
 flex-direction: column;
 height: 100%;
 justify-content: center;
@@ -28,16 +32,23 @@ width: 100%;
 
 &,
 &::backdrop {
-	opacity: 0;
 	transition: opacity var(${durationVarName}) linear;
 }
 
-&[${$transitionStateAttr}='${transitionStatus.inactive}'] {
-	display: none;
+&[open] {
+	display: flex;
 }
 
-&[${$transitionStateAttr}='${transitionStatus.activating}'],
-&[${$transitionStateAttr}='${transitionStatus.active}'] {
+&[${modalStatusAttr}='${modalStatus.inactivating}'],
+&[${modalStatusAttr}='${modalStatus.inactive}'] {
+	&,
+	&::backdrop {
+		opacity: 0;
+	}
+}
+
+&[${modalStatusAttr}='${modalStatus.activating}'],
+&[${modalStatusAttr}='${modalStatus.active}'] {
 	&,
 	&::backdrop {
 		opacity: 1;
@@ -52,27 +63,30 @@ width: 100%;
 export abstract class BaseModalContainer extends Component.custom(`dialog`) {
 	clearOnClose = false;
 	duration = defaultDuration;
-	transition = new TransitionEmitter({
-		$target: this,
-		duration: this.duration,
-		status: `inactive`,
-	}, {
-		emitOnInit: true,
-	});
 
-	close() {
-		if (this.transition.isActive) {
-			this.transition.inactivate();
+	@Component.attribute({ name: modalStatusAttr }) status: ModalStatus = `inactive`;
+
+	constructor() {
+		super();
+		this.addEventListener(`close`, () => {
+			this.status = `inactive`;
+		});
+	}
+
+	async close() {
+		if (this.status !== `active`) {
+			return;
 		}
+
+		this.status = `inactivating`;
+		await listenOnce(this, `transitionend`);
+		this.status = `inactive`;
+		super.close();
 		return this;
 	}
 
 	connectedCallback() {
-		this.transition.subscribe(({ status }) => {
-			if (status === `inactive`) {
-				super.close();
-			}
-		});
+		this.style.setProperty(durationVarName, `${this.duration}s`);
 	}
 
 	place(...children: Array<Node>) {
@@ -80,13 +94,15 @@ export abstract class BaseModalContainer extends Component.custom(`dialog`) {
 		return this;
 	}
 
-	show() {
-		const style = document.createElement(`style`);
-		style.innerHTML = `${this.Ctor.selector}, ${this.Ctor.selector}::backdrop { ${durationVarName}: ${this.duration}s }`;
-		this.appendChild(style);
+	async show() {
+		if (this.status !== `inactive`) {
+			return;
+		}
 
 		super.showModal();
-		this.transition.activate();
+		this.status = `activating`;
+		await listenOnce(this, `transitionend`);
+		this.status = `active`;
 		return this;
 	}
 

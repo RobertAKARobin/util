@@ -2,7 +2,6 @@
 	align-items: center;
 	background: transparent;
 	border: 0;
-	display: flex;
 	flex-direction: column;
 	height: 100%;
 	justify-content: center;
@@ -18,16 +17,24 @@
 
 	&,
 	&::backdrop {
-		opacity: 0;
 		transition: opacity var(--modalContainerDuration) linear;
 	}
 
-	&[data-transition-state='inactive'] {
-		display: none;
+	&[open] {
+		display: flex;
 	}
 
-	&[data-transition-state='activating'],
-	&[data-transition-state='active'] {
+	&[data-modal-status='inactivating'],
+	&[data-modal-status='inactive'] {
+
+		&,
+		&::backdrop {
+			opacity: 0;
+		}
+	}
+
+	&[data-modal-status='activating'],
+	&[data-modal-status='active'] {
 
 		&,
 		&::backdrop {

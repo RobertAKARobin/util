@@ -23,6 +23,12 @@ type ComponentWithoutDecorators = Omit<typeof Component,
 
 const componentCache = new Map<string, WeakRef<Component>>();
 
+declare global {
+	interface HTMLElementEventMap { // eslint-disable-line no-restricted-syntax
+		attribute: CustomEvent;
+	}
+}
+
 export class Component extends HTMLElement {
 	static readonly const = {
 		attrEl: `is`,
@@ -30,6 +36,7 @@ export class Component extends HTMLElement {
 	} as const;
 	static readonly elName: string;
 	static readonly observedAttributes = [] as Array<string>;
+	static readonly propertyNamesByAttribute: Record<string, string> = {};
 	static readonly selector: string;
 	static readonly tagName?: keyof HTMLElementTagNameMap;
 
@@ -47,6 +54,7 @@ export class Component extends HTMLElement {
 			const attributeName = options?.name ?? propertyName;
 			const Constructor = target.constructor as typeof Component;
 			Constructor.observedAttributes.push(attributeName);
+			Constructor.propertyNamesByAttribute[attributeName] = propertyName;
 
 			Object.defineProperty(Constructor.prototype, propertyName, {
 				get(this: Component) {
@@ -77,11 +85,12 @@ export class Component extends HTMLElement {
 
 		interface ComponentBase extends Component {} // eslint-disable-line no-restricted-syntax, @typescript-eslint/no-unsafe-declaration-merging
 		class ComponentBase extends (BaseElement as unknown as new() => object) { // eslint-disable-line @typescript-eslint/no-unsafe-declaration-merging
-			static readonly elName: string;
+			static readonly elName = Component.elName;
 			static readonly find = Component.find;
 			static readonly findAll = Component.findAll;
-			static readonly observedAttributes = [] as Array<string>;
-			static readonly selector: string;
+			static readonly observedAttributes = Component.observedAttributes;
+			static readonly propertyNamesByAttribute = Component.propertyNamesByAttribute;
+			static readonly selector = Component.selector;
 			static readonly tagName = tagName;
 
 			constructor(id?: Component[`id`]) {
@@ -269,10 +278,24 @@ export class Component extends HTMLElement {
 		AttributeName extends keyof this,
 		Value extends this[AttributeName],
 	>(
-		_attributeName: AttributeName,
-		_oldValue: Value,
-		_newValue: Value,
-	) {}
+		attributeName: AttributeName,
+		oldValue: Value,
+		newValue: Value,
+	) {
+		this.dispatchEvent(new CustomEvent(`attribute`, {
+			detail: {
+				attributeName,
+				newValue,
+				oldValue,
+			},
+		}));
+		const propertyName = this.Ctor.propertyNamesByAttribute[attributeName as string];
+		this.dispatchEvent(
+			new CustomEvent(`attribute:${propertyName}`, {
+				detail: newValue,
+			})
+		);
+	}
 
 	/**
 	 * Returns a string that can be inserted into an element's `[on*]` attribute that will call the specified function
@@ -375,6 +398,19 @@ export class Component extends HTMLElement {
 			doWhat as EventListener
 		);
 		return this;
+	}
+
+	onAttribute<
+		PropertyName extends keyof this,
+		AttributeValue extends this[PropertyName],
+	>(
+		propertyName: PropertyName,
+		listener: (event: CustomEvent<AttributeValue>) => void,
+	) {
+		this.addEventListener(
+			`attribute:${propertyName.toString()}` as keyof HTMLElementEventMap,
+			listener as EventListenerOrEventListenerObject,
+		);
 	}
 
 	onConstruct(id?: Component[`id`]) { // Would prefer this to be private, but TS won't emit the declaration if it is https://github.com/microsoft/TypeScript/issues/30355

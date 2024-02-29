@@ -1,13 +1,13 @@
 import { FPSLoop } from './fpsLoop.ts';
 
 export function transition(
-	doWhat: (value: number) => void,
 	options: {
 		duration: number;
 		loopsPerSecond?: number;
 		valueEnd?: number;
 		valueStart?: number;
-	}
+	},
+	doWhat: (value: number) => void,
 ): FPSLoop {
 	const valueStart = options.valueStart ?? 0;
 	const valueEnd = options.valueEnd ?? 1;
@@ -26,12 +26,16 @@ export function transition(
 				|| (valueStart < valueEnd && value >= valueEnd)
 				|| (valueStart > valueEnd && value <= valueEnd)
 			) {
-				doWhat(valueEnd);
+				if (typeof doWhat !== `undefined`) {
+					doWhat(valueEnd);
+				}
 				loop.end();
 				return;
 			}
 
-			doWhat(value);
+			if (typeof doWhat !== `undefined`) {
+				doWhat(value);
+			}
 		},
 		options,
 	);

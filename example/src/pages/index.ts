@@ -53,7 +53,7 @@ export class IndexPage extends Page {
 	}
 
 	openModal() {
-		ModalContainer.find().place(new ProgressModal().render()).show();
+		void ModalContainer.find().place(new ProgressModal().render()).show();
 	}
 
 	template = () => html`
