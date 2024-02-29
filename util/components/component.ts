@@ -259,6 +259,12 @@ export class Component extends HTMLElement {
 		return this.constructor as typeof Component;
 	}
 
+	/**
+	 * An AbortController that is activated in disconnectedCallback. Provides a way to automatically remove event listeners.
+	 * https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#signal
+	 */
+	readonly disconnect!: AbortController;
+
 	constructor(id?: Component[`id`]) {
 		super();
 		this.onConstruct(id);
@@ -329,7 +335,9 @@ export class Component extends HTMLElement {
 	 * Called when the component is detached from the DOM
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks
 	 */
-	disconnectedCallback() {}
+	disconnectedCallback() {
+		this.disconnect.abort();
+	}
 
 	/**
 	 * Looks for and returns the first instance of the specified constructor, or element of the specified selector, within the current component's template
@@ -390,12 +398,14 @@ export class Component extends HTMLElement {
 	>(
 		this: Self,
 		eventName: EventName,
-		doWhat: (event: CustomEvent<EventDetail>) => void
+		doWhat: (event: CustomEvent<EventDetail>) => void,
+		options: AddEventListenerOptions = {},
 	) {
-		const self = (this as unknown as HTMLElement);
+		const self = (this as unknown as Component);
 		self.addEventListener(
 			eventName as string,
-			doWhat as EventListener
+			doWhat as EventListener,
+			options,
 		);
 		return this;
 	}
@@ -406,10 +416,12 @@ export class Component extends HTMLElement {
 	>(
 		propertyName: PropertyName,
 		listener: (event: CustomEvent<AttributeValue>) => void,
+		options: AddEventListenerOptions = {},
 	) {
 		this.addEventListener(
 			`attribute:${propertyName.toString()}` as keyof HTMLElementEventMap,
 			listener as EventListenerOrEventListenerObject,
+			options,
 		);
 	}
 
@@ -417,6 +429,10 @@ export class Component extends HTMLElement {
 		if (id !== undefined) {
 			this.id = id;
 		}
+
+		Object.assign(this, {
+			disconnect: new AbortController(),
+		});
 	}
 
 	/**

@@ -12,6 +12,7 @@ export class DummyDOM {
 	refresh() {
 		const dummyDOM = new JSDOM(``, { virtualConsole }).window;
 
+		globalThis.AbortController = dummyDOM.AbortController;
 		globalThis.Comment = dummyDOM.Comment; // TODO2: Add these automatically instead of piecemeal?
 		globalThis.customElements = dummyDOM.customElements;
 		globalThis.document = dummyDOM.document;

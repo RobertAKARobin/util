@@ -28,7 +28,7 @@ export class ProgressModal extends Component {
 					$circle.set({ value: 0 });
 					break;
 			}
-		});
+		}, this.disconnect);
 	}
 
 	dismiss() {
