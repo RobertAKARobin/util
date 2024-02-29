@@ -7,10 +7,10 @@ export function listenOnce<
 	EventType extends ElementEventMap[EventName],
 >(element: Element, eventName: EventName): Promise<EventType> {
 	return new Promise<EventType>(resolve => {
-		const listener = (event: Event) => {
-			resolve(event as EventType);
-			element.removeEventListener(eventName, listener);
-		};
-		element.addEventListener(eventName, listener);
+		element.addEventListener(
+			eventName,
+			resolve as (event: Event) => void,
+			{ once: true }
+		);
 	});
 }
