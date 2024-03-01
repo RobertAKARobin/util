@@ -1,10 +1,18 @@
 import { run, suite } from './spec/index.ts';
 
 export const spec = suite(`@robertakarobin/js`, {},
-	(await import(`./spec/index.spec.ts`)).spec,
+	(await import(`./css/keyframes.spec.ts`)).spec,
 
 	(await import(`./emitter/emitter.spec.ts`)).spec,
 	(await import(`./emitter/entities.spec.ts`)).spec,
+
+	(await import(`./spec/index.spec.ts`)).spec,
+
+	(await import(`./string/capitalize.spec.ts`)).spec,
+	(await import(`./string/delimiter-pairs.spec.ts`)).spec,
+	(await import(`./string/template.spec.ts`)).spec,
+
+	(await import(`./assert.spec.ts`)).spec,
 	(await import(`./fetchText.spec.ts`)).spec,
 	(await import(`./fpsLoop.spec.ts`)).spec,
 	(await import(`./math/math.spec.ts`)).spec,
@@ -18,12 +26,6 @@ export const spec = suite(`@robertakarobin/js`, {},
 	(await import(`./sortOn.spec.ts`)).spec,
 	(await import(`./transition.spec.ts`)).spec,
 	(await import(`./tsvParse.spec.ts`)).spec,
-
-	(await import(`./css/keyframes.spec.ts`)).spec,
-
-	(await import(`./string/capitalize.spec.ts`)).spec,
-	(await import(`./string/delimiter-pairs.spec.ts`)).spec,
-	(await import(`./string/template.spec.ts`)).spec,
 );
 
 run(await spec({}));
