@@ -1,11 +1,11 @@
-import { IGNORE, type OnEmit } from '../emitter.ts';
+import { IGNORE, type PipeFunction, type SubscriptionEvent } from '../emitter.ts';
 
 export function filter<State>(
-	filter: (updated: State, previous: State) => boolean
-): OnEmit<State> {
-	return function(update: State, { previous }: { previous: State; }) {
-		if (filter(update, previous)) {
-			return update;
+	filter: PipeFunction<State, boolean>,
+): PipeFunction<State, State> {
+	return function(...[value, meta]: SubscriptionEvent<State>) {
+		if (filter(value, meta) === true) {
+			return value;
 		}
 
 		return IGNORE as unknown as State;

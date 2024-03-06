@@ -228,7 +228,7 @@ export class Resolver<
 	) {
 		super();
 
-		router.subscribe((...args) => this.onPage(...args));
+		router.subscribe((...args) => void this.onPage(...args));
 	}
 
 	async onPage<PageEvent extends RouterEvent<Routes>>(

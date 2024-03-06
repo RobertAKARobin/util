@@ -1,14 +1,15 @@
 import { suite, test } from '../spec/index.ts';
 
-import { Emitter } from './emitter.ts';
+import { type EmitEvent, Emitter, type Subscription } from './emitter.ts';
 import { filter } from './pipe/filter.ts';
 import { on } from './pipe/on.ts';
 
+type State = {
+	age: number;
+};
+
 export const spec = suite(`Emitter`, {},
 	test(`values`, $ => {
-		type State = {
-			age: number;
-		};
 		const emitter1 = new Emitter<State>();
 		const emitter2 = new Emitter<State>();
 
@@ -16,27 +17,27 @@ export const spec = suite(`Emitter`, {},
 		let emitter1_subscription2_value: number;
 		let emitter2_subscription1_value: number;
 
-		$.assert(x => x(emitter1.subscriptions.size) === 0);
+		$.assert(x => x(emitter1.handlers.size) === 0);
 		$.assert(x => x(emitter1.cache.list[0]) === void 0);
-		$.assert(x => x(emitter2.subscriptions.size) === 0);
+		$.assert(x => x(emitter2.handlers.size) === 0);
 		$.assert(x => x(emitter2.cache.list[0]) === void 0);
 
 		$.log(() => emitter1.subscribe(({ age }) => emitter1_subscription1_value = age));
-		$.assert(x => x(emitter1.subscriptions.size) === 1);
+		$.assert(x => x(emitter1.handlers.size) === 1);
 		$.assert(x => x(emitter1.cache.list[0]) === void 0);
-		$.assert(x => x(emitter2.subscriptions.size) === 0);
+		$.assert(x => x(emitter2.handlers.size) === 0);
 		$.assert(x => x(emitter2.cache.list[0]) === void 0);
 
 		$.log(() => emitter1.subscribe(({ age }) => emitter1_subscription2_value = age));
-		$.assert(x => x(emitter1.subscriptions.size) === 2);
+		$.assert(x => x(emitter1.handlers.size) === 2);
 		$.assert(x => x(emitter1.cache.list[0]) === void 0);
-		$.assert(x => x(emitter2.subscriptions.size) === 0);
+		$.assert(x => x(emitter2.handlers.size) === 0);
 		$.assert(x => x(emitter2.cache.list[0]) === void 0);
 
 		$.log(() => emitter2.subscribe(({ age }) => emitter2_subscription1_value = age));
-		$.assert(x => x(emitter1.subscriptions.size) === 2);
+		$.assert(x => x(emitter1.handlers.size) === 2);
 		$.assert(x => x(emitter1.cache.list[0]) === void 0);
-		$.assert(x => x(emitter2.subscriptions.size) === 1);
+		$.assert(x => x(emitter2.handlers.size) === 1);
 		$.assert(x => x(emitter2.cache.list[0]) === void 0);
 
 		let emitter1_value1: number;
@@ -120,17 +121,20 @@ export const spec = suite(`Emitter`, {},
 		$.log(`cache.list always returns new array:`);
 		$.assert(x => x(emitterCache2.cache.list) !== x(emitterCache2.cache.list));
 
+		const initial = { foo: `bar` };
+		let emitterWithInitial: Emitter<typeof initial>;
+		$.log(() => emitterWithInitial = new Emitter(initial));
+		$.assert(x => x(emitterWithInitial.value) === initial);
+	}),
+
+	test(`pipe`, $ => {
+		const emitter1 = new Emitter<State>();
 		let emitter1Pipe: Emitter<{ age: number; }>;
 		$.log(() => emitter1Pipe = emitter1.pipe(({ age }) => ({ age: age * 100 })));
 		$.log(() => emitter1.set({ age: 3 }));
 		$.assert(x => x(emitter1Pipe.value.age) === 300);
 		$.log(() => emitter1.set({ age: 4 }));
 		$.assert(x => x(emitter1Pipe.value.age) === 400);
-
-		const initial = { foo: `bar` };
-		let emitterWithInitial: Emitter<typeof initial>;
-		$.log(() => emitterWithInitial = new Emitter(initial));
-		$.assert(x => x(emitterWithInitial.value) === initial);
 	}),
 
 	test(`subscriptions`, $ => {
@@ -138,22 +142,36 @@ export const spec = suite(`Emitter`, {},
 		let emitter1!: Emitter<State>;
 
 		$.log(() => emitter1 = new Emitter<State>());
-		$.assert(x => x(emitter1.subscriptions.size) === 0);
+		$.assert(x => x(emitter1.handlers.size) === 0);
 
 		let value: State;
-		let unsubscribe: ReturnType<Emitter<State>[`subscribe`]>;
-		$.log(() => unsubscribe = emitter1.subscribe(update => value = update));
-		$.assert(x => x(emitter1.subscriptions.size) === 1);
+		let subscription: Subscription<State>;
+		$.log(() => subscription = emitter1.subscribe(update => value = update));
+		$.assert(x => x(emitter1.handlers.size) === 1);
 
 		$.log(() => emitter1.set(10));
 		$.assert(x => x(value) === 10);
 		$.log(() => emitter1.set(20));
 		$.assert(x => x(value) === 20);
 
-		$.log(() => unsubscribe());
+		$.log(() => subscription.unsubscribe());
 		$.log(() => emitter1.set(30));
 		$.assert(x => x(value) === 20);
-		$.assert(x => x(emitter1.subscriptions.size) === 0);
+		$.assert(x => x(emitter1.handlers.size) === 0);
+	}),
+
+	test(`reset`, $ => {
+		const reset = () => ({
+			age: undefined as number | undefined,
+			name: ``,
+		});
+		const emitter = new Emitter(reset(), { reset });
+
+		$.assert(x => x(emitter.$.name) === ``);
+		$.log(() => emitter.patch({ name: `steve` }));
+		$.assert(x => x(emitter.$.name) === `steve`);
+		$.log(() => emitter.reset());
+		$.assert(x => x(emitter.$.name) === ``);
 	}),
 
 	test(`actions`, $ => {
@@ -192,7 +210,9 @@ export const spec = suite(`Emitter`, {},
 		$.assert(x => x(incrementsOnRename) === 1);
 
 		let incrementsWhenOlder = 0;
-		const isOlder = (updated: State, previous: State) => updated.age > previous.age;
+		const isOlder = (
+			...[updated, { previous }]: EmitEvent<State>
+		) => updated.age > previous.age;
 		$.log(() => person.pipe(filter(isOlder)).subscribe(() => incrementsWhenOlder += 1));
 		$.log(() => person.age(1));
 		$.assert(x => x(incrementsWhenOlder) === 1);
@@ -204,28 +224,13 @@ export const spec = suite(`Emitter`, {},
 		$.assert(x => x(incrementsWhenOlder) === 2);
 	}),
 
-	test(`reset`, $ => {
-		const reset = () => ({
-			age: undefined as number | undefined,
-			name: ``,
-		});
-		const emitter = new Emitter(reset(), { reset });
-
-		$.assert(x => x(emitter.$.name) === ``);
-		$.log(() => emitter.patch({ name: `steve` }));
-		$.assert(x => x(emitter.$.name) === `steve`);
-		$.log(() => emitter.reset());
-		$.assert(x => x(emitter.$.name) === ``);
-	}),
-
-	test(`formatter`, $ => {
+	test(`reducer`, $ => {
 		const reset = () => ({
 			name: ``,
 		});
 		const emitter = new Emitter(reset(), {
-			format: update => ({
-				...update,
-				name: update.name.toUpperCase(),
+			reduce: ({ name }) => ({
+				name: name.toUpperCase(),
 			}),
 			reset,
 		});
@@ -233,4 +238,39 @@ export const spec = suite(`Emitter`, {},
 		$.log(() => emitter.patch({ name: `steve` }));
 		$.assert(x => x(emitter.$.name) === `STEVE`);
 	}),
+
+	suite(`pipes`, {},
+		test(`on`, $ => {
+			const initial = {
+				age: 3,
+				name: `steve`,
+			};
+			const emitter = new Emitter<typeof initial>();
+
+			let value: typeof emitter.value;
+			let valuePiped: typeof emitter.value;
+			emitter.subscribe(update => value = update);
+			emitter.pipe(on(`name`)).subscribe(update => valuePiped = update);
+
+			$.log(() => emitter.set(initial));
+			$.assert(x => x(value.age) === x(initial.age));
+			$.assert(x => x(valuePiped.age) === x(initial.age));
+			$.assert(x => x(value.name) === x(initial.name));
+			$.assert(x => x(valuePiped.name) === x(initial.name));
+
+			const age = initial.age + 1;
+			$.log(() => emitter.patch({ age }));
+			$.assert(x => x(value.age) === x(age));
+			$.assert(x => x(valuePiped.age) === x(initial.age));
+			$.assert(x => x(value.name) === x(initial.name));
+			$.assert(x => x(valuePiped.name) === x(initial.name));
+
+			const name = initial.name + `o`;
+			$.log(() => emitter.patch({ name }));
+			$.assert(x => x(value.age) === x(age));
+			$.assert(x => x(valuePiped.age) === x(age));
+			$.assert(x => x(value.name) === x(name));
+			$.assert(x => x(valuePiped.name) === x(name));
+		}),
+	),
 );

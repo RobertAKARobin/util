@@ -12,7 +12,7 @@ export type EntityState<Type> = {
 export class EntityStateEmitter<Type extends Record<string, unknown>>
 	extends Emitter<EntityState<Type>> {
 
-	entries = this.pipe(({ ids, byId }) => ids.map(id => ({
+	entries = this.pipe(({ byId, ids }) => ids.map(id => ({
 		...byId[id],
 		id,
 	}))).set([]);

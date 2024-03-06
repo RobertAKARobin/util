@@ -1,54 +1,54 @@
 import { isPrimitive } from '../isPrimitive.ts';
 
-export type Formatter<
-	State,
-	Source extends Emitter<State> = Emitter<State>,
-> = (
-	value: State,
-	meta: {
-		emitter: Source;
-		previous: State;
-	}
-) => State;
-
-export type OnEmit<
-	State,
-	Source extends Emitter<State> = Emitter<State>,
-> = (
-	value: State,
-	meta: {
-		emitter: Source;
-		previous: State;
-		subscription: Subscription<State, Source>;
-	}
-) => unknown;
-
-export type Subscription<
-	State,
-	Source extends Emitter<State> = Emitter<State>,
-> = OnEmit<State, Source> | WeakRef<OnEmit<State, Source>>;
-
 export type EmitterOptions<State> = EmitterCacheOptions & {
 	emitOnInit: boolean;
-	format: Formatter<State>;
-	reset: () => State;
+	reduce: Emitter<State>[`reducer`];
+	reset: Emitter<State>[`resetter`];
 };
+
+export type EmitEvent<State> = [
+	State,
+	{
+		emitter: Emitter<State>;
+		previous: State;
+	},
+];
 
 export const IGNORE = `_IGNORE_` as const;
 
-// TODO1: Operators: filter, startWith, once, toPromise
-export class Emitter<State> {
+export type PipeFunction<StateInput, StateOutput> = (
+	...event: SubscriptionEvent<StateInput>
+) => StateOutput | typeof IGNORE;
+
+export type Subscription<State> = {
+	emitter: WeakRef<Emitter<State>>;
+	unsubscribe: () => void;
+};
+
+export type SubscriptionEvent<State> = [
+	State,
+	{
+		emitter: Emitter<State>;
+		handler: SubscriptionHandler<State>;
+		previous: State;
+	},
+];
+
+export type SubscriptionHandler<State> = (...event: SubscriptionEvent<State>) => void;
+
+export class Emitter<State> extends EventTarget {
 
 	get $() {
 		return this.value;
 	}
 	readonly cache: EmitterCache<State>;
-	formatter?: Formatter<State>;
+	readonly handlers = new Set<SubscriptionHandler<State>>();
 	get last() {
 		return this.cache.list[0];
 	}
+	onUnsubscribe?: () => void;
+	reducer?: (...event: EmitEvent<State>) => State;
 	resetter?: () => State;
-	readonly subscriptions = new Set<Subscription<State>>();
 	get value() {
 		return this.last;
 	}
@@ -57,6 +57,7 @@ export class Emitter<State> {
 		initial?: State | null | undefined,
 		options: Partial<EmitterOptions<State>> = {}
 	) {
+		super();
 		this.cache = new EmitterCache(options ?? {});
 		if (initial !== undefined && initial !== null) {
 			if (options.emitOnInit === true) {
@@ -65,14 +66,9 @@ export class Emitter<State> {
 				this.cache.add(initial);
 			}
 		}
-		this.formatter = options.format;
+		this.reducer = options.reduce;
 		this.resetter = options.reset;
 	}
-
-	onChange(
-		_update: State,
-		_meta: Omit<Parameters<OnEmit<State>>[1], `subscription`>
-	) {}
 
 	patch(update: Partial<State> | State) {
 		if (isPrimitive(update)) {
@@ -84,19 +80,21 @@ export class Emitter<State> {
 		});
 	}
 
-	pipe<Output>(
-		callback: (
-			value: Parameters<OnEmit<State>>[0],
-			meta: Parameters<OnEmit<State>>[1]
-		) => Output,
-		options: Parameters<Emitter<State>[`subscribe`]>[1] = {}
-	) {
-		const emitter = new Emitter<Output>();
-		this.subscribe((update, meta) => {
-			const value = callback(update, meta);
-			return emitter.set(value);
-		}, options);
-		return emitter;
+	pipe<Output>(pipeFunction: PipeFunction<State, Output>) {
+		const innerEmitter = new Emitter<Output>();
+
+		const innerSubscription = this.subscribe((event, meta) => {
+			const result = pipeFunction(event, meta);
+			innerEmitter.set(result);
+		});
+
+		innerEmitter.onUnsubscribe = () => {
+			if (innerEmitter.handlers.size === 0) {
+				innerSubscription.unsubscribe();
+			}
+		};
+
+		return innerEmitter;
 	}
 
 	reset() {
@@ -106,71 +104,53 @@ export class Emitter<State> {
 		return this;
 	}
 
-	set(update: State) {
+	set(update: State | typeof IGNORE) {
 		const previous = this.value;
-		const meta = {
-			emitter: this,
-			previous,
-		};
-
-		const formatted = this.formatter === undefined
-			? update
-			: this.formatter(update, meta);
 
 		if (update === IGNORE) { // Need a way to indicate that an event _shouldn't_ emit. Can't just do `value === undefined` because there are times when `undefined` is a value we do want to emit
 			return this;
 		}
 
-		this.cache.add(formatted);
+		const value = typeof this.reducer === `function`
+			? this.reducer(update, {
+				emitter: this,
+				previous,
+			})
+			: update;
 
-		for (const subscription of this.subscriptions.values()) {
-			const onEmit = subscription instanceof WeakRef
-				? subscription.deref()
-				: subscription;
-			if (onEmit) {
-				const update = this.value;
-				onEmit(update, {
-					...meta,
-					subscription,
-				});
-			} else {
-				console.warn(`Subscription dead`);
-				this.subscriptions.delete(subscription);
-			}
+		this.cache.add(value);
+
+		for (const handler of this.handlers) {
+			handler(value, {
+				emitter: this,
+				handler,
+				previous,
+			});
 		}
-		this.onChange(this.value, meta);
 
 		return this;
 	}
 
-	/**
-	 * @param options.isStrong If false, will create a subscription that may be garbage-collected. Default false.
-	 */
-	subscribe(
-		onEmit: OnEmit<State>,
-		options: {
-			isStrong?: boolean;
-		} = {}
-	) {
-		const isStrong = options?.isStrong ?? true; // TODO1: Make weak by default
-		const subscription = isStrong
-			? onEmit
-			: new WeakRef(onEmit);
-		this.subscriptions.add(subscription);
-
-		return () => {
-			this.unsubscribe(subscription);
-			return this;
+	subscribe(handler: SubscriptionHandler<State>): Subscription<State> {
+		this.handlers.add(handler);
+		return {
+			emitter: new WeakRef(this),
+			unsubscribe: () => this.unsubscribe(handler),
 		};
 	}
 
-	unsubscribe(subscription: Subscription<State>) {
-		this.subscriptions.delete(subscription);
+	unsubscribe(handler: SubscriptionHandler<State>) {
+		this.handlers.delete(handler);
+		if (typeof this.onUnsubscribe === `function`) {
+			this.onUnsubscribe();
+		}
 		return this;
 	}
 
 	unsubscribeAll() {
-		this.subscriptions.clear();
+		for (const handler of this.handlers) {
+			this.unsubscribe(handler);
+		}
 		return this;
 	}
 }
