@@ -1,3 +1,4 @@
+import '../dom/dummydom.ts';
 import { suite, test } from '../spec/index.ts';
 
 import { type EmitEvent, Emitter, type Subscription } from './emitter.ts';
@@ -273,4 +274,20 @@ export const spec = suite(`Emitter`, {},
 			$.assert(x => x(valuePiped.name) === x(name));
 		}),
 	),
+
+	test(`fromEvent`, $ => {
+		const button = document.createElement(`button`);
+		let count = 0;
+
+		const onClick = Emitter.fromEvent(button, `click`);
+		const subscription = onClick.subscribe(() => count += 1);
+
+		$.log(() => button.click());
+		$.assert(x => x(count) === 1);
+		$.log(() => button.click());
+		$.assert(x => x(count) === 2);
+		$.log(() => subscription.unsubscribe());
+		$.log(() => button.click());
+		$.assert(x => x(count) === 2);
+	}),
 );
