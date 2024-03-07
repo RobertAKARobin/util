@@ -3,6 +3,7 @@ import { suite, test } from '../spec/index.ts';
 
 import { type EmitEvent, Emitter, type Subscription } from './emitter.ts';
 import { filter } from './pipe/filter.ts';
+import { first } from './pipe/first.ts';
 import { on } from './pipe/on.ts';
 
 type State = {
@@ -240,6 +241,22 @@ export const spec = suite(`Emitter`, {},
 		$.assert(x => x(emitter.$.name) === `STEVE`);
 	}),
 
+	test(`fromEvent`, $ => {
+		const button = document.createElement(`button`);
+		let count = 0;
+
+		const onClick = Emitter.fromEvent(button, `click`);
+		const subscription = onClick.subscribe(() => count += 1);
+
+		$.log(() => button.click());
+		$.assert(x => x(count) === 1);
+		$.log(() => button.click());
+		$.assert(x => x(count) === 2);
+		$.log(() => subscription.unsubscribe());
+		$.log(() => button.click());
+		$.assert(x => x(count) === 2);
+	}),
+
 	suite(`pipes`, {},
 		test(`on`, $ => {
 			const initial = {
@@ -273,21 +290,23 @@ export const spec = suite(`Emitter`, {},
 			$.assert(x => x(value.name) === x(name));
 			$.assert(x => x(valuePiped.name) === x(name));
 		}),
+
+		test(`first`, $ => {
+			const initial = 0;
+			const emitter = new Emitter(initial);
+			const piped = emitter.pipe(first(2));
+
+			$.log(() => emitter.set(initial + 1));
+			$.assert(x => x(piped.value) === 1);
+
+			$.log(() => emitter.set(initial + 2));
+			$.assert(x => x(piped.value) === 2);
+
+			$.log(() => emitter.set(initial + 3));
+			$.assert(x => x(piped.value) === 2);
+
+			$.log(() => emitter.set(initial + 4));
+			$.assert(x => x(piped.value) === 2);
+		}),
 	),
-
-	test(`fromEvent`, $ => {
-		const button = document.createElement(`button`);
-		let count = 0;
-
-		const onClick = Emitter.fromEvent(button, `click`);
-		const subscription = onClick.subscribe(() => count += 1);
-
-		$.log(() => button.click());
-		$.assert(x => x(count) === 1);
-		$.log(() => button.click());
-		$.assert(x => x(count) === 2);
-		$.log(() => subscription.unsubscribe());
-		$.log(() => button.click());
-		$.assert(x => x(count) === 2);
-	}),
 );
