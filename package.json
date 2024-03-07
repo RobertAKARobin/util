@@ -4,9 +4,11 @@
 		"@robertakarobin/eslint-config-ts": "file:./eslint-config-ts",
 		"@robertakarobin/htmlvalidate": "file:./htmlvalidate",
 		"@types/diff": "^5.0.9",
+		"@types/jsdom": "^21.1.6",
 		"diff": "^5.2.0",
 		"esbuild": "^0.20.1",
 		"husky": "^9.0.11",
+		"jsdom": "^24.0.0",
 		"npm-check-updates": "^16.14.15",
 		"tsx": "^4.7.1"
 	},
@@ -28,5 +30,5 @@
 		"test": "npm run lint && npm run spec && npm run test --prefix example"
 	},
 	"type": "module",
-	"version": "0.0.336"
+	"version": "0.0.337"
 }

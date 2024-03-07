@@ -1,4 +1,4 @@
-import './dummydom.ts';
+import '@robertakarobin/util/dom/dummydom.ts';
 
 import esbuild from 'esbuild';
 import fs from 'fs';
