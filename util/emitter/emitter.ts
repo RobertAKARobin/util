@@ -36,7 +36,24 @@ export type SubscriptionEvent<State> = [
 
 export type SubscriptionHandler<State> = (...event: SubscriptionEvent<State>) => void;
 
-export class Emitter<State> extends EventTarget {
+export class Emitter<State> {
+	static fromEvent<
+		EventName extends keyof HTMLElementEventMap,
+		EventType extends HTMLElementEventMap[EventName],
+	>(target: EventTarget, eventName: EventName) {
+		const emitter = new Emitter<EventType>();
+
+		const listener = (event: Event) => {
+			emitter.set(event as EventType);
+		};
+		target.addEventListener(eventName, listener);
+
+		emitter.onUnsubscribe = () => {
+			target.removeEventListener(eventName, listener);
+		};
+
+		return emitter;
+	}
 
 	get $() {
 		return this.value;
@@ -57,7 +74,6 @@ export class Emitter<State> extends EventTarget {
 		initial?: State | null | undefined,
 		options: Partial<EmitterOptions<State>> = {}
 	) {
-		super();
 		this.cache = new EmitterCache(options ?? {});
 		if (initial !== undefined && initial !== null) {
 			if (options.emitOnInit === true) {
