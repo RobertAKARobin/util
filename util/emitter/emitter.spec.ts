@@ -5,6 +5,7 @@ import { type EmitEvent, Emitter, type Subscription } from './emitter.ts';
 import { filter } from './pipe/filter.ts';
 import { first } from './pipe/first.ts';
 import { on } from './pipe/on.ts';
+import { until } from './pipe/until.ts';
 
 type State = {
 	age: number;
@@ -306,6 +307,22 @@ export const spec = suite(`Emitter`, {},
 			$.assert(x => x(piped.value) === 2);
 
 			$.log(() => emitter.set(initial + 4));
+			$.assert(x => x(piped.value) === 2);
+		}),
+
+		test(`until`, $ => {
+			const emitter = new Emitter(0);
+			const abort = new Emitter<void>();
+			const piped = emitter.pipe(until(abort));
+
+			$.log(() => emitter.set(1));
+			$.assert(x => x(piped.value) === 1);
+
+			$.log(() => emitter.set(2));
+			$.assert(x => x(piped.value) === 2);
+
+			$.log(() => abort.set());
+			$.log(() => emitter.set(3));
 			$.assert(x => x(piped.value) === 2);
 		}),
 	),
