@@ -1,6 +1,6 @@
 import type { PipeFunction, SubscriptionEvent } from '../emitter.ts';
 
-export function first<State>(
+export function pipeFirst<State>(
 	limit: number = 1
 ): PipeFunction<State, State> {
 	let count = 0;

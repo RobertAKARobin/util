@@ -1,7 +1,7 @@
 import { Emitter, IGNORE, type PipeFunction, type SubscriptionEvent } from '../emitter.ts';
-import { first } from './first.ts';
+import { pipeFirst } from './first.ts';
 
-export function until<State>(
+export function pipeUntil<State>(
 	condition:
 		| Emitter<any> // eslint-disable-line @typescript-eslint/no-explicit-any
 		| ((...args: SubscriptionEvent<State>) => boolean),
@@ -9,7 +9,7 @@ export function until<State>(
 	let shouldCancel = false;
 
 	if (condition instanceof Emitter) {
-		condition.pipe(first(1)).subscribe(() => {
+		condition.pipe(pipeFirst(1)).subscribe(() => {
 			shouldCancel = true;
 		});
 	}

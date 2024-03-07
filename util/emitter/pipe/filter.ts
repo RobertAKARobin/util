@@ -1,6 +1,6 @@
 import { IGNORE, type PipeFunction, type SubscriptionEvent } from '../emitter.ts';
 
-export function filter<State>(
+export function pipeFilter<State>(
 	filter: PipeFunction<State, boolean>,
 ): PipeFunction<State, State> {
 	return function(...[value, meta]: SubscriptionEvent<State>) {

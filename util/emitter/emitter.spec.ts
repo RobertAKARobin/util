@@ -2,10 +2,10 @@ import '../dom/dummydom.ts';
 import { suite, test } from '../spec/index.ts';
 
 import { type EmitEvent, Emitter, type Subscription } from './emitter.ts';
-import { filter } from './pipe/filter.ts';
-import { first } from './pipe/first.ts';
-import { on } from './pipe/on.ts';
-import { until } from './pipe/until.ts';
+import { pipeFilter } from './pipe/filter.ts';
+import { pipeFirst } from './pipe/first.ts';
+import { pipeOn } from './pipe/on.ts';
+import { pipeUntil } from './pipe/until.ts';
 
 type State = {
 	age: number;
@@ -197,8 +197,8 @@ export const spec = suite(`Emitter`, {},
 		$.log(() => person = new Person({ age: 10, name: `alice` }));
 		let incrementsOnAge = 0;
 		let incrementsOnRename = 0;
-		$.log(() => person.pipe(on(`age`)).subscribe(() => incrementsOnAge += 1));
-		$.log(() => person.pipe(on(`name`)).subscribe(() => incrementsOnRename += 1));
+		$.log(() => person.pipe(pipeOn(`age`)).subscribe(() => incrementsOnAge += 1));
+		$.log(() => person.pipe(pipeOn(`name`)).subscribe(() => incrementsOnRename += 1));
 
 		$.log(() => person.age(1));
 		$.assert(x => x(person.value.age) === 11);
@@ -216,7 +216,7 @@ export const spec = suite(`Emitter`, {},
 		const isOlder = (
 			...[updated, { previous }]: EmitEvent<State>
 		) => updated.age > previous.age;
-		$.log(() => person.pipe(filter(isOlder)).subscribe(() => incrementsWhenOlder += 1));
+		$.log(() => person.pipe(pipeFilter(isOlder)).subscribe(() => incrementsWhenOlder += 1));
 		$.log(() => person.age(1));
 		$.assert(x => x(incrementsWhenOlder) === 1);
 		$.log(() => person.age(0));
@@ -269,7 +269,7 @@ export const spec = suite(`Emitter`, {},
 			let value: typeof emitter.value;
 			let valuePiped: typeof emitter.value;
 			emitter.subscribe(update => value = update);
-			emitter.pipe(on(`name`)).subscribe(update => valuePiped = update);
+			emitter.pipe(pipeOn(`name`)).subscribe(update => valuePiped = update);
 
 			$.log(() => emitter.set(initial));
 			$.assert(x => x(value.age) === x(initial.age));
@@ -295,7 +295,7 @@ export const spec = suite(`Emitter`, {},
 		test(`first`, $ => {
 			const initial = 0;
 			const emitter = new Emitter(initial);
-			const piped = emitter.pipe(first(2));
+			const piped = emitter.pipe(pipeFirst(2));
 
 			$.log(() => emitter.set(initial + 1));
 			$.assert(x => x(piped.value) === 1);
@@ -308,13 +308,16 @@ export const spec = suite(`Emitter`, {},
 
 			$.log(() => emitter.set(initial + 4));
 			$.assert(x => x(piped.value) === 2);
+
+			$.assert(x => x(emitter.handlers.size) === 0);
+			$.assert(x => x(piped.handlers.size) === 0);
 		}),
 
 		suite(`until`, {},
 			test(`emitter`, $ => {
 				const emitter = new Emitter(0);
 				const abort = new Emitter<void>();
-				const piped = emitter.pipe(until(abort));
+				const piped = emitter.pipe(pipeUntil(abort));
 
 				$.log(() => emitter.set(1));
 				$.assert(x => x(piped.value) === 1);
@@ -325,11 +328,14 @@ export const spec = suite(`Emitter`, {},
 				$.log(() => abort.set());
 				$.log(() => emitter.set(3));
 				$.assert(x => x(piped.value) === 2);
+
+				$.assert(x => x(emitter.handlers.size) === 0);
+				$.assert(x => x(piped.handlers.size) === 0);
 			}),
 
 			test(`condition`, $ => {
 				const emitter = new Emitter(0);
-				const piped = emitter.pipe(until(value => value > 2));
+				const piped = emitter.pipe(pipeUntil(value => value > 2));
 
 				$.log(() => emitter.set(1));
 				$.assert(x => x(piped.value) === 1);
@@ -339,6 +345,9 @@ export const spec = suite(`Emitter`, {},
 
 				$.log(() => emitter.set(3));
 				$.assert(x => x(piped.value) === 2);
+
+				$.assert(x => x(emitter.handlers.size) === 0);
+				$.assert(x => x(piped.handlers.size) === 0);
 			}),
 		),
 	),
