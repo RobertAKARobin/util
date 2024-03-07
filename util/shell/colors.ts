@@ -50,6 +50,8 @@ const codesByName = {
 	reset: 0,
 };
 
+export type ColorName = keyof typeof codesByName;
+
 const codes = new Set<number>();
 
 export const colors = Object.entries(codesByName).reduce((colors, [name, code]) => {
@@ -59,13 +61,13 @@ export const colors = Object.entries(codesByName).reduce((colors, [name, code]) 
 		codes.add(code);
 	}
 
-	colors[name as keyof typeof codesByName] = `\x1b[${code}m`;
+	colors[name as ColorName] = `\x1b[${code}m`;
 	return colors;
-}, {} as Record<keyof typeof codesByName, string>);
+}, {} as Record<ColorName, string>);
 
 export const color = (
 	message: string,
-	...args: Array<keyof typeof colors>
+	...args: Array<ColorName>
 ) => {
 	return `\x1b[${args.map(color => codesByName[color]).join(`;`)}m${message}${colors.reset}`;
 };
