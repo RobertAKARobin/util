@@ -1,4 +1,4 @@
-import '@robertakarobin/ssg/dummydom.ts';
+import '@robertakarobin/util/dom/dummydom.ts';
 
 import { suite, test } from '@robertakarobin/util/spec/index.ts';
 import { diff } from '@robertakarobin/util/spec/diff.ts';

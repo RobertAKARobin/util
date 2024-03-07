@@ -1,7 +1,5 @@
 import { JSDOM, VirtualConsole } from 'jsdom'; // npm i jsdom @types/jsdom
 
-const virtualConsole = new VirtualConsole(); // Suppresses CSS errors caused by JSDOM not recognizing some of the latest CSS features, like & for nesting https://stackoverflow.com/a/64319057/2053389
-
 export class DummyDOM {
 	window!: Window;
 
@@ -9,7 +7,17 @@ export class DummyDOM {
 		this.refresh();
 	}
 
-	refresh() {
+	refresh(options: Partial<{
+		force: boolean;
+	}> = {}) {
+		const force = options.force ?? false;
+
+		if (`document` in globalThis && !force) {
+			return;
+		}
+
+		const virtualConsole = new VirtualConsole(); // Suppresses CSS errors caused by JSDOM not recognizing some of the latest CSS features, like & for nesting https://stackoverflow.com/a/64319057/2053389
+
 		const dummyDOM = new JSDOM(``, { virtualConsole }).window;
 
 		globalThis.AbortController = dummyDOM.AbortController;
