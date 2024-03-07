@@ -4,8 +4,10 @@ import {
 	setAttributes,
 	style,
 } from '../dom/attributes.ts';
+import { Emitter } from '../emitter/emitter.ts';
 import { newUid } from '../uid.ts';
-import { serialize } from '../serialize.ts';
+import { pipeFilter } from '../emitter/pipe/filter.ts';
+import { pipeUntil } from '../emitter/pipe/until.ts';
 import type { Textish } from '../types.d.ts';
 
 export { css, html } from '../string/template.ts';
@@ -22,12 +24,6 @@ type ComponentWithoutDecorators = Omit<typeof Component,
 >;
 
 const componentCache = new Map<string, WeakRef<Component>>();
-
-declare global {
-	interface HTMLElementEventMap { // eslint-disable-line no-restricted-syntax
-		attribute: CustomEvent;
-	}
-}
 
 export class Component extends HTMLElement {
 	static readonly const = {
@@ -248,6 +244,16 @@ export class Component extends HTMLElement {
 	}
 
 	/**
+	 * Emitter that emits on attributeChangedCallback
+	 * @see {@link attributeChangedCallback}
+	 */
+	attributeChanged = new Emitter<{ // TODO3: Stronger typing
+		name: string;
+		previous: unknown;
+		value: unknown;
+	}>();
+
+	/**
 	 * Stores the component's textual content, if any, which can be inserted into the component's template
 	 */
 	content: string | undefined = ``;
@@ -260,10 +266,10 @@ export class Component extends HTMLElement {
 	}
 
 	/**
-	 * An AbortController that is activated in disconnectedCallback. Provides a way to automatically remove event listeners.
-	 * https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#signal
+	 * Emitter that emits on disconnectedCallback
+	 * @see {@link disconnectedCallback}
 	 */
-	readonly disconnect!: AbortController;
+	disconnected = new Emitter<void>();
 
 	constructor(id?: Component[`id`]) {
 		super();
@@ -277,6 +283,23 @@ export class Component extends HTMLElement {
 	adoptedCallback() {}
 
 	/**
+	 * Returns an Emitter that emits when the specified attribute changes
+	 */
+	attribute<
+		AttributeName extends keyof this,
+		Value extends this[AttributeName] = this[AttributeName],
+	>(attributeName: AttributeName) {
+		const emitter = this.attributeChanged.pipe(
+			pipeFilter(({ name }) => name === attributeName)
+		);
+		return emitter as unknown as Emitter<{
+			name: AttributeName;
+			previous: Value;
+			value: Value;
+		}>;
+	}
+
+	/**
 	 * Called when one of the properties decorated with `@Component.attribute` is modified
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks
 	 */
@@ -284,41 +307,15 @@ export class Component extends HTMLElement {
 		AttributeName extends keyof this,
 		Value extends this[AttributeName],
 	>(
-		attributeName: AttributeName,
-		oldValue: Value,
-		newValue: Value,
+		name: AttributeName,
+		previous: Value,
+		value: Value,
 	) {
-		this.dispatchEvent(new CustomEvent(`attribute`, {
-			detail: {
-				attributeName,
-				newValue,
-				oldValue,
-			},
-		}));
-		const propertyName = this.Ctor.propertyNamesByAttribute[attributeName as string];
-		this.dispatchEvent(
-			new CustomEvent(`attribute:${propertyName}`, {
-				detail: newValue,
-			})
-		);
-	}
-
-	/**
-	 * Returns a string that can be inserted into an element's `[on*]` attribute that will call the specified function
-	 */
-	bind<
-		Self extends Record<MethodKey, (event: Event, ...args: any) => any>, // eslint-disable-line @typescript-eslint/no-explicit-any
-		MethodKey extends keyof Self,
-		Method extends Self[MethodKey],
-		Args extends Parameters<Method>,
-	>(
-		this: Self,
-		methodKey: MethodKey,
-		...args: Partial<[Args[1], Args[2], Args[3]]> // TODO3: Why TF doesn't `...args: Args` work
-	) {
-		const methodName = methodKey as string;
-		const argsString = args.length === 0 ? `` : `,${serialize(args).slice(1, -1)}`; // Removes leading/trailing brackets
-		return `this.closest(\`${(this as unknown as Component).Ctor.selector}\`).${methodName}(event${argsString})`;
+		this.attributeChanged.set({
+			name: name as string,
+			previous,
+			value,
+		});
 	}
 
 	/**
@@ -339,7 +336,7 @@ export class Component extends HTMLElement {
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks
 	 */
 	disconnectedCallback() {
-		this.disconnect.abort();
+		this.disconnected.set();
 	}
 
 	/**
@@ -395,46 +392,6 @@ export class Component extends HTMLElement {
 	}
 
 	/**
-	 * Define a callback that is called when the specified event defined with `@Component.event` occurs
-	 */
-	on<
-		Self extends Record<EventName, (...args: any) => any>, // eslint-disable-line @typescript-eslint/no-explicit-any
-		EventName extends keyof Self,
-		EventDetail extends ReturnType<Self[EventName]>,
-	>(
-		this: Self,
-		eventName: EventName,
-		doWhat: (event: CustomEvent<EventDetail>) => void,
-		options: AddEventListenerOptions = {},
-	) {
-		const self = (this as unknown as Component);
-		self.addEventListener(
-			eventName as string,
-			doWhat as EventListener,
-			options,
-		);
-		return this;
-	}
-
-	/**
-	 * Define a callback that is called when the specified property defined with `@Component.attribute` is changed.
-	 */
-	onAttribute<
-		PropertyName extends keyof this,
-		AttributeValue extends this[PropertyName],
-	>(
-		propertyName: PropertyName,
-		listener: (event: CustomEvent<AttributeValue>) => void,
-		options: AddEventListenerOptions = {},
-	) {
-		this.addEventListener(
-			`attribute:${propertyName.toString()}` as keyof HTMLElementEventMap,
-			listener as EventListenerOrEventListenerObject,
-			options,
-		);
-	}
-
-	/**
 	 * Called by the constructor. Needed because customized and autonomous components have different constructors.
 	 * Would prefer this to be private, but TS won't emit the declaration if it is https://github.com/microsoft/TypeScript/issues/30355
 	 */
@@ -442,10 +399,6 @@ export class Component extends HTMLElement {
 		if (id !== undefined) {
 			this.id = id;
 		}
-
-		Object.assign(this, {
-			disconnect: new AbortController(),
-		});
 	}
 
 	/**
@@ -484,6 +437,10 @@ export class Component extends HTMLElement {
 	 */
 	set(attributes: Partial<ElAttributes<this>>) {
 		return setAttributes(this, attributes);
+	}
+
+	subscribe<State>(emitter: Emitter<State>) {
+		return emitter.pipe(pipeUntil(this.disconnected));
 	}
 
 	/**
