@@ -310,20 +310,36 @@ export const spec = suite(`Emitter`, {},
 			$.assert(x => x(piped.value) === 2);
 		}),
 
-		test(`until`, $ => {
-			const emitter = new Emitter(0);
-			const abort = new Emitter<void>();
-			const piped = emitter.pipe(until(abort));
+		suite(`until`, {},
+			test(`emitter`, $ => {
+				const emitter = new Emitter(0);
+				const abort = new Emitter<void>();
+				const piped = emitter.pipe(until(abort));
 
-			$.log(() => emitter.set(1));
-			$.assert(x => x(piped.value) === 1);
+				$.log(() => emitter.set(1));
+				$.assert(x => x(piped.value) === 1);
 
-			$.log(() => emitter.set(2));
-			$.assert(x => x(piped.value) === 2);
+				$.log(() => emitter.set(2));
+				$.assert(x => x(piped.value) === 2);
 
-			$.log(() => abort.set());
-			$.log(() => emitter.set(3));
-			$.assert(x => x(piped.value) === 2);
-		}),
+				$.log(() => abort.set());
+				$.log(() => emitter.set(3));
+				$.assert(x => x(piped.value) === 2);
+			}),
+
+			test(`condition`, $ => {
+				const emitter = new Emitter(0);
+				const piped = emitter.pipe(until(value => value > 2));
+
+				$.log(() => emitter.set(1));
+				$.assert(x => x(piped.value) === 1);
+
+				$.log(() => emitter.set(2));
+				$.assert(x => x(piped.value) === 2);
+
+				$.log(() => emitter.set(3));
+				$.assert(x => x(piped.value) === 2);
+			}),
+		),
 	),
 );
