@@ -37,7 +37,7 @@ export abstract class BaseApp<
 		});
 
 		if (appContext === `browser`) {
-			let landingPage = this.findDown(Page, 0)();
+			let landingPage = this.findDown(Page)();
 			const expectedPage = await this.resolver.resolve(new URL(location.href));
 			if (landingPage.constructor !== expectedPage.constructor) {
 				landingPage = expectedPage;

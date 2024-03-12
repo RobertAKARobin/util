@@ -15,7 +15,7 @@ const style = css`
 export class ProgressModal extends Component {
 	static style = style;
 
-	readonly circle = this.findDown(ProgressCircle, 0);
+	readonly circle = this.findDown(ProgressCircle);
 	readonly modal = this.findUp(ModalContainer);
 
 	connectedCallback() {

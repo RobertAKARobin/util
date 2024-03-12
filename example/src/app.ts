@@ -36,7 +36,7 @@ export const resolver = new Resolver(router, async(route: URL) => {
 
 @Component.define()
 export class App extends BaseApp {
-	readonly nav = this.findDown(Nav, 0);
+	readonly nav = this.findDown(Nav);
 	readonly resolver = resolver;
 	readonly router = router;
 

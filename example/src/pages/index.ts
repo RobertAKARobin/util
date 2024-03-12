@@ -21,8 +21,8 @@ const colors = [`red`, `yellow`, `green`, `brown`, `scarlet`];
 
 @Component.define({ style })
 export class IndexPage extends Page {
-	readonly list = this.findDown(List, 0);
-	readonly listItems = this.findDown(ListItem);
+	readonly list = this.findDown(List);
+	readonly listItems = this.findDown(ListItem, { all: true });
 	@Component.attribute({ name: `data-message` }) message!: string;
 
 	anchorlessRoute() {

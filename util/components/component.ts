@@ -377,38 +377,43 @@ export class Component extends HTMLElement {
 	}
 
 	/**
-	 * Looks for and returns all instances of the specified constructor, or all elements of the specified selector, within the current component's template
+	 * Looks for and returns the first instance of the specified constructor or selector within the current component's template
+	 * @param options.all Returns all instances
 	 */
 	findDown<
 		Select extends Constructor<Component>,
 		Descendant extends InstanceType<Select>,
-	>(select: Select): () => Array<Descendant>;
+	>(select: Select): () => Descendant;
 	findDown<
 		Select extends Constructor<Component>,
 		Descendant extends InstanceType<Select>,
-	>(select: Select, index: number): () => Descendant;
+	>(select: Select, options: { all: true; }): () => Array<Descendant>;
 	findDown<
 		Select extends keyof HTMLElementTagNameMap,
 		Descendant extends HTMLElementTagNameMap[Select],
-	>(select: Select): () => Array<Descendant>;
+	>(select: Select): () => Descendant;
 	findDown<
 		Select extends keyof HTMLElementTagNameMap,
 		Descendant extends HTMLElementTagNameMap[Select],
-	>(selector: Select, index: number): () => Descendant;
-	findDown(select: string): () => Array<HTMLElement>;
-	findDown(select: string, index: number): () => HTMLElement;
-	findDown(select: Function | string, index?: number) {
+	>(selector: Select, options: { all: true; }): () => Array<Descendant>;
+	findDown(select: string): () => HTMLElement;
+	findDown(select: string, options: { all: true; }): () => Array<HTMLElement>;
+	findDown(select: Function | string, options: Partial<{
+		all: boolean;
+	}> = {}) {
 		const selector = (select as Function) === Page
 			? `[${Page.$pageAttr}]`
 			: typeof select === `string`
 				? select
 				: (select as unknown as typeof Component).selector;
 
+		const isAll = options.all ?? false;
+
 		return () => { // TODO3: Find a use for this
 			const results = this.findDownCache.get(selector)
 				?? [...this.querySelectorAll(selector)];
 			this.findDownCache.set(selector, results as Array<HTMLElement>);
-			return index === undefined ? results : results[0];
+			return isAll ? results : results[0];
 		};
 	}
 
