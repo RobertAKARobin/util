@@ -16,9 +16,12 @@ export class ProgressModal extends Component {
 	static style = style;
 
 	connectedCallback() {
+		super.connectedCallback();
+
 		const $circle = this.findDown(ProgressCircle);
-		this.findUp(ModalContainer).onAttribute(`status`, ({ detail }) => {
-			switch (detail) {
+		const statusChanged = this.findUp(ModalContainer).attribute(`status`);
+		this.subscribe(statusChanged, ({ value }) => {
+			switch (value) {
 				case `activating`:
 					$circle.style.transition = `none`; // Force circle to reset without tweening
 					$circle.set({ value: 100 });
@@ -28,7 +31,7 @@ export class ProgressModal extends Component {
 					$circle.set({ value: 0 });
 					break;
 			}
-		}, this.disconnect);
+		});
 	}
 
 	dismiss() {
@@ -45,7 +48,7 @@ ${new ProgressCircle().set({
 }).write(`foo`)}
 
 <button
-	onclick="${this.bind(`dismiss`)}"
+	${this.on(`click`, `dismiss`)}
 	type="button"
 >Dismiss</button>
 	`;

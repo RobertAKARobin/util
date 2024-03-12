@@ -28,6 +28,7 @@ export class IndexPage extends Page {
 	}
 
 	connectedCallback() {
+		super.connectedCallback();
 		const list = List.find();
 		const listItems = list.findDownAll(ListItem);
 		for (const listItem of listItems) {
@@ -45,11 +46,18 @@ export class IndexPage extends Page {
 		list.render();
 	}
 
-	onDelete(id: string) {
+	onDelete(event: CustomEvent<string>) {
+		const id = event.detail;
 		state.remove(id);
 		const list = this.findDown(List);
 		list.setListItems(state.entries.$);
 		list.render();
+	}
+
+	onInput(event: CustomEvent<{ id: string; value: string; }>) {
+		state.update(event.detail.id, {
+			value: event.detail.value,
+		});
 	}
 
 	openModal() {
@@ -62,7 +70,7 @@ export class IndexPage extends Page {
 ${new TransitionTest()}
 
 <button
-	onclick="${this.bind(`openModal`)}"
+	${this.on(`click`, `openModal`)}
 	type="button"
 >Modal</button>
 
@@ -70,9 +78,9 @@ ${new TransitionTest()}
 
 ${new List()
 	.setListItems(state.entries.$)
-	.on(`onAdd`, () => this.onAdd())
-	.on(`onDelete`, event => this.onDelete(event.detail))
-	.on(`onInput`, event => state.update(event.detail.id, event.detail))
+	.on(`onAdd`, this, `onAdd`)
+	.on(`onDelete`, this, `onDelete`)
+	.on(`onInput`, this, `onInput`)
 }
 
 ${appContext === `build`
@@ -94,7 +102,7 @@ Duis aute voluptate [velit esse cillum](https://example.com) dolore /eu fugiat/ 
 
 <p class="${theme.typeClassNames.wtf}">abc123</p>
 
-<button onclick="${this.bind(`anchorlessRoute`)}"><host type="button">Go to SSG Yes</host></button>
+<button ${this.on(`click`, `anchorlessRoute`)}><host type="button">Go to SSG Yes</host></button>
 
 <markdown>
 ## Headline 2

@@ -13,13 +13,9 @@ export class Textbox extends Component.custom(`div`) {
 	@Component.attribute({ name: `data-max` }) maxLength = 10;
 	@Component.attribute({ name: `data-value` }) value = ``;
 
-	constructor(id: string) {
-		super(id);
-	}
-
 	@Component.event()
 	onInput(event: Event) {
-		const updated = (event.currentTarget as HTMLInputElement).value;
+		const updated = (event.target as HTMLInputElement).value;
 		if (updated !== this.value) {
 			this.value = updated;
 			this.render(`#${this.id}-remaining`);
@@ -30,7 +26,7 @@ export class Textbox extends Component.custom(`div`) {
 	template = () => html`
 <input
 	maxlength="${this.maxLength}"
-	oninput="${this.bind(`onInput`)}"
+	${this.on(`input`, `onInput`)}
 	placeholder="Type here"
 	type="text"
 	value="${this.value}"

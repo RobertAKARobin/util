@@ -11,13 +11,16 @@ export class List extends Component.custom(`ol`) {
 	onAdd() {}
 
 	@Component.event()
-	onDelete(id: string) {
+	onDelete(event: CustomEvent, id: string) {
 		return id;
 	}
 
 	@Component.event()
-	onInput(id: string, value: string) {
-		return { id, value };
+	onInput(event: CustomEvent<string>, id: string) {
+		return {
+			id,
+			value: event.detail,
+		};
 	}
 
 	setListItems(listItems: Array<Type.ListItem>) {
@@ -29,15 +32,15 @@ export class List extends Component.custom(`ol`) {
 	<li>List ID ${this.id}</li>
 
 	${this.listItems.map(({ id, value }) =>
-		new ListItem(id!)
+		ListItem.id(id!)
 			.set({ text: value })
-			.on(`onDelete`, () => this.onDelete(id!))
-			.on(`onInput`, event => this.onInput(id!, event.detail))
+			.on(`onDelete`, this, `onDelete`, id!)
+			.on(`onInput`, this, `onInput`, id!)
 	)}
 
 	<li>
 		<button
-			onclick="${this.bind(`onAdd`)}"
+			${this.on(`click`, `onAdd`)}
 			type="button"
 		>Add</button>
 	</li>

@@ -6,10 +6,6 @@ import { Textbox } from '@src/components/textbox.ts';
 export class ListItem extends Component.custom(`li`) {
 	@Component.attribute({ name: `data-text` }) text!: string;
 
-	constructor(id: string) {
-		super(id);
-	}
-
 	@Component.event()
 	onDelete() {}
 
@@ -21,13 +17,13 @@ export class ListItem extends Component.custom(`li`) {
 	template = () => html`
 	<p>List item ID ${this.id}</p>
 
-	${new Textbox(`${this.id}-text`)
+	${Textbox.id(`${this.id}-text`)
 		.set({ value: this.text })
-		.on(`onInput`, event => this.onInput(event))
+		.on(`onInput`, this, `onInput`)
 	}
 
 	<button
-		onclick="${this.bind(`onDelete`)}"
+		${this.on(`click`, `onDelete`)}
 		type="button"
 	>Remove</button>
 	`;

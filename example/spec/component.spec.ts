@@ -14,7 +14,7 @@ class Widget extends Component.custom(`h1`) {
 @Component.define()
 class Parent extends Component.custom(`div`) {
 	@Component.attribute() widgetClass = undefined as string | undefined;
-	template = () => new Widget().set({
+	template = () => Widget.id(`child`).set({
 		attr: undefined,
 		class: this.widgetClass,
 		dataAttr: undefined,
@@ -25,20 +25,20 @@ export const spec = suite(`Component`, {},
 	test(`contents`, $ => {
 		let widget: Widget;
 
-		$.assert(x => x(new Widget(`ID`).outerHTML) === x(`<h1 id="ID" is="l-widget" attr="attrDefault" data-attr="dataAttrDefault"></h1>`));
-		$.assert(x => x(new Widget().outerHTML) === x(`<h1 is="l-widget" attr="attrDefault" data-attr="dataAttrDefault"></h1>`));
-		$.assert(x => x(new Widget().write(`x`).outerHTML) === x(`<h1 is="l-widget" attr="attrDefault" data-attr="dataAttrDefault"></h1>`));
-		$.assert(x => x(new Widget().write(`x`).render().outerHTML) === x(`<h1 is="l-widget" attr="attrDefault" data-attr="dataAttrDefault">content:x</h1>`));
+		$.assert(x => x(Widget.id(`WID`).outerHTML) === x(`<h1 is="l-widget" id="WID" attr="attrDefault" data-attr="dataAttrDefault"></h1>`));
+		$.assert(x => x(Widget.id(`WID`).outerHTML) === x(`<h1 is="l-widget" id="WID" attr="attrDefault" data-attr="dataAttrDefault"></h1>`));
+		$.assert(x => x(Widget.id(`WID`).write(`x`).outerHTML) === x(`<h1 is="l-widget" id="WID" attr="attrDefault" data-attr="dataAttrDefault"></h1>`));
+		$.assert(x => x(Widget.id(`WID`).write(`x`).render().outerHTML) === x(`<h1 is="l-widget" id="WID" attr="attrDefault" data-attr="dataAttrDefault">content:x</h1>`));
 
-		$.log(() => widget = new Widget());
-		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" attr="attrDefault" data-attr="dataAttrDefault"></h1>`));
+		$.log(() => widget = Widget.id(`WID`));
+		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" id="WID" attr="attrDefault" data-attr="dataAttrDefault"></h1>`));
 		$.assert(x => x(widget.innerHTML) === ``);
-		$.assert(x => x(widget.render().outerHTML) === x(`<h1 is="l-widget" attr="attrDefault" data-attr="dataAttrDefault">content:</h1>`));
+		$.assert(x => x(widget.render().outerHTML) === x(`<h1 is="l-widget" id="WID" attr="attrDefault" data-attr="dataAttrDefault">content:</h1>`));
 		$.assert(x => x(widget.innerHTML) === `content:`);
 
-		$.assert(x => x(widget.write(`x`).outerHTML) === x(`<h1 is="l-widget" attr="attrDefault" data-attr="dataAttrDefault">content:</h1>`));
+		$.assert(x => x(widget.write(`x`).outerHTML) === x(`<h1 is="l-widget" id="WID" attr="attrDefault" data-attr="dataAttrDefault">content:</h1>`));
 		$.assert(x => x(widget.render().innerHTML) === `content:x`);
-		$.assert(x => x(widget.write(`y`).outerHTML) === x(`<h1 is="l-widget" attr="attrDefault" data-attr="dataAttrDefault">content:x</h1>`));
+		$.assert(x => x(widget.write(`y`).outerHTML) === x(`<h1 is="l-widget" id="WID" attr="attrDefault" data-attr="dataAttrDefault">content:x</h1>`));
 		$.assert(x => x(widget.render().innerHTML) === x(`content:y`));
 
 		$.log(() => widget.template = () => `<b>${widget.content ?? ``}</b>`);
@@ -51,40 +51,40 @@ export const spec = suite(`Component`, {},
 	test(`attributes`, $ => {
 		let widget: Widget;
 
-		$.log(() => widget = new Widget());
-		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" attr="attrDefault" data-attr="dataAttrDefault"></h1>`));
+		$.log(() => widget = Widget.id(`WID`));
+		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" id="WID" attr="attrDefault" data-attr="dataAttrDefault"></h1>`));
 		$.log(() => widget.set({ class: `foo` }));
 		$.assert(x => x(widget.className) === `foo`);
 		$.log(() => widget.set({ class: `bar` }));
 		$.assert(x => x(widget.className) === `bar`);
-		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" attr="attrDefault" data-attr="dataAttrDefault" class="${widget.getAttribute(`class`)}"></h1>`));
+		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" id="WID" attr="attrDefault" data-attr="dataAttrDefault" class="${widget.getAttribute(`class`)}"></h1>`));
 
 		$.log(() => widget.set({ class: undefined }));
 		$.assert(x => x(widget.className) === ``);
-		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" attr="attrDefault" data-attr="dataAttrDefault"></h1>`));
+		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" id="WID" attr="attrDefault" data-attr="dataAttrDefault"></h1>`));
 
 		$.assert(x => x(widget.style.color) === ``);
 		$.log(() => widget.css({ color: `red` }));
 		$.assert(x => x(widget.style.color) === `red`);
 		$.assert(x => x(widget.getAttribute(`style`)) === `color: red;`);
-		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" attr="attrDefault" data-attr="dataAttrDefault" style="${widget.getAttribute(`style`)}"></h1>`));
+		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" id="WID" attr="attrDefault" data-attr="dataAttrDefault" style="${widget.getAttribute(`style`)}"></h1>`));
 		$.assert(x => x(widget.style.top) === ``);
 		$.log(() => widget.css({ top: `1px` }));
 		$.assert(x => x(widget.style.top) === `1px`);
 		$.assert(x => x(widget.getAttribute(`style`)) === `color: red; top: 1px;`);
-		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" attr="attrDefault" data-attr="dataAttrDefault" style="${widget.getAttribute(`style`)}"></h1>`));
+		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" id="WID" attr="attrDefault" data-attr="dataAttrDefault" style="${widget.getAttribute(`style`)}"></h1>`));
 		$.log(() => widget.set({ style: `color: green` }));
-		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" attr="attrDefault" data-attr="dataAttrDefault" style="color: green;"></h1>`));
+		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" id="WID" attr="attrDefault" data-attr="dataAttrDefault" style="color: green;"></h1>`));
 		$.log(() => widget.set({ style: undefined }));
-		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" attr="attrDefault" data-attr="dataAttrDefault"></h1>`));
+		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" id="WID" attr="attrDefault" data-attr="dataAttrDefault"></h1>`));
 
 		$.log(() => widget.set({ attr: `foo` }));
 		$.assert(x => x(widget.attr) === `foo`);
 		$.assert(x => x(widget.getAttribute(`attr`)) === `foo`);
-		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" attr="foo" data-attr="dataAttrDefault"></h1>`));
+		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" id="WID" attr="foo" data-attr="dataAttrDefault"></h1>`));
 
 		$.log(() => widget.set({ attr: undefined }));
-		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" data-attr="dataAttrDefault"></h1>`));
+		$.assert(x => x(widget.outerHTML) === x(`<h1 is="l-widget" id="WID" data-attr="dataAttrDefault"></h1>`));
 
 		$.log(() => widget.set({ dataAttr: `foo` }));
 		$.assert(x => x(widget.dataAttr) === `foo`);
@@ -94,26 +94,26 @@ export const spec = suite(`Component`, {},
 	}),
 
 	test(`<host>`, $ => {
-		let widget = new Widget();
+		let widget = Widget.id(`WID`);
 
 		$.log(() => widget.template = () => `<host title="foo">${widget.content ?? ``}</host>`);
 		widget.render();
 		$.assert(x => x(widget.getAttribute(`title`)) === `foo`);
 		$.assert(x => x(widget.title) === `foo`);
 
-		widget = new Widget();
+		widget = Widget.id(`WID`);
 		$.log(() => widget.template = () => `<host attr="aaa">${widget.content ?? ``}</host>`);
 		widget.render();
 		$.assert(x => x(widget.getAttribute(`attr`)) === `aaa`);
 		$.assert(x => x(widget.attr) === `aaa`);
 
-		widget = new Widget();
+		widget = Widget.id(`WID`);
 		$.log(() => widget.template = () => `<host data-attr="aaa">${widget.content ?? ``}</host>`);
 		widget.render();
 		$.assert(x => x(widget.getAttribute(`data-attr`)) === `aaa`);
 		$.assert(x => x(widget.dataAttr) === `aaa`);
 
-		widget = new Widget();
+		widget = Widget.id(`WID`);
 		$.log(() => widget.template = () => `<b><host attr="bbb">${widget.content ?? ``}</host></b>`);
 		widget.render();
 		$.assert(x => x(widget.getAttribute(`attr`)) === `attrDefault`);
@@ -121,14 +121,14 @@ export const spec = suite(`Component`, {},
 	}),
 
 	test(`nested`, $ => {
-		const parent = new Parent();
+		const parent = Parent.id(`PID`);
 
-		$.assert(x => x(parent.outerHTML) === x(`<div is="l-parent"></div>`));
+		$.assert(x => x(parent.outerHTML) === x(`<div is="l-parent" id="PID"></div>`));
 		$.log(() => parent.render());
-		$.assert(x => x(parent.outerHTML) === x(`<div is="l-parent"><h1 is="l-widget">content:</h1></div>`));
+		$.assert(x => x(parent.outerHTML) === x(`<div is="l-parent" id="PID"><h1 is="l-widget" id="child">content:</h1></div>`));
 		$.log(() => parent.set({ widgetClass: `foo` }));
-		$.assert(x => x(parent.outerHTML) === x(`<div is="l-parent" widgetclass="foo"><h1 is="l-widget">content:</h1></div>`));
+		$.assert(x => x(parent.outerHTML) === x(`<div is="l-parent" id="PID" widgetclass="foo"><h1 is="l-widget" id="child">content:</h1></div>`));
 		$.log(() => parent.render());
-		$.assert(x => x(parent.outerHTML) === x(`<div is="l-parent" widgetclass="foo"><h1 is="l-widget" class="foo">content:</h1></div>`));
+		$.assert(x => x(parent.outerHTML) === x(`<div is="l-parent" id="PID" widgetclass="foo"><h1 is="l-widget" id="child" class="foo">content:</h1></div>`));
 	}),
 );

@@ -4,7 +4,7 @@ import {
 	setAttributes,
 	style,
 } from '../dom/attributes.ts';
-import { Emitter } from '../emitter/emitter.ts';
+import { Emitter, type SubscriptionHandler } from '../emitter/emitter.ts';
 import { newUid } from '../uid.ts';
 import { pipeFilter } from '../emitter/pipe/filter.ts';
 import { pipeUntil } from '../emitter/pipe/until.ts';
@@ -16,6 +16,7 @@ type Constructor<Classtype> = new (...args: any) => Classtype; // eslint-disable
 
 type ComponentWithoutDecorators = Omit<typeof Component,
 	| `attribute`
+	| `cache`
 	| `const`
 	| `custom`
 	| `define`
@@ -23,11 +24,13 @@ type ComponentWithoutDecorators = Omit<typeof Component,
 	| `hydrate`
 >;
 
-const componentCache = new Map<string, WeakRef<Component>>();
-
 export class Component extends HTMLElement {
+	static readonly cache = new Map<string, WeakRef<Component>>();
 	static readonly const = {
 		attrEl: `is`,
+		attrEmit: `data-emit`,
+		attrEmitDelimiter: `|`,
+		attrListen: `data-on`,
 		styleAttr: `data-style`,
 	} as const;
 	static readonly elName: string;
@@ -84,15 +87,16 @@ export class Component extends HTMLElement {
 			static readonly elName = Component.elName;
 			static readonly find = Component.find;
 			static readonly findAll = Component.findAll;
+			static readonly id = Component.id;
 			static readonly observedAttributes = Component.observedAttributes;
 			static readonly propertyNamesByAttribute = Component.propertyNamesByAttribute;
 			static readonly selector = Component.selector;
 			static readonly tagName = tagName;
 
-			constructor(id?: Component[`id`]) {
+			constructor() {
 				super();
-				this.onConstruct(id);
 				this.setAttribute(Component.const.attrEl, this.Ctor.elName);
+				this.onConstruct();
 			}
 		}
 
@@ -154,6 +158,8 @@ export class Component extends HTMLElement {
 	static event<Value>(
 		options = {} as CustomEventInit<Value>,
 	) {
+		const bubbles = options.bubbles ?? true;
+
 		return function(
 			target: Component,
 			propertyName: string,
@@ -165,8 +171,9 @@ export class Component extends HTMLElement {
 				...args: Parameters<typeof transformer>
 			) {
 				const detail = transformer.call(this, ...args); // eslint-disable-line @typescript-eslint/no-unsafe-argument
-				const event = new CustomEvent(propertyName, {
+				const event = new CustomEvent(propertyName.toLowerCase(), { // Has to be lowercase because it's stored in an HTML attribute
 					...options,
+					bubbles,
 					detail,
 				});
 				this.dispatchEvent(event);
@@ -220,8 +227,8 @@ export class Component extends HTMLElement {
 			if (tagName === `PLACEHOLDER`) {
 				const placeholder = target as HTMLUnknownElement;
 				const id = placeholder.id;
-				const cached = componentCache.get(id)!.deref()!;
-				componentCache.delete(id);
+				const cached = Component.cache.get(id)!.deref()!;
+				Component.cache.delete(id);
 				target = iterator.previousNode();
 				placeholder.replaceWith(cached);
 				if (target === null) { // If placeholder is the first element, the iterator apparently gets stuck and needs to restart
@@ -244,14 +251,35 @@ export class Component extends HTMLElement {
 	}
 
 	/**
+	 * Returns an existing Component with this ID, and if one isn't found, creates it.
+	 */
+	static id<Subclass extends Component>(
+		this: Constructor<Subclass>,
+		id: string
+	) {
+		const existing = document.getElementById(id);
+		if (existing !== null) {
+			return existing as Subclass;
+		}
+
+		const instance = new this();
+		instance.id = id;
+		return instance;
+	}
+
+	private static uid() {
+		return `l${newUid()}`;
+	}
+
+	/**
 	 * Emitter that emits on attributeChangedCallback
 	 * @see {@link attributeChangedCallback}
 	 */
-	attributeChanged = new Emitter<{ // TODO3: Stronger typing
+	readonly attributeChanged!: Emitter<{ // TODO3: Stronger typing
 		name: string;
 		previous: unknown;
 		value: unknown;
-	}>();
+	}>;
 
 	/**
 	 * Stores the component's textual content, if any, which can be inserted into the component's template
@@ -269,11 +297,11 @@ export class Component extends HTMLElement {
 	 * Emitter that emits on disconnectedCallback
 	 * @see {@link disconnectedCallback}
 	 */
-	disconnected = new Emitter<void>();
+	readonly disconnected!: Emitter<void>;
 
-	constructor(id?: Component[`id`]) {
+	constructor() {
 		super();
-		this.onConstruct(id);
+		this.onConstruct();
 	}
 
 	/**
@@ -322,7 +350,27 @@ export class Component extends HTMLElement {
 	 * Called when the component is attached to the DOM
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks
 	 */
-	connectedCallback() {}
+	connectedCallback() {
+		const onEvent = (event: Event) => {
+			const emitter = event.target as HTMLElement;
+			const attrName = `${Component.const.attrEmit}-${event.type}-${this.id}`;
+			if (!emitter.hasAttribute(attrName)) {
+				return;
+			}
+
+			const [methodName, ...args] = emitter.getAttribute(attrName)!
+				.split(Component.const.attrEmitDelimiter);
+			(this as unknown as Record<string, Function>)[methodName](event, ...args);
+		};
+
+		const attrLength = Component.const.attrListen.length;
+		for (const attribute of this.attributes) {
+			if (attribute.name.startsWith(Component.const.attrListen + `-`)) {
+				const eventName = attribute.name.slice(attrLength + 1);
+				this.addEventListener(eventName, onEvent);
+			}
+		}
+	}
 
 	/**
 	 * Applies the given CSS rules to the Component's `style` attribute
@@ -391,14 +439,78 @@ export class Component extends HTMLElement {
 		return this.closest((Ancestor as unknown as typeof Component).selector);
 	}
 
+	on<
+		EventName extends keyof HTMLElementEventMap,
+		EventType extends HTMLElementEventMap[EventName],
+		Listener extends Record<HandlerKey, (event: EventType, ...args: Args) => void>,
+		HandlerKey extends PropertyKey,
+		Args extends Array<unknown>,
+	>(
+		this: Listener,
+		eventName: EventName,
+		listenerKey: HandlerKey,
+		...args: Args
+	): string;
+	on<
+		Emitter extends Record<EventName, (...args: any) => void>, // eslint-disable-line @typescript-eslint/no-explicit-any
+		EventName extends PropertyKey,
+		EventDetail extends ReturnType<Emitter[EventName]>,
+		EventType extends CustomEvent<EventDetail>,
+		Listener extends Record<HandlerKey, (event: EventType, ...args: Args) => void>,
+		HandlerKey extends PropertyKey,
+		Args extends Array<unknown>,
+	>(
+		this: Emitter,
+		eventName: EventName,
+		listener: Listener,
+		handlerKey: HandlerKey,
+		...args: Args
+	): Emitter;
+	on(
+		this: Component,
+		eventName: string,
+		handlerKeyOrListener: Component | string,
+		...args: Array<unknown>
+	): Component | string {
+		let handlerKey: string;
+		let handlerArgs: Array<unknown>;
+		let listener: Component;
+		if (typeof handlerKeyOrListener === `string`) {
+			listener = this;
+			handlerKey = handlerKeyOrListener;
+			handlerArgs = args;
+		} else {
+			listener = handlerKeyOrListener;
+			handlerKey = args[0] as string;
+			handlerArgs = args.slice(1);
+		}
+
+		const listenerAttrName = `${Component.const.attrListen}-${eventName.toLowerCase()}`; // HTML attributes are case-insensitive
+		listener.setAttribute(listenerAttrName, ``);
+
+		const params = [handlerKey, ...handlerArgs];
+		const emitterAttrName = `${Component.const.attrEmit}-${eventName.toLowerCase()}-${listener.id}`;
+		const emitterAttrValue = params.join(Component.const.attrEmitDelimiter);
+
+		if (typeof handlerKeyOrListener === `string`) {
+			return `${emitterAttrName}="${emitterAttrValue}"`;
+		}
+
+		this.setAttribute(emitterAttrName, emitterAttrValue);
+		return this;
+	}
+
 	/**
 	 * Called by the constructor. Needed because customized and autonomous components have different constructors.
 	 * Would prefer this to be private, but TS won't emit the declaration if it is https://github.com/microsoft/TypeScript/issues/30355
 	 */
-	onConstruct(id?: Component[`id`]) {
-		if (id !== undefined) {
-			this.id = id;
-		}
+	onConstruct() {
+		this.id = this.id === `` ? Component.uid() : this.id;
+
+		Object.assign(this, {
+			attributeChanged: new Emitter(), // Why here instead of declared as property? Because when attributes are set in the constructor it still calls `attributeChangedCallback`
+			disconnected: new Emitter(),
+		});
 	}
 
 	/**
@@ -433,30 +545,33 @@ export class Component extends HTMLElement {
 	}
 
 	/**
-	 * Sets multiple attributes or properties.
+	 * Sets multiple attributes or properties
 	 */
 	set(attributes: Partial<ElAttributes<this>>) {
 		return setAttributes(this, attributes);
 	}
 
-	subscribe<State>(emitter: Emitter<State>) {
-		return emitter.pipe(pipeUntil(this.disconnected));
+	/**
+	 * Subscribe to the given emitter while unsubscribing when the Component is disconnected
+	 */
+	subscribe<State>(emitter: Emitter<State>, doWhat: SubscriptionHandler<State>) {
+		return emitter.pipe(pipeUntil(this.disconnected)).subscribe(doWhat);
 	}
 
 	/**
 	 * Defines what is written into the document when this instance is rendered
 	 */
 	template(subclassTemplate?: string) {
-		return subclassTemplate ?? this.innerHTML ?? ``;
+		return subclassTemplate ?? this.innerHTML ?? this.content ?? ``;
 	}
 
 	/**
 	 * Returns a placeholder element that will be hydrated into the full component during rendering.
 	 */
 	toString() {
-		const tempId = [undefined, null, ``].includes(this.id) ? newUid() : this.id;
+		const tempId = newUid();
 		this.innerHTML = this.template();
-		componentCache.set(tempId, new WeakRef(this));
+		Component.cache.set(tempId, new WeakRef(this));
 		return `<placeholder id="${tempId}"></placeholder>`;
 	}
 
