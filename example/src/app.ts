@@ -36,8 +36,9 @@ export const resolver = new Resolver(router, async(route: URL) => {
 
 @Component.define()
 export class App extends BaseApp {
-	resolver = resolver;
-	router = router;
+	readonly nav = this.findDown(Nav, 0);
+	readonly resolver = resolver;
+	readonly router = router;
 
 	async connectedCallback() {
 		await super.connectedCallback();
@@ -46,9 +47,7 @@ export class App extends BaseApp {
 			this.appendChild(new ModalContainer());
 		}
 
-		this.resolver.subscribe(() => {
-			this.findDown(Nav).render();
-		});
+		this.resolver.subscribe(() => this.nav().render());
 	}
 
 	template = () => html`

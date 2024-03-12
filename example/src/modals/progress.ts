@@ -15,27 +15,29 @@ const style = css`
 export class ProgressModal extends Component {
 	static style = style;
 
+	readonly circle = this.findDown(ProgressCircle, 0);
+	readonly modal = this.findUp(ModalContainer);
+
 	connectedCallback() {
 		super.connectedCallback();
 
-		const $circle = this.findDown(ProgressCircle);
-		const statusChanged = this.findUp(ModalContainer).attribute(`status`);
+		const statusChanged = this.modal().attribute(`status`);
 		this.subscribe(statusChanged, ({ value }) => {
 			switch (value) {
 				case `activating`:
-					$circle.style.transition = `none`; // Force circle to reset without tweening
-					$circle.set({ value: 100 });
+					this.circle().style.transition = `none`; // Force circle to reset without tweening
+					this.circle().set({ value: 100 });
 					break;
 				case `active`:
-					$circle.style.removeProperty(`transition`); // Undo the `style.transition = none`
-					$circle.set({ value: 0 });
+					this.circle().style.removeProperty(`transition`); // Undo the `style.transition = none`
+					this.circle().set({ value: 0 });
 					break;
 			}
 		});
 	}
 
 	dismiss() {
-		void this.findUp(ModalContainer).close();
+		void this.modal().close();
 	}
 
 	template = () => html`

@@ -54,16 +54,17 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ## TODO
 
--	TODO2: A way to cache DOM queries, like Angular's ViewChild
+-	TODO1: Use `#` private fields
+-	TODO2: Image preprocessing
 -	TODO2: Import SVGs
 -	TODO2: Remove CSS from JS bundles
 -	TODO2: CSS minify
 -	TODO2: HTML minify
--	TODO2: Image preprocessing
 -	TODO3: CSS class and variable mapping
 
 ### Done:
 
+-	A way to cache DOM queries, like Angular's ViewChild
 -	Fully hydrate the template on the landing page -- e.g. with event listeners and stuff -- without needing to rerender it
 -	Don't use `[on]` attributes?
 -	Style setter

@@ -299,6 +299,9 @@ export class Component extends HTMLElement {
 	 */
 	readonly disconnected!: Emitter<void>;
 
+	readonly findDownCache!: Map<string, Array<HTMLElement>>;
+	readonly findUpCache!: Map<string, HTMLElement>;
+
 	constructor() {
 		super();
 		this.onConstruct();
@@ -388,55 +391,63 @@ export class Component extends HTMLElement {
 	}
 
 	/**
-	 * Looks for and returns the first instance of the specified constructor, or element of the specified selector, within the current component's template
-	 */
-	findDown<Descendant extends keyof HTMLElementTagNameMap>(
-		Descendant: Descendant
-	): HTMLElementTagNameMap[Descendant];
-	findDown<Descendant>(Descendant: Constructor<Descendant>): Descendant;
-	findDown<Descendant>(Descendant: Constructor<Descendant> | keyof HTMLElementTagNameMap) {
-		if ((Descendant as Function) === Page) {
-			return this.querySelector(`[${Page.$pageAttr}]`);
-		} else if (typeof Descendant === `string`) {
-			return this.querySelector(Descendant);
-		}
-		return this.querySelector(
-			(Descendant as unknown as typeof Component).selector
-		) as Descendant;
-	}
-
-	/**
 	 * Looks for and returns all instances of the specified constructor, or all elements of the specified selector, within the current component's template
 	 */
-	findDownAll<Descendant extends keyof HTMLElementTagNameMap>(
-		Descendant: Descendant
-	): Array<HTMLElementTagNameMap[Descendant]>;
-	findDownAll<Descendant>(Descendant: Constructor<Descendant>): Array<Descendant>;
-	findDownAll<Descendant>(Descendant: Constructor<Descendant> | keyof HTMLElementTagNameMap) {
-		if ((Descendant as Function) === Page) {
-			return this.querySelectorAll(`[${Page.$pageAttr}]`);
-		} else if (typeof Descendant === `string`) {
-			return [...this.querySelectorAll(Descendant)];
-		}
-		return [...this.querySelectorAll(
-			(Descendant as unknown as typeof Component).selector
-		)] as Array<Descendant>;
+	findDown<
+		Select extends Constructor<Component>,
+		Descendant extends InstanceType<Select>,
+	>(select: Select): () => Array<Descendant>;
+	findDown<
+		Select extends Constructor<Component>,
+		Descendant extends InstanceType<Select>,
+	>(select: Select, index: number): () => Descendant;
+	findDown<
+		Select extends keyof HTMLElementTagNameMap,
+		Descendant extends HTMLElementTagNameMap[Select],
+	>(select: Select): () => Array<Descendant>;
+	findDown<
+		Select extends keyof HTMLElementTagNameMap,
+		Descendant extends HTMLElementTagNameMap[Select],
+	>(selector: Select, index: number): () => Descendant;
+	findDown(select: string): () => Array<HTMLElement>;
+	findDown(select: string, index: number): () => HTMLElement;
+	findDown(select: Function | string, index?: number) {
+		const selector = (select as Function) === Page
+			? `[${Page.$pageAttr}]`
+			: typeof select === `string`
+				? select
+				: (select as unknown as typeof Component).selector;
+
+		return () => { // TODO3: Find a use for this
+			const results = this.findDownCache.get(selector)
+				?? [...this.querySelectorAll(selector)];
+			this.findDownCache.set(selector, results as Array<HTMLElement>);
+			return index === undefined ? results : results[0];
+		};
 	}
 
 	/**
 	 * Looks for and returns the nearest instance of the specified constructor among the current component's ancestors
 	 */
-	findUp<Ancestor extends keyof HTMLElementTagNameMap>(
-		Ancestor: Ancestor
-	): HTMLElementTagNameMap[Ancestor];
-	findUp<Ancestor>(Ancestor: Constructor<Ancestor>): Ancestor;
-	findUp<Ancestor>(Ancestor: Constructor<Ancestor> | keyof HTMLElementTagNameMap) {
-		if ((Ancestor as Function) === Page) {
-			return this.closest(`[${Page.$pageAttr}]`);
-		} else if (typeof Ancestor === `string`) {
-			return this.closest(Ancestor);
-		}
-		return this.closest((Ancestor as unknown as typeof Component).selector);
+	findUp<
+		Select extends keyof HTMLElementTagNameMap,
+	>(select: Select): () => HTMLElementTagNameMap[Select];
+	findUp<
+		Select extends Component,
+	>(select: Constructor<Select>): () => Select;
+	findUp(select: string): () => HTMLElement;
+	findUp(select: Function | string) {
+		const selector = (select as Function) === Page
+			? `[${Page.$pageAttr}]`
+			: typeof select === `string`
+				? select
+				: (select as unknown as typeof Component).selector;
+
+		return () => { // TODO3: Find a use for this
+			const result = this.findUpCache.get(selector) ?? this.closest(selector);
+			this.findUpCache.set(selector, result as HTMLElement);
+			return result;
+		};
 	}
 
 	on<
@@ -510,6 +521,8 @@ export class Component extends HTMLElement {
 		Object.assign(this, {
 			attributeChanged: new Emitter(), // Why here instead of declared as property? Because when attributes are set in the constructor it still calls `attributeChangedCallback`
 			disconnected: new Emitter(),
+			findDownCache: new Map(),
+			findUpCache: new Map(),
 		});
 	}
 
@@ -517,6 +530,8 @@ export class Component extends HTMLElement {
 	 * Makes the component replace its contents with newly-rendered contents
 	 */
 	render(rootSelector?: string) {
+		this.findDownCache.clear();
+
 		const template = document.createElement(`template`);
 		template.innerHTML = this.template();
 

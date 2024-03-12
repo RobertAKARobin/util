@@ -117,7 +117,7 @@ export const spec = suite(`Component`, {},
 		$.log(() => widget.template = () => `<b><host attr="bbb">${widget.content ?? ``}</host></b>`);
 		widget.render();
 		$.assert(x => x(widget.getAttribute(`attr`)) === `attrDefault`);
-		$.assert(x => x(widget.findDown(`b`).getAttribute(`attr`)) === `bbb`);
+		$.assert(x => x(widget.findDown(`b`, 0)().getAttribute(`attr`)) === `bbb`);
 	}),
 
 	test(`nested`, $ => {

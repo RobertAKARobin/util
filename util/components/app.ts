@@ -8,7 +8,7 @@ export { Resolver, RouteMap, Router };
 export abstract class BaseApp<
 	Routes extends RouteMap = any, // eslint-disable-line @typescript-eslint/no-explicit-any
 > extends Component.custom(`body`) {
-	static elName = `l-app`;
+	static readonly elName = `l-app`;
 	page!: Page;
 	abstract readonly resolver: Resolver<Page>;
 	abstract readonly router: Router<Routes>;
@@ -37,7 +37,7 @@ export abstract class BaseApp<
 		});
 
 		if (appContext === `browser`) {
-			let landingPage = this.findDown(Page);
+			let landingPage = this.findDown(Page, 0)();
 			const expectedPage = await this.resolver.resolve(new URL(location.href));
 			if (landingPage.constructor !== expectedPage.constructor) {
 				landingPage = expectedPage;
@@ -52,7 +52,7 @@ export abstract class BaseApp<
 		}
 
 		if (previous === undefined) {
-			this.page = newPage;
+			this.page = newPage;;
 			if (appContext !== `browser`) {
 				this.render();
 			}

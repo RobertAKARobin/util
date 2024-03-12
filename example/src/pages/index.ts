@@ -21,6 +21,9 @@ const colors = [`red`, `yellow`, `green`, `brown`, `scarlet`];
 
 @Component.define({ style })
 export class IndexPage extends Page {
+	readonly list = this.findDown(List, 0);
+	readonly listItems = this.findDown(ListItem);
+
 	@Component.attribute({ name: `data-message` }) message!: string;
 
 	anchorlessRoute() {
@@ -29,9 +32,7 @@ export class IndexPage extends Page {
 
 	connectedCallback() {
 		super.connectedCallback();
-		const list = List.find();
-		const listItems = list.findDownAll(ListItem);
-		for (const listItem of listItems) {
+		for (const listItem of this.listItems()) {
 			state.upsert(
 				listItem.id,
 				{ value: listItem.text },
@@ -41,17 +42,15 @@ export class IndexPage extends Page {
 
 	onAdd() {
 		state.add({ value: `` });
-		const list = this.findDown(List);
-		list.setListItems(state.entries.$);
-		list.render();
+		this.list().setListItems(state.entries.$);
+		this.list().render();
 	}
 
 	onDelete(event: CustomEvent<string>) {
 		const id = event.detail;
 		state.remove(id);
-		const list = this.findDown(List);
-		list.setListItems(state.entries.$);
-		list.render();
+		this.list().setListItems(state.entries.$);
+		this.list().render();
 	}
 
 	onInput(event: CustomEvent<{ id: string; value: string; }>) {
