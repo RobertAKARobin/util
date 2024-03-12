@@ -23,7 +23,6 @@ const colors = [`red`, `yellow`, `green`, `brown`, `scarlet`];
 export class IndexPage extends Page {
 	readonly list = this.findDown(List, 0);
 	readonly listItems = this.findDown(ListItem);
-
 	@Component.attribute({ name: `data-message` }) message!: string;
 
 	anchorlessRoute() {
@@ -37,6 +36,10 @@ export class IndexPage extends Page {
 				listItem.id,
 				{ value: listItem.text },
 			);
+		}
+
+		if (appContext === `browser`) {
+			this.render(`._swapText`);
 		}
 	}
 
@@ -66,7 +69,7 @@ export class IndexPage extends Page {
 	template = () => html`
 <h1>Hello world!</h1>
 
-${TransitionTest.id(`transitionTest`)}
+${new TransitionTest()}
 
 <button
 	${this.on(`click`, `openModal`)}
@@ -75,17 +78,19 @@ ${TransitionTest.id(`transitionTest`)}
 
 <div id="jump1">Jump 1</div>
 
-${List.id(`indexList`)
+${new List()
 	.setListItems(state.entries.$)
 	.on(`onAdd`, this, `onAdd`)
 	.on(`onDelete`, this, `onDelete`)
 	.on(`onInput`, this, `onInput`)
 }
 
-${appContext === `build`
-	? html`<h1>This should be in the source, not browser.</h1>`
-	: html`<h1>This should be in the browser, not source.</h1>`
-}
+<div class="_swapText">
+	${appContext === `build`
+		? html`<h1>This should be in the source, not browser.</h1>`
+		: html`<h1>This should be in the browser, not source.</h1>`
+	}
+</div>
 
 <markdown>
 # Headline 1

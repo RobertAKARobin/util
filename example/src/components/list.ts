@@ -32,7 +32,7 @@ export class List extends Component.custom(`ol`) {
 	<li>List ID ${this.id}</li>
 
 	${this.listItems.map(({ id, value }) =>
-		ListItem.id(id!)
+		new ListItem()
 			.set({ text: value })
 			.on(`onDelete`, this, `onDelete`, id!)
 			.on(`onInput`, this, `onInput`, id!)

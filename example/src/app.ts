@@ -51,7 +51,7 @@ export class App extends BaseApp {
 	}
 
 	template = () => html`
-${Nav.id(`nav`)}
+${new Nav()}
 ${this.page}
 	`;
 }

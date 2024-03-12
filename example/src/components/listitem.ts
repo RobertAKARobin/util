@@ -17,7 +17,7 @@ export class ListItem extends Component.custom(`li`) {
 	template = () => html`
 	<p>List item ID ${this.id}</p>
 
-	${Textbox.id(`${this.id}-text`)
+	${new Textbox()
 		.set({ value: this.text })
 		.on(`onInput`, this, `onInput`)
 	}

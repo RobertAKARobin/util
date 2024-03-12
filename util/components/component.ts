@@ -87,7 +87,6 @@ export class Component extends HTMLElement {
 			static readonly elName = Component.elName;
 			static readonly find = Component.find;
 			static readonly findAll = Component.findAll;
-			static readonly id = Component.id;
 			static readonly observedAttributes = Component.observedAttributes;
 			static readonly propertyNamesByAttribute = Component.propertyNamesByAttribute;
 			static readonly selector = Component.selector;
@@ -250,23 +249,6 @@ export class Component extends HTMLElement {
 		}
 	}
 
-	/**
-	 * Returns an existing Component with this ID, and if one isn't found, creates it.
-	 */
-	static id<Subclass extends Component>(
-		this: Constructor<Subclass>,
-		id: string
-	) {
-		const existing = document.getElementById(id);
-		if (existing !== null) {
-			return existing as Subclass;
-		}
-
-		const instance = new this();
-		instance.id = id;
-		return instance;
-	}
-
 	private static uid() {
 		return `l${newUid()}`;
 	}
@@ -356,6 +338,10 @@ export class Component extends HTMLElement {
 	connectedCallback() {
 		const onEvent = (event: Event) => {
 			const emitter = event.target as HTMLElement;
+			if (this.id === ``) {
+				return;
+			}
+
 			const attrName = `${Component.const.attrEmit}-${event.type}-${this.id}`;
 			if (!emitter.hasAttribute(attrName)) {
 				return;
@@ -498,6 +484,7 @@ export class Component extends HTMLElement {
 
 		const listenerAttrName = `${Component.const.attrListen}-${eventName.toLowerCase()}`; // HTML attributes are case-insensitive
 		listener.setAttribute(listenerAttrName, ``);
+		listener.id = listener.id === `` ? Component.uid() : listener.id;
 
 		const params = [handlerKey, ...handlerArgs];
 		const emitterAttrName = `${Component.const.attrEmit}-${eventName.toLowerCase()}-${listener.id}`;
@@ -516,8 +503,6 @@ export class Component extends HTMLElement {
 	 * Would prefer this to be private, but TS won't emit the declaration if it is https://github.com/microsoft/TypeScript/issues/30355
 	 */
 	onConstruct() {
-		this.id = this.id === `` ? Component.uid() : this.id;
-
 		Object.assign(this, {
 			attributeChanged: new Emitter(), // Why here instead of declared as property? Because when attributes are set in the constructor it still calls `attributeChangedCallback`
 			disconnected: new Emitter(),
