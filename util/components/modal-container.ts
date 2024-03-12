@@ -86,6 +86,7 @@ export abstract class BaseModalContainer extends Component.custom(`dialog`) {
 	}
 
 	connectedCallback() {
+		super.connectedCallback();
 		this.style.setProperty(durationVarName, `${this.duration}s`);
 	}
 

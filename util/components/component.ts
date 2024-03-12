@@ -316,16 +316,18 @@ export class Component extends HTMLElement {
 	 * Called when one of the properties decorated with `@Component.attribute` is modified
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks
 	 */
-	attributeChangedCallback<
-		AttributeName extends keyof this,
-		Value extends this[AttributeName],
-	>(
-		name: AttributeName,
-		previous: Value,
-		value: Value,
+	attributeChangedCallback(
+		name: string, // Not strongly typing this because that makes it annoying to subclass
+		previous: unknown,
+		value: unknown,
 	) {
 		this.attributeChanged.set({
-			name: name as string,
+			name: name,
+			previous,
+			value,
+		});
+		this.attributeChanged.set({
+			name: Component.propertyNamesByAttribute[name],
 			previous,
 			value,
 		});
