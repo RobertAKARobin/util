@@ -37,12 +37,7 @@ export abstract class BaseApp<
 		});
 
 		if (appContext === `browser`) {
-			let landingPage = this.findDown(Page)();
-			const expectedPage = await this.resolver.resolve(new URL(location.href));
-			if (landingPage.constructor !== expectedPage.constructor) {
-				landingPage = expectedPage;
-			}
-			this.resolver.set(landingPage);
+			this.resolver.set(this.findDown(Page)());
 		}
 	}
 
@@ -52,7 +47,7 @@ export abstract class BaseApp<
 		}
 
 		if (previous === undefined) {
-			this.page = newPage;;
+			this.page = newPage;
 			if (appContext !== `browser`) {
 				this.render();
 			}
