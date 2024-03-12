@@ -1,7 +1,7 @@
 {
 	"dependencies": {
 		"@stylistic/stylelint-config": "^1.0.1",
-		"@stylistic/stylelint-plugin": "^2.0.0",
+		"@stylistic/stylelint-plugin": "^2.1.0",
 		"postcss-html": "^1.6.0",
 		"postcss-lit": "^1.1.1",
 		"stylelint": "^16.2.1",
@@ -14,5 +14,5 @@
 		"test": "stylelint ./test"
 	},
 	"type": "module",
-	"version": "0.0.24"
+	"version": "0.0.25"
 }
