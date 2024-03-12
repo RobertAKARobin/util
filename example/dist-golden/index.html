@@ -7,8 +7,8 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<title>Home page</title>
 	<base href="/">
-	<link rel="stylesheet" href="/styles.css?cache=1710223706223">
-	<link rel="stylesheet" href="/index.html.css?cache=1710223706223"> <script src="/browser.js?cache=1710223706223" type="module"></script> <script type="module">import { IndexPage } from '/pages-YIR5X7TY.js';</script>
+	<link rel="stylesheet" href="/styles.css?cache=1710223939356">
+	<link rel="stylesheet" href="/index.html.css?cache=1710223939356"> <script src="/browser.js?cache=1710223939356" type="module"></script> <script type="module">import { IndexPage } from '/pages-4GZKAALN.js';</script>
 	<style data-style="l-modalcontainer"></style>
 	<style data-style="l-nav"></style>
 	<style data-style="l-textbox"></style>
@@ -18,7 +18,7 @@
 </head>
 
 <body is="l-app" id="UID14_">
-	<nav is="l-nav" id="UID16_">
+	<nav is="l-nav" id="nav">
 		<ul>
 			<li id="nav-error404"> <a href="/404.html">Go error404</a> </li>
 			<li id="nav-external"> <a href="https://example.com/" rel="noopener" target="_blank">Go external</a> </li>
@@ -33,23 +33,23 @@
 	</nav>
 	<main is="l-indexpage" id="UID19_" data-page-title="Home page" data-message="This is a variable" data-on-click="" data-on-onadd="" data-on-ondelete="" data-on-oninput="">
 		<h1>Hello world!</h1>
-		<div is="l-transitiontest" id="UID20_" style="background: rgb(255, 0, 0);"></div><button data-emit-click-uid19_="openModal" type="button">Modal</button>
+		<div is="l-transitiontest" id="transitionTest" style="background: rgb(255, 0, 0);"></div><button data-emit-click-uid19_="openModal" type="button">Modal</button>
 		<div id="jump1">Jump 1</div>
-		<ol is="l-list" id="UID21_" data-emit-onadd-uid19_="onAdd" data-emit-ondelete-uid19_="onDelete" data-emit-oninput-uid19_="onInput" data-on-ondelete="" data-on-oninput="" data-on-click="">
-			<li>List ID UID21_</li>
-			<li is="l-listitem" id="UID17_" data-text="hello" data-emit-ondelete-uid21_="onDelete|UID17_" data-emit-oninput-uid21_="onInput|UID17_" data-on-oninput="" data-on-click="">
+		<ol is="l-list" id="indexList" data-emit-onadd-uid19_="onAdd" data-emit-ondelete-uid19_="onDelete" data-emit-oninput-uid19_="onInput" data-on-ondelete="" data-on-oninput="" data-on-click="">
+			<li>List ID indexList</li>
+			<li is="l-listitem" id="UID17_" data-text="hello" data-emit-ondelete-indexlist="onDelete|UID17_" data-emit-oninput-indexlist="onInput|UID17_" data-on-oninput="" data-on-click="">
 				<p>List item ID UID17_</p>
 				<div is="l-textbox" id="UID17_-text" data-max="10" data-value="hello" data-emit-oninput-uid17_="onInput" data-on-input=""><input maxlength="10" data-emit-input-uid17_-text="onInput" placeholder="Type here" type="text" value="hello"><span id="UID17_-text-remaining"> 5 / 10 Remaining</span>
 					<p>textbox ID UID17_-text</p>
 				</div> <button data-emit-click-uid17_="onDelete" type="button">Remove</button>
 			</li>
-			<li is="l-listitem" id="UID18_" data-text="world" data-emit-ondelete-uid21_="onDelete|UID18_" data-emit-oninput-uid21_="onInput|UID18_" data-on-oninput="" data-on-click="">
+			<li is="l-listitem" id="UID18_" data-text="world" data-emit-ondelete-indexlist="onDelete|UID18_" data-emit-oninput-indexlist="onInput|UID18_" data-on-oninput="" data-on-click="">
 				<p>List item ID UID18_</p>
 				<div is="l-textbox" id="UID18_-text" data-max="10" data-value="world" data-emit-oninput-uid18_="onInput" data-on-input=""><input maxlength="10" data-emit-input-uid18_-text="onInput" placeholder="Type here" type="text" value="world"><span id="UID18_-text-remaining"> 5 / 10 Remaining</span>
 					<p>textbox ID UID18_-text</p>
 				</div> <button data-emit-click-uid18_="onDelete" type="button">Remove</button>
 			</li>
-			<li> <button data-emit-click-uid21_="onAdd" type="button">Add</button> </li>
+			<li> <button data-emit-click-indexlist="onAdd" type="button">Add</button> </li>
 		</ol>
 		<h1>This should be in the source, not browser.</h1>
 		<h1>Headline 1</h1>

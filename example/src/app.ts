@@ -52,7 +52,7 @@ export class App extends BaseApp {
 	}
 
 	template = () => html`
-${new Nav()}
+${Nav.id(`nav`)}
 ${this.page}
 	`;
 }

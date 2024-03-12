@@ -67,7 +67,7 @@ export class IndexPage extends Page {
 	template = () => html`
 <h1>Hello world!</h1>
 
-${new TransitionTest()}
+${TransitionTest.id(`transitionTest`)}
 
 <button
 	${this.on(`click`, `openModal`)}
@@ -76,7 +76,7 @@ ${new TransitionTest()}
 
 <div id="jump1">Jump 1</div>
 
-${new List()
+${List.id(`indexList`)
 	.setListItems(state.entries.$)
 	.on(`onAdd`, this, `onAdd`)
 	.on(`onDelete`, this, `onDelete`)
