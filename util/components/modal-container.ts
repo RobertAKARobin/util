@@ -1,6 +1,6 @@
 import { Component } from './component.ts';
 import { enumy } from '../enumy.ts';
-import { listenOnce } from '../listenOnce.ts';
+import { sleep } from '../time/sleep.ts';
 
 export const defaultDuration = .2;
 const durationVarName = `--modalContainerDuration`;
@@ -61,7 +61,6 @@ width: 100%;
  * Each application will presumably need only one, since you only generally only want one dialog to show at a time.
  */
 export abstract class BaseModalContainer extends Component.custom(`dialog`) {
-	clearOnClose = false;
 	duration = defaultDuration;
 
 	@Component.attribute({ name: modalStatusAttr }) status: ModalStatus = `inactive`;
@@ -79,7 +78,7 @@ export abstract class BaseModalContainer extends Component.custom(`dialog`) {
 		}
 
 		this.status = `inactivating`;
-		await listenOnce(this, `transitionend`);
+		await sleep(this.duration * 1000); // TODO3: Tried awaiting transtionend but got very inconsistent results
 		this.status = `inactive`;
 		super.close();
 		return this;
@@ -102,7 +101,7 @@ export abstract class BaseModalContainer extends Component.custom(`dialog`) {
 
 		super.showModal();
 		this.status = `activating`;
-		await listenOnce(this, `transitionend`);
+		await sleep(this.duration * 1000);
 		this.status = `active`;
 		return this;
 	}
