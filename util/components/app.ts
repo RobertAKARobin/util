@@ -37,7 +37,13 @@ export abstract class BaseApp<
 		});
 
 		if (appContext === `browser`) {
-			this.resolver.set(this.findDown(Page)());
+			const landingPage = this.findDown(Page)();
+			this.resolver.set(landingPage);
+
+			const expectedPage = await this.resolver.resolve(new URL(location.href)); // For when landing page is not SSG
+			if (landingPage.constructor !== expectedPage.constructor) {
+				this.resolver.set(expectedPage);
+			}
 		}
 	}
 

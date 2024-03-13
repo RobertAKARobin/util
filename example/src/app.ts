@@ -47,7 +47,10 @@ export class App extends BaseApp {
 			this.appendChild(new ModalContainer());
 		}
 
-		this.resolver.subscribe(() => this.nav().render());
+		resolver.subscribe(() => this.nav().render());
+		if (appContext === `browser`) {
+			this.nav().render();
+		}
 	}
 
 	template = () => html`
