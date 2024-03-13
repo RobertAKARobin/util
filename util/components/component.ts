@@ -569,7 +569,7 @@ export class Component extends HTMLElement {
 	 * Defines what is written into the document when this instance is rendered
 	 */
 	template(subclassTemplate?: string) {
-		return subclassTemplate ?? this.innerHTML ?? this.content ?? ``;
+		return subclassTemplate ?? this.content ?? ``;
 	}
 
 	/**
