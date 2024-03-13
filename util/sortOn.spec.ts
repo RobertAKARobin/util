@@ -2,7 +2,7 @@ import { test } from './spec/index.ts';
 
 import { sortOn } from './sortOn.ts';
 
-const items = [
+const subject = [
 	{
 		age: 30,
 		name: `ali`,
@@ -17,12 +17,20 @@ const items = [
 	},
 ];
 
-const sortedBy = (property: keyof typeof items[number]) => {
-	const sorted = sortOn(items, item => item[property]);
-	return sorted.map(item => item.name).join(`,`);
-};
-
 export const spec = test(`sortOn`, $ => {
-	$.assert(x => x(sortedBy(`age`)) === `cat,bob,ali`);
-	$.assert(x => x(sortedBy(`name`)) === `ali,bob,cat`);
+	let originalValues = subject.map(i => i.name).join(`,`);
+	let sorted = sortOn(subject, i => i.age);
+	let sortedValues = sorted.map(i => i.name).join(`,`);
+
+	$.assert(() => subject === sorted);
+	$.assert(x => x(originalValues) === `ali,bob,cat`);
+	$.assert(x => x(sortedValues) === `cat,bob,ali`);
+	$.assert(x => x(subject.map(i => i.name).join(`,`)) !== x(originalValues));
+
+	$.log(() => originalValues = subject.map(i => i.name).join(`,`));
+	$.log(() => sorted = sortOn([...subject], i => i.name));
+	$.log(() => sortedValues = sorted.map(i => i.name).join(`,`));
+	$.assert(() => subject !== sorted);
+	$.assert(x => x(originalValues) === `cat,bob,ali`);
+	$.assert(x => x(sortedValues) === `ali,bob,cat`);
 });
