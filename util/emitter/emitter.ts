@@ -55,6 +55,19 @@ export class Emitter<State> {
 		return emitter;
 	}
 
+	static fromPromise<State>(
+		promise: Promise<State>,
+		...args: ConstructorParameters<typeof Emitter<State>>
+	) {
+		const emitter = new Emitter<State>(...args);
+
+		void promise.then(result => {
+			emitter.set(result);
+		});
+
+		return emitter;
+	}
+
 	get $() {
 		return this.value;
 	}

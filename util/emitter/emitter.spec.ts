@@ -258,6 +258,18 @@ export const spec = suite(`Emitter`, {},
 		$.assert(x => x(count) === 2);
 	}),
 
+	test(`fromPromise`, async $ => {
+		const promise = new Promise<boolean>(resolve =>
+			setTimeout(() => resolve(true), 100)
+		);
+
+		const emitter = Emitter.fromPromise(promise, false);
+
+		$.assert(x => x(emitter.value) === false);
+		await promise;
+		$.assert(x => x(emitter.value) === true);
+	}),
+
 	suite(`pipes`, {},
 		test(`on`, $ => {
 			const initial = {
