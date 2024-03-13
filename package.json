@@ -23,12 +23,12 @@
 	"scripts": {
 		"build": "npm run build --prefix example",
 		"dev": "npm run dev --prefix example",
-		"lint": "eslint .",
+		"lint": "eslint . && tsc",
 		"prepare": "husky install",
 		"prepublishOnly": "bin/build.sh",
 		"spec": "tsx util/index.spec.ts",
 		"test": "npm run lint && npm run spec && npm run test --prefix example"
 	},
 	"type": "module",
-	"version": "0.0.344"
+	"version": "0.0.345"
 }

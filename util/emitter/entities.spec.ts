@@ -1,6 +1,6 @@
 import { test } from '../spec/index.ts';
 
-import { EntityStateEmitter } from './entities.ts';
+import { type EntityId, EntityStateEmitter } from './entities.ts';
 
 type Item = {
 	value: string;
@@ -9,13 +9,13 @@ type Item = {
 export const spec = test(`Entities`, $ => {
 	const state = new EntityStateEmitter<Item>();
 
-	let item1Id: string;
+	let item1Id: EntityId;
 	$.log(() => item1Id = state.add({ value: `aaa` }));
 	$.assert(x => x(state.length()) === 1);
 	$.assert(x => x(state.indexOf(item1Id)) === 0);
 	$.assert(x => x(state.get(item1Id).value) === `aaa`);
 
-	let item2Id: string;
+	let item2Id: EntityId;
 	$.log(() => item2Id = state.add({ value: `bbb` }));
 	$.assert(x => x(state.length()) === 2);
 	$.assert(x => x(state.indexOf(item2Id)) === 1);

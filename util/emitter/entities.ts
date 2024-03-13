@@ -2,14 +2,14 @@ import { newUid } from '../uid.ts';
 
 import { Emitter } from './emitter.ts';
 
+export type EntityId = number | string;
+
 export type EntityState<Type> = {
-	byId: Record<string, Type>;
-	ids: Array<string>;
+	byId: Record<EntityId, Type>;
+	ids: Array<EntityId>;
 };
 
-// TODO1: Allow numbers as IDs
-
-export class EntityStateEmitter<Type extends Record<string, unknown>>
+export class EntityStateEmitter<Type extends Record<EntityId, unknown>>
 	extends Emitter<EntityState<Type>> {
 
 	entries = this.pipe(({ byId, ids }) => ids.map(id => ({
@@ -29,7 +29,7 @@ export class EntityStateEmitter<Type extends Record<string, unknown>>
 		);
 	}
 
-	add(input: Type, index?: number, inputId?: string) {
+	add(input: Type, index?: number, inputId?: EntityId) {
 		const id = inputId ?? this.createId();
 		const ids = [...this.value.ids];
 		if (index === undefined) {
@@ -56,11 +56,11 @@ export class EntityStateEmitter<Type extends Record<string, unknown>>
 		return this.value.ids[this.value.ids.length - offset - 1];
 	}
 
-	get(id: string) {
+	get(id: EntityId) {
 		return this.value.byId[id];
 	}
 
-	indexOf(id: string) {
+	indexOf(id: EntityId) {
 		return this.value.ids.indexOf(id);
 	}
 
@@ -68,12 +68,12 @@ export class EntityStateEmitter<Type extends Record<string, unknown>>
 		return this.value.ids.length;
 	}
 
-	move(id: string, distance: number) {
+	move(id: EntityId, distance: number) {
 		const oldIndex = this.value.ids.indexOf(id);
 		return this.moveTo(id, oldIndex + distance);
 	}
 
-	moveTo(id: string, newIndex: number) {
+	moveTo(id: EntityId, newIndex: number) {
 		const ids = [...this.value.ids];
 		const oldIndex = ids.indexOf(id);
 		ids.splice(oldIndex, 1);
@@ -85,7 +85,7 @@ export class EntityStateEmitter<Type extends Record<string, unknown>>
 		return ids;
 	}
 
-	remove(id: string) {
+	remove(id: EntityId) {
 		const byId = { ...this.value.byId };
 		delete byId[id];
 
@@ -99,7 +99,7 @@ export class EntityStateEmitter<Type extends Record<string, unknown>>
 		});
 	}
 
-	update(id: string, value: Partial<Type>) {
+	update(id: EntityId, value: Partial<Type>) {
 		const updated = {
 			...this.value.byId[id],
 			...value,
@@ -116,7 +116,7 @@ export class EntityStateEmitter<Type extends Record<string, unknown>>
 		return updated;
 	}
 
-	upsert(id: string, value: Partial<Type>) {
+	upsert(id: EntityId, value: Partial<Type>) {
 		const existing = this.value.byId[id];
 		if (existing !== undefined) {
 			return this.update(id, value);
