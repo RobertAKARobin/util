@@ -1,10 +1,18 @@
 import { Component, html } from '@robertakarobin/util/components/component.ts';
+import { type EntityId } from '@robertakarobin/util/emitter/entities.ts';
 
 import { Textbox } from '@src/components/textbox.ts';
 
 @Component.define()
 export class ListItem extends Component.custom(`li`) {
 	@Component.attribute({ name: `data-text` }) text!: string;
+
+	constructor(id: EntityId) {
+		super();
+		if (this.id === ``) {
+			this.id = `${id}` ?? Component.uid();
+		}
+	}
 
 	@Component.event()
 	onDelete() {}

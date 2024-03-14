@@ -21,7 +21,7 @@ type ComponentWithoutDecorators = Omit<typeof Component,
 	| `custom`
 	| `define`
 	| `event`
-	| `hydrate`
+	| `uid`
 >;
 
 export class Component extends HTMLElement {
@@ -207,7 +207,7 @@ export class Component extends HTMLElement {
 		return [...root.querySelectorAll(selector)] as Array<Subclass>;
 	}
 
-	private static uid() {
+	static uid() {
 		return `l${newUid()}`;
 	}
 
@@ -482,23 +482,24 @@ export class Component extends HTMLElement {
 	render(rootSelector?: string) {
 		this.findDownCache.clear();
 
+		const destinationRoot = rootSelector === undefined
+			? this
+			: this.querySelector(rootSelector) as HTMLElement;
+
 		const template = document.createElement(`template`);
 		template.innerHTML = this.template();
 
-		const updateRoot = rootSelector === undefined
-			? template
-			: template.content.querySelector(rootSelector)!;
-
-		if (rootSelector !== undefined) {
-			template.content.replaceChildren(updateRoot);
-		}
+		let sourceRoot = rootSelector === undefined
+			? (template.content as Node)
+			: undefined;
 
 		const restartIterator = () => document.createTreeWalker(
-			template.content,
+			sourceRoot ?? template.content,
 			NodeFilter.SHOW_ELEMENT,
 			() => NodeFilter.FILTER_ACCEPT,
 		);
 
+		let treeIsInSourceRoot = false;
 		let iterator = restartIterator();
 		let target = iterator.nextNode();
 		while (true) {
@@ -511,12 +512,29 @@ export class Component extends HTMLElement {
 				continue;
 			}
 
+			if (sourceRoot === undefined) {
+				if (rootSelector !== undefined && target.matches(rootSelector)) {
+					sourceRoot = target;
+				}
+			}
+
+			const targetIsInSourceRoot = (
+				sourceRoot !== undefined && sourceRoot.contains(target) // TODO3: Can probably optimize this to not need to call `.contains` each time
+			);
+
+			if (treeIsInSourceRoot && !targetIsInSourceRoot) { // The current tree was in sourceRoot, now it's not, so assume we've exited sourceRoot and shouldn't process further
+				break;
+			}
+
+			treeIsInSourceRoot = targetIsInSourceRoot;
+
 			const tagName = target.tagName.toUpperCase();
 
 			if (tagName === `PLACEHOLDER`) {
 				const placeholder = target as HTMLUnknownElement;
 				const id = placeholder.id;
 				const cached = Component.cache.get(id)!.deref()!;
+				cached.innerHTML = cached.template();
 				Component.cache.delete(id);
 				target = iterator.previousNode();
 				placeholder.replaceWith(cached);
@@ -538,17 +556,8 @@ export class Component extends HTMLElement {
 			target = iterator.nextNode();
 		}
 
-		const targetRoot = rootSelector === undefined
-			? this as HTMLElement
-			: this.querySelector(rootSelector) as HTMLElement;
-
-		setAttributes(targetRoot, updateRoot);
-
-		const childrenRoot = rootSelector === undefined
-			? template.content
-			: updateRoot;
-
-		targetRoot.replaceChildren(...childrenRoot.childNodes);
+		setAttributes(destinationRoot, template);
+		destinationRoot.replaceChildren(...sourceRoot!.childNodes);
 		return this;
 	}
 
@@ -577,8 +586,7 @@ export class Component extends HTMLElement {
 	 * Returns a placeholder element that will be hydrated into the full component during rendering.
 	 */
 	toString() {
-		const tempId = newUid();
-		this.innerHTML = this.template();
+		const tempId = this.id === `` ? Component.uid() : this.id;
 		Component.cache.set(tempId, new WeakRef(this));
 		return `<placeholder id="${tempId}"></placeholder>`;
 	}

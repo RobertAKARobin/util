@@ -4,6 +4,10 @@ import { Emitter } from './emitter.ts';
 
 export type EntityId = number | string;
 
+export type EntityWithId<Type> = Type & {
+	id: EntityId;
+};
+
 export type EntityState<Type> = {
 	byId: Record<EntityId, Type>;
 	ids: Array<EntityId>;
@@ -12,10 +16,12 @@ export type EntityState<Type> = {
 export class EntityStateEmitter<Type extends Record<EntityId, unknown>>
 	extends Emitter<EntityState<Type>> {
 
-	entries = this.pipe(({ byId, ids }) => ids.map(id => ({
-		...byId[id],
-		id,
-	}))).set([]);
+	byIndex = this.pipe(
+		({ byId, ids }) => ids.map(id => ({
+			...byId[id],
+			id,
+		}))
+	).set([]);
 
 	constructor(
 		...[initial, options]: ConstructorParameters<typeof Emitter<EntityState<Type>>>

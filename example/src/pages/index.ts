@@ -1,7 +1,9 @@
 import { Component, css, html, Page } from '@robertakarobin/util/components/component.ts';
 import { appContext } from '@robertakarobin/util/context.ts';
+import { type EntityId } from '@robertakarobin/util/emitter/entities.ts';
 import { ModalContainer } from '@robertakarobin/util/components/modal-container.ts';
 
+import type * as Type from '@src/types.js';
 import { link } from '@src/components/link.ts';
 import { List } from '@src/components/list.ts';
 import { ListItem } from '@src/components/listitem.ts';
@@ -31,32 +33,33 @@ export class IndexPage extends Page {
 
 	connectedCallback() {
 		super.connectedCallback();
-		for (const listItem of this.listItems()) {
-			state.upsert(
-				listItem.id,
-				{ value: listItem.text },
-			);
-		}
 
 		if (appContext === `browser`) {
+			for (const listItem of this.listItems()) {
+				state.upsert(
+					listItem.id,
+					{ value: listItem.text },
+				);
+			}
+
 			this.render(`._swapText`);
 		}
 	}
 
 	onAdd() {
 		state.add({ value: `` });
-		this.list().setListItems(state.entries.$);
+		this.list().setListItems(state.byIndex.$);
 		this.list().render();
 	}
 
-	onDelete(event: CustomEvent<string>) {
+	onDelete(event: CustomEvent<EntityId>) {
 		const id = event.detail;
 		state.remove(id);
-		this.list().setListItems(state.entries.$);
+		this.list().setListItems(state.byIndex.$);
 		this.list().render();
 	}
 
-	onInput(event: CustomEvent<{ id: string; value: string; }>) {
+	onInput(event: CustomEvent<Type.ListItemWithId>) {
 		state.update(event.detail.id, {
 			value: event.detail.value,
 		});
@@ -79,7 +82,7 @@ ${new TransitionTest()}
 <div id="jump1">Jump 1</div>
 
 ${new List()
-	.setListItems(state.entries.$)
+	.setListItems(state.byIndex.$)
 	.on(`onAdd`, this, `onAdd`)
 	.on(`onDelete`, this, `onDelete`)
 	.on(`onInput`, this, `onInput`)
