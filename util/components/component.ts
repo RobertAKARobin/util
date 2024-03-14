@@ -39,6 +39,10 @@ export class Component extends HTMLElement {
 	static readonly selector: string;
 	static readonly tagName?: keyof HTMLElementTagNameMap;
 
+	static {
+		(globalThis as unknown as { Component: typeof Component; }).Component = Component; // For debugging
+	}
+
 	/**
 	 * Defines a property that will be exposed as an HTML element in the DOM
 	 * @param options.name The name that will be used for the attribute. If not specified, the property name will be used, downcased and prefixed with `l-`
@@ -201,52 +205,6 @@ export class Component extends HTMLElement {
 	) {
 		const selector = (this as unknown as typeof Component).selector;
 		return [...root.querySelectorAll(selector)] as Array<Subclass>;
-	}
-
-	static hydrate(targetRoot: Node) {
-		const restartIterator = () => document.createTreeWalker(
-			targetRoot instanceof HTMLTemplateElement ? targetRoot.content : targetRoot,
-			NodeFilter.SHOW_ELEMENT,
-			() => NodeFilter.FILTER_ACCEPT,
-		);
-		let iterator = restartIterator();
-		let target = iterator.nextNode();
-		while (true) {
-			if (target === null) {
-				break;
-			}
-
-			if (!(target instanceof HTMLElement)) {
-				target = iterator.nextNode();
-				continue;
-			}
-
-			const tagName = target.tagName.toUpperCase();
-
-			if (tagName === `PLACEHOLDER`) {
-				const placeholder = target as HTMLUnknownElement;
-				const id = placeholder.id;
-				const cached = Component.cache.get(id)!.deref()!;
-				Component.cache.delete(id);
-				target = iterator.previousNode();
-				placeholder.replaceWith(cached);
-				if (target === null) { // If placeholder is the first element, the iterator apparently gets stuck and needs to restart
-					iterator = restartIterator();
-				}
-				target = iterator.nextNode();
-				continue;
-
-			} else if (tagName === `HOST`) {
-				const parent = target.parentElement! ?? targetRoot;
-				setAttributes(parent, target);
-				iterator.previousNode();
-				target.replaceWith(...target.childNodes);
-				target = iterator.nextNode();
-				continue;
-			}
-
-			target = iterator.nextNode();
-		}
 	}
 
 	private static uid() {
@@ -535,7 +493,50 @@ export class Component extends HTMLElement {
 			template.content.replaceChildren(updateRoot);
 		}
 
-		Component.hydrate(template);
+		const restartIterator = () => document.createTreeWalker(
+			template.content,
+			NodeFilter.SHOW_ELEMENT,
+			() => NodeFilter.FILTER_ACCEPT,
+		);
+
+		let iterator = restartIterator();
+		let target = iterator.nextNode();
+		while (true) {
+			if (target === null) {
+				break;
+			}
+
+			if (!(target instanceof HTMLElement)) {
+				target = iterator.nextNode();
+				continue;
+			}
+
+			const tagName = target.tagName.toUpperCase();
+
+			if (tagName === `PLACEHOLDER`) {
+				const placeholder = target as HTMLUnknownElement;
+				const id = placeholder.id;
+				const cached = Component.cache.get(id)!.deref()!;
+				Component.cache.delete(id);
+				target = iterator.previousNode();
+				placeholder.replaceWith(cached);
+				if (target === null) { // If placeholder is the first element, the iterator apparently gets stuck and needs to restart
+					iterator = restartIterator();
+				}
+				target = iterator.nextNode();
+				continue;
+
+			} else if (tagName === `HOST`) {
+				const parent = target.parentElement! ?? template;
+				setAttributes(parent, target);
+				iterator.previousNode();
+				target.replaceWith(...target.childNodes);
+				target = iterator.nextNode();
+				continue;
+			}
+
+			target = iterator.nextNode();
+		}
 
 		const targetRoot = rootSelector === undefined
 			? this as HTMLElement
