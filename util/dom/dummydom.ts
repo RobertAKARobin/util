@@ -25,6 +25,7 @@ export class DummyDOM {
 		globalThis.customElements = dummyDOM.customElements;
 		globalThis.document = dummyDOM.document;
 		globalThis.DOMParser = dummyDOM.DOMParser;
+		globalThis.Element = dummyDOM.Element;
 		globalThis.location = dummyDOM.location;
 		globalThis.history = dummyDOM.history;
 		globalThis.NodeFilter = dummyDOM.NodeFilter;

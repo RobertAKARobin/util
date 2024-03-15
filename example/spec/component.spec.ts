@@ -13,6 +13,7 @@ class Widget extends Component.custom(`h1`) {
 
 @Component.define()
 class Parent extends Component.custom(`div`) {
+	widget = this.findDown(Widget);
 	@Component.attribute() widgetClass = undefined as string | undefined;
 	template = () => new Widget().set({
 		attr: undefined,
@@ -126,9 +127,27 @@ export const spec = suite(`Component`, {},
 		$.assert(x => x(parent.outerHTML) === x(`<div is="l-parent"></div>`));
 		$.log(() => parent.render());
 		$.assert(x => x(parent.outerHTML) === x(`<div is="l-parent"><h1 is="l-widget">content:</h1></div>`));
-		$.log(() => parent.set({ widgetClass: `foo` }));
-		$.assert(x => x(parent.outerHTML) === x(`<div is="l-parent" widgetclass="foo"><h1 is="l-widget">content:</h1></div>`));
+
+		$.log(() => parent.set({ widgetClass: `111` }));
+		$.assert(x => x(parent.outerHTML) === x(`<div is="l-parent" widgetclass="111"><h1 is="l-widget">content:</h1></div>`));
+
+		let existing = parent.widget();
 		$.log(() => parent.render());
-		$.assert(x => x(parent.outerHTML) === x(`<div is="l-parent" widgetclass="foo"><h1 is="l-widget" class="foo">content:</h1></div>`));
+		$.assert(() => parent.widget() !== existing);
+		$.assert(x => x(parent.outerHTML) === x(`<div is="l-parent" widgetclass="111"><h1 is="l-widget" class="111">content:</h1></div>`));
+
+		existing = parent.widget();
+		$.log(() => parent.set({ widgetClass: `333` }));
+		$.log(() => parent.widget().render());
+		$.assert(() => parent.widget() === existing);
+		$.assert(() => parent.widget().className === `111`);
+		$.assert(x => x(parent.outerHTML) === x(`<div is="l-parent" widgetclass="333"><h1 is="l-widget" class="111">content:</h1></div>`));
+
+		existing = parent.widget();
+		$.log(() => parent.set({ widgetClass: `222` }));
+		$.log(() => parent.render(Widget.selector));
+		$.assert(() => parent.widget() === existing);
+		$.assert(() => parent.widget().className === `222`);
+		$.assert(x => x(parent.outerHTML) === x(`<div is="l-parent" widgetclass="222"><h1 is="l-widget" class="222">content:</h1></div>`));
 	}),
 );

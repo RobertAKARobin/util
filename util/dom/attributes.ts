@@ -1,6 +1,6 @@
 import type { Textish } from '../types.d.ts';
 
-export type ElAttributes<Subclass extends HTMLElement> =
+export type ElAttributes<Subclass extends Element> =
 	& Omit<Subclass,
 		| `class`
 		| `style`
@@ -16,7 +16,7 @@ export const attributeValueIsEmpty = (value: unknown) =>
 	|| value === `undefined`
 	|| value === `null`;
 
-export function getAttributes(target: HTMLElement) {
+export function getAttributes(target: Element) {
 	const attributes: Record<string, string> = {};
 	for (const attribute of target.attributes) {
 		attributes[attribute.name] = attribute.value;
@@ -24,12 +24,12 @@ export function getAttributes(target: HTMLElement) {
 	return attributes as Partial<ElAttributes<typeof target>>;
 }
 
-export function setAttributes<Subclass extends HTMLElement>(
+export function setAttributes<Subclass extends Element>(
 	target: Subclass,
-	source: HTMLElement | Partial<ElAttributes<typeof target>>
+	source: Element | Partial<ElAttributes<typeof target>>
 ) {
 	const updates = {
-		...source instanceof HTMLElement ? getAttributes(source) : source,
+		...source instanceof Element ? getAttributes(source) : source,
 	};
 	for (const attributeName in updates) {
 		const attributeKey = attributeName as keyof Subclass;

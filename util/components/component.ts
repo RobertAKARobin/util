@@ -482,19 +482,14 @@ export class Component extends HTMLElement {
 	render(rootSelector?: string) {
 		this.findDownCache.clear();
 
-		const destinationRoot = rootSelector === undefined
-			? this
-			: this.querySelector(rootSelector) as HTMLElement;
-
-		const template = document.createElement(`template`);
+		const template = document.createElement(`div`); // Was using `<template>`, but the fact that its children are inside a documentFragment was annoying. Oddly enough according to JSBench using `<div>` is actually 2x faster
 		template.innerHTML = this.template();
 
 		let sourceRoot = rootSelector === undefined
-			? (template.content as Node)
+			? (template as Node)
 			: undefined;
-
 		const restartIterator = () => document.createTreeWalker(
-			sourceRoot ?? template.content,
+			sourceRoot ?? template,
 			NodeFilter.SHOW_ELEMENT,
 			() => NodeFilter.FILTER_ACCEPT,
 		);
@@ -556,7 +551,11 @@ export class Component extends HTMLElement {
 			target = iterator.nextNode();
 		}
 
-		setAttributes(destinationRoot, template);
+		const destinationRoot = rootSelector === undefined
+			? this
+			: this.querySelector(rootSelector) as HTMLElement;
+
+		setAttributes(destinationRoot, sourceRoot as Element);
 		destinationRoot.replaceChildren(...sourceRoot!.childNodes);
 		return this;
 	}
@@ -565,7 +564,8 @@ export class Component extends HTMLElement {
 	 * Sets multiple attributes or properties
 	 */
 	set(attributes: Partial<ElAttributes<this>>) {
-		return setAttributes(this, attributes);
+		setAttributes(this, attributes);
+		return this;
 	}
 
 	/**
