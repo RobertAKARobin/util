@@ -6,6 +6,7 @@
 	-	- Will error if page doesn't have JS
 	-	- Verbose
 	-	- Not best practice
+	-	- If we want to replace the attribute with in-memory listeners, the only way is to querySelectorAll all of the attributes
 -	Using JS expressions instead of HTML tags
 	-	+ Can set private properties inline
 	-	+ Has typing out of the box

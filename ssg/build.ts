@@ -192,6 +192,12 @@ export class Builder {
 				return;
 			}
 
+			for (const attribute of app.attributes) {
+				if (attribute.name.startsWith(`data-relay-`)) { // Unset the attributes set by event delegation listeners. TODO3: Don't hardcode this. Importing Component causes the `decorators...not supported` error though
+					app.removeAttribute(attribute.name); // TODO1: Some attributes not being removed. Suspect race condition
+				}
+			}
+
 			document.head.replaceChildren();
 			for (const appStyle of appStyles) {
 				document.head.appendChild(appStyle.cloneNode(true));

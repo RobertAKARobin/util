@@ -15,10 +15,10 @@ export class ListItem extends Component.custom(`li`) {
 	}
 
 	@Component.event()
-	onDelete() {}
+	onListItemDelete() {}
 
 	@Component.event()
-	onInput(event: CustomEvent<string>) {
+	onListItemInput(event: CustomEvent<string>) {
 		return event.detail;
 	}
 
@@ -27,11 +27,11 @@ export class ListItem extends Component.custom(`li`) {
 
 	${new Textbox()
 		.set({ value: this.text })
-		.on(`onInput`, this, `onInput`)
+		.on(`onInput`, this, `onListItemInput`)
 	}
 
 	<button
-		${this.on(`click`, `onDelete`)}
+		${this.on(`click`, `onListItemDelete`)}
 		type="button"
 	>Remove</button>
 	`;

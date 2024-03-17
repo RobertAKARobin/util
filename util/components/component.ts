@@ -21,6 +21,8 @@ type ComponentWithoutDecorators = Omit<typeof Component,
 	| `custom`
 	| `define`
 	| `event`
+	| `relay`
+	| `setRelayListeners`
 	| `uid`
 >;
 
@@ -28,9 +30,10 @@ export class Component extends HTMLElement {
 	static readonly cache = new Map<string, WeakRef<Component>>();
 	static readonly const = {
 		attrEl: `is`,
-		attrEmit: `data-emit`,
+		attrEmit: `data-emit-`,
 		attrEmitDelimiter: `|`,
-		attrListen: `data-on`,
+		globalRef: `C`,
+		relayAttr: `data-relay-`,
 		styleAttr: `data-style`,
 	} as const;
 	static readonly elName: string;
@@ -40,7 +43,16 @@ export class Component extends HTMLElement {
 	static readonly tagName?: keyof HTMLElementTagNameMap;
 
 	static {
-		(globalThis as unknown as { Component: typeof Component; }).Component = Component; // For debugging
+		(globalThis as unknown as {
+			[Component.const.globalRef]: typeof Component;
+		})[Component.const.globalRef] = Component; // For debugging
+
+		for (const attribute of document.body.attributes) {
+			if (attribute.name.startsWith(Component.const.relayAttr)) {
+				const eventName = attribute.name.slice(Component.const.relayAttr.length);
+				document.body.addEventListener(eventName, Component.relay);
+			}
+		}
 	}
 
 	/**
@@ -207,6 +219,32 @@ export class Component extends HTMLElement {
 		return [...root.querySelectorAll(selector)] as Array<Subclass>;
 	}
 
+	/**
+	 * For handling events via event delegation. When an event is received, this calls the intended object/method with the event payload
+	 */
+	static relay(event: Event) {
+		const trigger = event.target as Element;
+		const paramsAttr = `${Component.const.attrEmit}${event.type}-`;
+		const attrEmitDelimiter = Component.const.attrEmitDelimiter;
+		for (const attribute of trigger.attributes) {
+			if (attribute.name.startsWith(paramsAttr)) {
+				const [
+					listenerId,
+					handlerKey,
+					...args
+				] = attribute.value.split(attrEmitDelimiter);
+				const listener = document.getElementById(listenerId);
+				(listener as unknown as {
+					[key: typeof handlerKey]: (event: Event, ...params: typeof args) => unknown;
+				})[handlerKey](event, ...args);
+			}
+		}
+	}
+
+	/**
+	 * Returns a pseudo (very-pseudo) random HTMLElement ID
+	 * @see {@link newUid}
+	 */
 	static uid() {
 		return `l${newUid()}`;
 	}
@@ -295,31 +333,7 @@ export class Component extends HTMLElement {
 	 * Called when the component is attached to the DOM
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks
 	 */
-	connectedCallback() {
-		const onEvent = (event: Event) => {
-			const emitter = event.target as HTMLElement;
-			if (this.id === ``) {
-				return;
-			}
-
-			const attrName = `${Component.const.attrEmit}-${event.type}-${this.id}`;
-			if (!emitter.hasAttribute(attrName)) {
-				return;
-			}
-
-			const [methodName, ...args] = emitter.getAttribute(attrName)!
-				.split(Component.const.attrEmitDelimiter);
-			(this as unknown as Record<string, Function>)[methodName](event, ...args);
-		};
-
-		const attrLength = Component.const.attrListen.length;
-		for (const attribute of this.attributes) {
-			if (attribute.name.startsWith(Component.const.attrListen + `-`)) {
-				const eventName = attribute.name.slice(attrLength + 1);
-				this.addEventListener(eventName, onEvent);
-			}
-		}
-	}
+	connectedCallback() {}
 
 	/**
 	 * Applies the given CSS rules to the Component's `style` attribute
@@ -369,7 +383,7 @@ export class Component extends HTMLElement {
 
 		const isAll = options.all ?? false;
 
-		return () => { // TODO3: Find a use for this
+		return () => { // TODO3: What arguments would be helpful?
 			const results = this.findDownCache.get(selector)
 				?? [...this.querySelectorAll(selector)];
 			this.findDownCache.set(selector, results as Array<HTMLElement>);
@@ -394,23 +408,27 @@ export class Component extends HTMLElement {
 				? select
 				: (select as unknown as typeof Component).selector;
 
-		return () => { // TODO3: Find a use for this
+		return () => { // TODO3: What arguments would be helpful?
 			const result = this.findUpCache.get(selector) ?? this.closest(selector);
 			this.findUpCache.set(selector, result as HTMLElement);
 			return result;
 		};
 	}
 
+	/**
+	 * On the given event, calls the specified handler on the specified listener (or, if none specified, on `this`)
+	 * Assumes event names are all camelCase. TODO2: Support event names with special characters, i.e. spaces and hyphens
+	 */
 	on<
 		EventName extends keyof HTMLElementEventMap,
 		EventType extends HTMLElementEventMap[EventName],
 		Listener extends Record<HandlerKey, (event: EventType, ...args: Args) => void>,
 		HandlerKey extends PropertyKey,
-		Args extends Array<unknown>,
+		Args extends Array<number | string>,
 	>(
 		this: Listener,
 		eventName: EventName,
-		listenerKey: HandlerKey,
+		handlerKey: HandlerKey,
 		...args: Args
 	): string;
 	on<
@@ -420,7 +438,7 @@ export class Component extends HTMLElement {
 		EventType extends CustomEvent<EventDetail>,
 		Listener extends Record<HandlerKey, (event: EventType, ...args: Args) => void>,
 		HandlerKey extends PropertyKey,
-		Args extends Array<unknown>,
+		Args extends Array<number | string>,
 	>(
 		this: Emitter,
 		eventName: EventName,
@@ -432,7 +450,7 @@ export class Component extends HTMLElement {
 		this: Component,
 		eventName: string,
 		handlerKeyOrListener: Component | string,
-		...args: Array<unknown>
+		...args: Array<number | string>
 	): Component | string {
 		let handlerKey: string;
 		let handlerArgs: Array<unknown>;
@@ -447,19 +465,24 @@ export class Component extends HTMLElement {
 			handlerArgs = args.slice(1);
 		}
 
-		const listenerAttrName = `${Component.const.attrListen}-${eventName.toLowerCase()}`; // HTML attributes are case-insensitive
-		listener.setAttribute(listenerAttrName, ``);
 		listener.id = listener.id === `` ? Component.uid() : listener.id;
 
-		const params = [handlerKey, ...handlerArgs];
-		const emitterAttrName = `${Component.const.attrEmit}-${eventName.toLowerCase()}-${listener.id}`;
-		const emitterAttrValue = params.join(Component.const.attrEmitDelimiter);
+		const eventNameNormalized = eventName.toLowerCase();
+		document.body.setAttribute(`${Component.const.relayAttr}${eventNameNormalized}`, ``);
+		document.body.addEventListener(eventNameNormalized, Component.relay);
 
-		if (typeof handlerKeyOrListener === `string`) {
-			return `${emitterAttrName}="${emitterAttrValue}"`;
+		const params = [
+			listener.id, // `setAttribute` downcases the id in the param name, so need to include it here too
+			handlerKey,
+			...handlerArgs,
+		].join(Component.const.attrEmitDelimiter);
+		const paramsAttr = `${Component.const.attrEmit}${eventNameNormalized}-${listener.id}`;
+
+		if (typeof handlerKeyOrListener === `string`) { // It's a standard DOM element, not a Component
+			return `${paramsAttr}="${params}"`;
 		}
 
-		this.setAttribute(emitterAttrName, emitterAttrValue);
+		this.setAttribute(paramsAttr, params);
 		return this;
 	}
 
@@ -475,6 +498,11 @@ export class Component extends HTMLElement {
 			findUpCache: new Map(),
 		});
 	}
+
+	/**
+	 * Called when the component finishes rendering
+	 */
+	onRender() {}
 
 	/**
 	 * Makes the component replace its contents with newly-rendered contents
@@ -557,6 +585,7 @@ export class Component extends HTMLElement {
 
 		setAttributes(destinationRoot, sourceRoot as Element);
 		destinationRoot.replaceChildren(...sourceRoot!.childNodes);
+		this.onRender();
 		return this;
 	}
 

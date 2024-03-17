@@ -22,6 +22,35 @@ class Parent extends Component.custom(`div`) {
 	}).toString();
 }
 
+@Component.define()
+class EventListener extends Component {
+	listenerValue = 3;
+	source = this.findDown(EventSource);
+
+	handle(event: CustomEvent<number>) {
+		this.listenerValue += event.detail;
+	}
+
+	template = () => /*html*/`
+${new EventSource()
+	.on(`dispatch`, this, `handle`)
+}
+	`;
+}
+
+@Component.define()
+class EventSource extends Component {
+	button = this.findDown(`button`);
+	sourceValue = 0;
+
+	@Component.event() dispatch() {
+		return this.sourceValue;
+	}
+	template = () => /*html*/`
+<button ${this.on(`click`, `dispatch`)}></button>
+	`;
+}
+
 export const spec = suite(`Component`, {},
 	test(`contents`, $ => {
 		let widget: Widget;
@@ -149,5 +178,20 @@ export const spec = suite(`Component`, {},
 		$.assert(() => parent.widget() === existing);
 		$.assert(() => parent.widget().className === `222`);
 		$.assert(x => x(parent.outerHTML) === x(`<div is="l-parent" widgetclass="222"><h1 is="l-widget" class="222">content:</h1></div>`));
+	}),
+
+	test(`events`, $ => {
+		const listener = new EventListener();
+		document.body.appendChild(listener);
+		listener.render();
+
+		$.assert(x => x(listener.listenerValue) === 3);
+		listener.source().sourceValue = 2;
+		$.log(() => listener.source().button().click());
+		$.assert(x => x(listener.listenerValue) === 5);
+
+		listener.source().sourceValue = 4.5;
+		$.log(() => listener.source().button().click());
+		$.assert(x => x(listener.listenerValue) === 9.5);
 	}),
 );

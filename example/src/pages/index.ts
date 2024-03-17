@@ -83,9 +83,9 @@ ${new TransitionTest()}
 
 ${new List()
 	.setListItems(state.byIndex.$)
-	.on(`onAdd`, this, `onAdd`)
-	.on(`onDelete`, this, `onDelete`)
-	.on(`onInput`, this, `onInput`)
+	.on(`onListAdd`, this, `onAdd`)
+	.on(`onListDelete`, this, `onDelete`)
+	.on(`onListInput`, this, `onInput`)
 }
 
 <div class="_swapText">

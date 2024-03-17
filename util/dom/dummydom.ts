@@ -23,9 +23,11 @@ export class DummyDOM {
 		globalThis.AbortController = dummyDOM.AbortController;
 		globalThis.Comment = dummyDOM.Comment; // TODO2: Add these automatically instead of piecemeal?
 		globalThis.customElements = dummyDOM.customElements;
+		globalThis.CustomEvent = dummyDOM.CustomEvent;
 		globalThis.document = dummyDOM.document;
 		globalThis.DOMParser = dummyDOM.DOMParser;
 		globalThis.Element = dummyDOM.Element;
+		globalThis.HTMLElement = dummyDOM.HTMLElement;
 		globalThis.location = dummyDOM.location;
 		globalThis.history = dummyDOM.history;
 		globalThis.NodeFilter = dummyDOM.NodeFilter;
