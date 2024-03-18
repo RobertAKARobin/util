@@ -2,15 +2,17 @@ import { defer } from './defer.ts';
 import { test } from './spec/index.ts';
 
 export const spec = test(`defer`, async $ => {
-	const value = defer<number>();
-	$.assert(() => value instanceof Promise);
+	const deferred = defer<number>();
+	$.assert(() => deferred instanceof Promise);
+	$.assert(() => deferred.isResolved === false);
 
 	await new Promise<void>(resolve => {
-		void value.then(value => {
+		void deferred.then(value => {
 			$.assert(x => x(value) === 3);
+			$.assert(x => x(deferred.isResolved));
 			resolve();
 		});
 
-		value.resolve(3);
+		deferred.resolve(3);
 	});
 });
