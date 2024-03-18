@@ -13,6 +13,7 @@ import type { BaseApp } from '@robertakarobin/util/components/app.ts';
 import { baseUrl } from '@robertakarobin/util/context.ts';
 import { delimiterPairs } from '@robertakarobin/util/string/delimiter-pairs.ts';
 import { type Page } from '@robertakarobin/util/components/component.ts';
+import { pipeFirst } from '@robertakarobin/util/emitter/pipe/first.js';
 import { posixPath } from '@robertakarobin/util/node/posixPath.ts';
 import { promiseConsecutive } from '@robertakarobin/util/promiseConsecutive.ts';
 import { type RouteMap } from '@robertakarobin/util/components/app.ts';
@@ -192,7 +193,7 @@ export class Builder {
 				return;
 			}
 
-			for (const attribute of app.attributes) {
+			for (const attribute of [...app.attributes]) { // TODO2: for...of seems to not get all the attributes?
 				if (attribute.name.startsWith(`data-relay-`)) { // Unset the attributes set by event delegation listeners. TODO3: Don't hardcode this. Importing Component causes the `decorators...not supported` error though
 					app.removeAttribute(attribute.name); // TODO1: Some attributes not being removed. Suspect race condition
 				}
@@ -216,7 +217,7 @@ export class Builder {
 			}
 
 			const page = await new Promise<Page>(resolve => {
-				resolver.subscribe(resolve);
+				resolver.pipe(pipeFirst()).subscribe(resolve);
 				router.go(route);
 			});
 
