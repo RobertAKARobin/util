@@ -12,6 +12,8 @@ export class ListItem extends Component.custom(`li`) {
 		if (this.id === ``) {
 			this.id = `${id}` ?? Component.uid();
 		}
+
+		console.log(`LI ${this.id} construct`);
 	}
 
 	@Component.event()

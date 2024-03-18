@@ -103,6 +103,7 @@ export class Component extends HTMLElement {
 			static readonly elName = Component.elName;
 			static readonly find = Component.find;
 			static readonly findAll = Component.findAll;
+			static readonly id = Component.id;
 			static readonly observedAttributes = Component.observedAttributes;
 			static readonly propertyNamesByAttribute = Component.propertyNamesByAttribute;
 			static readonly selector = Component.selector;
@@ -217,6 +218,22 @@ export class Component extends HTMLElement {
 	) {
 		const selector = (this as unknown as typeof Component).selector;
 		return [...root.querySelectorAll(selector)] as Array<Subclass>;
+	}
+
+	/**
+	 * Finds or creates a Component with this ID, and returns it.
+	 */
+	static id<Subclass extends Component, Ctor extends Constructor<Subclass>>(
+		this: Ctor,
+		id: HTMLElement[`id`],
+		...args: ConstructorParameters<Ctor>
+	) {
+		let instance = document.getElementById(id) as Subclass;
+		if (instance === null) {
+			instance = new this(...args);
+			instance.id = id;
+		}
+		return instance as InstanceType<Ctor>;
 	}
 
 	/**
@@ -505,7 +522,7 @@ export class Component extends HTMLElement {
 	onRender() {}
 
 	/**
-	 * Makes the component replace its contents with newly-rendered contents
+	 * Makes the component matching the rootSelector update its attributes replace its contents with newly-rendered contents. If no rootSelector is provided, the root is `this`.
 	 */
 	render(rootSelector?: string) {
 		this.findDownCache.clear();
@@ -516,6 +533,7 @@ export class Component extends HTMLElement {
 		let sourceRoot = rootSelector === undefined
 			? (template as Node)
 			: undefined;
+
 		const restartIterator = () => document.createTreeWalker(
 			sourceRoot ?? template,
 			NodeFilter.SHOW_ELEMENT,
@@ -542,7 +560,7 @@ export class Component extends HTMLElement {
 			}
 
 			const targetIsInSourceRoot = (
-				sourceRoot !== undefined && sourceRoot.contains(target) // TODO3: Can probably optimize this to not need to call `.contains` each time
+				sourceRoot !== undefined && sourceRoot !== target && sourceRoot.contains(target) // TODO3: Can probably optimize this to not need to call `.contains` each time
 			);
 
 			if (treeIsInSourceRoot && !targetIsInSourceRoot) { // The current tree was in sourceRoot, now it's not, so assume we've exited sourceRoot and shouldn't process further
@@ -556,9 +574,14 @@ export class Component extends HTMLElement {
 			if (tagName === `PLACEHOLDER`) {
 				const placeholder = target as HTMLUnknownElement;
 				const id = placeholder.id;
-				const cached = Component.cache.get(id)!.deref()!;
-				cached.innerHTML = cached.template();
+				let cached = Component.cache.get(id)!.deref()!;
 				Component.cache.delete(id);
+
+				if (cached.isConnected && !targetIsInSourceRoot) {
+					cached = cached.cloneNode() as Component; // Note that cloneNode calls the constructor!
+				}
+
+				cached.innerHTML = cached.template();
 				target = iterator.previousNode();
 				placeholder.replaceWith(cached);
 				if (target === null) { // If placeholder is the first element, the iterator apparently gets stuck and needs to restart

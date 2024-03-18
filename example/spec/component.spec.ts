@@ -15,6 +15,7 @@ class Widget extends Component.custom(`h1`) {
 class Parent extends Component.custom(`div`) {
 	widget = this.findDown(Widget);
 	@Component.attribute() widgetClass = undefined as string | undefined;
+
 	template = () => new Widget().set({
 		attr: undefined,
 		class: this.widgetClass,
@@ -32,7 +33,8 @@ class EventListener extends Component {
 	}
 
 	template = () => /*html*/`
-${new EventSource()
+${EventSource.id(`source`)
+	.setTime()
 	.on(`dispatch`, this, `handle`)
 }
 	`;
@@ -40,12 +42,29 @@ ${new EventSource()
 
 @Component.define()
 class EventSource extends Component {
+	static count = 0;
 	button = this.findDown(`button`);
+	index: number;
 	sourceValue = 0;
+	@Component.attribute() time = performance.now();
+
+	constructor() {
+		super();
+
+		EventSource.count += 1;
+		this.index = EventSource.count;
+	}
 
 	@Component.event() dispatch() {
 		return this.sourceValue;
 	}
+
+	setTime() {
+		const time = performance.now();
+		this.time = time;
+		return this;
+	}
+
 	template = () => /*html*/`
 <button ${this.on(`click`, `dispatch`)}></button>
 	`;
@@ -178,6 +197,49 @@ export const spec = suite(`Component`, {},
 		$.assert(() => parent.widget() === existing);
 		$.assert(() => parent.widget().className === `222`);
 		$.assert(x => x(parent.outerHTML) === x(`<div is="l-parent" widgetclass="222"><h1 is="l-widget" class="222">content:</h1></div>`));
+	}),
+
+	test(`static ID`, $ => {
+		const listener = new EventListener();
+		let lastTime = performance.now();
+		$.log(() => listener.render());
+		$.assert(() => !(listener.isConnected));
+		$.assert(() => !(listener.source().isConnected));
+		$.assert(x => x(lastTime) < x(lastTime = listener.source().time));
+
+		const existing = listener.source();
+		$.log(() => document.body.appendChild(listener));
+		$.log(() => listener.render());
+		$.assert(() => listener.isConnected);
+		$.assert(() => listener.source().isConnected);
+		$.assert(() => listener.source() === existing);
+		$.assert(x => x(listener.source().index) === 1);
+		$.assert(x => x(EventSource.count) === 1);
+		$.assert(x => x(lastTime) < x(lastTime = listener.source().time));
+
+		$.log(() => listener.source().cloneNode());
+		$.assert(x => x(listener.source().index) === 1);
+		$.assert(x => x(EventSource.count) === 2);
+
+		$.log(() => listener.render());
+		$.assert(() => listener.isConnected);
+		$.assert(() => listener.source().isConnected);
+		$.assert(() => listener.source() === existing);
+		$.assert(x => x(listener.source().index) === 1);
+		$.assert(x => x(EventSource.count) === 2);
+		$.assert(x => x(lastTime) < x(lastTime = listener.source().time));
+
+		$.log(() => listener.source().render());
+		$.assert(() => listener.source() === existing);
+		$.assert(x => x(listener.source().index) === 1);
+		$.assert(x => x(EventSource.count) === 2);
+		$.assert(x => x(lastTime) === x(listener.source().time));
+
+		$.log(() => listener.render(EventSource.selector));
+		$.assert(() => listener.source() === existing);
+		$.assert(x => x(listener.source().index) === 1);
+		$.assert(x => x(EventSource.count) === 3);
+		$.assert(x => x(lastTime) < x(listener.source().time));
 	}),
 
 	test(`events`, $ => {

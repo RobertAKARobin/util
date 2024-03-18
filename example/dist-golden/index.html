@@ -7,8 +7,8 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<title>Home page</title>
 	<base href="/">
-	<link rel="stylesheet" href="/styles.css?cache=1710705782391">
-	<link rel="stylesheet" href="/index.html.css?cache=1710705782391"> <script src="/browser.js?cache=1710705782391" type="module"></script> <script type="module">import { IndexPage } from '/pages-S4R7S7W3.js';</script>
+	<link rel="stylesheet" href="/styles.css?cache=1710757127133">
+	<link rel="stylesheet" href="/index.html.css?cache=1710757127133"> <script src="/browser.js?cache=1710757127133" type="module"></script> <script type="module">import { IndexPage } from '/pages-4QJVUIH4.js';</script>
 	<style data-style="l-modalcontainer"></style>
 	<style data-style="l-nav"></style>
 	<style data-style="l-textbox"></style>
@@ -35,21 +35,21 @@
 		<h1>Hello world!</h1>
 		<div is="l-transitiontest" style="background: rgb(255, 0, 0);"></div><button data-emit-click-uid13_="UID13_|openModal" type="button">Modal</button>
 		<div id="jump1">Jump 1</div>
-		<ol is="l-list" data-emit-onlistadd-uid13_="UID13_|onAdd" data-emit-onlistdelete-uid13_="UID13_|onDelete" data-emit-onlistinput-uid13_="UID13_|onInput" id="UID16_">
-			<li>List ID </li>
-			<li is="l-listitem" id="UID11_" data-text="hello" data-emit-onlistitemdelete-uid16_="UID16_|onListDelete|UID11_" data-emit-onlistiteminput-uid16_="UID16_|onListInput|UID11_">
+		<ol is="l-list" id="indexList" data-emit-onlistadd-uid13_="UID13_|onAdd" data-emit-onlistdelete-uid13_="UID13_|onDelete" data-emit-onlistinput-uid13_="UID13_|onInput">
+			<li>List ID indexList</li>
+			<li is="l-listitem" id="UID11_" data-text="hello" data-emit-onlistitemdelete-indexlist="indexList|onListDelete|UID11_" data-emit-onlistiteminput-indexlist="indexList|onListInput|UID11_">
 				<p>List item ID UID11_</p>
-				<div is="l-textbox" data-max="10" data-value="hello" data-emit-oninput-uid11_="UID11_|onListItemInput" id="UID18_"><input maxlength="10" data-emit-input-uid18_="UID18_|onInput" placeholder="Type here" type="text" value="hello"><span id="UID18_-remaining"> 5 / 10 Remaining</span>
-					<p>textbox ID UID18_</p>
+				<div is="l-textbox" data-max="10" data-value="hello" data-emit-oninput-uid11_="UID11_|onListItemInput" id="UID16_"><input maxlength="10" data-emit-input-uid16_="UID16_|onInput" placeholder="Type here" type="text" value="hello"><span id="UID16_-remaining"> 5 / 10 Remaining</span>
+					<p>textbox ID UID16_</p>
 				</div> <button data-emit-click-uid11_="UID11_|onListItemDelete" type="button">Remove</button>
 			</li>
-			<li is="l-listitem" id="UID12_" data-text="world" data-emit-onlistitemdelete-uid16_="UID16_|onListDelete|UID12_" data-emit-onlistiteminput-uid16_="UID16_|onListInput|UID12_">
+			<li is="l-listitem" id="UID12_" data-text="world" data-emit-onlistitemdelete-indexlist="indexList|onListDelete|UID12_" data-emit-onlistiteminput-indexlist="indexList|onListInput|UID12_">
 				<p>List item ID UID12_</p>
-				<div is="l-textbox" data-max="10" data-value="world" data-emit-oninput-uid12_="UID12_|onListItemInput" id="UID20_"><input maxlength="10" data-emit-input-uid20_="UID20_|onInput" placeholder="Type here" type="text" value="world"><span id="UID20_-remaining"> 5 / 10 Remaining</span>
-					<p>textbox ID UID20_</p>
+				<div is="l-textbox" data-max="10" data-value="world" data-emit-oninput-uid12_="UID12_|onListItemInput" id="UID18_"><input maxlength="10" data-emit-input-uid18_="UID18_|onInput" placeholder="Type here" type="text" value="world"><span id="UID18_-remaining"> 5 / 10 Remaining</span>
+					<p>textbox ID UID18_</p>
 				</div> <button data-emit-click-uid12_="UID12_|onListItemDelete" type="button">Remove</button>
 			</li>
-			<li> <button data-emit-click-uid16_="UID16_|onListAdd" type="button">Add</button> </li>
+			<li> <button data-emit-click-indexlist="indexList|onListAdd" type="button">Add</button> </li>
 		</ol>
 		<div class="_swapText">
 			<h1>This should be in the source, not browser.</h1>

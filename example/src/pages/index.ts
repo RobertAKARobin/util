@@ -81,7 +81,7 @@ ${new TransitionTest()}
 
 <div id="jump1">Jump 1</div>
 
-${new List()
+${List.id(`indexList`)
 	.setListItems(state.byIndex.$)
 	.on(`onListAdd`, this, `onAdd`)
 	.on(`onListDelete`, this, `onDelete`)
