@@ -4,7 +4,7 @@ import {
 	setAttributes,
 	style,
 } from '../dom/attributes.ts';
-import { Emitter } from '../emitter/emitter.ts';
+import { Emitter, type SubscriptionHandler } from '../emitter/emitter.ts';
 import { newUid } from '../uid.ts';
 import { pipeFilter } from '../emitter/pipe/filter.ts';
 import { pipeUntil } from '../emitter/pipe/until.ts';
@@ -433,7 +433,7 @@ export class Component extends HTMLElement {
 	}
 
 	/**
-	 * On the given event, calls the specified handler on the specified listener (or, if none specified, on `this`)
+	 * When `this` emits the given event, call `this`'s specified handler. Safe for SSG.
 	 * Assumes event names are all camelCase. TODO2: Support event names with special characters, i.e. spaces and hyphens
 	 */
 	on<
@@ -448,6 +448,9 @@ export class Component extends HTMLElement {
 		handlerKey: HandlerKey,
 		...args: Args
 	): string;
+	/**
+	 * When `this` emits the given event, call the specified listener's specified handler. Safe for SSG.
+	 */
 	on<
 		Self extends Record<EventName, (...args: any) => void>, // eslint-disable-line @typescript-eslint/no-explicit-any
 		EventName extends PropertyKey,
@@ -463,10 +466,35 @@ export class Component extends HTMLElement {
 		handlerKey: HandlerKey,
 		...args: Args
 	): Self;
+	/**
+	 * When `this` emits the given event, call the given handler. *NOT* safe for SSG.
+	 */
+	on<
+		EventName extends keyof HTMLElementEventMap,
+		EventType extends HTMLElementEventMap[EventName],
+		Handler extends (event: EventType) => void, // eslint-disable-line @typescript-eslint/no-explicit-any
+	>(
+		eventName: EventName,
+		handler: Handler,
+	): this;
+	/**
+	 * When `this` emits the given event, call the given handler. *NOT* safe for SSG.
+	 */
+	on<
+		Self extends Record<EventName, (...args: any) => void>, // eslint-disable-line @typescript-eslint/no-explicit-any
+		EventName extends PropertyKey,
+		EventDetail extends ReturnType<Self[EventName]>,
+		EventType extends CustomEvent<EventDetail>,
+		Handler extends (event: EventType) => void, // eslint-disable-line @typescript-eslint/no-explicit-any
+	>(
+		this: Self,
+		eventName: EventName,
+		handler: Handler,
+	): Self;
 	on(
 		this: Component,
 		eventName: string,
-		handlerKeyOrListener: Component | string,
+		handlerKeyOrListener: Component | Function | string,
 		...args: Array<number | string>
 	): Component | string {
 		let handlerKey: string;
@@ -476,6 +504,10 @@ export class Component extends HTMLElement {
 			listener = this;
 			handlerKey = handlerKeyOrListener;
 			handlerArgs = args;
+		} else if (typeof handlerKeyOrListener === `function`) {
+			const emitter = Emitter.fromEvent(this, eventName as keyof HTMLElementEventMap);
+			this.watch(emitter).subscribe(handlerKeyOrListener as SubscriptionHandler<Event>);
+			return this;
 		} else {
 			listener = handlerKeyOrListener;
 			handlerKey = args[0] as string;

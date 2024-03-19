@@ -28,6 +28,10 @@ class EventListener extends Component {
 	listenerValue = 3;
 	source = this.findDown(EventSource);
 
+	@Component.event() cap(input: string) {
+		return input.toUpperCase();
+	}
+
 	handle(event: CustomEvent<number>) {
 		this.listenerValue += event.detail;
 	}
@@ -255,5 +259,27 @@ export const spec = suite(`Component`, {},
 		listener.source().sourceValue = 4.5;
 		$.log(() => listener.source().button().click());
 		$.assert(x => x(listener.listenerValue) === 9.5);
+
+		let clickValue = 0;
+		listener.on(`click`, () => clickValue += 1);
+		$.assert(x => x(clickValue) === 0);
+
+		let capValue = ``;
+		listener.on(`cap`, event => capValue = event.detail);
+		$.assert(x => x(capValue) === ``);
+
+		$.log(() => listener.click());
+		$.assert(x => x(clickValue) === 1);
+
+		$.log(() => listener.cap(`foo`));
+		$.assert(x => x(capValue) === `FOO`);
+
+		$.log(() => listener.remove());
+
+		$.log(() => listener.click());
+		$.assert(x => x(clickValue) === 1);
+
+		$.log(() => listener.cap(`foo`));
+		$.assert(x => x(capValue) === `FOO`);
 	}),
 );

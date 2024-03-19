@@ -54,7 +54,6 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ## TODO
 
--	TODO2: Allow anonymous event handlers, for when we know a component won't be SSGd
 -	TODO2: Image preprocessing
 -	TODO2: Import SVGs
 -	TODO2: Remove CSS from JS bundles
@@ -65,6 +64,7 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ### Done:
 
+-	Allow anonymous event handlers, for when we know a component won't be SSGd
 -	A way to cache DOM queries, like Angular's ViewChild
 -	Fully hydrate the template on the landing page -- e.g. with event listeners and stuff -- without needing to rerender it
 -	Don't use `[on]` attributes?
