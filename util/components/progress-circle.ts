@@ -25,7 +25,7 @@ export class ProgressCircle extends Component {
 	constructor() {
 		super();
 
-		this.subscribe(this.attributeChanged, () => {
+		this.watch(this.attributeChanged).subscribe(() => {
 			if (!this.isConnected) {
 				return;
 			}

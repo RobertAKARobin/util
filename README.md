@@ -54,7 +54,7 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ## TODO
 
--	TODO1: Allow anonymous event handlers, for when we know a component won't be SSGd
+-	TODO2: Allow anonymous event handlers, for when we know a component won't be SSGd
 -	TODO2: Image preprocessing
 -	TODO2: Import SVGs
 -	TODO2: Remove CSS from JS bundles

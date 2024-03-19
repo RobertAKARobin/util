@@ -4,7 +4,7 @@ import {
 	setAttributes,
 	style,
 } from '../dom/attributes.ts';
-import { Emitter, type SubscriptionHandler } from '../emitter/emitter.ts';
+import { Emitter } from '../emitter/emitter.ts';
 import { newUid } from '../uid.ts';
 import { pipeFilter } from '../emitter/pipe/filter.ts';
 import { pipeUntil } from '../emitter/pipe/until.ts';
@@ -621,13 +621,6 @@ export class Component extends HTMLElement {
 	}
 
 	/**
-	 * Subscribe to the given emitter while unsubscribing when the Component is disconnected
-	 */
-	subscribe<State>(emitter: Emitter<State>, doWhat: SubscriptionHandler<State>) {
-		return emitter.pipe(pipeUntil(this.disconnected)).subscribe(doWhat);
-	}
-
-	/**
 	 * Defines what is written into the document when this instance is rendered
 	 */
 	template(subclassTemplate?: string) {
@@ -641,6 +634,13 @@ export class Component extends HTMLElement {
 		const tempId = this.id === `` ? Component.uid() : this.id;
 		Component.cache.set(tempId, new WeakRef(this));
 		return `<placeholder id="${tempId}"></placeholder>`;
+	}
+
+	/**
+	 * Shortcut for subscribing to the given emitter and unsubscribing when the Component is disconnected
+	 */
+	watch<State>(emitter: Emitter<State>) {
+		return emitter.pipe(pipeUntil(this.disconnected));
 	}
 
 	/**
