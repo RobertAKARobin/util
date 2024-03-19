@@ -449,20 +449,20 @@ export class Component extends HTMLElement {
 		...args: Args
 	): string;
 	on<
-		Emitter extends Record<EventName, (...args: any) => void>, // eslint-disable-line @typescript-eslint/no-explicit-any
+		Self extends Record<EventName, (...args: any) => void>, // eslint-disable-line @typescript-eslint/no-explicit-any
 		EventName extends PropertyKey,
-		EventDetail extends ReturnType<Emitter[EventName]>,
+		EventDetail extends ReturnType<Self[EventName]>,
 		EventType extends CustomEvent<EventDetail>,
 		Listener extends Record<HandlerKey, (event: EventType, ...args: Args) => void>,
 		HandlerKey extends PropertyKey,
 		Args extends Array<number | string>,
 	>(
-		this: Emitter,
+		this: Self,
 		eventName: EventName,
 		listener: Listener,
 		handlerKey: HandlerKey,
 		...args: Args
-	): Emitter;
+	): Self;
 	on(
 		this: Component,
 		eventName: string,
