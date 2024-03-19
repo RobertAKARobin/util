@@ -14,7 +14,7 @@ export type EmitEvent<State> = [
 	},
 ];
 
-export const IGNORE = `_IGNORE_` as const;
+export const IGNORE = `_IGNORE_`;
 
 export type PipeFunction<StateInput, StateOutput> = (
 	...event: SubscriptionEvent<StateInput>
