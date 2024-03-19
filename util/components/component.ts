@@ -448,6 +448,7 @@ export class Component extends HTMLElement {
 		handlerKey: HandlerKey,
 		...args: Args
 	): string;
+
 	/**
 	 * When `this` emits the given event, call the specified listener's specified handler. Safe for SSG.
 	 */
@@ -466,6 +467,7 @@ export class Component extends HTMLElement {
 		handlerKey: HandlerKey,
 		...args: Args
 	): Self;
+
 	/**
 	 * When `this` emits the given event, call the given handler. *NOT* safe for SSG.
 	 */
@@ -491,16 +493,42 @@ export class Component extends HTMLElement {
 		eventName: EventName,
 		handler: Handler,
 	): Self;
+
+	/**
+	 * Wraps `this`'s given event in an Emitter that auto-unsubscribes. *NOT* safe for SSG.
+	 */
+	on<
+		EventName extends keyof HTMLElementEventMap,
+		EventType extends HTMLElementEventMap[EventName],
+	>(
+		eventName: EventName,
+	): Emitter<EventType>;
+	/**
+	 * Wraps `this`'s given event in an Emitter that auto-unsubscribes. *NOT* safe for SSG.
+	 */
+	on<
+		Self extends Record<EventName, (...args: any) => void>, // eslint-disable-line @typescript-eslint/no-explicit-any
+		EventName extends PropertyKey,
+		EventDetail extends ReturnType<Self[EventName]>,
+		EventType extends CustomEvent<EventDetail>,
+	>(
+		this: Self,
+		eventName: EventName,
+	): Emitter<EventType>;
+
 	on(
 		this: Component,
 		eventName: string,
-		handlerKeyOrListener: Component | Function | string,
+		handlerKeyOrListener?: Component | Function | string,
 		...args: Array<number | string>
-	): Component | string {
+	): Component | Emitter<CustomEvent | Event> | string {
 		let handlerKey: string;
 		let handlerArgs: Array<unknown>;
 		let listener: Component;
-		if (typeof handlerKeyOrListener === `string`) {
+		if (handlerKeyOrListener === undefined) {
+			const emitter = Emitter.fromEvent(this, eventName as keyof HTMLElementEventMap);
+			return this.watch(emitter);
+		} else if (typeof handlerKeyOrListener === `string`) {
 			listener = this;
 			handlerKey = handlerKeyOrListener;
 			handlerArgs = args;
@@ -509,7 +537,7 @@ export class Component extends HTMLElement {
 			this.watch(emitter).subscribe(handlerKeyOrListener as SubscriptionHandler<Event>);
 			return this;
 		} else {
-			listener = handlerKeyOrListener;
+			listener = handlerKeyOrListener!;
 			handlerKey = args[0] as string;
 			handlerArgs = args.slice(1);
 		}

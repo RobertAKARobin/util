@@ -262,6 +262,7 @@ export const spec = suite(`Component`, {},
 
 		let clickValue = 0;
 		listener.on(`click`, () => clickValue += 1);
+		listener.on(`click`).subscribe(() => clickValue += 1);
 		$.assert(x => x(clickValue) === 0);
 
 		let capValue = ``;
@@ -269,7 +270,7 @@ export const spec = suite(`Component`, {},
 		$.assert(x => x(capValue) === ``);
 
 		$.log(() => listener.click());
-		$.assert(x => x(clickValue) === 1);
+		$.assert(x => x(clickValue) === 2);
 
 		$.log(() => listener.cap(`foo`));
 		$.assert(x => x(capValue) === `FOO`);
@@ -277,7 +278,7 @@ export const spec = suite(`Component`, {},
 		$.log(() => listener.remove());
 
 		$.log(() => listener.click());
-		$.assert(x => x(clickValue) === 1);
+		$.assert(x => x(clickValue) === 2);
 
 		$.log(() => listener.cap(`foo`));
 		$.assert(x => x(capValue) === `FOO`);
