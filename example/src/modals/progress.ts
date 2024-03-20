@@ -21,9 +21,9 @@ export class ProgressModal extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		const statusChanged = this.modal().attribute(`status`);
-		this.watch(statusChanged).subscribe(({ value }) => {
-			switch (value) {
+		const statusChanged = this.modal().on(`status`);
+		this.watch(statusChanged).subscribe(({ detail }) => {
+			switch (detail) {
 				case `activating`:
 					this.circle().style.transition = `none`; // Force circle to reset without tweening
 					this.circle().set({ value: 100 });

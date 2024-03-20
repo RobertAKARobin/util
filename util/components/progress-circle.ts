@@ -22,10 +22,10 @@ export class ProgressCircle extends Component {
 
 	@Component.attribute() value = 50;
 
-	constructor() {
-		super();
+	connectedCallback() {
+		super.connectedCallback();
 
-		this.watch(this.attributeChanged).subscribe(() => {
+		this.on(`attributeChanged`).subscribe(() => {
 			if (!this.isConnected) {
 				return;
 			}

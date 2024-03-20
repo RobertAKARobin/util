@@ -6,7 +6,6 @@ import {
 } from '../dom/attributes.ts';
 import { Emitter, type SubscriptionHandler } from '../emitter/emitter.ts';
 import { newUid } from '../uid.ts';
-import { pipeFilter } from '../emitter/pipe/filter.ts';
 import { pipeUntil } from '../emitter/pipe/until.ts';
 import type { Textish } from '../types.d.ts';
 
@@ -266,15 +265,7 @@ export class Component extends HTMLElement {
 		return `l${newUid()}`;
 	}
 
-	/**
-	 * Emitter that emits on attributeChangedCallback
-	 * @see {@link attributeChangedCallback}
-	 */
-	readonly attributeChanged!: Emitter<{ // TODO3: Stronger typing
-		name: string;
-		previous: unknown;
-		value: unknown;
-	}>;
+	abortController!: AbortController;
 
 	/**
 	 * Stores the component's textual content, if any, which can be inserted into the component's template
@@ -292,7 +283,7 @@ export class Component extends HTMLElement {
 	 * Emitter that emits on disconnectedCallback
 	 * @see {@link disconnectedCallback}
 	 */
-	readonly disconnected!: Emitter<void>;
+	readonly disconnected!: AbortSignal;
 
 	readonly findDownCache!: Map<string, Array<HTMLElement>>;
 	readonly findUpCache!: Map<string, HTMLElement>;
@@ -309,23 +300,6 @@ export class Component extends HTMLElement {
 	adoptedCallback() {}
 
 	/**
-	 * Returns an Emitter that emits when the specified attribute changes
-	 */
-	attribute<
-		AttributeName extends keyof this,
-		Value extends this[AttributeName] = this[AttributeName],
-	>(attributeName: AttributeName) {
-		const emitter = this.attributeChanged.pipe(
-			pipeFilter(({ name }) => name === attributeName)
-		);
-		return emitter as unknown as Emitter<{
-			name: AttributeName;
-			previous: Value;
-			value: Value;
-		}>;
-	}
-
-	/**
 	 * Called when one of the properties decorated with `@Component.attribute` is modified
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks
 	 */
@@ -334,16 +308,22 @@ export class Component extends HTMLElement {
 		previous: unknown,
 		value: unknown,
 	) {
-		this.attributeChanged.set({
-			name: name,
-			previous,
-			value,
-		});
-		this.attributeChanged.set({
-			name: Component.propertyNamesByAttribute[name],
-			previous,
-			value,
-		});
+		this.dispatchEvent(new CustomEvent(`attributeChanged`, {
+			detail: name,
+		}));
+
+		this.dispatchEvent(new CustomEvent(name, {
+			detail: value,
+		}));
+
+		const attributeName = Component.propertyNamesByAttribute[name];
+		if (name === attributeName) {
+			return;
+		}
+
+		this.dispatchEvent(new CustomEvent(attributeName, {
+			detail: value,
+		}));
 	}
 
 	/**
@@ -364,7 +344,7 @@ export class Component extends HTMLElement {
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks
 	 */
 	disconnectedCallback() {
-		this.disconnected.set();
+		this.abortController.abort();
 	}
 
 	/**
@@ -495,7 +475,7 @@ export class Component extends HTMLElement {
 	): Self;
 
 	/**
-	 * Wraps `this`'s given event in an Emitter that auto-unsubscribes. *NOT* safe for SSG.
+	 * Wraps the given event in an Emitter that auto-unsubscribes. *NOT* safe for SSG.
 	 */
 	on<
 		EventName extends keyof HTMLElementEventMap,
@@ -504,7 +484,7 @@ export class Component extends HTMLElement {
 		eventName: EventName,
 	): Emitter<EventType>;
 	/**
-	 * Wraps `this`'s given event in an Emitter that auto-unsubscribes. *NOT* safe for SSG.
+	 * Wraps the given event in an Emitter that auto-unsubscribes. *NOT* safe for SSG.
 	 */
 	on<
 		Self extends Record<EventName, (...args: any) => void>, // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -514,6 +494,26 @@ export class Component extends HTMLElement {
 	>(
 		this: Self,
 		eventName: EventName,
+	): Emitter<EventType>;
+
+	/**
+	 * Wraps the `attributeChanged` emitter for the given attribute. *NOT* safe for SSG.
+	 */
+	on<
+		AttributeName extends keyof this,
+		EventType extends CustomEvent<AttributeName>,
+	>(
+		attributeName: `attributeChanged`
+	): Emitter<EventType>;
+
+	/**
+	 * Wraps the `attributeChanged` emitter for the given attribute. *NOT* safe for SSG.
+	 */
+	on<
+		AttributeName extends keyof this,
+		EventType extends CustomEvent<this[AttributeName]>,
+	>(
+		attributeName: AttributeName
 	): Emitter<EventType>;
 
 	on(
@@ -528,14 +528,14 @@ export class Component extends HTMLElement {
 		if (handlerKeyOrListener === undefined) {
 			const emitter = Emitter.fromEvent(this, eventName as keyof HTMLElementEventMap);
 			return this.watch(emitter);
-		} else if (typeof handlerKeyOrListener === `string`) {
-			listener = this;
-			handlerKey = handlerKeyOrListener;
-			handlerArgs = args;
 		} else if (typeof handlerKeyOrListener === `function`) {
 			const emitter = Emitter.fromEvent(this, eventName as keyof HTMLElementEventMap);
 			this.watch(emitter).subscribe(handlerKeyOrListener as SubscriptionHandler<Event>);
 			return this;
+		} else if (typeof handlerKeyOrListener === `string`) {
+			listener = this;
+			handlerKey = handlerKeyOrListener;
+			handlerArgs = args;
 		} else {
 			listener = handlerKeyOrListener!;
 			handlerKey = args[0] as string;
@@ -568,9 +568,10 @@ export class Component extends HTMLElement {
 	 * Would prefer this to be private, but TS won't emit the declaration if it is https://github.com/microsoft/TypeScript/issues/30355
 	 */
 	onConstruct() {
+		const abortController = new AbortController();
 		Object.assign(this, {
-			attributeChanged: new Emitter(), // Why here instead of declared as property? Because when attributes are set in the constructor it still calls `attributeChangedCallback`
-			disconnected: new Emitter(),
+			abortController,
+			disconnected: abortController.signal,
 			findDownCache: new Map(),
 			findUpCache: new Map(),
 		});
@@ -700,7 +701,7 @@ export class Component extends HTMLElement {
 	 * Shortcut for subscribing to the given emitter and unsubscribing when the Component is disconnected
 	 */
 	watch<State>(emitter: Emitter<State>) {
-		return emitter.pipe(pipeUntil(this.disconnected));
+		return emitter.pipe(pipeUntil(this.disconnected, `abort`));
 	}
 
 	/**
