@@ -361,6 +361,22 @@ export const spec = suite(`Emitter`, {},
 				$.assert(x => x(emitter.handlers.size) === 0);
 				$.assert(x => x(piped.handlers.size) === 0);
 			}),
+
+			test(`eventTarget`, $ => {
+				const emitter = new Emitter(0);
+				const button = document.createElement(`button`);
+				const piped = emitter.pipe(pipeUntil(button, `click`));
+
+				$.log(() => emitter.set(1));
+				$.assert(x => x(piped.value) === 1);
+
+				$.log(() => button.click());
+				$.log(() => emitter.set(2));
+				$.assert(x => x(piped.value) === 1);
+
+				$.assert(x => x(emitter.handlers.size) === 0);
+				$.assert(x => x(piped.handlers.size) === 0);
+			}),
 		),
 	),
 );

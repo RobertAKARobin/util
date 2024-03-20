@@ -27,6 +27,8 @@ export class DummyDOM {
 		globalThis.document = dummyDOM.document;
 		globalThis.DOMParser = dummyDOM.DOMParser;
 		globalThis.Element = dummyDOM.Element;
+		globalThis.Event = dummyDOM.Event;
+		globalThis.EventTarget = dummyDOM.EventTarget;
 		globalThis.HTMLElement = dummyDOM.HTMLElement;
 		globalThis.location = dummyDOM.location;
 		globalThis.history = dummyDOM.history;

@@ -54,6 +54,7 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ## TODO
 
+-	TODO1: Don't refer to functions by string -- keeps names from being minified
 -	TODO2: Image preprocessing
 -	TODO2: Import SVGs
 -	TODO2: Remove CSS from JS bundles

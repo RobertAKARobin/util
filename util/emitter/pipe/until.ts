@@ -2,9 +2,25 @@ import { Emitter, IGNORE, type PipeFunction, type SubscriptionEvent } from '../e
 import { pipeFirst } from './first.ts';
 
 export function pipeUntil<State>(
+	condition: EventTarget,
+	eventName: keyof HTMLElementEventMap,
+): PipeFunction<State, State>;
+export function pipeUntil<State, Target extends EventTarget>(
+	condition: Target,
+	eventName: keyof Target,
+): PipeFunction<State, State>;
+export function pipeUntil<State>(
+	condition: Emitter<any>, // eslint-disable-line @typescript-eslint/no-explicit-any
+): PipeFunction<State, State>;
+export function pipeUntil<State>(
+	condition: ((...args: SubscriptionEvent<State>) => boolean)
+): PipeFunction<State, State>;
+export function pipeUntil<State>(
 	condition:
-		| Emitter<any> // eslint-disable-line @typescript-eslint/no-explicit-any
+		| Emitter<unknown>
+		| EventTarget
 		| ((...args: SubscriptionEvent<State>) => boolean),
+	eventName?: unknown
 ): PipeFunction<State, State> {
 	let shouldCancel = false;
 
@@ -12,10 +28,16 @@ export function pipeUntil<State>(
 		condition.pipe(pipeFirst(1)).subscribe(() => {
 			shouldCancel = true;
 		});
+	} else if (condition instanceof EventTarget) {
+		condition.addEventListener(
+			eventName as string,
+			() => shouldCancel = true,
+			{ once: true }
+		);
 	}
 
 	return function(...[value, meta]: SubscriptionEvent<State>) {
-		if (condition instanceof Emitter === false) {
+		if (typeof condition === `function`) {
 			if (condition(value, meta)) {
 				shouldCancel = true;
 			}
