@@ -1,5 +1,8 @@
 import type { PipeFunction, SubscriptionEvent } from '../emitter.ts';
 
+/**
+ * Emits the source up to `$limit` times. Default `1`
+ */
 export function pipeFirst<State>(
 	limit: number = 1
 ): PipeFunction<State, State> {

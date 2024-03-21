@@ -25,7 +25,7 @@ export class ProgressCircle extends Component {
 	connectedCallback() {
 		super.connectedCallback();
 
-		this.on(`attributeChanged`).subscribe(() => {
+		this.on(`attributechanged`, () => {
 			if (!this.isConnected) {
 				return;
 			}

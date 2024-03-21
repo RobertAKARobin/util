@@ -1,17 +1,22 @@
 import { Emitter, IGNORE, type PipeFunction, type SubscriptionEvent } from '../emitter.ts';
 import { pipeFirst } from './first.ts';
 
-export function pipeUntil<State>(
-	condition: EventTarget,
-	eventName: keyof HTMLElementEventMap,
-): PipeFunction<State, State>;
+/**
+ * Waits for the given EventTarget to emit an event with the specified name, then starts emitting the source
+ */
 export function pipeUntil<State, Target extends EventTarget>(
-	condition: Target,
-	eventName: keyof Target,
+	target: Target,
+	eventName: keyof HTMLElementEventMap | keyof Target,
 ): PipeFunction<State, State>;
+/**
+ * Waits for another Emitter to emit, then starts emitting the source
+ */
 export function pipeUntil<State>(
-	condition: Emitter<any>, // eslint-disable-line @typescript-eslint/no-explicit-any
+	target: Emitter<any>, // eslint-disable-line @typescript-eslint/no-explicit-any
 ): PipeFunction<State, State>;
+/**
+ * Checks source emissions to see if the specified condition is met, and once it is, starts emitting the source
+ */
 export function pipeUntil<State>(
 	condition: ((...args: SubscriptionEvent<State>) => boolean)
 ): PipeFunction<State, State>;

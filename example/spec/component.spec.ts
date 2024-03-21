@@ -221,7 +221,7 @@ export const spec = suite(`Component`, {},
 		$.assert(x => x(EventSource.count) === 1);
 		$.assert(x => x(lastTime) < x(lastTime = listener.source().time));
 
-		$.log(() => listener.source().cloneNode());
+		$.log(() => listener.source().cloneNode()); // Causes constructor to run
 		$.assert(x => x(listener.source().index) === 1);
 		$.assert(x => x(EventSource.count) === 2);
 
@@ -244,6 +244,18 @@ export const spec = suite(`Component`, {},
 		$.assert(x => x(listener.source().index) === 1);
 		$.assert(x => x(EventSource.count) === 3);
 		$.assert(x => x(lastTime) < x(listener.source().time));
+
+		let disconnectedCount = 0;
+		listener.source().disconnected.addEventListener(`abort`, () => {
+			disconnectedCount += 1;
+		});
+
+		$.assert(x => x(listener.source().isConnected));
+		$.assert(x => x(disconnectedCount) === 0);
+
+		$.log(() => listener.render());
+		$.assert(x => x(listener.source().isConnected));
+		$.assert(x => x(disconnectedCount) === 1);
 	}),
 
 	test(`events`, $ => {
@@ -260,10 +272,12 @@ export const spec = suite(`Component`, {},
 		$.log(() => listener.source().button().click());
 		$.assert(x => x(listener.listenerValue) === 9.5);
 
+
 		let clickValue = 0;
 		listener.on(`click`, () => clickValue += 1);
-		listener.on(`click`).subscribe(() => clickValue += 1);
+		listener.on(`click`, () => clickValue += 1);
 		$.assert(x => x(clickValue) === 0);
+
 
 		let capValue = ``;
 		listener.on(`cap`, event => capValue = event.detail);
@@ -275,6 +289,18 @@ export const spec = suite(`Component`, {},
 		$.log(() => listener.cap(`foo`));
 		$.assert(x => x(capValue) === `FOO`);
 
+
+		let timeEmissions = 0;
+		listener.source().on(`time`, () => timeEmissions += 1);
+		$.assert(x => x(timeEmissions) === 0);
+
+		$.log(() => listener.source().setTime());
+		$.assert(x => x(timeEmissions) === 1);
+
+		$.log(() => listener.source().setTime());
+		$.assert(x => x(timeEmissions) === 2);
+
+
 		$.log(() => listener.remove());
 
 		$.log(() => listener.click());
@@ -282,5 +308,8 @@ export const spec = suite(`Component`, {},
 
 		$.log(() => listener.cap(`foo`));
 		$.assert(x => x(capValue) === `FOO`);
+
+		$.log(() => listener.source().setTime());
+		$.assert(x => x(timeEmissions) === 2);
 	}),
 );

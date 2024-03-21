@@ -4,9 +4,7 @@ import {
 	setAttributes,
 	style,
 } from '../dom/attributes.ts';
-import { Emitter, type SubscriptionHandler } from '../emitter/emitter.ts';
 import { newUid } from '../uid.ts';
-import { pipeUntil } from '../emitter/pipe/until.ts';
 import type { Textish } from '../types.d.ts';
 
 export { css, html } from '../string/template.ts';
@@ -186,7 +184,8 @@ export class Component extends HTMLElement {
 				...args: Parameters<typeof transformer>
 			) {
 				const detail = transformer.call(this, ...args); // eslint-disable-line @typescript-eslint/no-unsafe-argument
-				const event = new CustomEvent(propertyName.toLowerCase(), { // Has to be lowercase because it's stored in an HTML attribute
+				const eventName = propertyName.toLowerCase(); // Has to be lowercase because it's stored in an HTML attribute
+				const event = new CustomEvent(eventName, {
 					...options,
 					bubbles,
 					detail,
@@ -299,6 +298,10 @@ export class Component extends HTMLElement {
 	 */
 	adoptedCallback() {}
 
+	@Component.event() attributechanged(name: string) {
+		return name;
+	}
+
 	/**
 	 * Called when one of the properties decorated with `@Component.attribute` is modified
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks
@@ -308,9 +311,7 @@ export class Component extends HTMLElement {
 		previous: unknown,
 		value: unknown,
 	) {
-		this.dispatchEvent(new CustomEvent(`attributeChanged`, {
-			detail: name,
-		}));
+		this.attributechanged(name);
 
 		this.dispatchEvent(new CustomEvent(name, {
 			detail: value,
@@ -330,7 +331,13 @@ export class Component extends HTMLElement {
 	 * Called when the component is attached to the DOM
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks
 	 */
-	connectedCallback() {}
+	connectedCallback() {
+		const abortController = new AbortController();
+		Object.assign(this, {
+			abortController,
+			disconnected: abortController.signal,
+		});
+	}
 
 	/**
 	 * Applies the given CSS rules to the Component's `style` attribute
@@ -412,6 +419,7 @@ export class Component extends HTMLElement {
 		};
 	}
 
+	// TODO2: Is there a way to do this with `handleEvent`? That could significantly reduce the amount of HTML, and also JS since we wouldn't need to reference functions by their names. https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#listener
 	/**
 	 * When `this` emits the given event, call `this`'s specified handler. Safe for SSG.
 	 * Assumes event names are all camelCase. TODO2: Support event names with special characters, i.e. spaces and hyphens
@@ -447,6 +455,18 @@ export class Component extends HTMLElement {
 		handlerKey: HandlerKey,
 		...args: Args
 	): Self;
+	on<
+		AttributeName extends keyof this,
+		EventType extends CustomEvent<this[AttributeName]>,
+		Listener extends Record<HandlerKey, (event: EventType, ...args: Args) => void>,
+		HandlerKey extends PropertyKey,
+		Args extends Array<number | string>,
+	>(
+		attributeName: AttributeName,
+		listener: Listener,
+		handlerKey: HandlerKey,
+		...args: Args
+	): this;
 
 	/**
 	 * When `this` emits the given event, call the given handler. *NOT* safe for SSG.
@@ -473,64 +493,33 @@ export class Component extends HTMLElement {
 		eventName: EventName,
 		handler: Handler,
 	): Self;
-
 	/**
-	 * Wraps the given event in an Emitter that auto-unsubscribes. *NOT* safe for SSG.
-	 */
-	on<
-		EventName extends keyof HTMLElementEventMap,
-		EventType extends HTMLElementEventMap[EventName],
-	>(
-		eventName: EventName,
-	): Emitter<EventType>;
-	/**
-	 * Wraps the given event in an Emitter that auto-unsubscribes. *NOT* safe for SSG.
-	 */
-	on<
-		Self extends Record<EventName, (...args: any) => void>, // eslint-disable-line @typescript-eslint/no-explicit-any
-		EventName extends PropertyKey,
-		EventDetail extends ReturnType<Self[EventName]>,
-		EventType extends CustomEvent<EventDetail>,
-	>(
-		this: Self,
-		eventName: EventName,
-	): Emitter<EventType>;
-
-	/**
-	 * Wraps the `attributeChanged` emitter for the given attribute. *NOT* safe for SSG.
-	 */
-	on<
-		AttributeName extends keyof this,
-		EventType extends CustomEvent<AttributeName>,
-	>(
-		attributeName: `attributeChanged`
-	): Emitter<EventType>;
-
-	/**
-	 * Wraps the `attributeChanged` emitter for the given attribute. *NOT* safe for SSG.
+	 * When `this` emits the `attributeChanged` event for the given attribute, call the given handler. *NOT* safe for SSG.
 	 */
 	on<
 		AttributeName extends keyof this,
 		EventType extends CustomEvent<this[AttributeName]>,
+		Handler extends (event: EventType) => void,
 	>(
-		attributeName: AttributeName
-	): Emitter<EventType>;
+		attributeName: AttributeName,
+		handler: Handler,
+	): this;
 
 	on(
 		this: Component,
 		eventName: string,
-		handlerKeyOrListener?: Component | Function | string,
+		handlerKeyOrListener: Component | Function | string,
 		...args: Array<number | string>
-	): Component | Emitter<CustomEvent | Event> | string {
+	): Component | string {
 		let handlerKey: string;
 		let handlerArgs: Array<unknown>;
 		let listener: Component;
-		if (handlerKeyOrListener === undefined) {
-			const emitter = Emitter.fromEvent(this, eventName as keyof HTMLElementEventMap);
-			return this.watch(emitter);
-		} else if (typeof handlerKeyOrListener === `function`) {
-			const emitter = Emitter.fromEvent(this, eventName as keyof HTMLElementEventMap);
-			this.watch(emitter).subscribe(handlerKeyOrListener as SubscriptionHandler<Event>);
+		if (typeof handlerKeyOrListener === `function`) {
+			this.addEventListener(
+				eventName as keyof HTMLElementEventMap,
+				handlerKeyOrListener as (event: Event) => void,
+				{ signal: this.disconnected }
+			);
 			return this;
 		} else if (typeof handlerKeyOrListener === `string`) {
 			listener = this;
@@ -568,10 +557,7 @@ export class Component extends HTMLElement {
 	 * Would prefer this to be private, but TS won't emit the declaration if it is https://github.com/microsoft/TypeScript/issues/30355
 	 */
 	onConstruct() {
-		const abortController = new AbortController();
 		Object.assign(this, {
-			abortController,
-			disconnected: abortController.signal,
 			findDownCache: new Map(),
 			findUpCache: new Map(),
 		});
@@ -695,13 +681,6 @@ export class Component extends HTMLElement {
 		const tempId = this.id === `` ? Component.uid() : this.id;
 		Component.cache.set(tempId, new WeakRef(this));
 		return `<placeholder id="${tempId}"></placeholder>`;
-	}
-
-	/**
-	 * Shortcut for subscribing to the given emitter and unsubscribing when the Component is disconnected
-	 */
-	watch<State>(emitter: Emitter<State>) {
-		return emitter.pipe(pipeUntil(this.disconnected, `abort`));
 	}
 
 	/**
