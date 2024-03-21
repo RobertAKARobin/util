@@ -279,7 +279,7 @@ export class Component extends HTMLElement {
 	}
 
 	/**
-	 * Emitter that emits on disconnectedCallback
+	 * Dispatches on disconnectedCallback. https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal
 	 * @see {@link disconnectedCallback}
 	 */
 	readonly disconnected!: AbortSignal;
