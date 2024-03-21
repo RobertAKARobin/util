@@ -12,7 +12,6 @@
 	],
 	"include": [
 		"../util/**/*.ts",
-		"../ssg/*.ts",
 		"build.ts",
 		"spec/**/*.ts",
 		"src/**/*.ts",
