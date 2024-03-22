@@ -256,7 +256,7 @@ export class Component extends HTMLElement {
 	 * Dispatches on disconnectedCallback. https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal
 	 * @see {@link disconnectedCallback}
 	 */
-	readonly disconnected!: AbortSignal;
+	readonly disconnectedSignal!: AbortSignal;
 
 	readonly findDownCache!: Map<string, Array<HTMLElement>>;
 	readonly findUpCache!: Map<string, HTMLElement>;
@@ -309,7 +309,7 @@ export class Component extends HTMLElement {
 		const abortController = new AbortController();
 		Object.assign(this, {
 			abortController,
-			disconnected: abortController.signal,
+			disconnectedSignal: abortController.signal,
 		});
 
 		for (const attribute of this.attributes) {
@@ -333,6 +333,7 @@ export class Component extends HTMLElement {
 	 */
 	disconnectedCallback() {
 		this.abortController.abort();
+		this.onDisconnect();
 	}
 
 	/**
@@ -520,7 +521,9 @@ export class Component extends HTMLElement {
 			this.addEventListener(
 				eventName as keyof HTMLElementEventMap,
 				handlerKeyOrListener as (event: Event) => void,
-				{ signal: this.disconnected }
+				eventName === `onDisconnect`
+					? { once: true }
+					: { signal: this.disconnectedSignal }
 			);
 			return this;
 		} else if (typeof handlerKeyOrListener === `string`) {
@@ -563,6 +566,9 @@ export class Component extends HTMLElement {
 			findUpCache: new Map(),
 		});
 	}
+
+	@Component.event()
+	onDisconnect() {}
 
 	/**
 	 * Called when the component finishes rendering
