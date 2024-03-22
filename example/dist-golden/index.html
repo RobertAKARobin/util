@@ -7,8 +7,8 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<title>Home page</title>
 	<base href="/">
-	<link rel="stylesheet" href="/styles.css?cache=1711083981927">
-	<link rel="stylesheet" href="/index.html.css?cache=1711083981927"> <script src="/browser.js?cache=1711083981927" type="module"></script> <script type="module">import { IndexPage } from '/pages-4DSNGWAY.js';</script>
+	<link rel="stylesheet" href="/styles.css?cache=1711090101554">
+	<link rel="stylesheet" href="/index.html.css?cache=1711090101554"> <script src="/browser.js?cache=1711090101554" type="module"></script> <script type="module">import { IndexPage } from '/pages-DTNI3DA5.js';</script>
 	<style data-style="l-modalcontainer"></style>
 	<style data-style="l-nav"></style>
 	<style data-style="l-textbox"></style>
@@ -17,7 +17,7 @@
 	<style data-style="l-indexpage"></style>
 </head>
 
-<body is="l-app" data-relay-click="click" data-relay-onlistadd="onListAdd" data-relay-onlistdelete="onListDelete" data-relay-onlistinput="onListInput" data-relay-onlistitemdelete="onListItemDelete" data-relay-onlistiteminput="onListItemInput" data-relay-oninput="onInput" data-relay-input="input">
+<body is="l-app">
 	<nav is="l-nav">
 		<ul>
 			<li id="nav-error404"> <a href="/404.html">Go error404</a> </li>
@@ -31,25 +31,25 @@
 			<li id="nav-ssgYesJump2"> <a href="/ssg/yes/#jump2">Go ssgYesJump2</a> </li>
 		</ul>
 	</nav>
-	<main is="l-indexpage" data-page-title="Home page" data-message="This is a variable" id="UID7_">
+	<main is="l-indexpage" data-page-title="Home page" data-message="This is a variable" id="UID7_" data-on-click="click" data-on-onlistadd="onListAdd" data-on-onlistdelete="onListDelete" data-on-onlistinput="onListInput">
 		<h1>Hello world!</h1>
-		<div is="l-transitiontest" style="background: rgb(255, 0, 0);"></div><button data-emit-click-uid7_="UID7_|openModal" type="button">Modal</button>
+		<div is="l-transitiontest" style="background: rgb(255, 0, 0);"></div><button data-emit-click-uid7_="openModal" type="button">Modal</button>
 		<div id="jump1">Jump 1</div>
-		<ol is="l-list" id="indexList" data-emit-onlistadd-uid7_="UID7_|onAdd" data-emit-onlistdelete-uid7_="UID7_|onDelete" data-emit-onlistinput-uid7_="UID7_|onInput">
+		<ol is="l-list" id="indexList" data-emit-onlistadd-uid7_="onAdd" data-emit-onlistdelete-uid7_="onDelete" data-emit-onlistinput-uid7_="onInput" data-on-onlistitemdelete="onListItemDelete" data-on-onlistiteminput="onListItemInput" data-on-click="click">
 			<li>List ID indexList</li>
-			<li is="l-listitem" id="UID5_" data-text="hello" data-emit-onlistitemdelete-indexlist="indexList|onListDelete|UID5_" data-emit-onlistiteminput-indexlist="indexList|onListInput|UID5_">
+			<li is="l-listitem" id="UID5_" data-text="hello" data-emit-onlistitemdelete-indexlist="onListDelete|UID5_" data-emit-onlistiteminput-indexlist="onListInput|UID5_" data-on-oninput="onInput" data-on-click="click">
 				<p>List item ID UID5_</p>
-				<div is="l-textbox" data-max="10" data-value="hello" data-emit-oninput-uid5_="UID5_|onListItemInput" id="UID10_"><input maxlength="10" data-emit-input-uid10_="UID10_|onInput" placeholder="Type here" type="text" value="hello"><span id="UID10_-remaining"> 5 / 10 Remaining</span>
+				<div is="l-textbox" data-max="10" data-value="hello" data-emit-oninput-uid5_="onListItemInput" id="UID10_" data-on-input="input"><input maxlength="10" data-emit-input-uid10_="onInput" placeholder="Type here" type="text" value="hello"><span id="UID10_-remaining"> 5 / 10 Remaining</span>
 					<p>textbox ID UID10_</p>
-				</div> <button data-emit-click-uid5_="UID5_|onListItemDelete" type="button">Remove</button>
+				</div> <button data-emit-click-uid5_="onListItemDelete" type="button">Remove</button>
 			</li>
-			<li is="l-listitem" id="UID6_" data-text="world" data-emit-onlistitemdelete-indexlist="indexList|onListDelete|UID6_" data-emit-onlistiteminput-indexlist="indexList|onListInput|UID6_">
+			<li is="l-listitem" id="UID6_" data-text="world" data-emit-onlistitemdelete-indexlist="onListDelete|UID6_" data-emit-onlistiteminput-indexlist="onListInput|UID6_" data-on-oninput="onInput" data-on-click="click">
 				<p>List item ID UID6_</p>
-				<div is="l-textbox" data-max="10" data-value="world" data-emit-oninput-uid6_="UID6_|onListItemInput" id="UID12_"><input maxlength="10" data-emit-input-uid12_="UID12_|onInput" placeholder="Type here" type="text" value="world"><span id="UID12_-remaining"> 5 / 10 Remaining</span>
+				<div is="l-textbox" data-max="10" data-value="world" data-emit-oninput-uid6_="onListItemInput" id="UID12_" data-on-input="input"><input maxlength="10" data-emit-input-uid12_="onInput" placeholder="Type here" type="text" value="world"><span id="UID12_-remaining"> 5 / 10 Remaining</span>
 					<p>textbox ID UID12_</p>
-				</div> <button data-emit-click-uid6_="UID6_|onListItemDelete" type="button">Remove</button>
+				</div> <button data-emit-click-uid6_="onListItemDelete" type="button">Remove</button>
 			</li>
-			<li> <button data-emit-click-indexlist="indexList|onListAdd" type="button">Add</button> </li>
+			<li> <button data-emit-click-indexlist="onListAdd" type="button">Add</button> </li>
 		</ol>
 		<div class="_swapText">
 			<h1>This should be in the source, not browser.</h1>
@@ -59,7 +59,7 @@
 		<p>Lorem ipsum dolor <strong>sit amet</strong>, consectetur <em>adipiscing elit</em>, sed do <em>eiusmod tempor</em> incididunt.</p>
 		<p>Duis aute voluptate <a href="https://example.com">velit esse cillum</a> dolore /eu fugiat/ nulla pariatur.</p>
 		<p><a href="/ssg/yes/">Link to SSG Yes</a></p>
-		<p class="type-wtf">abc123</p><button data-emit-click-uid7_="UID7_|anchorlessRoute" type="button">Go to SSG Yes</button>
+		<p class="type-wtf">abc123</p><button data-emit-click-uid7_="anchorlessRoute" type="button">Go to SSG Yes</button>
 		<h2>Headline 2</h2>
 		<blockquote>
 			<p>Excepteur sint occaecat <em>cupidatat</em> non proident.</p>

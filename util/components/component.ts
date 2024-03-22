@@ -23,7 +23,7 @@ type ComponentWithoutDecorators = Omit<typeof Component,
 	| `uid`
 >;
 
-const normalizeEventName = (eventName: string) => eventName
+const normalize = (eventName: string) => eventName
 	.toLowerCase()
 	.replaceAll(/[^\w]/g, ``);
 
@@ -33,8 +33,8 @@ export class Component extends HTMLElement {
 		attrEl: `is`,
 		attrEmit: `data-emit-`,
 		attrEmitDelimiter: `|`,
+		attrOn: `data-on-`,
 		globalRef: `C`,
-		relayAttr: `data-relay-`,
 		styleAttr: `data-style`,
 	} as const;
 	static readonly elName: string;
@@ -47,13 +47,6 @@ export class Component extends HTMLElement {
 		(globalThis as unknown as {
 			[Component.const.globalRef]: typeof Component;
 		})[Component.const.globalRef] = Component; // For debugging
-
-		for (const attribute of document.body.attributes) {
-			if (attribute.name.startsWith(Component.const.relayAttr)) {
-				const eventName = attribute.value;
-				document.body.addEventListener(eventName, Component.relay);
-			}
-		}
 	}
 
 	/**
@@ -238,28 +231,6 @@ export class Component extends HTMLElement {
 	}
 
 	/**
-	 * For handling events via event delegation. When an event is received, this calls the intended object/method with the event payload
-	 */
-	static relay(event: Event) {
-		const trigger = event.target as Element;
-		const paramsAttr = `${Component.const.attrEmit}${normalizeEventName(event.type)}-`;
-		const attrEmitDelimiter = Component.const.attrEmitDelimiter;
-		for (const attribute of trigger.attributes) {
-			if (attribute.name.startsWith(paramsAttr)) {
-				const [
-					listenerId,
-					handlerKey,
-					...args
-				] = attribute.value.split(attrEmitDelimiter);
-				const listener = document.getElementById(listenerId);
-				(listener as unknown as {
-					[key: typeof handlerKey]: (event: Event, ...params: typeof args) => unknown;
-				})[handlerKey](event, ...args);
-			}
-		}
-	}
-
-	/**
 	 * Returns a pseudo (very-pseudo) random HTMLElement ID
 	 * @see {@link newUid}
 	 */
@@ -340,6 +311,13 @@ export class Component extends HTMLElement {
 			abortController,
 			disconnected: abortController.signal,
 		});
+
+		for (const attribute of this.attributes) {
+			if (attribute.name.startsWith(Component.const.attrOn)) {
+				const eventName = attribute.value;
+				this.addEventListener(eventName, this);
+			}
+		}
 	}
 
 	/**
@@ -422,7 +400,28 @@ export class Component extends HTMLElement {
 		};
 	}
 
-	// TODO2: Is there a way to do this with `handleEvent`? That could significantly reduce the amount of HTML, and also JS since we wouldn't need to reference functions by their names. https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#listener
+	handleEvent(event: Event) {
+		const trigger = event.target as Element;
+		const paramsAttr = `${Component.const.attrEmit}${normalize(event.type)}-`;
+		const attrEmitDelimiter = Component.const.attrEmitDelimiter;
+		const normalizedId = normalize(this.id);
+		for (const attribute of trigger.attributes) {
+			if (!attribute.name.startsWith(paramsAttr)) {
+				continue;
+			}
+
+			const id = attribute.name.slice(paramsAttr.length);
+			if (normalizedId !== id) {
+				continue;
+			}
+
+			const [handlerKey, ...args] = attribute.value.split(attrEmitDelimiter);
+			(this as unknown as {
+				[key: typeof handlerKey]: (event: Event, ...params: typeof args) => void;
+			})[handlerKey](event, ...args);
+		}
+	}
+
 	/**
 	 * When `this` emits the given event, call `this`'s specified handler. Safe for SSG.
 	 * Assumes event names are all camelCase. TODO2: Support event names with special characters, i.e. spaces and hyphens
@@ -534,18 +533,17 @@ export class Component extends HTMLElement {
 			handlerArgs = args.slice(1);
 		}
 
+		const eventNameNormalized = normalize(eventName);
 		listener.id = listener.id === `` ? Component.uid() : listener.id;
+		listener.setAttribute(`${Component.const.attrOn}${eventNameNormalized}`, eventName); // TODO3: Do this only on build?
+		listener.addEventListener(eventName, listener);
 
-		const eventNameNormalized = normalizeEventName(eventName);
-		document.body.setAttribute(`${Component.const.relayAttr}${eventNameNormalized}`, eventName);
-		document.body.addEventListener(eventName, Component.relay);
-
+		const listenerIdNormalized = normalize(listener.id);
 		const params = [
-			listener.id, // `setAttribute` downcases the id in the param name, so need to include it here too
 			handlerKey,
 			...handlerArgs,
 		].join(Component.const.attrEmitDelimiter);
-		const paramsAttr = `${Component.const.attrEmit}${eventNameNormalized}-${listener.id}`;
+		const paramsAttr = `${Component.const.attrEmit}${eventNameNormalized}-${listenerIdNormalized}`;
 
 		if (typeof handlerKeyOrListener === `string`) { // It's a standard DOM element, not a Component
 			return `${paramsAttr}="${params}"`;
