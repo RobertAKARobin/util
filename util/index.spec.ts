@@ -11,6 +11,7 @@ export const spec = suite(`@robertakarobin/js`, {},
 	(await import(`./spec/index.spec.ts`)).spec,
 
 	(await import(`./string/capitalize.spec.ts`)).spec,
+	(await import(`./string/deleteAt.spec.ts`)).spec,
 	(await import(`./string/delimiter-pairs.spec.ts`)).spec,
 	(await import(`./string/template.spec.ts`)).spec,
 
