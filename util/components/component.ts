@@ -4,6 +4,7 @@ import {
 	setAttributes,
 	style,
 } from '../dom/attributes.ts';
+import { type Emitter, type IGNORE } from 'util/emitter/emitter.ts';
 import { newUid } from '../uid.ts';
 import type { Textish } from '../types.d.ts';
 
@@ -238,6 +239,9 @@ export class Component extends HTMLElement {
 		return `l${newUid()}`;
 	}
 
+	/**
+	 * See https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal
+	 */
 	abortController!: AbortController;
 
 	/**
@@ -272,7 +276,11 @@ export class Component extends HTMLElement {
 	 */
 	adoptedCallback() {}
 
-	@Component.event() attributeChanged(name: string) {
+	/**
+	 * Dispatched when `attributeChangedCallback` is called. @see {@link attributeChangedCallback}
+	 */
+	@Component.event()
+	attributeChanged(name: string) {
 		return name;
 	}
 
@@ -339,6 +347,9 @@ export class Component extends HTMLElement {
 		return style(this, input) as this;
 	}
 
+	/**
+	 * Dispatched when `disconnectedCallback` is called. @see {@link disconnectedCallback}
+	 */
 	@Component.event()
 	disconnected() {}
 
@@ -416,6 +427,9 @@ export class Component extends HTMLElement {
 		};
 	}
 
+	/**
+	 * Used internally to respond to events on child elements. https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#listener
+	 */
 	handleEvent(event: Event) {
 		const trigger = event.target as Element;
 		const paramsAttr = `${Component.const.attrEmit}${normalize(event.type)}-`;
@@ -473,6 +487,9 @@ export class Component extends HTMLElement {
 		handlerKey: HandlerKey,
 		...args: Args
 	): Self;
+	/**
+	 * When `this` emits the `attributeChanged` event for the given attribute, call the specified listener's specified handler. Safe for SSG.
+	 */
 	on<
 		AttributeName extends keyof this,
 		EventType extends CustomEvent<this[AttributeName]>,
@@ -689,6 +706,20 @@ export class Component extends HTMLElement {
 		const tempId = this.id === `` ? Component.uid() : this.id;
 		Component.cache.set(tempId, new WeakRef(this));
 		return `<placeholder id="${tempId}"></placeholder>`;
+	}
+
+	/**
+	 * Unsubscribes from the given emitter when this Component is disconnected. Important for preventing memory leaks
+	 */
+	watch<State>(emitter: Emitter<State>) {
+		const ignore: typeof IGNORE = `_IGNORE_`; // Just using type so we don't accidentally import the entire Emitter library
+		return emitter.pipe((value, meta) => {
+			if (!this.isConnected) {
+				meta.emitter.unsubscribe(meta.handler);
+				return ignore;
+			}
+			return value;
+		});
 	}
 
 	/**

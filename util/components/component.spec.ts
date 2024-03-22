@@ -2,6 +2,7 @@ import '@robertakarobin/util/dom/dummydom.ts';
 
 import { suite, test } from '@robertakarobin/util/spec/index.ts';
 import { Component } from '@robertakarobin/util/components/component.ts';
+import { Emitter } from 'util/emitter/emitter.ts';
 
 @Component.define()
 class Widget extends Component.custom(`h1`) {
@@ -312,5 +313,24 @@ export const spec = suite(`Component`, {},
 
 		$.log(() => listener.source().setTime());
 		$.assert(x => x(timeEmissions) === 2);
+	}),
+
+	test(`watch`, $ => {
+		const emitter = new Emitter(0);
+		const listener = new EventListener();
+		listener.listenerValue = 0;
+		document.body.appendChild(listener);
+
+		listener.watch(emitter).subscribe(value => listener.listenerValue = value);
+
+		emitter.set(1);
+		$.assert(x => x(listener.listenerValue) === 1);
+
+		emitter.set(10);
+		$.assert(x => x(listener.listenerValue) === 10);
+
+		listener.remove();
+		emitter.set(3);
+		$.assert(x => x(listener.listenerValue) === 10);
 	}),
 );
