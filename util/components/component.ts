@@ -106,7 +106,7 @@ export class Component extends HTMLElement {
 			constructor() {
 				super();
 				this.setAttribute(Component.const.attrEl, this.Ctor.elName);
-				this.onConstruct();
+				this.constructed();
 			}
 		}
 
@@ -263,7 +263,7 @@ export class Component extends HTMLElement {
 
 	constructor() {
 		super();
-		this.onConstruct();
+		this.constructed();
 	}
 
 	/**
@@ -321,11 +321,26 @@ export class Component extends HTMLElement {
 	}
 
 	/**
+	 * Called by the constructor. Needed because customized and autonomous components have different constructors.
+	 * Would prefer this to be private, but TS won't emit the declaration if it is https://github.com/microsoft/TypeScript/issues/30355
+	 */
+	constructed() {
+		Object.assign(this, {
+			findDownCache: new Map(),
+			findUpCache: new Map(),
+		});
+	}
+
+
+	/**
 	 * Applies the given CSS rules to the Component's `style` attribute
 	 */
 	css(input: Partial<CSSStyleDeclaration>) {
 		return style(this, input) as this;
 	}
+
+	@Component.event()
+	disconnected() {}
 
 	/**
 	 * Called when the component is detached from the DOM
@@ -333,7 +348,7 @@ export class Component extends HTMLElement {
 	 */
 	disconnectedCallback() {
 		this.abortController.abort();
-		this.onDisconnect();
+		this.disconnected();
 	}
 
 	/**
@@ -521,7 +536,7 @@ export class Component extends HTMLElement {
 			this.addEventListener(
 				eventName as keyof HTMLElementEventMap,
 				handlerKeyOrListener as (event: Event) => void,
-				eventName === `onDisconnect`
+				eventName === `disconnected`
 					? { once: true }
 					: { signal: this.disconnectedSignal }
 			);
@@ -555,25 +570,6 @@ export class Component extends HTMLElement {
 		this.setAttribute(paramsAttr, params);
 		return this;
 	}
-
-	/**
-	 * Called by the constructor. Needed because customized and autonomous components have different constructors.
-	 * Would prefer this to be private, but TS won't emit the declaration if it is https://github.com/microsoft/TypeScript/issues/30355
-	 */
-	onConstruct() {
-		Object.assign(this, {
-			findDownCache: new Map(),
-			findUpCache: new Map(),
-		});
-	}
-
-	@Component.event()
-	onDisconnect() {}
-
-	/**
-	 * Called when the component finishes rendering
-	 */
-	onRender() {}
 
 	/**
 	 * Makes the component matching the rootSelector update its attributes replace its contents with newly-rendered contents. If no rootSelector is provided, the root is `this`.
@@ -662,9 +658,14 @@ export class Component extends HTMLElement {
 
 		setAttributes(destinationRoot, sourceRoot as Element);
 		destinationRoot.replaceChildren(...sourceRoot!.childNodes);
-		this.onRender();
+		this.rendered();
 		return this;
 	}
+
+	/**
+ * Called when the component finishes rendering
+ */
+	rendered() {}
 
 	/**
 	 * Sets multiple attributes or properties

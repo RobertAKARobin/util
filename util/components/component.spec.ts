@@ -247,7 +247,7 @@ export const spec = suite(`Component`, {},
 		$.assert(x => x(lastTime) < x(listener.source().time));
 
 		let disconnectedCount = 0;
-		listener.source().on(`onDisconnect`, () => {
+		listener.source().on(`disconnected`, () => {
 			disconnectedCount += 1;
 		});
 
