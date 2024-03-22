@@ -2,7 +2,7 @@ import '@robertakarobin/util/dom/dummydom.ts';
 
 import { suite, test } from '@robertakarobin/util/spec/index.ts';
 import { Component } from '@robertakarobin/util/components/component.ts';
-import { Emitter } from 'util/emitter/emitter.ts';
+import { Emitter } from '@robertakarobin/util/emitter/emitter.ts';
 
 @Component.define()
 class Widget extends Component.custom(`h1`) {

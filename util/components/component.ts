@@ -4,7 +4,7 @@ import {
 	setAttributes,
 	style,
 } from '../dom/attributes.ts';
-import { type Emitter, type IGNORE } from 'util/emitter/emitter.ts';
+import { type Emitter, type IGNORE } from '../emitter/emitter.ts';
 import { newUid } from '../uid.ts';
 import type { Textish } from '../types.d.ts';
 
