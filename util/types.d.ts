@@ -28,3 +28,5 @@ export type RequireOnly<_Object, _RequiredKeys extends keyof _Object> = Partial<
 export type Textish = URL | boolean | number | string | symbol | null | undefined;
 
 export type Timer = ReturnType<typeof setTimeout>;
+
+export type ValueOf<Target> = Target[keyof Target];
