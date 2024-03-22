@@ -23,6 +23,10 @@ type ComponentWithoutDecorators = Omit<typeof Component,
 	| `uid`
 >;
 
+const normalizeEventName = (eventName: string) => eventName
+	.toLowerCase()
+	.replaceAll(/[^\w]/g, ``);
+
 export class Component extends HTMLElement {
 	static readonly cache = new Map<string, WeakRef<Component>>();
 	static readonly const = {
@@ -46,7 +50,7 @@ export class Component extends HTMLElement {
 
 		for (const attribute of document.body.attributes) {
 			if (attribute.name.startsWith(Component.const.relayAttr)) {
-				const eventName = attribute.name.slice(Component.const.relayAttr.length);
+				const eventName = attribute.value;
 				document.body.addEventListener(eventName, Component.relay);
 			}
 		}
@@ -184,8 +188,7 @@ export class Component extends HTMLElement {
 				...args: Parameters<typeof transformer>
 			) {
 				const detail = transformer.call(this, ...args); // eslint-disable-line @typescript-eslint/no-unsafe-argument
-				const eventName = propertyName.toLowerCase(); // Has to be lowercase because it's stored in an HTML attribute
-				const event = new CustomEvent(eventName, {
+				const event = new CustomEvent(propertyName, {
 					...options,
 					bubbles,
 					detail,
@@ -239,7 +242,7 @@ export class Component extends HTMLElement {
 	 */
 	static relay(event: Event) {
 		const trigger = event.target as Element;
-		const paramsAttr = `${Component.const.attrEmit}${event.type}-`;
+		const paramsAttr = `${Component.const.attrEmit}${normalizeEventName(event.type)}-`;
 		const attrEmitDelimiter = Component.const.attrEmitDelimiter;
 		for (const attribute of trigger.attributes) {
 			if (attribute.name.startsWith(paramsAttr)) {
@@ -298,7 +301,7 @@ export class Component extends HTMLElement {
 	 */
 	adoptedCallback() {}
 
-	@Component.event() attributechanged(name: string) {
+	@Component.event() attributeChanged(name: string) {
 		return name;
 	}
 
@@ -311,7 +314,7 @@ export class Component extends HTMLElement {
 		previous: unknown,
 		value: unknown,
 	) {
-		this.attributechanged(name);
+		this.attributeChanged(name);
 
 		this.dispatchEvent(new CustomEvent(name, {
 			detail: value,
@@ -533,9 +536,9 @@ export class Component extends HTMLElement {
 
 		listener.id = listener.id === `` ? Component.uid() : listener.id;
 
-		const eventNameNormalized = eventName.toLowerCase();
-		document.body.setAttribute(`${Component.const.relayAttr}${eventNameNormalized}`, ``);
-		document.body.addEventListener(eventNameNormalized, Component.relay);
+		const eventNameNormalized = normalizeEventName(eventName);
+		document.body.setAttribute(`${Component.const.relayAttr}${eventNameNormalized}`, eventName);
+		document.body.addEventListener(eventName, Component.relay);
 
 		const params = [
 			listener.id, // `setAttribute` downcases the id in the param name, so need to include it here too

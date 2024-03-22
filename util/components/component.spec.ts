@@ -25,21 +25,22 @@ class Parent extends Component.custom(`div`) {
 
 @Component.define()
 class EventListener extends Component {
+	capValue = ``;
 	listenerValue = 3;
 	source = this.findDown(EventSource);
 
-	@Component.event() cap(input: string) {
+	@Component.event() capUp(input: string) {
 		return input.toUpperCase();
 	}
 
-	handle(event: CustomEvent<number>) {
+	onDispatch(event: CustomEvent<number>) {
 		this.listenerValue += event.detail;
 	}
 
 	template = () => /*html*/`
 ${EventSource.id(`source`)
 	.setTime()
-	.on(`dispatch`, this, `handle`)
+	.on(`doDispatch`, this, `onDispatch`)
 }
 	`;
 }
@@ -59,7 +60,7 @@ class EventSource extends Component {
 		this.index = EventSource.count;
 	}
 
-	@Component.event() dispatch() {
+	@Component.event() doDispatch() {
 		return this.sourceValue;
 	}
 
@@ -70,7 +71,7 @@ class EventSource extends Component {
 	}
 
 	template = () => /*html*/`
-<button ${this.on(`click`, `dispatch`)}></button>
+<button ${this.on(`click`, `doDispatch`)}></button>
 	`;
 }
 
@@ -280,13 +281,13 @@ export const spec = suite(`Component`, {},
 
 
 		let capValue = ``;
-		listener.on(`cap`, event => capValue = event.detail);
+		listener.on(`capUp`, event => capValue = event.detail);
 		$.assert(x => x(capValue) === ``);
 
 		$.log(() => listener.click());
 		$.assert(x => x(clickValue) === 2);
 
-		$.log(() => listener.cap(`foo`));
+		$.log(() => listener.capUp(`foo`));
 		$.assert(x => x(capValue) === `FOO`);
 
 
@@ -306,7 +307,7 @@ export const spec = suite(`Component`, {},
 		$.log(() => listener.click());
 		$.assert(x => x(clickValue) === 2);
 
-		$.log(() => listener.cap(`foo`));
+		$.log(() => listener.capUp(`foo`));
 		$.assert(x => x(capValue) === `FOO`);
 
 		$.log(() => listener.source().setTime());
