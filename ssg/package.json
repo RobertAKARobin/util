@@ -1,10 +1,10 @@
 {
 	"dependencies": {
-		"@robertakarobin/util": "^0.0.367",
+		"@robertakarobin/util": "^0.0.368",
 		"@types/js-beautify": "^1.14.3",
 		"@types/jsdom": "^21.1.6",
 		"esbuild": "^0.20.2",
-		"glob": "^10.3.10",
+		"glob": "^10.3.12",
 		"js-beautify": "^1.15.1",
 		"jsdom": "^24.0.0",
 		"marked": "^12.0.1"
@@ -12,5 +12,5 @@
 	"name": "@robertakarobin/ssg",
 	"scripts": {},
 	"type": "module",
-	"version": "0.0.85"
+	"version": "0.0.86"
 }

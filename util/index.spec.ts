@@ -16,6 +16,7 @@ export const spec = suite(`@robertakarobin/js`, {},
 	(await import(`./string/template.spec.ts`)).spec,
 
 	(await import(`./assert.spec.ts`)).spec,
+	(await import(`./dateAlphabetical.spec.ts`)).spec,
 	(await import(`./defer.spec.ts`)).spec,
 	(await import(`./fetchText.spec.ts`)).spec,
 	(await import(`./fpsLoop.spec.ts`)).spec,
