@@ -4,27 +4,104 @@ import { roundTo } from '../math/roundTo.ts';
  * Returns the contents of a CSS `@keyframes` at-rule, calculating the duration % for each step. For each arg, if it's a number it increases the duration. If it's a string it outputs another step at the duration % so far.
  */
 export function keyframes(
-	...args: [string, ...Array<number | string>]
+	initialState: string,
+	...states: Array<number | string>
 ) {
-	const timeTotal = args.reduce((sum: number, arg) => {
-		return sum += (typeof arg === `number` ? arg : 0);
-	}, 0);
+	const formatted = states.map(arg => {
+		if (typeof arg === `number`) {
+			return arg;
+		}
 
-	const out: Array<string> = [];
+		return { animation: arg };
+	});
 
-	let previousKeyframe: string = ``;
-	let timeSoFar = 0;
+	const result = keyframesMulti(
+		{ animation: initialState },
+		...formatted,
+	);
+
+	return result.animation.keyframes.join(`\n`);
+}
+
+/**
+ * Returns the keyframes and timing information for multiple CSS animations.
+ * @see {@link keyframes}.
+ */
+export function keyframesMulti<
+	AnimationName extends string,
+	AnimationState extends Record<AnimationName, string>,
+>(
+	...args: [
+		Record<AnimationName, string | undefined>,
+		...Array<Partial<Record<AnimationName, string>> | number>,
+	]
+) {
+	const animationsByName = {} as Record<keyof AnimationState, {
+		keyframes: Array<string>;
+		timeDuration: number;
+		timeEnd: number;
+		timeStart: number;
+	}>;
+
+	let timeTotal = 0;
 	for (const arg of args) {
 		if (typeof arg === `number`) {
-			timeSoFar += arg;
+			timeTotal += arg;
+			continue;
+		}
 
-			if (previousKeyframe !== ``) {
-				const percent = roundTo(100 * (timeSoFar / timeTotal), 2);
-				out.push(`${percent}% {${previousKeyframe}}`);
+		for (const key in arg) {
+			const animationName = key as AnimationName;
+			const animation = animationsByName[animationName] ??= {
+				keyframes: [],
+				timeDuration: -1,
+				timeEnd: -1,
+				timeStart: -1,
+			};
+
+			if (arg[animationName] === undefined) {
+				continue;
 			}
-		} else {
-			previousKeyframe = arg;
+
+			if (animation.timeStart < 0) {
+				animation.timeStart = timeTotal;
+			}
+
+			animation.timeEnd = timeTotal;
 		}
 	}
-	return out.join(`\n`);
+
+	for (const animationName in animationsByName) {
+		const animation = animationsByName[animationName];
+		if (animation.timeEnd < 0) {
+			animation.timeEnd = timeTotal;
+		}
+
+		animation.timeDuration = (animation.timeEnd - animation.timeStart);
+	}
+
+	let timeSoFar = 0;
+	for (let index = 0, length = args.length; index < length; index += 1) {
+		const arg = args[index];
+
+		if (typeof arg === `number`) {
+			timeSoFar += arg;
+			continue;
+		}
+
+		for (const animationName in arg) {
+			const keyframe = arg[animationName];
+			if (keyframe === undefined) {
+				continue;
+			}
+
+			const animation = animationsByName[animationName];
+			const percentComplete = (timeSoFar - animation.timeStart) / animation.timeDuration;
+			const percentString = roundTo(100 * percentComplete, 2);
+
+			animation.keyframes.push(`${percentString}% {${keyframe}}`);
+		}
+	}
+
+	return animationsByName;
 }
