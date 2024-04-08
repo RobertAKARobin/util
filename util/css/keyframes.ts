@@ -20,7 +20,7 @@ export function keyframes(
 		...formatted,
 	);
 
-	return result.animation.keyframes.join(`\n`);
+	return result.animation.keyframes;
 }
 
 /**
@@ -37,7 +37,7 @@ export function keyframesMulti<
 	]
 ) {
 	const animationsByName = {} as Record<keyof AnimationState, {
-		keyframes: Array<string>;
+		keyframes: ``;
 		timeDuration: number;
 		timeEnd: number;
 		timeStart: number;
@@ -53,7 +53,7 @@ export function keyframesMulti<
 		for (const key in arg) {
 			const animationName = key as AnimationName;
 			const animation = animationsByName[animationName] ??= {
-				keyframes: [],
+				keyframes: ``,
 				timeDuration: -1,
 				timeEnd: -1,
 				timeStart: -1,
@@ -99,9 +99,18 @@ export function keyframesMulti<
 			const percentComplete = (timeSoFar - animation.timeStart) / animation.timeDuration;
 			const percentString = roundTo(100 * percentComplete, 2);
 
-			animation.keyframes.push(`${percentString}% {${keyframe}}`);
+			animation.keyframes += `${percentString}% {${keyframe}}\n`;
 		}
 	}
+
+	let compiled = ``;
+	for (const animationName in animationsByName) {
+		const animation = animationsByName[animationName];
+		compiled += `@keyframes ${animationName} {\n${animation.keyframes}}\n`;
+	}
+	Object.assign(animationsByName, {
+		toString: () => compiled,
+	});
 
 	return animationsByName;
 }
