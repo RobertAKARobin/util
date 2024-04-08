@@ -38,6 +38,7 @@ export function keyframesMulti<
 ) {
 	const animationsByName = {} as Record<keyof AnimationState, {
 		keyframes: ``;
+		name: AnimationName;
 		timeDuration: number;
 		timeEnd: number;
 		timeStart: number;
@@ -54,6 +55,7 @@ export function keyframesMulti<
 			const animationName = key as AnimationName;
 			const animation = animationsByName[animationName] ??= {
 				keyframes: ``,
+				name: animationName,
 				timeDuration: -1,
 				timeEnd: -1,
 				timeStart: -1,
@@ -108,8 +110,9 @@ export function keyframesMulti<
 		const animation = animationsByName[animationName];
 		compiled += `@keyframes ${animationName} {\n${animation.keyframes}}\n`;
 	}
-	Object.assign(animationsByName, {
-		toString: () => compiled,
+	Object.defineProperty(animationsByName, `toString`, {
+		enumerable: false,
+		value: () => compiled,
 	});
 
 	return animationsByName;

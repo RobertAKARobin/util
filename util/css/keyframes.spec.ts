@@ -85,6 +85,8 @@ ${keyframesFront}}
 export const spec = test(`Keyframes`, $ => {
 	$.assert(x => x(diff(animation, result)) === ``);
 
+	$.assert(x => x(Object.keys(multi).sort().join(`,`)) === `container,front`);
+
 	$.assert(x => x(diff(multi.container.keyframes, keyframesContainer)) === ``);
 	$.assert(x => x(multi.container.timeStart) === 0);
 	$.assert(x => x(multi.container.timeEnd) === 10);
