@@ -1,5 +1,8 @@
 import { roundTo } from '../math/roundTo.ts';
 
+/**
+ * Returns the contents of a CSS `@keyframes` at-rule, calculating the duration % for each step. For each arg, if it's a number it increases the duration. If it's a string it outputs another step at the duration % so far.
+ */
 export function keyframes(
 	...args: [string, ...Array<number | string>]
 ) {
