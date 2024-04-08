@@ -1,7 +1,7 @@
 import type * as $ from '../../types.d.ts';
 import { roundTo } from '../../math/roundTo.ts';
 
-import type * as Type from './types.js';
+import type * as Type from './types.d.ts';
 import { specStepStatuses } from './runner.ts';
 
 const match = {

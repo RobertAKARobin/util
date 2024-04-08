@@ -7,16 +7,15 @@ import jsBeautify from 'js-beautify';
 import { marked } from 'marked';
 import path from 'path';
 
-import type * as $ from '@robertakarobin/util/types.js';
+import type * as $ from '@robertakarobin/util/types.d.ts';
+import type { BaseApp, RouteMap } from '@robertakarobin/util/components/app.ts';
 import { Resolver, Router } from '@robertakarobin/util/router.ts';
-import type { BaseApp } from '@robertakarobin/util/components/app.ts';
 import { baseUrl } from '@robertakarobin/util/context.ts';
 import { delimiterPairs } from '@robertakarobin/util/string/delimiter-pairs.ts';
 import { type Page } from '@robertakarobin/util/components/component.ts';
-import { pipeFirst } from '@robertakarobin/util/emitter/pipe/first.js';
+import { pipeFirst } from '@robertakarobin/util/emitter/pipe/first.ts';
 import { posixPath } from '@robertakarobin/util/node/posixPath.ts';
 import { promiseConsecutive } from '@robertakarobin/util/promiseConsecutive.ts';
-import { type RouteMap } from '@robertakarobin/util/components/app.ts';
 
 const local = (input: string) => path.relative(process.cwd(), input);
 

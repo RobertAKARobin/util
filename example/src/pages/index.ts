@@ -3,7 +3,7 @@ import { appContext } from '@robertakarobin/util/context.ts';
 import { type EntityId } from '@robertakarobin/util/emitter/entities.ts';
 import { ModalContainer } from '@robertakarobin/util/components/modal-container.ts';
 
-import type * as Type from '@src/types.js';
+import type * as Type from '@src/types.d.ts';
 import { link } from '@src/components/link.ts';
 import { List } from '@src/components/list.ts';
 import { ListItem } from '@src/components/listitem.ts';

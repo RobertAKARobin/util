@@ -1,7 +1,7 @@
 import { Component, html } from '@robertakarobin/util/components/component.ts';
 import { type EntityId } from '@robertakarobin/util/emitter/entities.ts';
 
-import type * as Type from '@src/types.js';
+import type * as Type from '@src/types.d.ts';
 import { ListItem } from './listitem.ts';
 
 @Component.define()
