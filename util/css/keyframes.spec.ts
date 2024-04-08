@@ -35,7 +35,7 @@ const result = `0% {
 }
 `;
 
-const multi = keyframesMulti(
+const animations = keyframesMulti(
 	{
 		container: `background: #fff; opacity: 0`,
 		front: undefined,
@@ -85,18 +85,20 @@ ${keyframesFront}}
 export const spec = test(`Keyframes`, $ => {
 	$.assert(x => x(diff(animation, result)) === ``);
 
-	$.assert(x => x(Object.keys(multi).sort().join(`,`)) === `container,front`);
+	$.assert(x => x(Object.keys(animations).sort().join(`,`)) === `container,front`);
 
-	$.assert(x => x(diff(multi.container.keyframes, keyframesContainer)) === ``);
-	$.assert(x => x(multi.container.timeStart) === 0);
-	$.assert(x => x(multi.container.timeEnd) === 10);
-	$.assert(x => x(multi.container.timeDuration) === 10);
+	$.assert(x => x(animations.container.initialState) === `background: #fff; opacity: 0`);
+	$.assert(x => x(diff(animations.container.keyframes, keyframesContainer)) === ``);
+	$.assert(x => x(animations.container.timeStart) === 0);
+	$.assert(x => x(animations.container.timeEnd) === 10);
+	$.assert(x => x(animations.container.timeDuration) === 10);
 
-	$.assert(x => x(diff(multi.front.keyframes, keyframesFront)) === ``);
-	$.assert(x => x(multi.front.timeStart) === 1);
-	$.assert(x => x(multi.front.timeEnd) === 5);
-	$.assert(x => x(multi.front.timeDuration) === 4);
+	$.assert(x => x(animations.front.initialState) === `opacity: 0; top: 50%`);
+	$.assert(x => x(diff(animations.front.keyframes, keyframesFront)) === ``);
+	$.assert(x => x(animations.front.timeStart) === 1);
+	$.assert(x => x(animations.front.timeEnd) === 5);
+	$.assert(x => x(animations.front.timeDuration) === 4);
 
-	$.assert(x => x(diff(multi.toString(), keyframesCombined)) === ``);
+	$.assert(x => x(diff(animations.toString(), keyframesCombined)) === ``);
 });
 

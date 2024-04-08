@@ -23,26 +23,29 @@ export function keyframes(
 	return result.animation.keyframes;
 }
 
+export type AnimationData<AnimationName extends PropertyKey = PropertyKey> = {
+	initialState: string;
+	keyframes: string;
+	name: AnimationName;
+	timeDuration: number;
+	timeEnd: number;
+	timeStart: number;
+};
+
 /**
  * Returns the keyframes and timing information for multiple CSS animations.
  * @see {@link keyframes}.
  */
-export function keyframesMulti<
-	AnimationName extends string,
-	AnimationState extends Record<AnimationName, string>,
->(
+export function keyframesMulti<AnimationName extends string>(
 	...args: [
 		Record<AnimationName, string | undefined>,
 		...Array<Partial<Record<AnimationName, string>> | number>,
 	]
 ) {
-	const animationsByName = {} as Record<keyof AnimationState, {
-		keyframes: ``;
-		name: AnimationName;
-		timeDuration: number;
-		timeEnd: number;
-		timeStart: number;
-	}>;
+	const animationsByName = {} as Record<
+		AnimationName,
+		AnimationData<AnimationName>
+	>;
 
 	let timeTotal = 0;
 	for (const arg of args) {
@@ -54,6 +57,7 @@ export function keyframesMulti<
 		for (const key in arg) {
 			const animationName = key as AnimationName;
 			const animation = animationsByName[animationName] ??= {
+				initialState: ``,
 				keyframes: ``,
 				name: animationName,
 				timeDuration: -1,
@@ -98,6 +102,10 @@ export function keyframesMulti<
 			}
 
 			const animation = animationsByName[animationName];
+			if (animation.keyframes === ``) {
+				animation.initialState = keyframe;
+			}
+
 			const percentComplete = (timeSoFar - animation.timeStart) / animation.timeDuration;
 			const percentString = roundTo(100 * percentComplete, 2);
 
