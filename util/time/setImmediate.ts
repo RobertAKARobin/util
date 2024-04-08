@@ -1,4 +1,4 @@
-import { appContext } from './context.ts';
+import { appContext } from '../context.ts';
 
 /**
  * requestAnimationFrame in browser environments, setImmediate otherwise

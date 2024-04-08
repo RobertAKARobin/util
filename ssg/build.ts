@@ -15,7 +15,7 @@ import { delimiterPairs } from '@robertakarobin/util/string/delimiter-pairs.ts';
 import { type Page } from '@robertakarobin/util/components/component.ts';
 import { pipeFirst } from '@robertakarobin/util/emitter/pipe/first.ts';
 import { posixPath } from '@robertakarobin/util/node/posixPath.ts';
-import { promiseConsecutive } from '@robertakarobin/util/promiseConsecutive.ts';
+import { promiseConsecutive } from '@robertakarobin/util/time/promiseConsecutive.ts';
 
 const local = (input: string) => path.relative(process.cwd(), input);
 

@@ -1,5 +1,5 @@
-import { byIndex } from './byIndex.ts';
-import { enumy } from './enumy.ts';
+import { byIndex } from '../byIndex.ts';
+import { enumy } from '../enumy.ts';
 import { setImmediate } from './setImmediate.ts';
 
 export const loopStatuses = [

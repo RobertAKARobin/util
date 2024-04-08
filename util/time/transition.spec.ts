@@ -1,5 +1,5 @@
-import { difference } from './math/difference.ts';
-import { test } from './spec/index.ts';
+import { difference } from '../math/difference.ts';
+import { test } from '../spec/index.ts';
 
 import { transition } from './transition.ts';
 

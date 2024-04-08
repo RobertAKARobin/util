@@ -15,11 +15,13 @@ export const spec = suite(`@robertakarobin/js`, {},
 	(await import(`./string/delimiter-pairs.spec.ts`)).spec,
 	(await import(`./string/template.spec.ts`)).spec,
 
+	(await import(`./time/defer.spec.ts`)).spec,
+	(await import(`./time/fpsLoop.spec.ts`)).spec,
+	(await import(`./time/transition.spec.ts`)).spec,
+
 	(await import(`./assert.spec.ts`)).spec,
 	(await import(`./dateAlphabetical.spec.ts`)).spec,
-	(await import(`./defer.spec.ts`)).spec,
 	(await import(`./fetchText.spec.ts`)).spec,
-	(await import(`./fpsLoop.spec.ts`)).spec,
 	(await import(`./math/math.spec.ts`)).spec,
 	(await import(`./mixin.spec.ts`)).spec,
 	(await import(`./node/posixPath.spec.ts`)).spec,
@@ -29,7 +31,6 @@ export const spec = suite(`@robertakarobin/js`, {},
 	(await import(`./serialize.spec.ts`)).spec,
 	(await import(`./sharedEnv.spec.ts`)).spec,
 	(await import(`./sortOn.spec.ts`)).spec,
-	(await import(`./transition.spec.ts`)).spec,
 	(await import(`./tsvParse.spec.ts`)).spec,
 );
 

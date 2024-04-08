@@ -1,8 +1,8 @@
-import { suite, test } from './spec/index.ts';
-import { difference } from './math/difference.ts';
-import { mean } from './math/average.ts';
-import { roundTo } from './math/roundTo.ts';
-import { sleep } from './time/sleep.ts';
+import { suite, test } from '../spec/index.ts';
+import { difference } from '../math/difference.ts';
+import { mean } from '../math/average.ts';
+import { roundTo } from '../math/roundTo.ts';
+import { sleep } from './sleep.ts';
 
 import { FPSLoop } from './fpsLoop.ts';
 
