@@ -1,6 +1,6 @@
 import { type AnimationData } from '../css/keyframes.ts';
 
-export async function animate(
+export async function cssAnimate(
 	target: HTMLElement,
 	input: Pick<AnimationData,
 		| `initialState`
