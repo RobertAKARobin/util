@@ -494,7 +494,7 @@ export class Builder {
 					throw new Error(`Tried ${triesMax} times to connect to port ${port}, but couldn't. Is it in use?`);
 				}
 				tries += 1;
-				void retryPort();
+				setTimeout(() => void retryPort(), 100);
 			});
 		});
 
