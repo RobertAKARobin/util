@@ -3,7 +3,6 @@ import { type AnimationData } from '../css/keyframes.ts';
 export function cssAnimate(
 	target: HTMLElement,
 	input: Pick<AnimationData,
-		| `initialState`
 		| `name`
 		| `timeDuration`
 	>
