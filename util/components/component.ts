@@ -133,7 +133,7 @@ export class Component extends HTMLElement {
 	) {
 		return function(Subclass: Subclass) {
 			const Constructor = Subclass as unknown as typeof Component;
-			const elName = options.elName ?? Constructor.elName ?? `l-${Constructor.name.toLowerCase()}`;
+			const elName = options.elName ?? `l-${Constructor.name.toLowerCase()}`;
 
 			const selector = Constructor.tagName === undefined
 				? elName
