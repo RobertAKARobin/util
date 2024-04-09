@@ -1,6 +1,6 @@
 import { type AnimationData } from '../css/keyframes.ts';
 
-export async function cssAnimate(
+export function cssAnimate(
 	target: HTMLElement,
 	input: Pick<AnimationData,
 		| `initialState`
@@ -9,14 +9,15 @@ export async function cssAnimate(
 	>
 ) {
 	return new Promise<void>(resolve => {
-		target.addEventListener(`animationend`, event => {
+		const handler = (event: AnimationEvent) => {
 			if (event.animationName === input.name) {
+				target.style.setProperty(`animation`, `none`);
+				target.removeEventListener(`animationend`, handler);
 				resolve();
 			}
-		}, { once: true });
+		};
+		target.addEventListener(`animationend`, handler);
 
-		target.style.setProperty(`animation-duration`, `${input.timeDuration}s`);
-		target.style.setProperty(`animation-fill-mode`, `forwards`);
-		target.style.setProperty(`animation-name`, input.name as string);
+		target.style.setProperty(`animation`, `${input.name as string} ${input.timeDuration}s forwards`);
 	});
 }
