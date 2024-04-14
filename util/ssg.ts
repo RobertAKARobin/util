@@ -2,17 +2,12 @@ import '@robertakarobin/util/dom/dummydom.ts';
 
 import esbuild from 'esbuild';
 import fs from 'fs';
-import { glob } from 'glob';
-import jsBeautify from 'js-beautify';
-import { marked } from 'marked';
 import path from 'path';
 
-import type * as $ from '@robertakarobin/util/types.d.ts';
-import type { BaseApp, RouteMap } from '@robertakarobin/util/components/app.ts';
-import { Resolver, Router } from '@robertakarobin/util/router.ts';
+import { Component, type Page } from '@robertakarobin/util/components/component.ts';
+import { Resolver, type RouteMap, Router } from '@robertakarobin/util/router.ts';
+import type { BaseApp } from '@robertakarobin/util/components/app.ts';
 import { baseUrl } from '@robertakarobin/util/context.ts';
-import { delimiterPairs } from '@robertakarobin/util/string/delimiter-pairs.ts';
-import { type Page } from '@robertakarobin/util/components/component.ts';
 import { pipeFirst } from '@robertakarobin/util/emitter/pipe/first.ts';
 import { posixPath } from '@robertakarobin/util/node/posixPath.ts';
 import { promiseConsecutive } from '@robertakarobin/util/time/promiseConsecutive.ts';
@@ -27,6 +22,9 @@ Resolver.prototype.onPage = async function(to, { previous }) {
 	this.set(await this.resolve(to.url, previous?.url));
 };
 
+/**
+ * `npm i jsdom esbuild`
+ */
 export class Builder {
 	readonly appSrcFileAbs: string;
 	readonly appSrcFileRel: string;
@@ -47,7 +45,6 @@ export class Builder {
 	readonly quiet: boolean;
 	readonly serveDirAbs: string;
 	readonly srcDirAbs: string;
-	readonly srcRawDirAbs: string;
 	readonly ssgRoutes?: Array<string>;
 	readonly styleServeFileRel: string;
 	readonly stylesServeFileAbs: string;
@@ -65,7 +62,6 @@ export class Builder {
 	* @param input.routerSrcFileRel Relative path to the file containing the router, resolver, and renderer. Defaults to `./router.ts`
 	* @param input.serveDirRel Relative path to the directory from which the application will be served. Defaults to `./dist`
 	* @param input.srcRawDirRel Relative path to the source code. Defaults to `./src`
-	* @param input.srcTmpDirRel Relative path to the directory to which the source code will be copied and pre-processed before being compiled, e.g. for rendering Markdown. Defaults to `./tmp`
 	* @param input.styleServeFileRel Relative path to the root CSS file that will be loaded on all pages. Defaults to `./styles.css`
 	*/
 	constructor(input: Partial<{
@@ -79,8 +75,7 @@ export class Builder {
 		metaFileRel: string;
 		quiet: boolean;
 		serveDirRel: string;
-		srcRawDirRel: string;
-		srcTmpDirRel: string;
+		srcDirRel: string;
 		ssgRoutes: Array<string>;
 		styleServeFileRel: string;
 		tsconfigFileRel: string;
@@ -94,8 +89,7 @@ export class Builder {
 
 		this.baseDirAbs = posixPath(input.baseDirAbs ?? process.cwd());
 		this.serveDirAbs = path.join(this.baseDirAbs, input.serveDirRel ?? `./dist`);
-		this.srcRawDirAbs = path.join(this.baseDirAbs, input.srcRawDirRel ?? `./src`);
-		this.srcDirAbs = path.join(this.baseDirAbs, input.srcTmpDirRel ?? `./tmp`); // Copying the TS source to `/tmp` is necessary because we want to compile Markdown _before_ we build the JS source. Otherwise we'd be sending Markdown to the browser, and we'd rather send valid HTML and not need to load a Markdown parser
+		this.srcDirAbs = path.join(this.baseDirAbs, input.srcDirRel ?? `./src`);
 		this.tsconfigFileAbs = path.join(process.cwd(), input.tsconfigFileRel ?? `tsconfig.json`);
 
 		this.assetsSrcDirRel = input.assetsSrcDirRel ?? `./assets`;
@@ -123,16 +117,10 @@ export class Builder {
 		fs.rmSync(this.serveDirAbs, { force: true, recursive: true });
 		fs.mkdirSync(this.serveDirAbs);
 
-		fs.rmSync(this.srcDirAbs, { force: true, recursive: true });
-		fs.cpSync(this.srcRawDirAbs, this.srcDirAbs, { force: true, recursive: true });
-
 		await this.buildAssets();
-		await this.buildTSSource();
 		await this.buildScript();
 		await this.buildRoutes();
 		await this.buildStyles();
-
-		fs.rmSync(this.srcDirAbs, { force: true, recursive: true });
 
 		await this.cleanup();
 
@@ -164,7 +152,7 @@ export class Builder {
 		const app = new App();
 		const { resolver, router } = app;
 
-		const appStyles = document.head.querySelectorAll(`[data-style]`); // TODO2: Import this from Component; not doing it now because stupid decorator errors
+		const appStyles = document.head.querySelectorAll(`[${Component.const.styleAttr}]`);
 		document.body.replaceWith(app);
 		document.documentElement.lang = `en`;
 
@@ -190,12 +178,6 @@ export class Builder {
 				this.log(`Route is external. Skipping...`);
 				this.logBreak();
 				return;
-			}
-
-			for (const attribute of [...app.attributes]) { // TODO2: for...of seems to not get all the attributes?
-				if (attribute.name.startsWith(`data-relay-`)) { // Unset the attributes set by event delegation listeners. TODO3: Don't hardcode this. Importing Component causes the `decorators...not supported` error though
-					app.removeAttribute(attribute.name); // TODO1: Some attributes not being removed. Suspect race condition
-				}
 			}
 
 			document.head.replaceChildren();
@@ -319,20 +301,6 @@ export class Builder {
 		this.logBreak();
 	}
 
-	async buildTSSource() {
-		this.logHeader(`Formatting TS source files`);
-		const tsSrcsAbs = await glob(`${this.srcDirAbs}/**/*.ts`, { absolute: true });
-		for (const tsSrcAbs of tsSrcsAbs) {
-			const tsSrc = fs.readFileSync(tsSrcAbs, { encoding: `utf8` });
-			const tsSrcModified = await this.formatTSSource(tsSrc);
-			if (tsSrc !== tsSrcModified) {
-				this.log(local(tsSrcAbs));
-			}
-			fs.writeFileSync(tsSrcAbs, tsSrcModified);
-		}
-		this.logBreak();
-	}
-
 	bustCache(pathname: string) {
 		const url = new URL(`file:///${pathname}?v=${Date.now() + performance.now()}`); // URL is necessary for running on Windows
 		return import(url.toString());
@@ -343,12 +311,6 @@ export class Builder {
 	formatCss(input: string): Promise<string> | string {
 		let css = input;
 		css = trimNewlines(input);
-		css = jsBeautify.css(css, {
-			end_with_newline: true, // TODO3: Once we're using editorconfig, use the `--editorconfig` option
-			indent_with_tabs: true,
-			space_around_combinator: true,
-			space_around_selector_separator: true,
-		});
 		return css;
 	}
 
@@ -409,51 +371,7 @@ export class Builder {
 	formatHtml(input: string): Promise<string> | string {
 		let html = input;
 		html = trimNewlines(html);
-		html = jsBeautify.html(html, {
-			end_with_newline: true, // TODO3: Once we're using editorconfig, use the `--editorconfig` option
-			indent_with_tabs: true,
-			unformatted: [`script`],
-		});
 		return html;
-	}
-
-	formatMarkdown(input: string): Promise<string> | string {
-		const isMarkdown = [`<markdown>`, `</markdown>`];
-		if (!input.includes(isMarkdown[0])) {
-			return input;
-		}
-
-		const isJsTemplate = [`\${`, `}`];
-		const jsChunks: Array<string> = [];
-		const tokens = delimiterPairs(input, [
-			isMarkdown,
-			isJsTemplate,
-		]);
-		return parse(tokens)
-			.flat()
-			.join(``)
-			.replace(/\/%%\//g, () => jsChunks.shift()!);
-
-		function parse(input: ReturnType<typeof delimiterPairs>): $.Nested<string> {
-			return input.inner.map(item => {
-				if (typeof item === `string`) {
-					return item;
-				}
-				const contents = parse(item).flat().join(``);
-				if (item.delimiters.opener === isMarkdown[0]) {
-					if (contents.indexOf(`\n`) < 0) {
-						return marked.parseInline(contents, { async: false, gfm: true }) as string;
-					}
-					return marked(contents, { async: false, gfm: true }) as string;
-				}
-				jsChunks.push(`\${` + contents + `}`); // eslint-disable-line quotes
-				return `/%%/`; // TODO3: Use a better placeholder
-			});
-		}
-	}
-
-	formatTSSource(input: string): Promise<string> | string {
-		return this.formatMarkdown(input);
 	}
 
 	log(...args: Array<string>) {

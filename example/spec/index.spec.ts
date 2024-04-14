@@ -22,7 +22,7 @@ const read = (path: string) => fs.readFileSync(path, { encoding: `utf8` })
 
 const dist = (path: string) => read(`dist/${path}`);
 const golden = (path: string) => read(`dist-golden/${path}`);
-const src = (path: string) => read(`src/${path}`);
+// const src = (path: string) => read(`src/${path}`);
 
 const distMatchesGolden = (path: string) =>
 	diff(golden(path), dist(path));
@@ -47,7 +47,7 @@ export const spec = suite(`Build`, {},
 		$.assert(() => hasSSG(`ssg/yes/index`));
 		$.assert(() => !hasSSG(`ssg/no/index`));
 
-		$.assert(() => hasMarkdown.test(src(`pages/index.ts`)));
-		$.assert(() => !hasMarkdown.test(dist(`index.html`)));
+		// $.assert(() => hasMarkdown.test(src(`pages/index.ts`)));
+		// $.assert(() => !hasMarkdown.test(dist(`index.html`)));
 	}),
 );
