@@ -1,7 +1,7 @@
 import { execSync } from 'child_process';
 import jsBeautify from 'js-beautify';
 
-import { Builder } from '@robertakarobin/util/ssg.ts';
+import { Builder } from '@robertakarobin/util/components/build.ts';
 
 import { routes } from '@src/routes.ts';
 
