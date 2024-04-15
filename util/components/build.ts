@@ -23,7 +23,7 @@ Resolver.prototype.onPage = async function(to, { previous }) {
 };
 
 /**
- * `npm i jsdom esbuild`
+ * `npm i @robertakarobin/util-components-build-deps`
  */
 export class Builder {
 	readonly appSrcFileAbs: string;
