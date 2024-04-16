@@ -90,8 +90,8 @@ export class Component extends HTMLElement {
 	static custom<
 		TagName extends keyof HTMLElementTagNameMap,
 	>(tagName: TagName) {
-		const $dummy = document.createElement(tagName);
-		const BaseElement = $dummy.constructor as Constructor<HTMLElementTagNameMap[TagName]>;
+		const dummy = document.createElement(tagName);
+		const BaseElement = dummy.constructor as Constructor<HTMLElementTagNameMap[TagName]>;
 
 		interface ComponentBase extends Component {} // eslint-disable-line no-restricted-syntax, @typescript-eslint/no-unsafe-declaration-merging
 		class ComponentBase extends (BaseElement as unknown as new() => object) { // eslint-disable-line @typescript-eslint/no-unsafe-declaration-merging
@@ -143,10 +143,10 @@ export class Component extends HTMLElement {
 				typeof style === `string`
 				&& document.head.querySelector(`[${Component.const.styleAttr}='${elName}']`) === null
 			) {
-				const $style = document.createElement(`style`);
-				$style.textContent = style;
-				$style.setAttribute(Component.const.styleAttr, elName);
-				document.head.appendChild($style);
+				const styleEl = document.createElement(`style`);
+				styleEl.textContent = style;
+				styleEl.setAttribute(Component.const.styleAttr, elName);
+				document.head.appendChild(styleEl);
 			}
 
 			Object.assign(Constructor, {
@@ -388,7 +388,7 @@ export class Component extends HTMLElement {
 		all: boolean;
 	}> = {}) {
 		const selector = (select as Function) === Page
-			? `[${Page.$pageAttr}]`
+			? `[${Page.pageAttr}]`
 			: typeof select === `string`
 				? select
 				: (select as unknown as typeof Component).selector;
@@ -415,7 +415,7 @@ export class Component extends HTMLElement {
 	findUp(select: string): () => HTMLElement;
 	findUp(select: Function | string) {
 		const selector = (select as Function) === Page
-			? `[${Page.$pageAttr}]`
+			? `[${Page.pageAttr}]`
 			: typeof select === `string`
 				? select
 				: (select as unknown as typeof Component).selector;
@@ -732,8 +732,8 @@ export class Component extends HTMLElement {
 }
 
 export class Page extends Component.custom(`main`) {
-	static $pageAttr = `data-page-title`;
-	@Component.attribute({ name: Page.$pageAttr }) pageTitle!: string;
+	static pageAttr = `data-page-title`;
+	@Component.attribute({ name: Page.pageAttr }) pageTitle!: string;
 
 	constructor(input: Partial<{
 		title: Page[`pageTitle`];

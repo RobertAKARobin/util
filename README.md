@@ -54,12 +54,11 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ## TODO
 
+-	TODO1: Add TS preprocessing back in
 -	TODO1: Don't refer to functions by string -- keeps names from being minified
 -	TODO2: Image preprocessing
 -	TODO2: Import SVGs
 -	TODO2: Remove CSS from JS bundles
--	TODO2: CSS minify
--	TODO2: HTML minify
 -	TODO3: Use `#` private fields
 -	TODO3: CSS class and variable mapping
 
