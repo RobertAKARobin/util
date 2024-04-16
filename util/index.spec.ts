@@ -15,6 +15,7 @@ export const spec = suite(`@robertakarobin/js`, {},
 	(await import(`./string/delimiter-pairs.spec.ts`)).spec,
 	(await import(`./string/template.spec.ts`)).spec,
 
+	(await import(`./time/ampmToDate.spec.ts`)).spec,
 	(await import(`./time/defer.spec.ts`)).spec,
 	(await import(`./time/fpsLoop.spec.ts`)).spec,
 	(await import(`./time/transition.spec.ts`)).spec,
