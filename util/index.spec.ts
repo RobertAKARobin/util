@@ -5,6 +5,10 @@ export const spec = suite(`@robertakarobin/js`, {},
 
 	(await import(`./css/keyframes.spec.ts`)).spec,
 
+	(await import(`./date/ampmToDate.spec.ts`)).spec,
+	(await import(`./date/dateFormat.spec.ts`)).spec,
+	(await import(`./date/dayEnd.spec.ts`)).spec,
+
 	(await import(`./emitter/emitter.spec.ts`)).spec,
 	(await import(`./emitter/entities.spec.ts`)).spec,
 
@@ -15,7 +19,6 @@ export const spec = suite(`@robertakarobin/js`, {},
 	(await import(`./string/delimiter-pairs.spec.ts`)).spec,
 	(await import(`./string/template.spec.ts`)).spec,
 
-	(await import(`./time/ampmToDate.spec.ts`)).spec,
 	(await import(`./time/defer.spec.ts`)).spec,
 	(await import(`./time/fpsLoop.spec.ts`)).spec,
 	(await import(`./time/transition.spec.ts`)).spec,
