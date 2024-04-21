@@ -172,11 +172,11 @@ export class Emitter<State> {
 		resolveIfHasValue?: boolean;
 	} = {}) {
 		const resolveIfHasValue = options.resolveIfHasValue ?? false;
-		return new Promise<State>(resolve => {
-			if (resolveIfHasValue && this.cache.count >= 1 && this.cache.limit > 0) {
-				return resolve(this.value);
-			}
+		if (resolveIfHasValue && this.cache.count >= 1 && this.cache.limit > 0) {
+			return Promise.resolve(this.value);
+		}
 
+		return new Promise<State>(resolve => {
 			const subscription = this.subscribe(state => {
 				subscription.unsubscribe();
 				resolve(state);
