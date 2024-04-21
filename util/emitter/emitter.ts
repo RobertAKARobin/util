@@ -168,8 +168,15 @@ export class Emitter<State> {
 		};
 	}
 
-	toPromise() {
+	toPromise(options: {
+		resolveIfHasValue?: boolean;
+	} = {}) {
+		const resolveIfHasValue = options.resolveIfHasValue ?? false;
 		return new Promise<State>(resolve => {
+			if (resolveIfHasValue && this.cache.count >= 1 && this.cache.limit > 0) {
+				return resolve(this.value);
+			}
+
 			const subscription = this.subscribe(state => {
 				subscription.unsubscribe();
 				resolve(state);
@@ -195,6 +202,12 @@ export class Emitter<State> {
 
 /** Encloses an array of values in reverse insertion order. */
 export class EmitterCache<State> {
+	/** The number of values that have been set in this cache, regardless of its limit */
+	get count() {
+		return this.count_;
+	}
+	private count_ = 0;
+
 	/** The quantity of values to cache. */
 	limit: number;
 
@@ -213,11 +226,9 @@ export class EmitterCache<State> {
 	}
 
 	addMany(entries: Array<State>) {
-		if (this.limit <= 0) {
-			return;
-		}
 		for (const entry of entries) {
 			this.memory.unshift(entry);
+			this.count_ += 1;
 		}
 		this.memory.splice(this.limit);
 		return this;

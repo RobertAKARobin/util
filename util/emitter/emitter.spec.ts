@@ -1,5 +1,7 @@
 import '../dom/dummydom.ts';
+
 import { suite, test } from '../spec/index.ts';
+import { sleep } from '../time/sleep.ts';
 
 import { type EmitEvent, Emitter, type Subscription } from './emitter.ts';
 import { pipeFilter } from './pipe/filter.ts';
@@ -22,13 +24,17 @@ export const spec = suite(`Emitter`, {},
 
 		$.assert(x => x(emitter1.handlers.size) === 0);
 		$.assert(x => x(emitter1.cache.list[0]) === void 0);
+		$.assert(x => x(emitter1.cache.count) === 0);
 		$.assert(x => x(emitter2.handlers.size) === 0);
 		$.assert(x => x(emitter2.cache.list[0]) === void 0);
+		$.assert(x => x(emitter2.cache.count) === 0);
 
 		$.log(() => emitter1.subscribe(({ age }) => emitter1_subscription1_value = age));
 		$.assert(x => x(emitter1.handlers.size) === 1);
+		$.assert(x => x(emitter1.cache.count) === 0);
 		$.assert(x => x(emitter1.cache.list[0]) === void 0);
 		$.assert(x => x(emitter2.handlers.size) === 0);
+		$.assert(x => x(emitter2.cache.count) === 0);
 		$.assert(x => x(emitter2.cache.list[0]) === void 0);
 
 		$.log(() => emitter1.subscribe(({ age }) => emitter1_subscription2_value = age));
@@ -46,6 +52,7 @@ export const spec = suite(`Emitter`, {},
 		let emitter1_value1: number;
 		$.log(() => emitter1_value1 = 42);
 		$.log(() => emitter1.set({ age: emitter1_value1 }));
+		$.assert(x => x(emitter1.cache.count) === 1);
 		$.assert(x => x(emitter1.cache.list[0].age) === emitter1_value1);
 		$.assert(x => x(emitter1_subscription1_value) === emitter1_value1);
 		$.assert(x => x(emitter1_subscription2_value) === emitter1_value1);
@@ -53,6 +60,7 @@ export const spec = suite(`Emitter`, {},
 		let emitter1_value2: number;
 		$.log(() => emitter1_value2 = 43);
 		$.log(() => emitter1.set({ age: emitter1_value2 }));
+		$.assert(x => x(emitter1.cache.count) === 2);
 		$.assert(x => x(emitter1.cache.list[0].age) === emitter1_value2);
 		$.assert(x => x(emitter1_subscription1_value) === emitter1_value2);
 		$.assert(x => x(emitter1_subscription2_value) === emitter1_value2);
@@ -60,6 +68,7 @@ export const spec = suite(`Emitter`, {},
 		let emitter2_value1: number;
 		$.log(() => emitter2_value1 = 3);
 		$.log(() => emitter2.set({ age: emitter2_value1 }));
+		$.assert(x => x(emitter2.cache.count) === 1);
 		$.assert(x => x(emitter2.cache.list[0].age) === emitter2_value1);
 		$.assert(x => x(emitter1_subscription1_value) === emitter1_value2);
 		$.assert(x => x(emitter1_subscription2_value) === emitter1_value2);
@@ -74,52 +83,67 @@ export const spec = suite(`Emitter`, {},
 		$.log(() => emitterCache1 = new Emitter<State>());
 		$.log(() => emitterCache2 = new Emitter<State>(null, { limit: 2 }));
 		$.assert(x => x(JSON.stringify(emitterCache0.cache.list)) === `[]`);
+		$.assert(x => x(emitterCache0.cache.count) === 0);
 		$.assert(x => x(JSON.stringify(emitterCache1.cache.list)) === `[]`);
+		$.assert(x => x(emitterCache1.cache.count) === 0);
 		$.assert(x => x(JSON.stringify(emitterCache2.cache.list)) === `[]`);
+		$.assert(x => x(emitterCache2.cache.count) === 0);
 
 		$.log(() => emitterCache0 = new Emitter({ age: 0 }, { limit: 0 }));
 		$.log(() => emitterCache1 = new Emitter({ age: 0 }));
 		$.log(() => emitterCache2 = new Emitter({ age: 0 }, { limit: 2 }));
 		$.assert(x => x(JSON.stringify(emitterCache0.cache.list[0])) === undefined);
+		$.assert(x => x(emitterCache0.cache.count) === 1);
 		$.assert(x => x(JSON.stringify(emitterCache1.cache.list[0])) === `{"age":0}`);
+		$.assert(x => x(emitterCache1.cache.count) === 1);
 		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[0])) === `{"age":0}`);
 		$.assert(x => x(JSON.stringify(emitterCache2.value)) === `{"age":0}`);
+		$.assert(x => x(emitterCache2.cache.count) === 1);
 
 
 		$.log(() => emitterCache0.set({ age: 42 }));
 		$.log(() => emitterCache1.set({ age: 42 }));
 		$.log(() => emitterCache2.set({ age: 42 }));
 		$.assert(x => x(JSON.stringify(emitterCache0.cache.list[0])) === undefined);
+		$.assert(x => x(emitterCache0.cache.count) === 2);
 
 		$.assert(x => x(JSON.stringify(emitterCache1.cache.list[0])) === `{"age":42}`);
 		$.assert(x => x(JSON.stringify(emitterCache1.cache.list[1])) === undefined);
+		$.assert(x => x(emitterCache1.cache.count) === 2);
 
 		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[0])) === `{"age":42}`);
 		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[1])) === `{"age":0}`);
 		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[2])) === undefined);
 		$.assert(x => x(JSON.stringify(emitterCache2.value)) === `{"age":42}`);
+		$.assert(x => x(emitterCache1.cache.count) === 2);
 
 
 		$.log(() => emitterCache0.set({ age: 43 }));
 		$.log(() => emitterCache1.set({ age: 43 }));
 		$.log(() => emitterCache2.set({ age: 43 }));
 		$.assert(x => x(JSON.stringify(emitterCache0.cache.list[0])) === undefined);
+		$.assert(x => x(emitterCache0.cache.count) === 3);
 
 		$.assert(x => x(JSON.stringify(emitterCache1.cache.list[0])) === `{"age":43}`);
 		$.assert(x => x(JSON.stringify(emitterCache1.cache.list[1])) === undefined);
+		$.assert(x => x(emitterCache1.cache.count) === 3);
 
 		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[0])) === `{"age":43}`);
 		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[1])) === `{"age":42}`);
 		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[2])) === undefined);
 		$.assert(x => x(JSON.stringify(emitterCache2.value)) === `{"age":43}`);
+		$.assert(x => x(emitterCache2.cache.count) === 3);
 
 
 		$.log(() => emitterCache0.set({ age: 44 }));
 		$.log(() => emitterCache1.set({ age: 44 }));
 		$.log(() => emitterCache2.set({ age: 44 }));
 		$.assert(x => x(JSON.stringify(emitterCache0.cache.list[0])) === undefined);
+		$.assert(x => x(emitterCache0.cache.count) === 4);
 		$.assert(x => x(JSON.stringify(emitterCache1.cache.list[0])) === `{"age":44}`);
+		$.assert(x => x(emitterCache1.cache.count) === 4);
 		$.assert(x => x(JSON.stringify(emitterCache2.cache.list[0])) === `{"age":44}`);
+		$.assert(x => x(emitterCache2.cache.count) === 4);
 
 		$.log(`cache.list always returns new array:`);
 		$.assert(x => x(emitterCache2.cache.list) !== x(emitterCache2.cache.list));
@@ -271,19 +295,27 @@ export const spec = suite(`Emitter`, {},
 	}),
 
 	test(`toPromise`, async $ => {
-		const emitter = new Emitter(1);
+		const emitter = new Emitter(`a`);
 
 		let promise = emitter.toPromise();
-		setTimeout(() => emitter.set(2), 10);
-		$.assert(x => x(emitter.value) === 1);
-		await $.assert(async x => x(await promise) === 2);
-		$.assert(x => x(emitter).value === 2);
+		setTimeout(() => emitter.set(`b`), 10);
+		$.assert(x => x(emitter.value) === `a`);
+		await $.assert(async x => x(await promise) === `b`);
+		$.assert(x => x(emitter.value) === `b`);
 
 		promise = emitter.toPromise();
-		setTimeout(() => emitter.set(3), 10);
-		$.assert(x => x(emitter.value) === 2);
-		await $.assert(async x => x(await promise) === 3);
-		$.assert(x => x(emitter).value === 3);
+		setTimeout(() => emitter.set(`c`), 10);
+		$.assert(x => x(emitter.value) === `b`);
+		await $.assert(async x => x(await promise) === `c`);
+		$.assert(x => x(emitter.value) === `c`);
+
+		promise = emitter.toPromise({ resolveIfHasValue: true });
+		setTimeout(() => emitter.set(`d`), 20);
+		$.assert(x => x(emitter.value) === `c`);
+		await $.assert(async x => x(await promise) === `c`);
+		$.assert(x => x(emitter.value) === `c`);
+		await sleep(20);
+		$.assert(x => x(emitter.value) === `d`);
 	}),
 
 	suite(`pipes`, {},
