@@ -270,6 +270,22 @@ export const spec = suite(`Emitter`, {},
 		$.assert(x => x(emitter.value) === true);
 	}),
 
+	test(`toPromise`, async $ => {
+		const emitter = new Emitter(1);
+
+		let promise = emitter.toPromise();
+		setTimeout(() => emitter.set(2), 10);
+		$.assert(x => x(emitter.value) === 1);
+		await $.assert(async x => x(await promise) === 2);
+		$.assert(x => x(emitter).value === 2);
+
+		promise = emitter.toPromise();
+		setTimeout(() => emitter.set(3), 10);
+		$.assert(x => x(emitter.value) === 2);
+		await $.assert(async x => x(await promise) === 3);
+		$.assert(x => x(emitter).value === 3);
+	}),
+
 	suite(`pipes`, {},
 		test(`on`, $ => {
 			const initial = {

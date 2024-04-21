@@ -168,6 +168,15 @@ export class Emitter<State> {
 		};
 	}
 
+	toPromise() {
+		return new Promise<State>(resolve => {
+			const subscription = this.subscribe(state => {
+				subscription.unsubscribe();
+				resolve(state);
+			});
+		});
+	}
+
 	unsubscribe(handler: SubscriptionHandler<State>) {
 		this.handlers.delete(handler);
 		if (typeof this.onUnsubscribe === `function`) {
