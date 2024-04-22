@@ -2,7 +2,9 @@
 type Resolve<Value> = (value: Value) => void;
 type Reject = (reason?: any) => void; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-
+/**
+ * Returns a Promise with its resolve/reject methods exposed
+ */
 export function defer<Value>() {
 	let isResolved = false;
 	let resolve!: Resolve<Value>;

@@ -99,6 +99,9 @@ export class Emitter<State> {
 		this.resetter = options.reset;
 	}
 
+	/**
+	 * If the Emitter's value is an object, updates the object with the input partial object
+	 */
 	patch(update: Partial<State> | State) {
 		if (isPrimitive(update)) {
 			return this.set(update as State);
@@ -109,6 +112,9 @@ export class Emitter<State> {
 		});
 	}
 
+	/**
+	 * "Pipes" this Emitter's values into a new Emitter, first applying the supplies transformation
+	 */
 	pipe<Output>(pipeFunction: PipeFunction<State, Output>) {
 		const innerEmitter = new Emitter<Output>();
 
@@ -126,6 +132,9 @@ export class Emitter<State> {
 		return innerEmitter;
 	}
 
+	/**
+	 * Resets the Emitter's value to its initial state, if a `reset` function was supplied
+	 */
 	reset() {
 		if (this.resetter) {
 			this.set(this.resetter());
@@ -133,6 +142,9 @@ export class Emitter<State> {
 		return this;
 	}
 
+	/**
+	 * Sets the Emitter's value
+	 */
 	set(update: State | typeof IGNORE) {
 		const previous = this.value;
 
@@ -168,6 +180,10 @@ export class Emitter<State> {
 		};
 	}
 
+	/**
+	 * Returns a promise that resolves the next time the Emitter receives a value
+	 * @param options.resolveIfHasValue If true, will resolve the promise if the Emitter already has any value. Defaults to false
+	 */
 	toPromise(options: {
 		resolveIfHasValue?: boolean;
 	} = {}) {

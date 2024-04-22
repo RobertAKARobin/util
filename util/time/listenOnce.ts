@@ -1,3 +1,6 @@
+/**
+ * Returns a Promise that resolves once the given event has occurred
+ */
 export function listenOnce<
 	EventName extends keyof HTMLElementEventMap,
 	EventType extends HTMLElementEventMap[EventName],
