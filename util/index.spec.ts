@@ -12,6 +12,10 @@ export const spec = suite(`@robertakarobin/js`, {},
 	(await import(`./emitter/emitter.spec.ts`)).spec,
 	(await import(`./emitter/entities.spec.ts`)).spec,
 
+	(await import(`./math/average.spec.ts`)).spec,
+	(await import(`./math/distance.spec.ts`)).spec,
+	(await import(`./math/sum.spec.ts`)).spec,
+
 	(await import(`./spec/index.spec.ts`)).spec,
 
 	(await import(`./string/capitalize.spec.ts`)).spec,
@@ -26,7 +30,6 @@ export const spec = suite(`@robertakarobin/js`, {},
 	(await import(`./assert.spec.ts`)).spec,
 	(await import(`./dateAlphabetical.spec.ts`)).spec,
 	(await import(`./fetchText.spec.ts`)).spec,
-	(await import(`./math/math.spec.ts`)).spec,
 	(await import(`./mixin.spec.ts`)).spec,
 	(await import(`./node/posixPath.spec.ts`)).spec,
 	(await import(`./proxyDeep.spec.ts`)).spec,
