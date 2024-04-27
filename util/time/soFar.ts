@@ -1,4 +1,4 @@
-import { roundTo } from './math/roundTo.ts';
+import { roundTo } from '../math/roundTo.ts';
 
 // soFarts, lol
 

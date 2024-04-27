@@ -427,4 +427,6 @@ export const spec = suite(`Emitter`, {},
 			}),
 		),
 	),
+
+	(await import(`./entities.spec.ts`)).spec,
 );
