@@ -1,6 +1,6 @@
 import { run, suite } from './spec/index.ts';
 
-export const spec = suite(`@robertakarobin/js`, {},
+export const spec = suite(`@robertakarobin/util`, {},
 	(await import(`./components/component.spec.ts`)).spec,
 
 	(await import(`./css/keyframes.spec.ts`)).spec,
@@ -14,6 +14,7 @@ export const spec = suite(`@robertakarobin/js`, {},
 
 	(await import(`./math/average.spec.ts`)).spec,
 	(await import(`./math/distance.spec.ts`)).spec,
+	(await import(`./math/slope.spec.ts`)).spec,
 	(await import(`./math/sum.spec.ts`)).spec,
 
 	(await import(`./spec/index.spec.ts`)).spec,

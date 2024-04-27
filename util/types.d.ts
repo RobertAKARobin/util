@@ -2,6 +2,11 @@ export type Constructor<Type> = {
 	new(...args: Array<unknown>): Type;
 };
 
+export type Coordinate = {
+	x: number;
+	y: number;
+};
+
 export type KeysMatching<Type, Value> = { // https://stackoverflow.com/q/77571882/2053389
 	[Key in keyof Type]: Type[Key] extends Value ? Key : never
 }[keyof Type];
@@ -19,6 +24,11 @@ export type Index1Forward<Input> =
 export type Nested<Type> = Array<Nested<Type> | Type>;
 
 export type OneOrMany<Type> = Array<Type> | Type;
+
+export type Path = {
+	begin: Coordinate;
+	end: Coordinate;
+};
 
 export type PromiseMaybe<Type> = Promise<Type> | Type;
 
