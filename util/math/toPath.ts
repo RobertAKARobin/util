@@ -2,12 +2,12 @@ import type { Coordinate, Path } from '../types.d.ts';
 
 import { toCoordinate } from './toCoordinate.ts';
 
-export function toPath(...args: Array<Coordinate | Path | [number, number]>) {
-	if (`begin` in args[0]) {
-		return args[0];
+export function toPath(arg: Array<Array<number> | Coordinate> | Path): Path {
+	if (`begin` in arg) {
+		return arg;
 	}
 
-	const [begin, end] = args;
+	const [begin, end] = arg;
 
 	return {
 		begin: toCoordinate(begin),
