@@ -3,9 +3,11 @@ import { roundTo } from './roundTo.ts';
 
 import { slope } from './slope.ts';
 import { toPath } from './toPath.ts';
+import { yOffset } from './yOffset.ts';
 
 /**
  * Find the intersection of two straight lines
+ * TODO3: Can make more efficient, but like the readability
  */
 export function intersectionOfPaths(...paths: Array<PathLike>): Coordinate | undefined {
 	const pathA = toPath(paths[0]);
@@ -18,8 +20,8 @@ export function intersectionOfPaths(...paths: Array<PathLike>): Coordinate | und
 		return undefined;
 	}
 
-	const yOffsetA = pathA.begin.y - (slopeA * pathA.begin.x);
-	const yOffsetB = pathB.begin.y - (slopeB * pathB.begin.x);
+	const yOffsetA = yOffset(pathA);
+	const yOffsetB = yOffset(pathB);
 
 	let x = (yOffsetB - yOffsetA) / (slopeA - slopeB);
 	x = roundTo(x, 12); // Account for float fragments
