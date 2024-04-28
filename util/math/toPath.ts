@@ -1,13 +1,13 @@
-import type { Coordinate, Path } from '../types.d.ts';
+import type { Path, PathLike } from '../types.d.ts';
 
 import { toCoordinate } from './toCoordinate.ts';
 
-export function toPath(arg: Array<Array<number> | Coordinate> | Path): Path {
-	if (`begin` in arg) {
-		return arg;
+export function toPath(pathLike: PathLike): Path {
+	if (`begin` in pathLike) {
+		return pathLike;
 	}
 
-	const [begin, end] = arg;
+	const [begin, end] = pathLike;
 
 	return {
 		begin: toCoordinate(begin),

@@ -1,4 +1,4 @@
-import type { Coordinate, Path } from '../types.d.ts';
+import type { Coordinate, PathLike } from '../types.d.ts';
 import { roundTo } from './roundTo.ts';
 
 import { slope } from './slope.ts';
@@ -7,11 +7,9 @@ import { toPath } from './toPath.ts';
 /**
  * Find the intersection of two straight lines
  */
-export function intersectionOfPaths(...args: Array<
-	Array<Array<number> | Coordinate> | Path
->): Coordinate | undefined {
-	const pathA = toPath(args[0]);
-	const pathB = toPath(args[1]);
+export function intersectionOfPaths(...paths: Array<PathLike>): Coordinate | undefined {
+	const pathA = toPath(paths[0]);
+	const pathB = toPath(paths[1]);
 
 	const slopeA = slope(pathA);
 	const slopeB = slope(pathB);

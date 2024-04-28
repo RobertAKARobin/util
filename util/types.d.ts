@@ -7,6 +7,8 @@ export type Coordinate = {
 	y: number;
 };
 
+export type CoordinateLike = Array<number> | Coordinate;
+
 export type KeysMatching<Type, Value> = { // https://stackoverflow.com/q/77571882/2053389
 	[Key in keyof Type]: Type[Key] extends Value ? Key : never
 }[keyof Type];
@@ -29,6 +31,8 @@ export type Path = {
 	begin: Coordinate;
 	end: Coordinate;
 };
+
+export type PathLike = Array<Array<number> | Coordinate> | Path;
 
 export type PromiseMaybe<Type> = Promise<Type> | Type;
 
