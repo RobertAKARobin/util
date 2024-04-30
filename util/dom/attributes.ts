@@ -46,7 +46,7 @@ export function setAttributes<Subclass extends Element>(
 	return target;
 }
 
-export function style(target: HTMLElement, properties: Partial<CSSStyleDeclaration>) {
+export function style(target: HTMLElement | SVGElement, properties: Partial<CSSStyleDeclaration>) {
 	for (const propertyName in properties) {
 		target.style.setProperty(propertyName, properties[propertyName]!);
 	}
