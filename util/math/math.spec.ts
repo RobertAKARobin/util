@@ -2,6 +2,7 @@ import { suite } from '../spec/index.ts';
 
 export const spec = suite(`math/`, {},
 	(await import(`./average.spec.ts`)).spec,
+	(await import(`./constrain.spec.ts`)).spec,
 	(await import(`./distance.spec.ts`)).spec,
 	(await import(`./intersectionOfPaths.spec.ts`)).spec,
 	(await import(`./pointIsOnPath.spec.ts`)).spec,
