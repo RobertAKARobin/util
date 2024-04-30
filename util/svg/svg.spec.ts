@@ -4,5 +4,6 @@ const testSvg = await (await fetch(`/svg/test.svg`)).text();
 document.body.innerHTML += testSvg;
 
 export const spec = suite(`svg/`, {},
+	(await import(`./createSvg.spec.ts`)).spec,
 	(await import(`./pathPointNearest.spec.ts`)).spec,
 );
