@@ -1,9 +1,20 @@
 import { suite } from '../spec/index.ts';
 
 const testSvg = await (await fetch(`/svg/test.svg`)).text();
-document.body.innerHTML += testSvg;
 
-export const spec = suite(`svg/`, {},
+export const spec = suite(`svg/`,
+	{
+		args: () => {
+			const svg = document.querySelector(`svg`);
+			if (svg !== null) {
+				svg.remove();
+			}
+			document.body.innerHTML += testSvg;
+		},
+		timing: `consecutive`,
+	},
+
 	(await import(`./createSvg.spec.ts`)).spec,
 	(await import(`./pathPointNearest.spec.ts`)).spec,
+	(await import(`./pointToSvg.spec.ts`)).spec,
 );
