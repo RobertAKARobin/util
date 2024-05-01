@@ -3,7 +3,10 @@ export const customDragEventName = `customdrag`;
 /**
  * Makes the given element emit a `customdrag` event on mousemove after it has emitted a mousedown, until mouseup.
  */
-export function makeDraggable(target: SVGElement) {
+export function makeDraggable(
+	target: SVGElement,
+	onDragCallback?: (event: MouseEvent) => void,
+) {
 	const abort = new AbortController();
 	const signal = abort.signal;
 
@@ -16,6 +19,10 @@ export function makeDraggable(target: SVGElement) {
 		}
 
 		target.dispatchEvent(new MouseEvent(customDragEventName, { ...event }));
+
+		if (typeof onDragCallback === `function`) {
+			onDragCallback(event);
+		}
 	}, { signal });
 
 	return abort;
