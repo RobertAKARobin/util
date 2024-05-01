@@ -2,7 +2,7 @@ import { test } from '../spec/index.ts';
 
 import { createSvg } from './createSvg.ts';
 import { pointToSvg } from './pointToSvg.ts';
-import { style } from 'util/dom/attributes.ts';
+import { style } from '../dom/attributes.ts';
 
 export const spec = test(`pointToSvg`, $ => {
 	const svg = document.querySelector(`svg`)!;

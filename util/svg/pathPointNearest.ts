@@ -1,10 +1,14 @@
 import type { Coordinate, CoordinateLike } from '../types.d.ts';
 import { distance } from '../math/distance.ts';
-import { toCoordinate } from 'util/math/toCoordinate.ts';
+import { toCoordinate } from '../math/toCoordinate.ts';
 
-export function pathPointNearest(path: SVGPathElement, subject: CoordinateLike, options: {
-	tolerance?: number;
-} = {}): Coordinate {
+export function pathPointNearest(
+	path: SVGGeometryElement,
+	subject: CoordinateLike,
+	options: {
+		tolerance?: number;
+	} = {}
+): Coordinate {
 	const origin = toCoordinate(subject);
 	const svg = path.ownerSVGElement!;
 	const point = svg.createSVGPoint(); // TODO3: Technically deprecated. Revisit when the SVG working group and browsers get their act together
