@@ -19,7 +19,7 @@ export const spec = test(`pointToSvg`, $ => {
 		cx: `${x}px`,
 		cy: `${y}px`,
 		fill: `red`,
-		r: `5px`,
+		r: `10px`,
 	});
 	svg.appendChild(pointer);
 
