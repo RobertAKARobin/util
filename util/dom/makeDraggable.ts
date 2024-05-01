@@ -1,4 +1,5 @@
-import type { Coordinate } from 'util/types.d.ts';
+import type { Coordinate } from '../types.d.ts';
+import { pointToSvg } from '../svg/pointToSvg.ts';
 
 export const customDragEventName = `customdrag`;
 
@@ -26,7 +27,7 @@ export class CustomDragEvent extends Event {
 		| `pointerOrigin`
 		| `targetOrigin`
 	>) {
-		super(customDragEventName);
+		super(customDragEventName, { bubbles: false });
 		this.pointer = detail.pointer;
 		this.pointerOffset = detail.pointerOffset;
 		this.pointerOrigin = detail.pointerOrigin;
@@ -45,7 +46,9 @@ declare global {
  */
 export function makeDraggable(
 	target: Element,
-	callback?: (event: CustomDragEvent) => unknown,
+	options: {
+		offsetOrigin?: `center` | `top left`;
+	} = {},
 ) {
 	const abort = new AbortController();
 	const signal = abort.signal;
@@ -55,6 +58,7 @@ export function makeDraggable(
 	let targetOrigin: Coordinate;
 	target.addEventListener(`mousedown`, _event => { // TODO3: With `target: HTMLElement | SVGGeometryElement`, why is this still just `Event`?
 		const event = _event as unknown as MouseEvent;
+		event.stopPropagation();
 		const targetBounds = target.getBoundingClientRect();
 		pointerOrigin = {
 			x: event.clientX,
@@ -67,12 +71,18 @@ export function makeDraggable(
 		isDragging = true;
 	}, { signal });
 
-	target.ownerDocument.addEventListener(`mouseup`, () => isDragging = false, { signal });
+	target.ownerDocument.addEventListener(`mouseup`, event => {
+		event.stopPropagation();
+		isDragging = false;
+	}, { signal });
 
+	const offsetOrigin = options.offsetOrigin ?? `top left`;
 	target.ownerDocument.addEventListener(`mousemove`, event => {
 		if (!isDragging) {
 			return;
 		}
+
+		event.stopPropagation();
 
 		const pointer = {
 			x: event.clientX,
@@ -82,6 +92,22 @@ export function makeDraggable(
 			x: pointer.x - (pointerOrigin.x - targetOrigin.x),
 			y: pointer.y - (pointerOrigin.y - targetOrigin.y),
 		};
+
+		if (offsetOrigin === `center`) {
+			const bounds = target.getBoundingClientRect();
+			pointerOffset.x += (bounds.width / 2);
+			pointerOffset.y += (bounds.height / 2);
+		}
+
+		if (target instanceof SVGGeometryElement) {
+			const svgCoordinates = pointToSvg(target.ownerSVGElement!, [
+				pointerOffset.x,
+				pointerOffset.y,
+			]);
+			pointerOffset.x = svgCoordinates.x;
+			pointerOffset.y = svgCoordinates.y;
+		}
+
 		const dragEvent = new CustomDragEvent({
 			pointer,
 			pointerOffset,
@@ -89,10 +115,6 @@ export function makeDraggable(
 			targetOrigin,
 		});
 		target.dispatchEvent(dragEvent);
-
-		if (typeof callback === `function`) {
-			callback(dragEvent);
-		}
 	}, { signal });
 
 	return abort;
