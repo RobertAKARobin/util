@@ -3,7 +3,6 @@
 		"@robertakarobin/csslint": "file:./csslint",
 		"@robertakarobin/eslint-config-ts": "file:./eslint-config-ts",
 		"@robertakarobin/htmlvalidate": "file:./htmlvalidate",
-		"@robertakarobin/path-data-polyfill": "^0.0.3",
 		"@robertakarobin/util-components-build-deps": "^0.0.1",
 		"@types/diff": "^5.2.0",
 		"@types/js-beautify": "^1.14.3",
@@ -11,6 +10,7 @@
 		"husky": "^9.0.11",
 		"js-beautify": "^1.15.1",
 		"npm-check-updates": "^16.14.20",
+		"path-data-polyfill": "^1.0.6",
 		"tsx": "^4.8.2"
 	},
 	"exports": {
