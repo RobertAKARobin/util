@@ -1,8 +1,8 @@
 import { test } from '../spec/index.ts';
 
-import { createSvg } from './createSvg.ts';
 import { pointToSvg } from './pointToSvg.ts';
 import { style } from '../dom/attributes.ts';
+import { svgCreate } from './svgCreate.ts';
 
 export const spec = test(`pointToSvg`, $ => {
 	const svg = document.querySelector(`svg`)!;
@@ -14,7 +14,7 @@ export const spec = test(`pointToSvg`, $ => {
 	const target = [bounds.left + (bounds.width / 2), bounds.top + (bounds.height / 2)];
 	const { x, y } = pointToSvg(svg, target);
 
-	const pointer = createSvg(`circle`);
+	const pointer = svgCreate(`circle`);
 	style(pointer, {
 		cx: `${x}px`,
 		cy: `${y}px`,
