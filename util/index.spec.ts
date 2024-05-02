@@ -12,6 +12,7 @@ export const spec = suite(`@robertakarobin/util/`, {},
 	(await import(`./string/string.spec.ts`)).spec,
 	(await import(`./time/time.spec.ts`)).spec,
 
+	(await import(`./arrayToGroups.spec.ts`)).spec,
 	(await import(`./assert.spec.ts`)).spec,
 	(await import(`./fetchText.spec.ts`)).spec,
 	(await import(`./mixin.spec.ts`)).spec,

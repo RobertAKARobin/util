@@ -12,6 +12,7 @@ export const spec = test(`pathPointNearest`, $ => {
 
 	$.assert(x => x(result(25, 0)) === `25,5`);
 	$.assert(x => x(result(0, 0)) === `5,5`);
+	$.assert(x => x(result(0, 7)) === `5,7`); // TODO1: Currently fails
 	$.assert(x => x(result(5, 5)) === `5,5`);
 	$.assert(x => x(result(95, 45)) === `95,50`);
 	$.assert(x => x(result(44, 95)) === `44,93`);
