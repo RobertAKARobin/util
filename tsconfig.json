@@ -5,7 +5,8 @@
 		"emitDeclarationOnly": true,
 		"noEmit": false,
 		"outDir": "dist",
-		"rootDir": "util"
+		"rootDir": "util",
+		"types": ["@robertakarobin/path-data-polyfill"]
 	},
 	"extends": [
 		"@robertakarobin/eslint-config-ts"

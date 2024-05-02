@@ -6,5 +6,6 @@
 /eslint-config-ts
 /example
 /htmlvalidate
+/path-data-polyfill
 /ssg
 /util-components-build-deps

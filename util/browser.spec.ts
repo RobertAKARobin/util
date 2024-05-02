@@ -1,3 +1,4 @@
+import 'path-data-polyfill';
 import { print, suite } from './spec/index.ts';
 
 import { spec as svgSpec } from './svg/svg.spec.ts';
@@ -9,7 +10,7 @@ import { style } from './dom/attributes.ts';
 export const spec = suite(`@robertakarobin/util/`, {}, svgSpec);
 
 const results = await spec({});
-console.log(print(results));
+print(results);
 
 const svg = document.querySelector(`svg`) as SVGSVGElement;
 makeDraggable(svg);
@@ -30,3 +31,6 @@ svgPointer.addEventListener(`customdrag`, event => {
 		cy: `${cy}px`,
 	});
 });
+
+const path = document.querySelector(`path`)!;
+console.log(path.getPathData({ normalize: true }));

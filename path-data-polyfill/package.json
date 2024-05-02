@@ -1,0 +1,14 @@
+{
+	"author": "robertakarobin",
+	"dependencies": {
+		"path-data-polyfill": "^1.0.4"
+	},
+	"description": "path-data-polyfill with types",
+	"devDependencies": {
+		"@robertakarobin/eslint-config-ts": "^0.0.43"
+	},
+	"name": "@robertakarobin/path-data-polyfill",
+	"scripts": {},
+	"types": "index.d.ts",
+	"version": "0.0.3"
+}
