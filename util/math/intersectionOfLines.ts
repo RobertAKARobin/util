@@ -1,41 +1,41 @@
-import type { Coordinate, PathLike } from '../types.d.ts';
+import type { Coordinate, LineLike } from '../types.d.ts';
 import { roundTo } from './roundTo.ts';
 
 import { slope } from './slope.ts';
-import { toPath } from './toPath.ts';
+import { toLine } from './toLine.ts';
 import { yOffset } from './yOffset.ts';
 
 /**
  * Find the intersection of two straight lines
  * TODO3: Can make more efficient, but like the readability
  */
-export function intersectionOfPaths(...paths: Array<PathLike>): Coordinate | undefined {
-	const pathA = toPath(paths[0]);
-	const pathB = toPath(paths[1]);
+export function intersectionOfLines(...lines: Array<LineLike>): Coordinate | undefined {
+	const lineA = toLine(lines[0]);
+	const lineB = toLine(lines[1]);
 
-	const slopeA = slope(pathA);
-	const slopeB = slope(pathB);
+	const slopeA = slope(lineA);
+	const slopeB = slope(lineB);
 
 	if (isNaN(slopeA) || isNaN(slopeB) || slopeA === slopeB) {
 		return undefined;
 	}
 
-	const yOffsetA = yOffset(pathA);
-	const yOffsetB = yOffset(pathB);
+	const yOffsetA = yOffset(lineA);
+	const yOffsetB = yOffset(lineB);
 
 	let x = (yOffsetB - yOffsetA) / (slopeA - slopeB);
 	x = roundTo(x, 12); // Account for float fragments
 	if (
-		(x < pathA.begin.x && x < pathB.begin.x)
-		|| (x > pathA.end.x && x > pathB.end.x)
+		(x < lineA.begin.x && x < lineB.begin.x)
+		|| (x > lineA.end.x && x > lineB.end.x)
 	) {
 		return undefined;
 	}
 
 	const y = (slopeA * x) + yOffsetA;
 	if (
-		(y < pathA.begin.y && y < pathB.begin.y)
-		|| (y > pathA.end.y && y > pathB.end.y)
+		(y < lineA.begin.y && y < lineB.begin.y)
+		|| (y > lineA.end.y && y > lineB.end.y)
 	) {
 		return undefined;
 	}

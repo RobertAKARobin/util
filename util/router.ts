@@ -45,8 +45,8 @@ export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>
 			return null;
 		}
 
-		const subjectUrl = decodeURI(Router.toPath(subject));
-		const controlUrl = decodeURI(Router.toPath(control));
+		const subjectUrl = decodeURI(Router.toLine(subject));
+		const controlUrl = decodeURI(Router.toLine(control));
 
 		if (typeof control === `function`) {
 			const matcher = new RegExp(
@@ -69,7 +69,7 @@ export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>
 		return [];
 	}
 
-	static toPath(input: RouteDefinition) {
+	static toLine(input: RouteDefinition) {
 		const url = Router.toUrl(input);
 		let path = `${url.origin}${url.pathname}`;
 

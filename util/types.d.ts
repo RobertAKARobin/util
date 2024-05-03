@@ -23,16 +23,16 @@ export type Index1Forward<Input> =
 		? Rest
 		: never;
 
-export type Nested<Type> = Array<Nested<Type> | Type>;
-
-export type OneOrMany<Type> = Array<Type> | Type;
-
-export type Path = {
+export type Line = {
 	begin: Coordinate;
 	end: Coordinate;
 };
 
-export type PathLike = Array<Array<number> | Coordinate> | Path;
+export type LineLike = Array<Array<number> | Coordinate> | Line;
+
+export type Nested<Type> = Array<Nested<Type> | Type>;
+
+export type OneOrMany<Type> = Array<Type> | Type;
 
 export type PromiseMaybe<Type> = Promise<Type> | Type;
 

@@ -1,10 +1,10 @@
-import type { PathLike } from '../types.d.ts';
+import type { LineLike } from '../types.d.ts';
 
 import { slope } from './slope.ts';
-import { toPath } from './toPath.ts';
+import { toLine } from './toLine.ts';
 
-export function yOffset(pathLike: PathLike) {
-	const path = toPath(pathLike);
+export function yOffset(lineLike: LineLike) {
+	const path = toLine(lineLike);
 	const pathSlope = slope(path);
 	return path.begin.y - (pathSlope * path.begin.x);
 }

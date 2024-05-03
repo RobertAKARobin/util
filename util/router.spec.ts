@@ -41,7 +41,7 @@ export const spec = test(`Router`, $ => {
 	$.assert(x => x(Router.isMatch(`/foo/bar.html/`, `/foo/bar.html`))); // TODO3: These really shouldn't match. But also should never occur
 	$.assert(x => x(Router.isMatch(`/foo/bar.html`, `/foo/bar.html/`)));
 
-	$.assert(x => x(Router.toPath(routes.builder)) === `https://a.test/foo/${delim}`);
+	$.assert(x => x(Router.toLine(routes.builder)) === `https://a.test/foo/${delim}`);
 	$.assert(x => x(Router.isMatch(`/foo/bar`, routes.builder)));
 	$.assert(x => x(Router.isMatch(`/foo/bar/`, routes.builder)));
 	$.assert(x => x(Router.match(`/foo/bar/`, routes.builder))?.join(`,`) === `bar`);
@@ -53,18 +53,18 @@ export const spec = test(`Router`, $ => {
 	let route: RoutePathFunction;
 
 	$.log(() => route = ({ param }: { param: string; }) => `/foo/${param}/bar/${param}`);
-	$.assert(x => x(Router.toPath(route)) === `https://a.test/foo/${delim}/bar/${delim}`);
+	$.assert(x => x(Router.toLine(route)) === `https://a.test/foo/${delim}/bar/${delim}`);
 	$.assert(x => x(Router.isMatch(`/foo/aaa/bar/bbb`, route)));
 	$.assert(x => x(Router.match(`/foo/aaa/bar/bbb`, route))?.join(`,`) === `aaa,bbb`);
 	$.assert(x => x(Router.match(`/foo/a a a/bar/bbb`, route))?.join(`,`) === `a a a,bbb`);
 
 	$.log(() => route = ([ a, [b], [[c]] ]: Array<string>) => `/foo/${a}/bar/${b}/baz/${c}`);
-	$.assert(x => x(Router.toPath(route)) === `https://a.test/foo/${delim}/bar/${delim}/baz/${delim}`);
+	$.assert(x => x(Router.toLine(route)) === `https://a.test/foo/${delim}/bar/${delim}/baz/${delim}`);
 	$.assert(x => x(Router.isMatch(`/foo/a/bar/b/baz/c`, route)));
 	$.assert(x => x(Router.match(`/foo/a/bar/b/baz/c`, route))?.join(`,`) === `a,b,c`);
 
 	$.log(() => route = ([{ param }]: Array<{ param: () => string; }>) => `/foo/${param()}`);
-	$.assert(x => x(Router.toPath(route)) === `https://a.test/foo/${delim}`);
+	$.assert(x => x(Router.toLine(route)) === `https://a.test/foo/${delim}`);
 
 	$.assert(x => x(router.findRouteName(`/foo/bar`)) === `builder`);
 	$.assert(x => x(router.match(`/foo/bar`))?.join(`,`) === `bar`);
