@@ -16,7 +16,8 @@ export const spec = suite(`svg/`,
 
 	(await import(`./bezierPoint.spec.ts`)).spec,
 	(await import(`./svgCreate.spec.ts`)).spec,
+	(await import(`./pathNavigator.spec.ts`)).spec,
 	(await import(`./pathPointNearest.spec.ts`)).spec,
-	(await import(`./pathToSegments.spec.ts`)).spec,
 	(await import(`./pointToSvg.spec.ts`)).spec,
+	(await import(`./pointsToLines.spec.ts`)).spec,
 );

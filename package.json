@@ -10,7 +10,6 @@
 		"husky": "^9.0.11",
 		"js-beautify": "^1.15.1",
 		"npm-check-updates": "^16.14.20",
-		"path-data-polyfill": "^1.0.6",
 		"tsx": "^4.8.2"
 	},
 	"exports": {
