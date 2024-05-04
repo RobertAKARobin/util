@@ -21,12 +21,11 @@ export class PathNavigator {
 		return navigator;
 	}
 
-	commandLast = ``;
-	segment: Segment = [];
-	segmentLast: Segment = [];
+	private segment: Segment = [];
+	private segmentLast: Segment = [];
 	segments: Array<Segment> = [];
-	x = 0;
-	y = 0;
+	private x = 0;
+	private y = 0;
 
 	close() {
 		const first = this.segments[0][0];
