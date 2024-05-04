@@ -4,7 +4,7 @@ import type { Coordinate } from 'util/types.d.ts';
  * Given the points of a Bezier curve, and n% progress along the curve, calculate the coordinates of the point at that progress.
  * Progress is expressed as a percent, but n% progress is _not_ n% of the curve's length.
  */
-export function bezierPointProgress(
+export function bezierPoint(
 	progress: number,
 	begin: Coordinate,
 	beginHandle: Coordinate,
