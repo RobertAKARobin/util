@@ -1,6 +1,6 @@
-import type { Coordinate } from '../types.d.ts';
+import type { Segment } from '../types.d.ts';
 
-type Segment = Array<Coordinate>;
+import { pointsAreDifferent } from '../math/pointsAreDifferent.ts';
 
 const pointsByCommand = {
 	c: 6,
@@ -21,15 +21,14 @@ export class PathNavigator {
 		return navigator;
 	}
 
+	private current = { x: 0, y: 0 };
 	private segment: Segment = [];
 	private segmentLast: Segment = [];
 	segments: Array<Segment> = [];
-	private x = 0;
-	private y = 0;
 
 	close() {
 		const first = this.segments[0][0];
-		if (this.x !== first.x || this.y !== first.y) {
+		if (pointsAreDifferent(this.current, first)) {
 			return this.lineto(first.x, first.y);
 		}
 		return this;
@@ -48,11 +47,11 @@ export class PathNavigator {
 				}
 				case `H`: {
 					const [x] = values;
-					return this.lineto(x, this.y);
+					return this.lineto(x, this.current.y);
 				}
 				case `h`: {
 					const [changeX] = values;
-					return this.lineto(this.x + changeX, this.y);
+					return this.lineto(this.current.x + changeX, this.current.y);
 				}
 				case `L`: {
 					const [x, y] = values;
@@ -60,7 +59,7 @@ export class PathNavigator {
 				}
 				case `l`: {
 					const [changeX, changeY] = values;
-					return this.lineto(this.x + changeX, this.y + changeY);
+					return this.lineto(this.current.x + changeX, this.current.y + changeY);
 				}
 				case `M`: {
 					const [x, y] = values;
@@ -68,35 +67,35 @@ export class PathNavigator {
 				}
 				case `m`: {
 					const [changeX, changeY] = values;
-					return this.moveto(this.x + changeX, this.y + changeY);
+					return this.moveto(this.current.x + changeX, this.current.y + changeY);
 				}
 				case `S`:
 				case `s`: {
-					let [handle1X, handle1Y] = [this.x, this.y];
+					let [handle1X, handle1Y] = [this.current.x, this.current.y];
 					if (this.segmentLast.length > 2) {
 						const reflect = this.segmentLast[2];
-						handle1X = this.x + (this.x - reflect.x);
-						handle1Y = this.x + (this.x - reflect.y);
+						handle1X = this.current.x + (this.current.x - reflect.x);
+						handle1Y = this.current.x + (this.current.x - reflect.y);
 					}
 
 					let [handle2X, handle2Y, endX, endY] = values;
 
 					if (command === `s`) {
-						handle2X += this.x;
-						handle2Y += this.y;
-						endX += this.x;
-						endY += this.y;
+						handle2X += this.current.x;
+						handle2Y += this.current.y;
+						endX += this.current.x;
+						endY += this.current.y;
 					}
 
 					return this.curveto(handle1X, handle1Y, handle2X, handle2Y, endX, endY);
 				}
 				case `V`: {
 					const [y] = values;
-					return this.lineto(this.x, y);
+					return this.lineto(this.current.x, y);
 				}
 				case `v`: {
 					const [changeY] = values;
-					return this.lineto(this.x, this.y + changeY);
+					return this.lineto(this.current.x, this.current.y + changeY);
 				}
 				case `Z`: {
 					return this.close();
@@ -156,8 +155,8 @@ export class PathNavigator {
 	}
 
 	moveto(x: number, y: number) {
-		this.x = x;
-		this.y = y;
+		this.current.x = x;
+		this.current.y = y;
 		return this;
 	}
 
@@ -168,7 +167,7 @@ export class PathNavigator {
 	}
 
 	read() {
-		const { x, y } = this;
+		const { x, y } = this.current;
 		if (!Number.isInteger(x)) {
 			throw new Error(`x is ${x}`);
 		}
@@ -177,27 +176,6 @@ export class PathNavigator {
 		}
 		this.segment.push({ x, y });
 		return this;
-	}
-
-	toPoints(options: {
-		overlap?: boolean;
-	} = {}) {
-		const hasOverlap = options.overlap ?? false;
-
-		const points = this.segments.flat();
-		if (hasOverlap) {
-			return points;
-		}
-
-		const out = [] as Array<Coordinate>;
-		let last = {} as Coordinate;
-		for (const point of points) {
-			if (point.x !== last.x || point.y !== last.y) {
-				out.push(point);
-			}
-			last = point;
-		}
-		return out;
 	}
 
 	toString() {

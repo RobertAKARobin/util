@@ -1,12 +1,10 @@
 import { test } from '../spec/index.ts';
 
-import { PathNavigator } from './pathNavigator.ts';
 import { pointsToMidpoints } from './pointsToMidpoints.ts';
+import segments from './segments.json';
 
 export const spec = test(`pointsToMidpoints`, $ => {
-	const path = document.querySelector(`path`)!;
-	const pathData = path.getAttribute(`d`)!;
-	const points = PathNavigator.fromData(pathData).segments[1];
+	const points = segments[1];
 
 	$.assert(x => x(points.length) === 4);
 

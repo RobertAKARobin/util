@@ -39,6 +39,8 @@ export type PromiseMaybe<Type> = Promise<Type> | Type;
 export type RequireOnly<_Object, _RequiredKeys extends keyof _Object> = Partial<_Object>
 	& Pick<_Object, _RequiredKeys>;
 
+export type Segment = Array<Coordinate>;
+
 export type Textish = URL | boolean | number | string | symbol | null | undefined;
 
 export type Timer = ReturnType<typeof setTimeout>;

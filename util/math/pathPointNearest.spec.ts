@@ -4,7 +4,6 @@ import { pathPointNearest } from './pathPointNearest.ts';
 
 export const spec = test(`pathPointNearest`, $ => {
 	const path = document.querySelector(`path`)!;
-
 	function result(x: number, y: number) {
 		const out = pathPointNearest(path, [x, y]);
 		return `${out.x},${out.y}`;

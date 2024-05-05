@@ -14,12 +14,7 @@ export const spec = suite(`svg/`,
 		timing: `consecutive`,
 	},
 
-	(await import(`./bezierPoint.spec.ts`)).spec,
 	(await import(`./pathNavigator.spec.ts`)).spec,
-	(await import(`./pathPointNearest.spec.ts`)).spec,
-	(await import(`./pointAtPercent.spec.ts`)).spec,
 	(await import(`./pointToSvg.spec.ts`)).spec,
-	(await import(`./pointsToLines.spec.ts`)).spec,
-	(await import(`./pointsToMidpoints.spec.ts`)).spec,
 	(await import(`./svgCreate.spec.ts`)).spec,
 );

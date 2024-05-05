@@ -1,4 +1,4 @@
-import type { Coordinate } from 'util/types.d.ts';
+import type { Coordinate } from '../types.d.ts';
 
 /**
  * Given the points of a Bezier curve, and n% progress along the curve, calculate the coordinates of the point at that progress.

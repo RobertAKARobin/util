@@ -1,12 +1,15 @@
 import { test } from '../spec/index.ts';
 
-import { PathNavigator } from './pathNavigator.ts';
+import { pointsAreDifferent } from './pointsAreDifferent.ts';
 import { pointsToLines } from './pointsToLines.ts';
+import segments from './segments.json';
 
-export const spec = test(`pathToSegments`, $ => {
-	const path = document.querySelector(`path`)!;
-	const pathData = path.getAttribute(`d`)!;
-	const points = PathNavigator.fromData(pathData).toPoints();
+export const spec = test(`pointsToLines`, $ => {
+	const poo = segments.flat();
+	const points = poo.filter((point, index, points) => {
+		const next = points[index + 1];
+		return pointsAreDifferent(point, next);
+	});
 	const lines = pointsToLines(points)
 		.map(({ begin, end }) => `${begin.x},${begin.y}-${end.x},${end.y}`)
 		.join(` `);

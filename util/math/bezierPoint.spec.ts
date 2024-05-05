@@ -2,17 +2,12 @@ import type { Coordinate } from '../types.d.ts';
 import { test } from '../spec/index.ts';
 
 import { bezierPoint } from './bezierPoint.ts';
-import { PathNavigator } from './pathNavigator.ts';
+import segments from './segments.json';
 
 type BezierPoints = [Coordinate, Coordinate, Coordinate, Coordinate];
 
 export const spec = test(`bezierPoint`, $ => {
-	const path = document.querySelector(`path`)!;
-	const pathData = path.getAttribute(`d`)!;
-	const curves = PathNavigator
-		.fromData(pathData)
-		.segments
-		.filter(segment => segment.length > 2) as Array<BezierPoints>;
+	const curves = segments.filter(segment => segment.length > 2) as Array<BezierPoints>;
 
 	$.assert(x => x(bezierPoint(0, ...curves[0]).x) === 50);
 	$.assert(x => x(bezierPoint(0, ...curves[0]).y) === 5);

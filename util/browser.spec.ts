@@ -5,7 +5,7 @@ import { spec as svgSpec } from './svg/svg.spec.ts';
 import { constrain } from './math/constrain.ts';
 import { makeDraggable } from './dom/makeDraggable.ts';
 import { PathNavigator } from './svg/pathNavigator.ts';
-import { pointsToLines } from './svg/pointsToLines.ts';
+import { segmentsToPoints } from './math/segmentsToPoints.ts';
 import { style } from './dom/attributes.ts';
 import { svgCreate } from './svg/svgCreate.ts';
 
@@ -44,7 +44,7 @@ svgPointer.addEventListener(`customdrag`, event => {
 
 const path = svg.querySelector(`path`)!;
 const navigator = PathNavigator.fromData(path.getAttribute(`d`)!);
-for (const point of navigator.toPoints()) {
+for (const point of segmentsToPoints(navigator.segments)) {
 	const circle = svgCreate(`circle`);
 	style(circle, {
 		cx: `${point.x}px`,
@@ -53,14 +53,4 @@ for (const point of navigator.toPoints()) {
 		r: `5px`,
 	});
 	svg.appendChild(circle);
-}
-
-for (const { begin, end } of pointsToLines(navigator.toPoints())) {
-	const line = svgCreate(`polyline`);
-	line.setAttribute(`points`, `${begin.x},${begin.y} ${end.x},${end.y}`);
-	style(line, {
-		stroke: `blue`,
-		strokeWidth: `1px`,
-	});
-	svg.appendChild(line);
 }
