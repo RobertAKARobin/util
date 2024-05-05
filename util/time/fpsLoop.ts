@@ -1,5 +1,5 @@
-import { byIndex } from '../byIndex.ts';
-import { enumy } from '../enumy.ts';
+import { enumy } from '../group/enumy.ts';
+import { indexesByValues } from '../group/indexesByValues.ts';
 import { setImmediate } from './setImmediate.ts';
 
 export const loopStatuses = [
@@ -12,14 +12,14 @@ export const loopStatuses = [
 
 export const loopStatus = enumy(...loopStatuses);
 
-const loopStatuses_start = byIndex(
+const loopStatuses_start = indexesByValues(
 	loopStatus.starting,
 	loopStatus.started,
 );
 
 export type LoopStatus_Start = keyof typeof loopStatuses_start;
 
-const loopStatuses_end = byIndex(
+const loopStatuses_end = indexesByValues(
 	loopStatus.ending,
 	loopStatus.ended,
 );

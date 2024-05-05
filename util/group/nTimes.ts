@@ -2,6 +2,10 @@ type nTimesCallback<Value> = (
 	nil: undefined,
 	index: number,
 ) => Value;
+
+/**
+ * Perform the given operation n times and returns the result as an array
+ */
 export function nTimes<Value>(
 	number: number,
 	contents?:

@@ -1,6 +1,6 @@
 import type * as $ from '../../types.d.ts';
-import { arrayToEnum } from '../../arrayToEnum.ts';
-import { nTimes } from '../../nTimes.ts';
+import { arrayToEnum } from '../../group/arrayToEnum.ts';
+import { nTimes } from '../../group/nTimes.ts';
 import { promiseConsecutive } from '../../time/promiseConsecutive.ts';
 
 import type * as Type from './types.d.ts';

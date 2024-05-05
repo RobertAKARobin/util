@@ -1,5 +1,5 @@
 import { Component } from './component.ts';
-import { enumy } from '../enumy.ts';
+import { enumy } from '../group/enumy.ts';
 import { sleep } from '../time/sleep.ts';
 
 export const defaultDuration = .2;

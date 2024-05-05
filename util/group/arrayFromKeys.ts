@@ -2,16 +2,15 @@
  * Map each of the specified keys in an object to an array of values
  * @param _options.assertAll - If true, throws an error if not all of the object's keys are specified
  */
-export function fromKeys<Value>(
+export function arrayFromKeys<Value>(
 	keys: Array<string>,
 	input: Record<string, Value>,
 	options: {
-		assertAll: boolean;
-	} = {
-		assertAll: true,
-	}
+		assertAll?: boolean;
+	} = {}
 ) {
-	if (options.assertAll) {
+	const assertAll = options.assertAll ?? false;
+	if (assertAll) {
 		const delimeter = `;`;
 		const inputKeys = Object.keys(input).sort().join(delimeter);
 		const outputKeys = keys.sort().join(delimeter);

@@ -1,5 +1,5 @@
 /**
- * Like `Object.keys`, but strongly typed.
+ * Literally just `Object.keys`, but strongly typed.
  */
 export function keysOf<
 	Input extends Record<string | symbol, unknown>,

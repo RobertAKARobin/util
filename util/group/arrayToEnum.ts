@@ -1,3 +1,6 @@
+/**
+ * Converts an array of values to an enum-like dict, where the index points to the value and vice-versa
+ */
 export function arrayToEnum<Value extends string>(
 	input: Array<Value>,
 ) {
