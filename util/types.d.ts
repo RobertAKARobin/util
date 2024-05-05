@@ -1,3 +1,5 @@
+export type Bezier = [Coordinate, Coordinate, Coordinate, Coordinate];
+
 export type Constructor<Type> = {
 	new(...args: Array<unknown>): Type;
 };

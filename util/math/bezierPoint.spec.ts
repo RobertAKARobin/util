@@ -1,13 +1,11 @@
-import type { Coordinate } from '../types.d.ts';
+import type { Bezier } from '../types.d.ts';
 import { test } from '../spec/index.ts';
 
 import { bezierPoint } from './bezierPoint.ts';
 import segments from '../mock/segments.json';
 
-type BezierPoints = [Coordinate, Coordinate, Coordinate, Coordinate];
-
 export const spec = test(`bezierPoint`, $ => {
-	const curves = segments.filter(segment => segment.length > 2) as Array<BezierPoints>;
+	const curves = segments.filter(segment => segment.length > 2) as Array<Bezier>;
 
 	$.assert(x => x(bezierPoint(0, ...curves[0]).x) === 50);
 	$.assert(x => x(bezierPoint(0, ...curves[0]).y) === 5);

@@ -6,4 +6,5 @@ export const spec = test(`distance`, $ => {
 	$.assert(x => x(distance([{ x: 0, y: 0 }, { x: 3, y: 4 }])) === 5);
 	$.assert(x => x(distance([{ x: 0, y: 0 }, { x: -3, y: 4 }])) === 5);
 	$.assert(x => x(distance([{ x: 0, y: 0 }, { x: -3, y: -4 }])) === 5);
+	$.assert(x => x(distance([[0, 0], [3, 4], [-3, -4]])) === 15);
 });

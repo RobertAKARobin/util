@@ -1,11 +1,24 @@
-import type { LineLike } from '../types.d.ts';
-
-import { toLine } from './toLine.ts';
+import type { Coordinate, LineLike } from '../types.d.ts';
+import { toCoordinate } from './toCoordinate.ts';
 
 /**
- * Returns a positive number representing the distance between 2 points
+ * Returns a positive number representing the total distance between points
  */
-export function distance(lineLike: LineLike): number {
-	const { begin, end } = toLine(lineLike);
-	return Math.hypot(end.x - begin.x, end.y - begin.y);
+export function distance(input: Array<Coordinate> | LineLike): number {
+	const points = `begin` in input
+		? [input.begin, input.end]
+		: input;
+
+	let distance = 0;
+	let previous!: Coordinate;
+	for (const entry of points) {
+		const point = toCoordinate(entry);
+		if (previous !== undefined) {
+			distance += Math.hypot(point.x - previous.x, point.y - previous.y);
+		}
+
+		previous = point;
+	}
+
+	return distance;
 }
