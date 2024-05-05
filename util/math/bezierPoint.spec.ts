@@ -2,7 +2,7 @@ import type { Coordinate } from '../types.d.ts';
 import { test } from '../spec/index.ts';
 
 import { bezierPoint } from './bezierPoint.ts';
-import segments from './segments.json';
+import segments from '../mock/segments.json';
 
 type BezierPoints = [Coordinate, Coordinate, Coordinate, Coordinate];
 

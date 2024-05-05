@@ -2,7 +2,7 @@ import { test } from '../spec/index.ts';
 
 import { pointsAreDifferent } from './pointsAreDifferent.ts';
 import { pointsToLines } from './pointsToLines.ts';
-import segments from './segments.json';
+import segments from '../mock/segments.json';
 
 export const spec = test(`pointsToLines`, $ => {
 	const poo = segments.flat();

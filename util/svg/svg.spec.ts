@@ -1,6 +1,6 @@
 import { suite } from '../spec/index.ts';
 
-const testSvg = await (await fetch(`/svg/test.svg`)).text();
+const testSvg = await (await fetch(`/mock/test.svg`)).text();
 
 export const spec = suite(`svg/`,
 	{

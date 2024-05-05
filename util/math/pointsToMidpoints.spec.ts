@@ -1,7 +1,7 @@
 import { test } from '../spec/index.ts';
 
 import { pointsToMidpoints } from './pointsToMidpoints.ts';
-import segments from './segments.json';
+import segments from '../mock/segments.json';
 
 export const spec = test(`pointsToMidpoints`, $ => {
 	const points = segments[1];
