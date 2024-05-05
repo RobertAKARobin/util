@@ -1,7 +1,7 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
 
-import { test } from './spec/index.ts';
+import { test } from '../spec/index.ts';
 
 import { sharedEnv } from './sharedEnv.ts';
 

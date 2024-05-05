@@ -1,7 +1,7 @@
 import type fsType from 'fs';
 import type pathType from 'path';
 
-import { appContext } from './context.ts';
+import { appContext } from './web/context.ts';
 import { importAs } from './importAs.ts';
 
 export async function fetchText(target: string) {

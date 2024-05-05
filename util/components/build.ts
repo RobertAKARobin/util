@@ -5,9 +5,9 @@ import fs from 'fs';
 import path from 'path';
 
 import { Component, type Page } from '@robertakarobin/util/components/component.ts';
-import { Resolver, type RouteMap, Router } from '@robertakarobin/util/router.ts';
+import { Resolver, type RouteMap, Router } from '@robertakarobin/util/web/router.ts';
 import type { BaseApp } from '@robertakarobin/util/components/app.ts';
-import { baseUrl } from '@robertakarobin/util/context.ts';
+import { baseUrl } from '@robertakarobin/util/web/context.ts';
 import { pipeFirst } from '@robertakarobin/util/emitter/pipe/first.ts';
 import { posixPath } from '@robertakarobin/util/node/posixPath.ts';
 import { promiseConsecutive } from '@robertakarobin/util/time/promiseConsecutive.ts';

@@ -1,6 +1,6 @@
 import { BaseApp, Resolver, Router } from '@robertakarobin/util/components/app.ts';
 import { Component, html } from '@robertakarobin/util/components/component.ts';
-import { appContext } from '@robertakarobin/util/context.ts';
+import { appContext } from '@robertakarobin/util/web/context.ts';
 import { ModalContainer } from '@robertakarobin/util/components/modal-container.ts';
 
 import { Nav } from '@src/components/nav.ts';

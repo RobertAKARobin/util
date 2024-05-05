@@ -1,3 +1,6 @@
+/**
+ * Given an object and some keys, returns a new object created from the given one with the keys removed
+ */
 export function omit<Source, Keys extends Array<keyof Source>>(
 	source: Source,
 	...keys: Keys

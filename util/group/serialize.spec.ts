@@ -1,5 +1,5 @@
 /* eslint-disable @stylistic/quote-props */
-import { test } from './spec/index.ts';
+import { test } from '../spec/index.ts';
 
 import { serialize } from './serialize.ts';
 

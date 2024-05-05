@@ -1,5 +1,5 @@
-import { Resolver, type RouteMap, Router } from '../router.ts';
-import { appContext } from '../context.ts';
+import { Resolver, type RouteMap, Router } from '../web/router.ts';
+import { appContext } from '../web/context.ts';
 
 import { Component, Page } from './component.ts';
 
