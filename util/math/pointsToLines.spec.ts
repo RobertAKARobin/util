@@ -5,8 +5,7 @@ import { pointsToLines } from './pointsToLines.ts';
 import segments from '../mock/segments.json';
 
 export const spec = test(`pointsToLines`, $ => {
-	const poo = segments.flat();
-	const points = poo.filter((point, index, points) => {
+	const points = segments.flat().filter((point, index, points) => {
 		const next = points[index + 1];
 		return pointsAreDifferent(point, next);
 	});

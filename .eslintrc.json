@@ -19,6 +19,10 @@
 				{
 					"group": ["*.js"],
 					"message": "Import .ts files, not .js"
+				},
+				{
+					"group": ["*types.ts"],
+					"message": "Use .d.ts for Type-only files"
 				}
 			]
 		}]

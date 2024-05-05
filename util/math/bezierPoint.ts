@@ -7,11 +7,11 @@ import { roundTo } from './roundTo.ts';
  * Progress is expressed as a percent, but n% progress is _not_ n% of the curve's length.
  */
 export function bezierPoint(
-	progress: number,
 	begin: Coordinate,
 	beginHandle: Coordinate,
 	endHandle: Coordinate,
 	end: Coordinate,
+	progress: number,
 ): Coordinate {
 	const out: Coordinate = { x: 0, y: 0 };
 	for (const key in out) {
