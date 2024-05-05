@@ -6,14 +6,14 @@ import { distance } from './distance.ts';
 import { pointsToLines } from './pointsToLines.ts';
 
 /**
- * Converts a bezier to a series of lines, where the mean distance of the lines is the given tolerance
+ * Converts a bezier to a series of lines, where the mean distance of the lines converges on the given tolerance
  */
 export function bezierToLines(
 	begin: Coordinate,
 	beginHandle: Coordinate,
 	endHandle: Coordinate,
 	end: Coordinate,
-	targetTolerance = 5,
+	targetTolerance = 10,
 ): Array<Line> {
 	const bezier = [begin, beginHandle, endHandle, end] as Bezier;
 	const distanceRough = distance(bezier);
