@@ -46,9 +46,13 @@ export function setAttributes<Subclass extends Element>(
 	return target;
 }
 
+/**
+ * Set the given CSS properties on the target element via the `[style]` attribute.
+ * Note that the camelCased properties have to be used, e.g. `borderWidth` -- Typescript doesn't appear to "know" about the spine-cased ones, e.g. `border-width`.
+ */
 export function style(target: HTMLElement | SVGElement, properties: Partial<CSSStyleDeclaration>) {
 	for (const propertyName in properties) {
-		target.style.setProperty(propertyName, properties[propertyName]!);
+		target.style[propertyName] = properties[propertyName]!;
 	}
 	return target;
 }

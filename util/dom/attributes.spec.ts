@@ -38,5 +38,9 @@ export const spec = suite(`attributes`,
 		$.log(() => style(subject, { color: `blue` }));
 		$.assert(x => x(subject.style.color) === `blue`);
 		$.assert(x => x(subject.style.getPropertyValue(`color`)) === `blue`);
+
+		$.log(() => style(subject, { borderWidth: `2px` }));
+		$.assert(x => x(subject.style.borderWidth) === `2px`);
+		$.assert(x => x(subject.style.getPropertyValue(`border-width`)) === `2px`);
 	}),
 );
