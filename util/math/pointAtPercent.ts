@@ -1,6 +1,6 @@
 import type { Coordinate } from '../types.d.ts';
 
-import { pointsAreDifferent } from './pointsAreDifferent.ts';
+import { pointsSeparated } from './pointsSeparated.ts';
 import { pointsToMidpoints } from './pointsToMidpoints.ts';
 
 /**
@@ -12,13 +12,10 @@ export function pointAtPercent(
 	percent: number,
 	...points: Array<Coordinate>
 ): Coordinate {
-	let midpoints = points.filter((point, index) => { // Filter out overlapping points
-		const next = points[index + 1];
-		return pointsAreDifferent(point, next);
-	});
+	let midpoints = pointsSeparated(...points);
 
 	while (midpoints.length > 1) {
-		midpoints = pointsToMidpoints(percent, ...midpoints);
+		midpoints = pointsToMidpoints(midpoints, { percent });
 	}
 	return midpoints[0];
 }

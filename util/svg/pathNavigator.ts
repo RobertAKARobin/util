@@ -1,6 +1,7 @@
 import type { Segment } from '../types.d.ts';
 
 import { pointsAreDifferent } from '../math/pointsAreDifferent.ts';
+import { pointToString } from '../math/pointToString.ts';
 
 const pointsByCommand = {
 	c: 6,
@@ -179,8 +180,6 @@ export class PathNavigator {
 	}
 
 	toString() {
-		return this.segments.map(segment =>
-			segment.map(({ x, y }) => `${x},${y}`).join(` `)
-		).join(`\n`);
+		return this.segments.map(segment => segment.map(pointToString).join(` `)).join(`\n`);
 	}
 }
