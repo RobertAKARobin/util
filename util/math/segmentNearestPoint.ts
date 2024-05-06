@@ -1,23 +1,24 @@
 import type { CoordinateLike, Segment } from '../types.d.ts';
 import { anglesFromPoints } from './anglesFromPoints.ts';
 import { distance } from './distance.ts';
+import { pointsAreDifferent } from './pointsAreDifferent.ts';
 import { toCoordinate } from './toCoordinate.ts';
 
 /**
  * Given a list of segments and a coordinate, find the index of the segment nearest the coordinate
  */
 export function segmentNearestPoint(
-	target: CoordinateLike,
+	coordinateLike: CoordinateLike,
 	...segments: Array<Segment>
 ) {
-	const coordinate = toCoordinate(target);
+	const target = toCoordinate(coordinateLike);
 
 	const nearestIndexes = new Set<number>();
 	let nearestDistance = Infinity;
 	let index = 0;
 	for (const segment of segments) {
 		for (const point of segment) {
-			const pointDistance = distance([coordinate, point]);
+			const pointDistance = distance([target, point]);
 			if (pointDistance === nearestDistance) {
 				nearestIndexes.add(index);
 			} else if (pointDistance < nearestDistance) {
@@ -39,7 +40,12 @@ export function segmentNearestPoint(
 		const segment = segments[index];
 		const begin = segment[0];
 		const end = segment[segment.length - 1];
-		const angles = anglesFromPoints(coordinate, begin, end);
+
+		if (!pointsAreDifferent(target, begin) || !pointsAreDifferent(target, end)) {
+			return index;
+		}
+
+		const angles = anglesFromPoints(target, begin, end);
 		const angleDifference = Math.abs(angles[0] - angles[1]);
 		if (angleDifference < smallestAngleDifference) {
 			smallestAngleDifference = angleDifference;

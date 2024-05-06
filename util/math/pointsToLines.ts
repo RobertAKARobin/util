@@ -1,5 +1,8 @@
 import type { Coordinate, Line } from '../types.d.ts';
 
+/**
+ * Given an array of coordinates, convert them to an array of lines connecting all coordinates
+ */
 export function pointsToLines(points: Array<Coordinate>) {
 	const out = [] as Array<Line>;
 	let begin = points.shift()!;

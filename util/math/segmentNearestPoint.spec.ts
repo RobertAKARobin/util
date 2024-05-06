@@ -5,6 +5,7 @@ import segments from '../mock/segments.json';
 
 export const spec = test(`pointsToMidpoints`, $ => {
 	$.assert(x => x(segmentNearestPoint([0, 0], ...segments)) === 0);
+	$.assert(x => x(segmentNearestPoint([5, 5], ...segments)) === 0);
 	$.assert(x => x(segmentNearestPoint([25, 0], ...segments)) === 0);
 	$.assert(x => x(segmentNearestPoint([54, 0], ...segments)) === 0);
 	$.assert(x => x(segmentNearestPoint([56, 0], ...segments)) === 1);
