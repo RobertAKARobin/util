@@ -9,7 +9,7 @@ import { yOffset } from './yOffset.ts';
  * Find the intersection of two straight lines
  * TODO3: Can make more efficient, but like the readability
  */
-export function intersectionOfLines(...lines: Array<LineLike>): Coordinate | undefined {
+export function linesToIntersection(...lines: Array<LineLike>): Coordinate | undefined {
 	const lineA = toLine(lines[0]);
 	const lineB = toLine(lines[1]);
 

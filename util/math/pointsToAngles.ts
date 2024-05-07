@@ -2,7 +2,7 @@ import type { CoordinateLike } from '../types.d.ts';
 import { distance } from './distance.ts';
 import { toCoordinate } from './toCoordinate.ts';
 
-export function anglesFromPoints(
+export function pointsToAngles(
 	...points: [CoordinateLike, CoordinateLike, CoordinateLike]
 ) {
 	const [pointA, pointB, pointC] = points.map(toCoordinate);

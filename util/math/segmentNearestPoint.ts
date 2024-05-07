@@ -1,7 +1,7 @@
 import type { CoordinateLike, Segment } from '../types.d.ts';
-import { anglesFromPoints } from './anglesFromPoints.ts';
 import { distance } from './distance.ts';
 import { pointsAreDifferent } from './pointsAreDifferent.ts';
+import { pointsToAngles } from './pointsToAngles.ts';
 import { pointsToMidpoints } from './pointsToMidpoints.ts';
 import { toCoordinate } from './toCoordinate.ts';
 
@@ -51,7 +51,7 @@ export function segmentNearestPoint(
 			return index;
 		}
 
-		const angles = anglesFromPoints(target, begin, end);
+		const angles = pointsToAngles(target, begin, end);
 		const angleDifference = Math.abs(angles[0] - angles[1]);
 		if (angleDifference < smallestAngleDifference) {
 			smallestAngleDifference = angleDifference;
