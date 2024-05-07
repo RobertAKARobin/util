@@ -2,6 +2,7 @@ import type { CoordinateLike, Segment } from '../types.d.ts';
 import { anglesFromPoints } from './anglesFromPoints.ts';
 import { distance } from './distance.ts';
 import { pointsAreDifferent } from './pointsAreDifferent.ts';
+import { pointsToMidpoints } from './pointsToMidpoints.ts';
 import { toCoordinate } from './toCoordinate.ts';
 
 /**
@@ -17,7 +18,12 @@ export function segmentNearestPoint(
 	let nearestDistance = Infinity;
 	let index = 0;
 	for (const segment of segments) {
-		for (const point of segment) {
+		const points = [...segment];
+		if (points.length === 2) {
+			points.splice(1, 0, pointsToMidpoints(points)[0]); // Ensure lines have a midpoint; otherwise the control of a bezier might measure closer
+		}
+
+		for (const point of points) {
 			const pointDistance = distance([target, point]);
 			if (pointDistance === nearestDistance) {
 				nearestIndexes.add(index);

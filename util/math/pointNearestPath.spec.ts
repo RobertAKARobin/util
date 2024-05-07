@@ -18,4 +18,5 @@ export const spec = test(`pointNearestPath`, $ => {
 	$.assert(x => x(result(44, 95)) === `44,93`);
 	$.assert(x => x(result(95, 95)) === `83,80`);
 	$.assert(x => x(result(95, 84)) === `88,77`);
+	$.assert(x => x(result(4, 39)) === `5,39`);
 });
