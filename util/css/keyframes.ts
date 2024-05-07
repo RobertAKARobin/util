@@ -107,7 +107,7 @@ export function keyframesMulti<AnimationName extends string>(
 			}
 
 			const percentComplete = (timeSoFar - animation.timeStart) / animation.timeDuration;
-			const percentString = roundTo(100 * percentComplete, 2);
+			const percentString = roundTo(100 * percentComplete, .01);
 
 			animation.keyframes += `${percentString}% {${keyframe}}\n`;
 		}

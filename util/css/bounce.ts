@@ -29,8 +29,8 @@ export function bounce(options: {
 	while (duration >= durationMin && distance >= distanceMin) {
 		states.push(duration, { bounce: `${setter(distance)};animation-timing-function:ease-in` });
 
-		duration = roundTo(duration * bounciness, 2);
-		distance = roundTo(distance * bounciness, 2);
+		duration = roundTo(duration * bounciness, .01);
+		distance = roundTo(distance * bounciness, .01);
 
 		states.push(duration, { bounce: `${setter(0)};animation-timing-function:ease-out` });
 	}

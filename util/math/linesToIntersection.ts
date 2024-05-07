@@ -24,7 +24,7 @@ export function linesToIntersection(...lines: Array<LineLike>): Coordinate | und
 	const yOffsetB = yOffset(lineB);
 
 	let x = (yOffsetB - yOffsetA) / (slopeA - slopeB);
-	x = roundTo(x, 12); // Account for float fragments
+	x = roundTo(x); // Account for float fragments
 	if (
 		(x < lineA.begin.x && x < lineB.begin.x)
 		|| (x > lineA.end.x && x > lineB.end.x)

@@ -180,7 +180,7 @@ export class SpecRenderer<
 
 		const indicator = this.statusIndicators[result.status];
 		return [
-			`  ${prefix} ${indicator} ${result.title}${options.showTiming ? ` <${roundTo(result.timeEnd - result.timeBegin, 2)}ms>` : ``}`,
+			`  ${prefix} ${indicator} ${result.title}${options.showTiming ? ` <${roundTo(result.timeEnd - result.timeBegin, .01)}ms>` : ``}`,
 			result.iterations.length > 1
 				? result.iterations.map(iteration =>
 					this.renderSuiteOrTestIteration(iteration, prefix, options)
@@ -203,7 +203,7 @@ export class SpecRenderer<
 
 		const indicator = this.statusIndicators[result.status];
 		return [
-			`  ${prefix} ${indicator}${options.showTiming ? ` <${roundTo(result.timeEnd - result.timeBegin, 2)}ms>` : ``}`,
+			`  ${prefix} ${indicator}${options.showTiming ? ` <${roundTo(result.timeEnd - result.timeBegin, .01)}ms>` : ``}`,
 			result.children.map(child =>
 				this.renderSuiteOrTestIterationChild(child, prefix, options)
 			),

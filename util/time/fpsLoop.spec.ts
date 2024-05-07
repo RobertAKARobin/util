@@ -13,15 +13,15 @@ export const spec = suite(`FPSLoop`,
 		args: () => {
 			let lastTime = undefined as number | undefined;
 			const times = [] as Array<number>;
-			const loopsPerSecond = roundTo((Math.random() * 59) + 1, 0);
+			const loopsPerSecond = roundTo((Math.random() * 59) + 1, 1);
 			const msPerLoop = msPerSecond / loopsPerSecond;
-			const maxLoops = roundTo(loopsPerSecond / 1, 0);
+			const maxLoops = roundTo(loopsPerSecond / 1, 1);
 			const expectedDuration = msPerLoop * maxLoops;
 			const loop = new FPSLoop(
 				() => {
 					const time = performance.now();
 					if (lastTime !== undefined) {
-						const timeSinceLast = roundTo(time - lastTime, 3);
+						const timeSinceLast = roundTo(time - lastTime, .001);
 						times.push(timeSinceLast);
 					}
 					lastTime = time;

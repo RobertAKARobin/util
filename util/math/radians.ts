@@ -1,9 +1,7 @@
-import { roundTo } from './roundTo.ts';
-
-export function radiansFrom(degrees: number, precision = 2) {
-	return roundTo((degrees * Math.PI) / 180, precision);
+export function radiansFrom(degrees: number) {
+	return (degrees * Math.PI) / 180;
 }
 
-export function radiansTo(radians: number, precision = 0) {
-	return roundTo((180 * radians) / Math.PI, precision);
+export function radiansTo(radians: number) {
+	return (180 * radians) / Math.PI;
 }

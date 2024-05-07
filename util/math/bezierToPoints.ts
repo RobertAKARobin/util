@@ -29,7 +29,7 @@ export function bezierToPoints(
 		if (progress === 1) {
 			break;
 		}
-		progress = roundTo(progress + progressPerLine, 12);
+		progress = roundTo(progress + progressPerLine);
 	}
 
 	return points;

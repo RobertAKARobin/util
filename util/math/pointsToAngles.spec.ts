@@ -5,21 +5,18 @@ import { radiansTo } from './radians.ts';
 import { roundTo } from './roundTo.ts';
 import { sum } from './sum.ts';
 
-export const spec = test(`anglesFromPoints`, $ => {
-	const precision = 2;
-	const pi = (multiplier: number) => roundTo(Math.PI * multiplier, precision);
-	const angles = (...points: Parameters<typeof pointsToAngles>) =>
-		pointsToAngles(...points).map(angle => roundTo(angle, precision));
+export const spec = test(`pointsToAngles`, $ => {
+	let subject: Array<number>;
 
-	let subject = pointsToAngles([0, 0], [3, 0], [3, 3]);
-	$.assert(x => x(roundTo(subject[0], 2)) === pi(1 / 2));
-	$.assert(x => x(roundTo(subject[1], 2)) === pi(1 / 4));
-	$.assert(x => x(roundTo(subject[2], 2)) === pi(1 / 4));
+	subject = pointsToAngles([0, 0], [3, 0], [3, 3]);
+	$.assert(x => x(roundTo(subject[0])) === roundTo(Math.PI / 2)); // Dunno why this one needs rounding
+	$.assert(x => x(subject[1]) === Math.PI / 4);
+	$.assert(x => x(subject[2]) === Math.PI / 4);
 	$.assert(x => x(radiansTo(sum(...subject))) === 180);
 
-	subject = angles([0, 0], [3, 0], [3, 4]);
-	$.assert(x => x(roundTo(subject[0], 2)) === 1.57);
-	$.assert(x => x(roundTo(subject[1], 2)) === .64);
-	$.assert(x => x(roundTo(subject[2], 2)) === .93);
+	subject = pointsToAngles([0, 0], [3, 0], [3, 4]);
+	$.assert(x => x(roundTo(subject[0], .01)) === 1.57);
+	$.assert(x => x(roundTo(subject[1], .01)) === .64);
+	$.assert(x => x(roundTo(subject[2], .01)) === .93);
 	$.assert(x => x(radiansTo(sum(...subject))) === 180);
 });
