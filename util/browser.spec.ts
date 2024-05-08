@@ -4,7 +4,7 @@ import { spec as svgSpec } from './svg/svg.spec.ts';
 
 import { makeDraggable } from './dom/makeDraggable.ts';
 import { PathNavigator } from './svg/pathNavigator.ts';
-import { pointNearestPath } from './math/pointNearestPath.ts';
+import { pointAlongPath } from './math/pointAlongPath.ts';
 import { pointToSvg } from './svg/pointToSvg.ts';
 import { style } from './dom/attributes.ts';
 import { svgCreate } from './svg/svgCreate.ts';
@@ -39,7 +39,7 @@ const path = svg.querySelector(`path`)!;
 const navigator = PathNavigator.fromData(path.getAttribute(`d`)!);
 svg.addEventListener(`click`, event => {
 	const pointer = pointToSvg(svg, [event.clientX, event.clientY]);
-	const target = pointNearestPath(pointer, navigator.segments);
+	const target = pointAlongPath(pointer, navigator.segments);
 	style(svgPointer, {
 		cx: `${target.x}px`,
 		cy: `${target.y}px`,

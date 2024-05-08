@@ -1,6 +1,7 @@
 import { test } from '../spec/index.ts';
 
 import { pointsToAngles } from './pointsToAngles.ts';
+import { preciseTo } from './preciseTo.ts';
 import { radiansTo } from './radians.ts';
 import { roundTo } from './roundTo.ts';
 import { sum } from './sum.ts';
@@ -19,4 +20,7 @@ export const spec = test(`pointsToAngles`, $ => {
 	$.assert(x => x(roundTo(subject[1], .01)) === .64);
 	$.assert(x => x(roundTo(subject[2], .01)) === .93);
 	$.assert(x => x(radiansTo(sum(...subject))) === 180);
+
+	subject = pointsToAngles([50, 50], [50, 5], [51, 5]);
+	$.assert(x => x(preciseTo(radiansTo(subject[0]))) === 90);
 });
