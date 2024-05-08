@@ -43,8 +43,14 @@ export class PathNavigator {
 					return this.curveto(handle1X, handle1Y, handle2X, handle2Y, endX, endY);
 				case `c`: {
 					const [handle1X, handle1Y, handle2X, handle2Y, endX, endY] = values;
-					return this.curveto(handle1X, handle1Y, handle2X, handle2Y, endX, endY);
-					return this;
+					return this.curveto(
+						this.current.x + handle1X,
+						this.current.y + handle1Y,
+						this.current.x + handle2X,
+						this.current.y + handle2Y,
+						this.current.x + endX,
+						this.current.y + endY,
+					);
 				}
 				case `H`: {
 					const [x] = values;
@@ -130,7 +136,10 @@ export class PathNavigator {
 		const commands = commandString.trim().split(/(?=[a-z])/gi);
 		for (const chunk of commands) {
 			const command = chunk.substring(0, 1);
-			const points = chunk.substring(1).trim().split(/[,\s]/).map(Number);
+			const points = chunk.substring(1)
+				.trim()
+				.replaceAll(/(?<=\d)-(?=\d)/g, ` -`) // Hyphen is used as a combined separator and negative
+				.split(/[,\s]/).map(Number);
 			const groupSize = pointsByCommand[command.toLowerCase()] ?? 0;
 			if (groupSize === 0) {
 				this.command(command);
