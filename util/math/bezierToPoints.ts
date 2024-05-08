@@ -1,7 +1,7 @@
 import type { Coordinate } from '../types.d.ts';
 
 import { bezierPoint } from './bezierPoint.ts';
-import { roundTo } from './roundTo.ts';
+import { preciseTo } from './preciseTo.ts';
 
 export function bezierToPoints(
 	begin: Coordinate,
@@ -26,10 +26,12 @@ export function bezierToPoints(
 			progress,
 		);
 		points.push(point);
+
 		if (progress === 1) {
 			break;
 		}
-		progress = roundTo(progress + progressPerLine);
+
+		progress = preciseTo(progress + progressPerLine);
 	}
 
 	return points;

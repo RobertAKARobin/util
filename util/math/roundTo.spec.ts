@@ -4,7 +4,7 @@ import { roundTo } from './roundTo.ts';
 
 export const spec = test(`roundTo`, $ => {
 	$.assert(x => x(isNaN(roundTo(Math.PI, 0))));
-	$.assert(x => x(roundTo(Math.PI)) === 3.14159265359);
+	$.assert(x => x(roundTo(Math.PI)) === 3);
 	$.assert(x => x(roundTo(Math.PI, 1)) === 3);
 	$.assert(x => x(roundTo(Math.PI, 2)) === 4);
 	$.assert(x => x(roundTo(Math.PI, 3)) === 3);
@@ -21,11 +21,14 @@ export const spec = test(`roundTo`, $ => {
 	$.assert(x => x(isNaN(roundTo(0, 0))));
 	$.assert(x => x(roundTo(0, 1)) === 0);
 
-	$.assert(x => x(roundTo(Math.PI * 1000)) === 3141.59265358979);
+	$.assert(x => x(roundTo(Math.PI * 1000)) === 3142);
 	$.assert(x => x(roundTo(Math.PI * 1000, 1)) === 3142);
 	$.assert(x => x(roundTo(Math.PI * 1000, .1)) === 3141.6);
+	$.assert(x => x(roundTo(Math.PI * 1000, .5)) === 3141.5);
 	$.assert(x => x(roundTo(Math.PI * 1000, .01)) === 3141.59);
+	$.assert(x => x(roundTo(Math.PI * 1000, .05)) === 3141.6);
 	$.assert(x => x(roundTo(Math.PI * 1000, .001)) === 3141.593);
+	$.assert(x => x(roundTo(Math.PI * 1000, .005)) === 3141.595);
 
 	$.assert(x => x(roundTo(Math.PI * 1000, 10)) === 3140);
 	$.assert(x => x(roundTo(Math.PI * 1000, 100)) === 3100);

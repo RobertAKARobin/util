@@ -1,6 +1,6 @@
 import type { Coordinate } from '../types.d.ts';
 
-import { roundTo } from './roundTo.ts';
+import { preciseTo } from './preciseTo.ts';
 
 /**
  * Given the points of a Bezier curve, and n% progress along the curve, calculate the coordinates of the point at that progress.
@@ -23,7 +23,7 @@ export function bezierPoint(
 			+ (endHandle[axis] * Math.pow(remainder, 1) * Math.pow(progress, 2) * 3)
 			+ (end[axis] * Math.pow(remainder, 0) * Math.pow(progress, 3))
 		);
-		out[axis] = roundTo(result);
+		out[axis] = preciseTo(result);
 	}
 	return out;
 }
