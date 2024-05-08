@@ -3,7 +3,7 @@ import { print, suite } from './spec/index.ts';
 import { spec as svgSpec } from './svg/svg.spec.ts';
 
 import { makeDraggable } from './dom/makeDraggable.ts';
-import { PathNavigator } from './svg/pathNavigator.ts';
+import { PathNavigator } from './math/pathNavigator.ts';
 import { pointAlongPath } from './math/pointAlongPath.ts';
 import { pointToSvg } from './svg/pointToSvg.ts';
 import { style } from './dom/attributes.ts';

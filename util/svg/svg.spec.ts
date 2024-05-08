@@ -14,7 +14,6 @@ export const spec = suite(`svg/`,
 		timing: `consecutive`,
 	},
 
-	(await import(`./pathNavigator.spec.ts`)).spec,
 	(await import(`./pointToSvg.spec.ts`)).spec,
 	(await import(`./svgCreate.spec.ts`)).spec,
 );
