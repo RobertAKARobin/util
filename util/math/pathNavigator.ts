@@ -80,9 +80,10 @@ export class PathNavigator {
 				case `s`: {
 					let [handle1X, handle1Y] = [this.current.x, this.current.y];
 					if (this.segmentLast.length > 2) {
-						const reflect = this.segmentLast[2];
-						handle1X = this.current.x + (this.current.x - reflect.x);
-						handle1Y = this.current.x + (this.current.x - reflect.y);
+						const changeX = this.segmentLast[3].x - this.segmentLast[2].x;
+						const changeY = this.segmentLast[3].y - this.segmentLast[2].y;
+						handle1X = this.current.x + changeX;
+						handle1Y = this.current.y + changeY;
 					}
 
 					let [handle2X, handle2Y, endX, endY] = values;
