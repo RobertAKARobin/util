@@ -60,6 +60,7 @@ export function AssertionValueWrap <Value>(value: Value): Value;
 
 export type AssertionResult = Omit<SpecStepResult, `count`> & {
 	contents: string;
+	type: Extract<SpecStepTypeName, `assertion`>;
 	values: Array<string>;
 };
 //#endregion

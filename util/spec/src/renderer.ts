@@ -149,11 +149,11 @@ export class SpecRenderer<
 		];
 
 		if (result.status !== `fail`) {
-			return out;
+			return options.format(result, out);
 		}
 
 		if (!valueWrapperMatcher) {
-			return out;
+			return options.format(result, out);
 		}
 
 		const linePadding = ` `.repeat(prefix.length) + ` `;
@@ -243,11 +243,11 @@ export class SpecRenderer<
 			case `assertion`:
 				return this.renderAssertion(result, parentPrefix, options);
 			case `suite`:
-				return this.renderSuiteOrTest(result as Type.SuiteResult, parentPrefix, options);
+				return this.renderSuiteOrTest(result, parentPrefix, options);
 			case `test`:
-				return this.renderSuiteOrTest(result as Type.TestResult, parentPrefix, options);
+				return this.renderSuiteOrTest(result, parentPrefix, options);
 			default:
-				return this.renderSuiteOrTestLog(result  as Type.SpecLog, parentPrefix, options);
+				return this.renderSuiteOrTestLog(result, parentPrefix, options);
 		}
 	}
 

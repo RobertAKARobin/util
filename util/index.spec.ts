@@ -1,15 +1,16 @@
-import { run, suite, type Type } from './spec/index.ts';
 import { glob } from 'glob';
 import path from 'path';
-import { promiseConsecutive } from './time/promiseConsecutive.ts';
 import url from 'url';
+
+import { run, suite, type Type } from './spec/index.ts';
+import { promiseConsecutive } from './time/promiseConsecutive.ts';
 
 const extensions = {
 	spec: `.spec.ts`,
 	ts: `.ts`,
 };
 
-const files = new Set(await glob(
+const fileNames = await glob(
 	`util/**/*.ts`,
 	{
 		ignore: [
@@ -18,7 +19,8 @@ const files = new Set(await glob(
 			`*/spec/**/*`,
 		],
 	}
-));
+);
+const files = new Set(fileNames.sort());
 
 const specFiles = [];
 const specWithoutSource = [] as Array<string>;
@@ -46,12 +48,12 @@ for (const file of files) {
 }
 
 console.log(`>>> Specs without source:`);
-console.log(specWithoutSource.sort().map((entry, index) =>
+console.log(specWithoutSource.map((entry, index) =>
 	`${index}.\t${entry}\n`
 ).join(``));
 
 console.log(`>>> Sources without spec:`);
-console.log(sourceWithoutSpec.sort().map((entry, index) =>
+console.log(sourceWithoutSpec.map((entry, index) =>
 	`${index}.\t${entry}\n`
 ).join(``));
 
@@ -71,12 +73,11 @@ export const spec = suite(`@robertakarobin/util/`, {}, ...specs);
 
 run(await spec({}), {
 	format: (result, text) => {
-		if (`status` in result) {
-			if (result.status === `pass`) {
-				return [``];
-			}
+		if (result.type === `suite` || result.type === `test`) {
+			return text;
 		}
-		return text;
+
+		return [``];
 	},
 	verbose: true,
 });
