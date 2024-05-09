@@ -22,14 +22,14 @@ export class PathNavigator {
 		return navigator;
 	}
 
-	private current = { x: 0, y: 0 };
-	private segment: Segment = [];
-	private segmentLast: Segment = [];
+	cursor = { x: 0, y: 0 };
+	segmentCurrent: Segment = [];
+	segmentLast: Segment = [];
 	segments: Array<Segment> = [];
 
 	close() {
 		const first = this.segments[0][0];
-		if (pointsAreDifferent(this.current, first)) {
+		if (pointsAreDifferent(this.cursor, first)) {
 			return this.lineto(first.x, first.y);
 		}
 		return this;
@@ -44,21 +44,21 @@ export class PathNavigator {
 				case `c`: {
 					const [handle1X, handle1Y, handle2X, handle2Y, endX, endY] = values;
 					return this.curveto(
-						this.current.x + handle1X,
-						this.current.y + handle1Y,
-						this.current.x + handle2X,
-						this.current.y + handle2Y,
-						this.current.x + endX,
-						this.current.y + endY,
+						this.cursor.x + handle1X,
+						this.cursor.y + handle1Y,
+						this.cursor.x + handle2X,
+						this.cursor.y + handle2Y,
+						this.cursor.x + endX,
+						this.cursor.y + endY,
 					);
 				}
 				case `H`: {
 					const [x] = values;
-					return this.lineto(x, this.current.y);
+					return this.lineto(x, this.cursor.y);
 				}
 				case `h`: {
 					const [changeX] = values;
-					return this.lineto(this.current.x + changeX, this.current.y);
+					return this.lineto(this.cursor.x + changeX, this.cursor.y);
 				}
 				case `L`: {
 					const [x, y] = values;
@@ -66,7 +66,7 @@ export class PathNavigator {
 				}
 				case `l`: {
 					const [changeX, changeY] = values;
-					return this.lineto(this.current.x + changeX, this.current.y + changeY);
+					return this.lineto(this.cursor.x + changeX, this.cursor.y + changeY);
 				}
 				case `M`: {
 					const [x, y] = values;
@@ -74,36 +74,36 @@ export class PathNavigator {
 				}
 				case `m`: {
 					const [changeX, changeY] = values;
-					return this.moveto(this.current.x + changeX, this.current.y + changeY);
+					return this.moveto(this.cursor.x + changeX, this.cursor.y + changeY);
 				}
 				case `S`:
 				case `s`: {
-					let [handle1X, handle1Y] = [this.current.x, this.current.y];
+					let [handle1X, handle1Y] = [this.cursor.x, this.cursor.y];
 					if (this.segmentLast.length > 2) {
 						const changeX = this.segmentLast[3].x - this.segmentLast[2].x;
 						const changeY = this.segmentLast[3].y - this.segmentLast[2].y;
-						handle1X = this.current.x + changeX;
-						handle1Y = this.current.y + changeY;
+						handle1X = this.cursor.x + changeX;
+						handle1Y = this.cursor.y + changeY;
 					}
 
 					let [handle2X, handle2Y, endX, endY] = values;
 
 					if (command === `s`) {
-						handle2X += this.current.x;
-						handle2Y += this.current.y;
-						endX += this.current.x;
-						endY += this.current.y;
+						handle2X += this.cursor.x;
+						handle2Y += this.cursor.y;
+						endX += this.cursor.x;
+						endY += this.cursor.y;
 					}
 
 					return this.curveto(handle1X, handle1Y, handle2X, handle2Y, endX, endY);
 				}
 				case `V`: {
 					const [y] = values;
-					return this.lineto(this.current.x, y);
+					return this.lineto(this.cursor.x, y);
 				}
 				case `v`: {
 					const [changeY] = values;
-					return this.lineto(this.current.x, this.current.y + changeY);
+					return this.lineto(this.cursor.x, this.cursor.y + changeY);
 				}
 				case `Z`: {
 					return this.close();
@@ -166,26 +166,26 @@ export class PathNavigator {
 	}
 
 	moveto(x: number, y: number) {
-		this.current.x = x;
-		this.current.y = y;
+		this.cursor.x = x;
+		this.cursor.y = y;
 		return this;
 	}
 
 	nextSegment() {
-		this.segments.push(this.segment);
-		this.segmentLast = this.segment;
-		this.segment = [];
+		this.segments.push(this.segmentCurrent);
+		this.segmentLast = this.segmentCurrent;
+		this.segmentCurrent = [];
 	}
 
 	read() {
-		const { x, y } = this.current;
+		const { x, y } = this.cursor;
 		if (!Number.isInteger(x)) {
 			throw new Error(`x is ${x}`);
 		}
 		if (!Number.isInteger(y)) {
 			throw new Error(`y is ${y}`);
 		}
-		this.segment.push({ x, y });
+		this.segmentCurrent.push({ x, y });
 		return this;
 	}
 
