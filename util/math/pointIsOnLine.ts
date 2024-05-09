@@ -2,6 +2,7 @@ import type { CoordinateLike, LineLike } from '../types.d.ts';
 
 import { getSlope } from './slope.ts';
 import { getYOffset } from './yOffset.ts';
+import { pointsAreDifferent } from './pointsAreDifferent.ts';
 import { toCoordinate } from './toCoordinate.ts';
 import { toLine } from './toLine.ts';
 
@@ -14,6 +15,11 @@ export function pointIsOnLine(coordinateLike: CoordinateLike, lineLike: LineLike
 	const line = toLine(lineLike);
 
 	const lineSlope = getSlope(line);
+
+	if (isNaN(lineSlope)) {
+		return !pointsAreDifferent(point, line.begin);
+	}
+
 	const lineYOffset = getYOffset(line);
 
 	const expectedY = (lineSlope * point.x) + lineYOffset;
