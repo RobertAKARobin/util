@@ -12,10 +12,21 @@ const match = {
 
 export class SpecRenderer<
 	RenderOptions extends {
+		format: (
+			input:
+				| Type.AssertionResult
+				| Type.SpecLog
+				| Type.SuiteIterationResult
+				| Type.SuiteResult
+				| Type.TestIterationResult
+				| Type.TestResult,
+			defaultText: $.Nested<string>,
+		) => $.Nested<string>;
 		showTiming: boolean;
 	},
 > {
 	readonly renderOptions = <RenderOptions>{
+		format: (_result, text) => text,
 		showTiming: true,
 	};
 
@@ -65,24 +76,29 @@ export class SpecRenderer<
 		return [
 			`———`,
 			...this.renderSuiteOrTest(rootSuiteResult, ``, options).flat(Infinity as 1), // https://github.com/microsoft/TypeScript/issues/49280
-			``,
+			` `,
 			`Total completed assertions: ${rootSuiteResult.count.totalAssertions}`,
 			...specStepStatuses.map(statusName => {
 				const count = rootSuiteResult.count[statusName];
 				const countPadding = ` `.repeat(maxCountPlaces - count.toString().length); // For right-aligning numbers
 				return `${this.statusIndicators[statusName]} ${countPadding}${count} ${statusName}`;
 			}),
-			``,
+			` `,
 			`RESULT: ${rootSuiteResult.status.toUpperCase()}`,
 			`———`,
-		].join(`\n`);
+		].filter(line => line !== ``).join(`\n`);
 	};
 
 	renderAssertion(
 		result: Type.AssertionResult,
 		parentPrefix: string,
-		_inputOptions: Partial<RenderOptions> = {},
+		inputOptions: Partial<RenderOptions> = {},
 	): $.Nested<string> {
+		const options = {
+			...this.renderOptions,
+			...inputOptions,
+		};
+
 		const indicator = this.statusIndicators[result.status];
 		const prefix = `${indicator} ${parentPrefix}${this.typeIndicators.assertion}${result.indexAtDefinition + 1} ${indicator}`;
 
@@ -97,12 +113,12 @@ export class SpecRenderer<
 		if (body.startsWith(`function`)) {
 			body = body.replace(match.functionParam, (_, param: string) => {
 				valueWrapperName = param?.trim();
-				return ``;
+				return ` `;
 			},);
 		} else {
 			body = body.replace(match.fatArrowParam, (_, braces: string, noBraces: string) => {
 				valueWrapperName = (braces || noBraces)?.trim();
-				return ``;
+				return ` `;
 			});
 		}
 
@@ -164,7 +180,7 @@ export class SpecRenderer<
 			out.push(`${linePadding}${explanation}`);
 		}
 
-		return out;
+		return options.format(result, out);
 	}
 
 	renderSuiteOrTest(
@@ -179,7 +195,7 @@ export class SpecRenderer<
 		};
 
 		const indicator = this.statusIndicators[result.status];
-		return [
+		return options.format(result, [
 			`  ${prefix} ${indicator} ${result.title}${options.showTiming ? ` <${roundTo(result.timeEnd - result.timeBegin, .01)}ms>` : ``}`,
 			result.iterations.length > 1
 				? result.iterations.map(iteration =>
@@ -187,7 +203,7 @@ export class SpecRenderer<
 				) : result.iterations[0].children.map(child =>
 					this.renderSuiteOrTestIterationChild(child, prefix, options)
 				),
-		];
+		]);
 	}
 
 	renderSuiteOrTestIteration(
@@ -202,12 +218,12 @@ export class SpecRenderer<
 		};
 
 		const indicator = this.statusIndicators[result.status];
-		return [
+		return options.format(result, [
 			`  ${prefix} ${indicator}${options.showTiming ? ` <${roundTo(result.timeEnd - result.timeBegin, .01)}ms>` : ``}`,
 			result.children.map(child =>
 				this.renderSuiteOrTestIterationChild(child, prefix, options)
 			),
-		];
+		]);
 	}
 
 	renderSuiteOrTestIterationChild(
@@ -238,9 +254,16 @@ export class SpecRenderer<
 	renderSuiteOrTestLog(
 		result: Type.SpecLog,
 		parentPrefix: string,
-		_inputOptions: Partial<RenderOptions> = {}
-	): string {
-		return `  ${parentPrefix}${this.typeIndicators.log}  ${result.message}`;
+		inputOptions: Partial<RenderOptions> = {}
+	): $.Nested<string> {
+		const options = {
+			...this.renderOptions,
+			...inputOptions,
+		};
+
+		return options.format(result, [
+			`  ${parentPrefix}${this.typeIndicators.log}  ${result.message}`,
+		]);
 	}
 
 	run = (

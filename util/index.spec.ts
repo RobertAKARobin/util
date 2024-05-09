@@ -1,85 +1,82 @@
-import { run, suite } from './spec/index.ts';
+import { run, suite, type Type } from './spec/index.ts';
+import { glob } from 'glob';
+import path from 'path';
+import { promiseConsecutive } from './time/promiseConsecutive.ts';
+import url from 'url';
 
-export const spec = suite(`@robertakarobin/util/`, {},
-	(await import(`./components/component.spec.ts`)).spec,
-	(await import(`./css/keyframes.spec.ts`)).spec,
-	(await import(`./date/ampmToDate.spec.ts`)).spec,
-	(await import(`./date/dateFormat.spec.ts`)).spec,
-	(await import(`./date/dayEnd.spec.ts`)).spec,
-	(await import(`./dom/listenOnce.spec.ts`)).spec,
-	(await import(`./dom/attributes.spec.ts`)).spec,
-	(await import(`./emitter/emitter.spec.ts`)).spec,
-	(await import(`./emitter/entities.spec.ts`)).spec,
-	(await import(`./group/arrayCoerce.spec.ts`)).spec,
-	(await import(`./group/arrayFromKeys.spec.ts`)).spec,
-	(await import(`./group/arrayToDict.spec.ts`)).spec,
-	(await import(`./group/arrayToEnum.spec.ts`)).spec,
-	(await import(`./group/arrayToGroups.spec.ts`)).spec,
-	(await import(`./group/enumy.spec.ts`)).spec,
-	(await import(`./group/indexOn.spec.ts`)).spec,
-	(await import(`./group/indexesByValues.spec.ts`)).spec,
-	(await import(`./group/mapObject.spec.ts`)).spec,
-	(await import(`./group/omit.spec.ts`)).spec,
-	(await import(`./group/nTimes.spec.ts`)).spec,
-	(await import(`./group/serialize.spec.ts`)).spec,
-	(await import(`./group/sortOn.spec.ts`)).spec,
-	(await import(`./group/sortNumbers.spec.ts`)).spec,
-	(await import(`./math/average.spec.ts`)).spec,
-	(await import(`./math/bezierPoint.spec.ts`)).spec,
-	(await import(`./math/bezierToPoints.spec.ts`)).spec,
-	(await import(`./math/constrain.spec.ts`)).spec,
-	(await import(`./math/difference.spec.ts`)).spec,
-	(await import(`./math/distance.spec.ts`)).spec,
-	(await import(`./math/findPercent.spec.ts`)).spec,
-	(await import(`./math/isBetween.spec.ts`)).spec,
-	(await import(`./math/linesToIntersection.spec.ts`)).spec,
-	(await import(`./math/pathNavigator.spec.ts`)).spec,
-	(await import(`./math/pointAlongPath.spec.ts`)).spec,
-	(await import(`./math/pointAtPercent.spec.ts`)).spec,
-	(await import(`./math/pointCrossesBezier.spec.ts`)).spec,
-	(await import(`./math/pointIsOnLine.spec.ts`)).spec,
-	(await import(`./math/pointNearestBezier.spec.ts`)).spec,
-	(await import(`./math/pointNearestLine.spec.ts`)).spec,
-	(await import(`./math/pointNearestPath.spec.ts`)).spec,
-	(await import(`./math/pointNearestPoint.spec.ts`)).spec,
-	(await import(`./math/pointRotate.spec.ts`)).spec,
-	(await import(`./math/pointToString.spec.ts`)).spec,
-	(await import(`./math/pointsAreDifferent.spec.ts`)).spec,
-	(await import(`./math/pointsRotate.spec.ts`)).spec,
-	(await import(`./math/pointsSeparated.spec.ts`)).spec,
-	(await import(`./math/pointsToAngles.spec.ts`)).spec,
-	(await import(`./math/pointsToLines.spec.ts`)).spec,
-	(await import(`./math/pointsToMidpoints.spec.ts`)).spec,
-	(await import(`./math/preciseTo.spec.ts`)).spec,
-	(await import(`./math/radians.spec.ts`)).spec,
-	(await import(`./math/roundTo.spec.ts`)).spec,
-	(await import(`./math/segmentNearestPoint.spec.ts`)).spec,
-	(await import(`./math/segmentsToPoints.spec.ts`)).spec,
-	(await import(`./math/slope.spec.ts`)).spec,
-	(await import(`./math/slopeTo.spec.ts`)).spec,
-	(await import(`./math/sum.spec.ts`)).spec,
-	(await import(`./math/toCoordinate.spec.ts`)).spec,
-	(await import(`./math/toLine.spec.ts`)).spec,
-	(await import(`./math/yOffset.spec.ts`)).spec,
-	(await import(`./node/posixPath.spec.ts`)).spec,
-	(await import(`./spec/spec.spec.ts`)).spec, // Sounds like a sprinkler!
-	(await import(`./string/capitalize.spec.ts`)).spec,
-	(await import(`./string/deleteAt.spec.ts`)).spec,
-	(await import(`./string/delimiter-pairs.spec.ts`)).spec,
-	(await import(`./string/template.spec.ts`)).spec,
-	(await import(`./time/defer.spec.ts`)).spec,
-	(await import(`./time/fpsLoop.spec.ts`)).spec,
-	(await import(`./time/soFar.spec.ts`)).spec,
-	(await import(`./time/transition.spec.ts`)).spec,
-	(await import(`./web/querystring.spec.ts`)).spec,
-	(await import(`./web/router.spec.ts`)).spec,
-	(await import(`./web/sharedEnv.spec.ts`)).spec,
+const extensions = {
+	spec: `.spec.ts`,
+	ts: `.ts`,
+};
 
-	(await import(`./assert.spec.ts`)).spec,
-	(await import(`./fetchText.spec.ts`)).spec,
-	(await import(`./mixin.spec.ts`)).spec,
-	(await import(`./proxyDeep.spec.ts`)).spec,
-	(await import(`./tsvParse.spec.ts`)).spec,
+const files = new Set(await glob(
+	`util/**/*.ts`,
+	{
+		ignore: [
+			`*/browser.spec.ts`,
+			`*/svg/**/*`,
+			`*/spec/**/*`,
+		],
+	}
+));
+
+const specFiles = [];
+const specWithoutSource = [] as Array<string>;
+const sourceWithoutSpec = [] as Array<string>;
+const thisFile = url.fileURLToPath(import.meta.url);
+
+for (const file of files) {
+	if (path.resolve(file) === thisFile) {
+		continue;
+	}
+
+	if (file.endsWith(extensions.spec)) {
+		specFiles.push(file);
+
+		const base = file.substring(0, file.length - extensions.spec.length);
+		if (!files.has(`${base}${extensions.ts}`)) {
+			specWithoutSource.push(file);
+		}
+	} else {
+		const base = file.substring(0, file.length - extensions.ts.length);
+		if (!files.has(`${base}${extensions.spec}`)) {
+			sourceWithoutSpec.push(file);
+		}
+	}
+}
+
+console.log(`>>> Specs without source:`);
+console.log(specWithoutSource.sort().map((entry, index) =>
+	`${index}.\t${entry}\n`
+).join(``));
+
+console.log(`>>> Sources without spec:`);
+console.log(sourceWithoutSpec.sort().map((entry, index) =>
+	`${index}.\t${entry}\n`
+).join(``));
+
+const specs = await promiseConsecutive(
+	specFiles.sort().map(file => async() => {
+		const { spec } = await import(file) as {
+			spec: typeof Type.Test;
+		};
+		if (typeof spec !== `function`) {
+			throw new Error(file);
+		}
+		return spec;
+	})
 );
 
-run(await spec({}));
+export const spec = suite(`@robertakarobin/util/`, {}, ...specs);
+
+run(await spec({}), {
+	format: (result, text) => {
+		if (`status` in result) {
+			if (result.status === `pass`) {
+				return [``];
+			}
+		}
+		return text;
+	},
+	verbose: true,
+});
