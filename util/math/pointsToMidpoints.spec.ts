@@ -3,7 +3,7 @@ import { test } from '../spec/index.ts';
 import { pointsToMidpoints } from './pointsToMidpoints.ts';
 import segments from '../mock/segments.json';
 
-export const spec = test(`pointsToMidpoints`, $ => {
+export const spec = test(import.meta.url, $ => {
 	const points = segments[1];
 
 	$.assert(x => x(points.length) === 4);

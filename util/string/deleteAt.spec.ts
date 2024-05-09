@@ -2,7 +2,7 @@ import { test } from '../spec/index.ts';
 
 import { deleteAt } from './deleteAt.ts';
 
-export const spec = test(`deleteAt`, $ => {
+export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(deleteAt(`abcdef`, 3)) === `abcef`);
 	$.assert(x => x(deleteAt(`abcdef`, 3, -2)) === `aef`);
 	$.assert(x => x(deleteAt(`abcdef`, 3, -1)) === `abef`);

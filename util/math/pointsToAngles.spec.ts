@@ -6,7 +6,7 @@ import { preciseTo } from './preciseTo.ts';
 import { radiansTo } from './radians.ts';
 import { roundTo } from './roundTo.ts';
 
-export const spec = test(`pointsToAngles`, $ => {
+export const spec = test(import.meta.url, $ => {
 	let subject: Array<number>;
 
 	subject = pointsToAngles([0, 0], [3, 0], [3, 3]);

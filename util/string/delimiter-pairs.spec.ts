@@ -32,7 +32,7 @@ function at<ReturnType extends Result | string = string>(result: Result) {
 	};
 }
 
-export const spec = suite(`stringMates`, {},
+export const spec = suite(import.meta.url, {},
 	test(`tags`, $ => {
 		const tagA = [`<a>`, `</a>`];
 		const tag1 = [`<1>`, `</1>`];

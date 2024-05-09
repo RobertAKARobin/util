@@ -2,7 +2,7 @@ import { test } from '../spec/index.ts';
 
 import { mapObject } from './mapObject.ts';
 
-export const spec = test(`mapObject`, $ => {
+export const spec = test(import.meta.url, $ => {
 	const source = {
 		alice: `aaa`,
 		bob: `bbb`,

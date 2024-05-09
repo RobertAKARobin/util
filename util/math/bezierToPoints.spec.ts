@@ -4,7 +4,7 @@ import { test } from '../spec/index.ts';
 import { bezierToPoints } from './bezierToPoints.ts';
 import segments from '../mock/segments.json';
 
-export const spec = test(`bezierToPoints`, $ => {
+export const spec = test(import.meta.url, $ => {
 	const curve = segments[1] as Bezier;
 	let points = bezierToPoints(...curve, .1);
 

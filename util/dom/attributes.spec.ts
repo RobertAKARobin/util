@@ -3,7 +3,7 @@ import { suite, test } from '../spec/index.ts';
 
 import { setAttributes, style } from './attributes.ts';
 
-export const spec = suite(`attributes`,
+export const spec = suite(import.meta.url,
 	{
 		args: () => ({
 			subject: document.createElement(`div`),

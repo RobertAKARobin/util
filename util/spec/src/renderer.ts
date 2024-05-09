@@ -73,7 +73,7 @@ export class SpecRenderer<
 			...inputOptions,
 		};
 
-		return [
+		const text = [
 			`———`,
 			...this.renderSuiteOrTest(rootSuiteResult, ``, options).flat(Infinity as 1), // https://github.com/microsoft/TypeScript/issues/49280
 			` `,
@@ -87,6 +87,7 @@ export class SpecRenderer<
 			`RESULT: ${rootSuiteResult.status.toUpperCase()}`,
 			`———`,
 		].filter(line => line !== ``).join(`\n`);
+		return options.format(rootSuiteResult, [text]).join(``);
 	};
 
 	renderAssertion(

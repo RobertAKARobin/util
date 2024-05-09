@@ -4,7 +4,7 @@ import { test } from '../spec/index.ts';
 import { bezierPoint } from './bezierPoint.ts';
 import segments from '../mock/segments.json';
 
-export const spec = test(`bezierPoint`, $ => {
+export const spec = test(import.meta.url, $ => {
 	const curves = segments.filter(segment => segment.length > 2) as Array<Bezier>;
 
 	$.assert(x => x(bezierPoint(...curves[0], 0).x) === 50);

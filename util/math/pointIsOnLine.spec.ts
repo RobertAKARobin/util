@@ -2,7 +2,7 @@ import { test } from '../spec/index.ts';
 
 import { pointIsOnLine } from './pointIsOnLine.ts';
 
-export const spec = test(`pointIsOnLine`, $ => {
+export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(pointIsOnLine([3, 9], [[3, 9], [6, 13]])));
 	$.assert(x => x(pointIsOnLine([3, 9], [[3, 9], [6, 14]])));
 

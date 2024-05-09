@@ -5,7 +5,7 @@ import type { Bezier } from '../types.d.ts';
 import { pointCrossesBezier } from './pointCrossesBezier.ts';
 import { pointToString } from './pointToString.ts';
 
-export const spec = test(`pointCrossesBezier`, $ => {
+export const spec = test(import.meta.url, $ => {
 	let bezier: Bezier;
 
 	bezier = segments[1] as Bezier;

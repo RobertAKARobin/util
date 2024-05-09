@@ -2,7 +2,7 @@ import { test } from '../spec/index.ts';
 
 import { arrayToGroups } from './arrayToGroups.ts';
 
-export const spec = test(`arrayToGroups`, $ => {
+export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(arrayToGroups(2, []).length) === 0);
 	$.assert(x => x(arrayToGroups(2, [1]).length) === 1);
 	$.assert(x => x(arrayToGroups(2, [1])[0].length) === 1);

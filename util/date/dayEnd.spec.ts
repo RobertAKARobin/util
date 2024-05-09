@@ -1,7 +1,7 @@
 import { dayEnd, dayStart } from './dayEnd.ts';
 import { test } from '../spec/index.ts';
 
-export const spec = test(`ampmToDate`, $ => {
+export const spec = test(import.meta.url, $ => {
 	const now = new Date();
 	now.setFullYear(2001);
 	now.setMonth(2);

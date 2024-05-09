@@ -3,7 +3,7 @@ import { test } from '../spec/index.ts';
 
 import { transition } from './transition.ts';
 
-export const spec = test(`transition`, async $ => {
+export const spec = test(import.meta.url, async $ => {
 	const loopsPerSecond = 60;
 	const durationTarget = 1000;
 	let subject = 0;

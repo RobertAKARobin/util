@@ -2,7 +2,7 @@ import { test } from '../spec/index.ts';
 
 import { arrayToEnum } from './arrayToEnum.ts';
 
-export const spec = test(`arrayToEnum`, $ => {
+export const spec = test(import.meta.url, $ => {
 	const subject = arrayToEnum([`alice`, `bob`, `carol`]);
 	$.assert(x => x(subject[0]) === `alice`);
 	$.assert(x => x(subject.alice) === 0);

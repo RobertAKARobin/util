@@ -70,10 +70,26 @@ const specs = await promiseConsecutive(
 );
 
 export const spec = suite(`@robertakarobin/util/`, {}, ...specs);
+const basedir = path.dirname(import.meta.url);
 
-run(await spec({}), {
+const rootResult = await spec({});
+run(rootResult, {
 	format: (result, text) => {
 		if (result.type === `suite` || result.type === `test`) {
+			if (typeof text[0] === `string`) {
+				text[0] = text[0].replace(basedir, ``);
+			}
+		}
+
+		if (rootResult.status === `pass`) {
+			if (result.type === `suite` || result.type === `test`) {
+				return text;
+			}
+
+			return [``];
+		}
+
+		if (`status` in result && result.status === `fail`) {
 			return text;
 		}
 

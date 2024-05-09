@@ -3,7 +3,7 @@ import { test } from '../spec/index.ts';
 import { pointRotate } from './pointRotate.ts';
 import { pointToString } from './pointToString.ts';
 
-export const spec = test(`pointRotate`, $ => {
+export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(pointToString(pointRotate([0, 1], [0, 0], 90))) === `1,0`);
 	$.assert(x => x(pointToString(pointRotate([0, 0], [0, 1], 90))) === `-1,1`);
 	$.assert(x => x(pointToString(pointRotate([1, 0], [0, 0], 90))) === `0,-1`);

@@ -2,7 +2,7 @@ import { test } from '../spec/index.ts';
 
 import { indexOn } from './indexOn.ts';
 
-export const spec = test(`indexOn`, $ => {
+export const spec = test(import.meta.url, $ => {
 	const items = [
 		{ name: `alice` },
 		{ name: `bob` },

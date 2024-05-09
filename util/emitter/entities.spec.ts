@@ -6,7 +6,7 @@ type Item = {
 	value: string;
 };
 
-export const spec = test(`Entities`, $ => {
+export const spec = test(import.meta.url, $ => {
 	const state = new EntityStateEmitter<Item>();
 
 	let item1Id: EntityId;

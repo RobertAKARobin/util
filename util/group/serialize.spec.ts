@@ -3,7 +3,7 @@ import { test } from '../spec/index.ts';
 
 import { serialize } from './serialize.ts';
 
-export const spec = test(`Serialize`, $ => {
+export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(serialize({ foo: `bar` })) === `{foo:'bar'}`);
 	$.assert(x => x(serialize({ foo: 32 })) === `{foo:32}`);
 	$.assert(x => x(serialize({ foo: true })) === `{foo:true}`);

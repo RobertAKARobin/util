@@ -76,7 +76,7 @@ class EventSource extends Component {
 	`;
 }
 
-export const spec = suite(`Component`, {},
+export const spec = suite(import.meta.url, {},
 	test(`contents`, $ => {
 		let widget: Widget;
 

@@ -3,7 +3,7 @@ import { tryCatch } from './tryCatch.ts';
 
 import { assert, AssertionError } from './assert.ts';
 
-export const spec = test(`assert`, $ => {
+export const spec = test(import.meta.url, $ => {
 	let error: Error;
 
 	$.assert(() => assert(3 === 3) === true);

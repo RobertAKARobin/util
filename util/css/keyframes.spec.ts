@@ -82,7 +82,7 @@ ${keyframesContainer}}
 ${keyframesFront}}
 `;
 
-export const spec = test(`Keyframes`, $ => {
+export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(diff(animation, result)) === ``);
 
 	$.assert(x => x(Object.keys(animations).sort().join(`,`)) === `container,front`);

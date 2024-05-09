@@ -2,7 +2,7 @@ import { test } from '../spec/index.ts';
 
 import { roundTo } from './roundTo.ts';
 
-export const spec = test(`roundTo`, $ => {
+export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(isNaN(roundTo(Math.PI, 0))));
 	$.assert(x => x(roundTo(Math.PI)) === 3);
 	$.assert(x => x(roundTo(Math.PI, 1)) === 3);

@@ -3,7 +3,7 @@ import { test } from '../spec/index.ts';
 import { segmentNearestPoint } from './segmentNearestPoint.ts';
 import segments from '../mock/segments.json';
 
-export const spec = test(`pointsToMidpoints`, $ => {
+export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(segmentNearestPoint([0, 0], ...segments)) === 0);
 	$.assert(x => x(segmentNearestPoint([5, 5], ...segments)) === 0);
 	$.assert(x => x(segmentNearestPoint([25, 0], ...segments)) === 0);

@@ -3,7 +3,7 @@ import { test } from '../spec/index.ts';
 import type { Coordinate } from '../types.d.ts';
 import { pointNearestLine } from './pointNearestLine.ts';
 
-export const spec = test(`pointNearestLine`, $ => {
+export const spec = test(import.meta.url, $ => {
 	let foot: Coordinate;
 
 	foot = pointNearestLine([3, 3], [[0, 2], [2, 0]]);

@@ -3,7 +3,7 @@ import { test } from '../spec/index.ts';
 
 import { listenOnce } from './listenOnce.ts';
 
-export const spec = test(`listenOnce`, async $ => {
+export const spec = test(import.meta.url, async $ => {
 	const subject = document.createElement(`div`);
 	let emitCount = 0;
 

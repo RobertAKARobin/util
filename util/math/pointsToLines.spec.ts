@@ -5,7 +5,7 @@ import { pointsToLines } from './pointsToLines.ts';
 import { pointToString } from './pointToString.ts';
 import segments from '../mock/segments.json';
 
-export const spec = test(`pointsToLines`, $ => {
+export const spec = test(import.meta.url, $ => {
 	const points = pointsSeparated(...segments.flat());
 	const lines = pointsToLines(points)
 		.map(({ begin, end }) => `${pointToString(begin)}-${pointToString(end)}`)

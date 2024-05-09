@@ -15,7 +15,7 @@ E320	948	1011	2.5
 E344	938	1095	1.8
 `;
 
-export const spec = test(`fetchTsv`, $ => {
+export const spec = test(import.meta.url, $ => {
 	const entries = tsvParse(tsv, ([id, x, y, scale]) => ({
 		id,
 		scale: parseFloat(scale),

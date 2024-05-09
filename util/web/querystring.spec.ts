@@ -2,7 +2,7 @@ import { test } from '../spec/index.ts';
 
 import { updateQuerystring } from './querystring.ts';
 
-export const spec = test(`updateQuerystring`, $ => {
+export const spec = test(import.meta.url, $ => {
 	let href: string;
 
 	$.log(() => href = `https://example.com`);

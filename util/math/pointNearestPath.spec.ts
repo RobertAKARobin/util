@@ -4,7 +4,7 @@ import { pointNearestPath } from './pointNearestPath.ts';
 import { pointToString } from './pointToString.ts';
 import segments from '../mock/segments.json';
 
-export const spec = test(`pointNearestPath`, $ => {
+export const spec = test(import.meta.url, $ => {
 	const result = (x: number, y: number) => {
 		const out = pointNearestPath([x, y], segments, 1);
 		return pointToString(out);

@@ -2,7 +2,7 @@ import { test } from '../spec/index.ts';
 
 import { slopeTo } from './slopeTo.ts';
 
-export const spec = test(`slopeTo`, $ => {
+export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(slopeTo([[0, 0], [4, 4]])) === 45);
 	$.assert(x => x(slopeTo([[0, 0], [-4, 4]])) === 315);
 	$.assert(x => x(Number.isNaN(slopeTo([[0, 0], [0, 0]]))));

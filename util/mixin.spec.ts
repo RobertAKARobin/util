@@ -36,7 +36,7 @@ interface Child extends Parent, Base {}
 class Child {}
 mixin(Child, Parent, Base);
 
-export const spec = test(`mixin`, $ => {
+export const spec = test(import.meta.url, $ => {
 	const child = new Child();
 	$.assert(x => x(`baseStaticProperty` in Child)); // Although this passes, Typescript doesn't "know" about `baseStaticProperty`. See https://stackoverflow.com/a/70441097/2053389
 	$.assert(x => x(child.baseInstanceProperty) === undefined);

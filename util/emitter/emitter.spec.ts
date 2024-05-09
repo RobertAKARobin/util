@@ -13,7 +13,7 @@ type State = {
 	age: number;
 };
 
-export const spec = suite(`Emitter`, {},
+export const spec = suite(import.meta.url, {},
 	test(`values`, $ => {
 		const emitter1 = new Emitter<State>();
 		const emitter2 = new Emitter<State>();

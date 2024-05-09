@@ -2,7 +2,7 @@ import { test } from '../spec/index.ts';
 
 import { arrayFromKeys } from './arrayFromKeys.ts';
 
-export const spec = test(`arrayFromKeys`, $ => {
+export const spec = test(import.meta.url, $ => {
 	const subject = 	{
 		alice: 1,
 		bob: 2,

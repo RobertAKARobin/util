@@ -3,7 +3,7 @@ import { test } from '../spec/index.ts';
 
 import { PathNavigator } from './pathNavigator.ts';
 
-export const spec = test(`PathNavigator`, $ => {
+export const spec = test(import.meta.url, $ => {
 	const subjects = [
 		[
 			PathNavigator.fromData(`M5,5h45s-20,25,0,45,45,0,45,0v20C50,115,5,80,5,80Z`),

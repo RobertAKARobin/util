@@ -5,7 +5,7 @@ import { test } from '../spec/index.ts';
 
 import { sharedEnv } from './sharedEnv.ts';
 
-export const spec = test(`sharedEnv`, async $ => {
+export const spec = test(import.meta.url, async $ => {
 	const env = await sharedEnv(`env`, () => ({
 		msg: execSync(`echo "hello"`).toString().trim(),
 	}));

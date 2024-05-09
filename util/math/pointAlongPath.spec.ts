@@ -4,7 +4,7 @@ import { pointAlongPath } from './pointAlongPath.ts';
 import { pointToString } from './pointToString.ts';
 import segments from '../mock/segments.json';
 
-export const spec = test(`pointAlongPath`, $ => {
+export const spec = test(import.meta.url, $ => {
 	const result = (x: number, y: number) => {
 		const out = pointAlongPath([x, y], segments, 1);
 		return pointToString(out);

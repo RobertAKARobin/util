@@ -17,7 +17,7 @@ const subject = [
 	},
 ];
 
-export const spec = test(`sortOn`, $ => {
+export const spec = test(import.meta.url, $ => {
 	let originalValues = subject.map(i => i.name).join(`,`);
 	let sorted = sortOn(subject, i => i.age);
 	let sortedValues = sorted.map(i => i.name).join(`,`);

@@ -13,7 +13,7 @@ const router = new Router(routes);
 
 const delim = Router.paramDelimeter;
 
-export const spec = test(`Router`, $ => {
+export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(Router.toUrl(new URL(`https://b.test`)).href) === `https://b.test/`);
 	$.assert(x => x(Router.toUrl(new URL(`https://b.test/`)).href) === `https://b.test/`);
 	$.assert(x => x(Router.toUrl(`https://b.test`)).href === `https://b.test/`);

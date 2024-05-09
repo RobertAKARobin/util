@@ -5,7 +5,7 @@ import { test } from '../spec/index.ts';
 import { pointsRotate } from './pointsRotate.ts';
 import { pointToString } from './pointToString.ts';
 
-export const spec = test(`pointRotate`, $ => {
+export const spec = test(import.meta.url, $ => {
 	let subject: Array<Coordinate>;
 
 	subject = pointsRotate([[0, 1], [1, 0]], [0, 0], 90);

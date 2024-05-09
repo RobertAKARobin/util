@@ -1,7 +1,7 @@
 import { defer } from './defer.ts';
 import { test } from '../spec/index.ts';
 
-export const spec = test(`defer`, async $ => {
+export const spec = test(import.meta.url, async $ => {
 	const deferred = defer<number>();
 	$.assert(() => deferred instanceof Promise);
 	$.assert(() => deferred.isResolved === false);

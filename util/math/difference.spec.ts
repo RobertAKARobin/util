@@ -2,7 +2,7 @@ import { test } from '../spec/index.ts';
 
 import { getDifference } from './difference.ts';
 
-export const spec = test(`constrain`, $ => {
+export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(getDifference(3, 9)) === 6);
 	$.assert(x => x(getDifference(3, 9)) === 6);
 	$.assert(x => x(getDifference(-3, 9)) === 12);

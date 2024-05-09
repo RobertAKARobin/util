@@ -4,7 +4,7 @@ import type { CoordinateLike } from '../types.d.ts';
 import { pointNearestPoint } from './pointNearestPoint.ts';
 import { pointToString } from './pointToString.ts';
 
-export const spec = test(`pointNearestPoint`, $ => {
+export const spec = test(import.meta.url, $ => {
 	const points = [[0, 0], [3, 0], [3, 4]];
 	const result = (target: CoordinateLike) => {
 		const result = pointNearestPoint(target, ...points);

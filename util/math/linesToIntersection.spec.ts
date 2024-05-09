@@ -3,7 +3,7 @@ import { test } from '../spec/index.ts';
 
 import { linesToIntersection } from './linesToIntersection.ts';
 
-export const spec = test(`linesToIntersection`, $ => {
+export const spec = test(import.meta.url, $ => {
 	let intersection: Coordinate;
 	$.log(() => intersection = linesToIntersection([[3, 9], [6, 13]], [[6, 6], [0, 12]])!);
 	$.assert(x => x(intersection.x) === 3);

@@ -5,7 +5,7 @@ import { pointNearestBezier } from './pointNearestBezier.ts';
 import { pointToString } from './pointToString.ts';
 import segments from '../mock/segments.json';
 
-export const spec = test(`pointNearestBezier`, $ => {
+export const spec = test(import.meta.url, $ => {
 	let segment: Segment;
 
 	const pointNearest = (target: CoordinateLike) => {
