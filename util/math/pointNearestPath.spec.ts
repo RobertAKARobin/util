@@ -17,6 +17,6 @@ export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(result(95, 45)) === `95,50`);
 	$.assert(x => x(result(44, 95)) === `43,93`);
 	$.assert(x => x(result(95, 95)) === `82,81`);
-	$.assert(x => x(result(95, 84)) === `87,77`);
+	$.assert(x => x(result(95, 84)) === `88,76`);
 	$.assert(x => x(result(4, 39)) === `5,39`);
 });

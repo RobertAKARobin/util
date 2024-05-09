@@ -34,7 +34,10 @@ export function findPercent(
 		const resultTop = preciseTo(evaluate(boundTop), precision);
 
 		if (
-			resultTop - resultBottom === 0
+			(
+				resultTop - resultMiddle === 0
+				&& resultMiddle - resultBottom === 0
+			)
 			|| (
 				resultBottom === resultBottomLast
 				&& resultMiddle === resultMiddleLast
