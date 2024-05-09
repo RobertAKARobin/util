@@ -6,7 +6,10 @@ import { pointsToAngles } from './pointsToAngles.ts';
 import { roundTo } from './roundTo.ts';
 import { toCoordinate } from './toCoordinate.ts';
 
-export function pointAlongBezier(
+/**
+ * Given a coordinate and a Bezier, returns the point on the Bezier that would meet the coordinate at a slope perpendicular to the Bezier's overall slope. (`pointPerpendicularToBezier` was a bit wordy.)
+ */
+export function pointCrossesBezier(
 	coordinateLike: CoordinateLike,
 	bezier: Bezier,
 	tolerance = 1,

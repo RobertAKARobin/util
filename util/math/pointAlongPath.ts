@@ -1,5 +1,5 @@
 import type { Bezier, CoordinateLike, LineLike, Segment } from '../types.d.ts';
-import { pointAlongBezier } from './pointAlongBezier.ts';
+import { pointCrossesBezier } from './pointCrossesBezier.ts';
 import { pointNearestLine } from './pointNearestLine.ts';
 import { segmentNearestPoint } from './segmentNearestPoint.ts';
 import { toCoordinate } from './toCoordinate.ts';
@@ -16,7 +16,7 @@ export function pointAlongPath(
 	const segmentIndex = segmentNearestPoint(target, ...path);
 	const segment = path[segmentIndex];
 	if (segment.length === 4) {
-		return pointAlongBezier(target, segment as Bezier, tolerance);
+		return pointCrossesBezier(target, segment as Bezier, tolerance);
 	}
 	return pointNearestLine(target, segment as LineLike);
 }

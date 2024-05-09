@@ -2,7 +2,7 @@ import { test } from '../spec/index.ts';
 
 import { isBetween } from './isBetween.ts';
 
-export const spec = test(`distance`, $ => {
+export const spec = test(`isBetween`, $ => {
 	$.assert(x => x(isBetween(1, 2, 3)));
 	$.assert(x => x(isBetween(1, 3, 2)) === false);
 	$.assert(x => x(isBetween(1, 1, 3)) === false);
