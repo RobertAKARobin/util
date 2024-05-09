@@ -6,6 +6,7 @@ import { pointToString } from '../math/pointToString.ts';
 const pointsByCommand = {
 	c: 6,
 	h: 1,
+	l: 2,
 	m: 2,
 	s: 4,
 	v: 1,
@@ -179,10 +180,10 @@ export class PathNavigator {
 
 	read() {
 		const { x, y } = this.cursor;
-		if (!Number.isInteger(x)) {
+		if (isNaN(x)) {
 			throw new Error(`x is ${x}`);
 		}
-		if (!Number.isInteger(y)) {
+		if (isNaN(y)) {
 			throw new Error(`y is ${y}`);
 		}
 		this.segmentCurrent.push({ x, y });
