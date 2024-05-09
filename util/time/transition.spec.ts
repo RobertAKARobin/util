@@ -1,4 +1,4 @@
-import { difference } from '../math/difference.ts';
+import { getDifference } from '../math/difference.ts';
 import { test } from '../spec/index.ts';
 
 import { transition } from './transition.ts';
@@ -17,7 +17,7 @@ export const spec = test(`transition`, async $ => {
 	$.log(`enter`);
 	$.assert(x => x(subject) === 0);
 	await enter.start();
-	$.assert(x => difference(x(enter.timeElapsed), x(durationTarget)) <= 50);
+	$.assert(x => getDifference(x(enter.timeElapsed), x(durationTarget)) <= 50);
 	$.assert(x => x(subject) === 1);
 
 	$.log(`exit`);
@@ -28,6 +28,6 @@ export const spec = test(`transition`, async $ => {
 		valueStart: 1,
 	}, value => subject = value);
 	await exit.start();
-	$.assert(x => difference(x(exit.timeElapsed), x(durationTarget)) <= 50);
+	$.assert(x => getDifference(x(exit.timeElapsed), x(durationTarget)) <= 50);
 	$.assert(x => x(subject) === 0);
 });

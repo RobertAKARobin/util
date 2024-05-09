@@ -4,7 +4,7 @@ import { toCoordinate } from './toCoordinate.ts';
 /**
  * Returns a positive number representing the total distance between points
  */
-export function distance(input: Array<Coordinate> | LineLike): number {
+export function getDistance(input: Array<Coordinate> | LineLike): number {
 	const points = `begin` in input
 		? [input.begin, input.end]
 		: input;

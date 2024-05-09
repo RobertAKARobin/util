@@ -1,9 +1,9 @@
 import type { Coordinate, LineLike } from '../types.d.ts';
 import { roundTo } from './roundTo.ts';
 
-import { slope } from './slope.ts';
+import { getSlope } from './slope.ts';
+import { getYOffset } from './yOffset.ts';
 import { toLine } from './toLine.ts';
-import { yOffset } from './yOffset.ts';
 
 /**
  * Find the intersection of two straight lines
@@ -13,15 +13,15 @@ export function linesToIntersection(...lines: Array<LineLike>): Coordinate | und
 	const lineA = toLine(lines[0]);
 	const lineB = toLine(lines[1]);
 
-	const slopeA = slope(lineA);
-	const slopeB = slope(lineB);
+	const slopeA = getSlope(lineA);
+	const slopeB = getSlope(lineB);
 
 	if (isNaN(slopeA) || isNaN(slopeB) || slopeA === slopeB) {
 		return undefined;
 	}
 
-	const yOffsetA = yOffset(lineA);
-	const yOffsetB = yOffset(lineB);
+	const yOffsetA = getYOffset(lineA);
+	const yOffsetB = getYOffset(lineB);
 
 	let x = (yOffsetB - yOffsetA) / (slopeA - slopeB);
 	x = roundTo(x); // Account for float fragments

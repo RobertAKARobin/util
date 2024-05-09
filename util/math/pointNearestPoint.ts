@@ -1,5 +1,5 @@
 import type { Coordinate, CoordinateLike } from '../types.d.ts';
-import { distance } from './distance.ts';
+import { getDistance } from './distance.ts';
 import { toCoordinate } from './toCoordinate.ts';
 
 /**
@@ -14,7 +14,7 @@ export function pointNearestPoint(
 	let nearestDistance = Infinity;
 	let nearestPoint!: Coordinate;
 	for (const point of points) {
-		const pointDistance = distance([point, target]);
+		const pointDistance = getDistance([point, target]);
 		if (pointDistance < nearestDistance) {
 			nearestDistance = pointDistance;
 			nearestPoint = point;

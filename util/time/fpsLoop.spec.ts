@@ -1,5 +1,5 @@
 import { suite, test } from '../spec/index.ts';
-import { difference } from '../math/difference.ts';
+import { getDifference } from '../math/difference.ts';
 import { mean } from '../math/average.ts';
 import { roundTo } from '../math/roundTo.ts';
 import { sleep } from './sleep.ts';
@@ -49,11 +49,11 @@ export const spec = suite(`FPSLoop`,
 		$.assert(x => x(loop.status) === `unstarted`);
 		await loop.start();
 		$.assert(x => x(loop.status) === `ended`);
-		$.assert(x => difference(x(times.length), x($.args.maxLoops)) <= 3);
+		$.assert(x => getDifference(x(times.length), x($.args.maxLoops)) <= 3);
 		const average = mean(...times);
 		$.assert(x => x($.args.msPerLoop) <= x(average));
 		$.assert(x => x(average) <= x($.args.msPerLoop + 1));
-		$.assert(x => difference(x(loop.timeElapsed), x($.args.expectedDuration)) <= 50);
+		$.assert(x => getDifference(x(loop.timeElapsed), x($.args.expectedDuration)) <= 50);
 	}),
 
 	test(`sleep`, async $ => {
@@ -63,12 +63,12 @@ export const spec = suite(`FPSLoop`,
 		$.assert(x => x(loop.status) === `started`);
 		await sleep($.args.expectedDuration + ($.args.msPerLoop * 1));
 		$.assert(x => x(loop.status) === `ended`);
-		$.assert(x => difference(x(times.length), x($.args.maxLoops)) <= 3);
+		$.assert(x => getDifference(x(times.length), x($.args.maxLoops)) <= 3);
 		const average = mean(...times);
 		$.assert(x => x($.args.msPerLoop) <= x(average));
 		$.assert(x => x(average) <= x($.args.msPerLoop + 1));
 		await loop.currentLoop;
-		$.assert(x => difference(x(loop.timeElapsed), x($.args.expectedDuration)) <= 50);
+		$.assert(x => getDifference(x(loop.timeElapsed), x($.args.expectedDuration)) <= 50);
 	}),
 
 	test(`pause`, async $ => {
@@ -79,11 +79,11 @@ export const spec = suite(`FPSLoop`,
 		await sleep($.args.expectedDuration / 2);
 		$.log(() => loop.pause());
 		$.assert(x => x(loop.isPaused));
-		$.assert(x => difference(x(times.length), x($.args.maxLoops / 2)) <= 3);
+		$.assert(x => getDifference(x(times.length), x($.args.maxLoops / 2)) <= 3);
 		$.log(() => loop.unpause());
 		await sleep(($.args.expectedDuration / 2) + 50);
 		$.assert(x => x(loop.status) === `ended`);
-		$.assert(x => difference(x(times.length), x($.args.maxLoops)) <= 3);
-		$.assert(x => difference(x(loop.timeElapsed), x($.args.expectedDuration)) <= 50);
+		$.assert(x => getDifference(x(times.length), x($.args.maxLoops)) <= 3);
+		$.assert(x => getDifference(x(loop.timeElapsed), x($.args.expectedDuration)) <= 50);
 	}),
 );

@@ -1,1 +1,1 @@
-export const sum = (...inputs: Array<number>) => inputs.reduce((sum, input) => sum + input, 0);
+export const getSum = (...inputs: Array<number>) => inputs.reduce((sum, input) => sum + input, 0);

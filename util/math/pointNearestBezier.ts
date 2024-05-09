@@ -1,7 +1,7 @@
 import type { Bezier, Coordinate, CoordinateLike } from '../types.d.ts';
 import { bezierPoint } from './bezierPoint.ts';
-import { distance } from './distance.ts';
 import { findPercent } from './findPercent.ts';
+import { getDistance } from './distance.ts';
 import { roundTo } from './roundTo.ts';
 import { toCoordinate } from './toCoordinate.ts';
 
@@ -17,7 +17,7 @@ export function pointNearestBezier(
 	let point!: Coordinate;
 	findPercent(percent => {
 		point = bezierPoint(...bezier, percent);
-		const offset = roundTo(distance([target, point]), tolerance);
+		const offset = roundTo(getDistance([target, point]), tolerance);
 		return offset;
 	});
 	return {
