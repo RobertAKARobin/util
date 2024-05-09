@@ -8,6 +8,6 @@ export const spec = test(`distance`, $ => {
 	$.assert(x => x(isBetween(1, 1, 3)) === false);
 	$.assert(x => x(isBetween(1, 1, 1)) === false);
 	$.assert(x => x(isBetween(1, 1, 1, { inclusive: true })));
-	$.assert(x => x(isBetween(1, 1 + 0.00001, 1)) === false);
-	$.assert(x => x(isBetween(1, 1 + 0.00001, 1.0001)));
+	$.assert(x => x(isBetween(1, 1 + Number.EPSILON, 1, { inclusive: true })) === false); // https://stackoverflow.com/questions/78454808
+	$.assert(x => x(isBetween(1, 1 + Number.MIN_VALUE, 1, { inclusive: true })));
 });
