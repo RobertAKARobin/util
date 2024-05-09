@@ -23,15 +23,15 @@ export class PathNavigator {
 	}
 
 	cursor = { x: 0, y: 0 };
+	get isOpen() {
+		const first = this.segments[0][0];
+		return pointsAreDifferent(first, this.cursor);
+	}
 	segmentCurrent: Segment = [];
 	segmentLast: Segment = [];
 	segments: Array<Segment> = [];
 
 	close() {
-		const first = this.segments[0][0];
-		if (pointsAreDifferent(this.cursor, first)) {
-			return this.lineto(first.x, first.y);
-		}
 		return this;
 	}
 
