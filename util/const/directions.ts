@@ -1,5 +1,7 @@
 import { enumy } from '../group/enumy.ts';
 
+export type Direction = keyof typeof directions;
+
 export const directionsByIndex = [
 	`N`,
 	`NE`,
