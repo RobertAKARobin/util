@@ -15,6 +15,7 @@ const fileNames = await glob(
 	{
 		ignore: [
 			`*/browser.spec.ts`,
+			`*/const/**/*`,
 			`*/svg/**/*`,
 			`*/spec/**/*`,
 		],
