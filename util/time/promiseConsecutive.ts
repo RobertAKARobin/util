@@ -6,21 +6,10 @@ export async function promiseConsecutive<Value>(
 	inputs: Array<(soFar: Array<Value>, index: number) => Promise<Value>> // Using a spread ... seems to break the typing
 ): Promise<Array<Value>> {
 	const out: Array<Value> = [];
-	let index = 0;
-	const length = inputs.length;
 	// TODO3: Use `for await..of` instead?
-	return new Promise(resolve => {
-		const next = async() => {
-			const result = await inputs[index](out, index);
-			out.push(result);
-			index += 1;
-			if (index === length) {
-				resolve(out);
-			} else {
-				void next();
-			}
-		};
-
-		void next();
-	});
+	await inputs.reduce(async(previous, input, index) => {
+		await previous;
+		out.push(await input(out, index));
+	}, Promise.resolve());
+	return out;
 }
