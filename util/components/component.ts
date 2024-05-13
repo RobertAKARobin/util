@@ -2,7 +2,7 @@ import {
 	attributeValueIsEmpty,
 	type ElAttributes,
 	setAttributes,
-	style,
+	setStyle,
 } from '../dom/attributes.ts';
 import { type Emitter, type IGNORE } from '../emitter/emitter.ts';
 import { newUid } from '../uid.ts';
@@ -344,7 +344,7 @@ export class Component extends HTMLElement {
 	 * Applies the given CSS rules to the Component's `style` attribute
 	 */
 	css(input: Partial<CSSStyleDeclaration>) {
-		return style(this, input) as this;
+		return setStyle(this, input) as this;
 	}
 
 	/**

@@ -1,7 +1,7 @@
 import './dummydom.ts';
 import { suite, test } from '../spec/index.ts';
 
-import { setAttributes, style } from './attributes.ts';
+import { setAttributes, setStyle } from './attributes.ts';
 
 export const spec = suite(import.meta.url,
 	{
@@ -30,16 +30,16 @@ export const spec = suite(import.meta.url,
 		$.assert(x => x(subject.style.getPropertyValue(`color`)) === ``);
 		$.assert(x => x(subject.style.width) === ``);
 
-		$.log(() => style(subject, { color: `red`, width: `100px` }));
+		$.log(() => setStyle(subject, { color: `red`, width: `100px` }));
 		$.assert(x => x(subject.style.color) === `red`);
 		$.assert(x => x(subject.style.getPropertyValue(`color`)) === `red`);
 		$.assert(x => x(subject.style.getPropertyValue(`width`)) === `100px`);
 
-		$.log(() => style(subject, { color: `blue` }));
+		$.log(() => setStyle(subject, { color: `blue` }));
 		$.assert(x => x(subject.style.color) === `blue`);
 		$.assert(x => x(subject.style.getPropertyValue(`color`)) === `blue`);
 
-		$.log(() => style(subject, { borderWidth: `2px` }));
+		$.log(() => setStyle(subject, { borderWidth: `2px` }));
 		$.assert(x => x(subject.style.borderWidth) === `2px`);
 		$.assert(x => x(subject.style.getPropertyValue(`border-width`)) === `2px`);
 	}),

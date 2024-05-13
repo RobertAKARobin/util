@@ -1,12 +1,12 @@
 import { test } from '../spec/index.ts';
 
 import { pointToSvg } from './pointToSvg.ts';
-import { style } from '../dom/attributes.ts';
+import { setStyle } from '../dom/attributes.ts';
 import { svgCreate } from './svgCreate.ts';
 
 export const spec = test(import.meta.url, $ => {
 	const svg = document.querySelector(`svg`)!;
-	style(svg, {
+	setStyle(svg, {
 		height: `200px`, // Make sure positioning works when the svg is scaled
 	});
 
@@ -15,7 +15,7 @@ export const spec = test(import.meta.url, $ => {
 	const { x, y } = pointToSvg(svg, target);
 
 	const pointer = svgCreate(`circle`);
-	style(pointer, {
+	setStyle(pointer, {
 		cx: `${x}px`,
 		cy: `${y}px`,
 		fill: `red`,
