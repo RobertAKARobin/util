@@ -1,15 +1,15 @@
 import type { Textish } from '../types.d.ts';
 
-export type ElAttributes<Subclass extends Element> =
-	& Omit<Subclass,
-		| `class`
-		| `style`
-	>
-	& {
-		class: string;
-		style: string;
-	};
+export type ElAttributes<Subclass extends Element> = {
+	[Key in keyof Subclass]: Subclass[Key] extends Function ? Function : number | string;
+} & {
+	class: string;
+	style: string;
+};
 
+/**
+ * Returns true if value is undefined, null, or the literal strings `undefined` or `null`
+ */
 export const attributeValueIsEmpty = (value: unknown) =>
 	value === undefined
 	|| value === null
@@ -24,9 +24,12 @@ export function getAttributes(target: Element) {
 	return attributes as Partial<ElAttributes<typeof target>>;
 }
 
+/**
+ * Calls `.setAttribute` on the target for each of the given properties. Calls `.removeAttribute` if given value is empty; see {@link attributeValueIsEmpty}.
+ */
 export function setAttributes<Subclass extends Element>(
 	target: Subclass,
-	source: Element | Partial<ElAttributes<typeof target>>
+	source: Element | Partial<ElAttributes<Subclass>>
 ) {
 	const updates = {
 		...source instanceof Element ? getAttributes(source) : source,
@@ -35,7 +38,7 @@ export function setAttributes<Subclass extends Element>(
 		const attributeKey = attributeName as keyof Subclass;
 		const value = updates[attributeName as keyof typeof updates];
 		if (attributeKey in target) {
-			target[attributeKey] = value as Subclass[typeof attributeKey];
+			target[attributeKey] = value as unknown as Subclass[keyof Subclass];
 		}
 		if (attributeValueIsEmpty(value)) {
 			target.removeAttribute(attributeName);
@@ -60,6 +63,9 @@ export function setStyle(
 	return target;
 }
 
+/**
+ * Returns the given dict as a string of HTML attributes
+ */
 export function toAttributes(input: Record<string, Textish>) {
 	const out = [];
 	for (const attributeName in input) {

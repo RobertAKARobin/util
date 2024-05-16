@@ -1,6 +1,6 @@
 import { test } from '../spec/index.ts';
 
-import { setStyle } from '../dom/attributes.ts';
+import { setAttributes, setStyle } from '../dom/attributes.ts';
 import { svgCreate } from './svgCreate.ts';
 
 export const spec = test(import.meta.url, $ => {
@@ -10,4 +10,11 @@ export const spec = test(import.meta.url, $ => {
 
 	$.log(() => setStyle(subject, { cx: `100px` }));
 	$.assert(x => x(subject.style.cx) === `100px`);
+
+	$.log(() => setAttributes(subject, { cx: `200px` }));
+	$.assert(x => x(subject.getAttribute(`cx`)) === `200px`);
+
+	setAttributes(subject, {
+		cx: 3,
+	});
 });
