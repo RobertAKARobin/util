@@ -1,8 +1,6 @@
 import { Component, css, html, Page } from '@robertakarobin/util/components/component.ts';
 import { appContext } from '@robertakarobin/util/web/context.ts';
-import { bounce } from '@robertakarobin/util/css/bounce.ts';
 import { type EntityId } from '@robertakarobin/util/emitter/entities.ts';
-import { keyframesMulti } from '@robertakarobin/util/css/keyframes.ts';
 import { ModalContainer } from '@robertakarobin/util/components/modal-container.ts';
 
 import type * as Type from '@src/types.d.ts';
@@ -15,34 +13,18 @@ import { state } from '@src/state.ts';
 import { theme } from '@src/theme.ts';
 import { TransitionTest } from '@src/components/transition-test.ts';
 
-const bouncer = keyframesMulti(
-	...bounce({
-		bounciness: .6,
-	}),
-	1, { bounce: `bottom: 0` },
-);
-
 const style = css`
 :host {
 	h1 {
 		color: red;
 	}
-
-	._bounce {
-		animation: bounce ${bouncer.bounce.timeDuration}s infinite;
-		aspect-ratio: 1;
-		background: red;
-		border-radius: 50%;
-		display: block;
-		position: relative;
-		width: 100px;
-	}
 }
-
-${bouncer}
 `;
 
-@Component.define({ style })
+@Component.define({
+	style,
+	stylePath: import.meta.url,
+})
 export class IndexPage extends Page {
 	readonly list = this.findDown(List);
 	readonly listItems = this.findDown(ListItem, { all: true });

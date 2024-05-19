@@ -19,8 +19,7 @@ type ComponentWithoutDecorators = Omit<typeof Component,
 	| `custom`
 	| `define`
 	| `event`
-	| `relay`
-	| `setRelayListeners`
+	| `registry`
 	| `uid`
 >;
 
@@ -41,7 +40,9 @@ export class Component extends HTMLElement {
 	static readonly elName: string;
 	static readonly observedAttributes = [] as Array<string>;
 	static readonly propertyNamesByAttribute: Record<string, string> = {};
+	static readonly registry = new Set<typeof Component>();
 	static readonly selector: string;
+	static readonly stylePath: string | undefined;
 	static readonly tagName?: keyof HTMLElementTagNameMap;
 
 	static {
@@ -98,10 +99,12 @@ export class Component extends HTMLElement {
 			static readonly elName = Component.elName;
 			static readonly find = Component.find;
 			static readonly findAll = Component.findAll;
+			static readonly formatCss = Component.formatCss;
 			static readonly id = Component.id;
 			static readonly observedAttributes = Component.observedAttributes;
 			static readonly propertyNamesByAttribute = Component.propertyNamesByAttribute;
 			static readonly selector = Component.selector;
+			static readonly stylePath = Component.stylePath;
 			static readonly tagName = tagName;
 
 			constructor() {
@@ -124,12 +127,14 @@ export class Component extends HTMLElement {
 	 * Defines a custom web component
 	 * @param options.elName The name that will be used for the component, e.g. `app-foo`
 	 * @param options.style The stylesheet that will be attached to the document the first time the component is used. `:host` will be replaced with the component's selector.
+	 * @param options.stylePath The path to an external stylesheet for this component. If it ends with `.ts`, the Builder will change the path to `.css.ts`. This means you can always set the stylepath to `import.meta.url` if the files will all follow the convention of `{component}.css.ts`.
 	 */
 	static define<Subclass extends ComponentWithoutDecorators>(
-		options: Partial<{
-			elName: string;
-			style: string;
-		}> = {}
+		options: {
+			elName?: string;
+			style?: string;
+			stylePath?: string;
+		} = {}
 	) {
 		return function(Subclass: Subclass) {
 			const Constructor = Subclass as unknown as typeof Component;
@@ -138,21 +143,24 @@ export class Component extends HTMLElement {
 			const selector = Constructor.tagName === undefined
 				? elName
 				: `[${Component.const.attrEl}='${elName}']`;
-			const style = options.style?.replace(/::?host/g, selector);
-			if ( // Has to come after elName has been assigned
-				typeof style === `string`
-				&& document.head.querySelector(`[${Component.const.styleAttr}='${elName}']`) === null
-			) {
-				const styleEl = document.createElement(`style`);
-				styleEl.textContent = style;
-				styleEl.setAttribute(Component.const.styleAttr, elName);
-				document.head.appendChild(styleEl);
+
+			const stylePath = options.stylePath;
+			if (typeof stylePath === `string`) {
+				const styleUrl = `/${elName}.css`;
+				if (document.head.querySelector(`link[href="${styleUrl}"]`) === null) {
+					const linkEl = document.createElement(`link`);
+					setAttributes(linkEl, {
+						href: styleUrl,
+						rel: `stylesheet`,
+					});
+					document.head.appendChild(linkEl);
+				}
 			}
 
 			Object.assign(Constructor, {
 				elName,
 				selector,
-				style,
+				stylePath,
 			});
 
 			globalThis.customElements.define( // This should come last because when a custom element is defined its constructor runs for all instances on the page
@@ -160,6 +168,19 @@ export class Component extends HTMLElement {
 				Constructor,
 				Subclass.tagName === undefined ? undefined : { extends: Subclass.tagName }
 			);
+
+			if ( // Has to come after elName has been assigned
+				typeof options.style === `string`
+				&& document.head.querySelector(`[${Component.const.styleAttr}='${elName}']`) === null
+			) {
+				const styleOverride = Subclass.formatCss(options.style);
+				const styleEl = document.createElement(`style`);
+				styleEl.textContent = styleOverride;
+				styleEl.setAttribute(Component.const.styleAttr, elName);
+				document.head.appendChild(styleEl);
+			}
+
+			Component.registry.add(Constructor);
 		};
 	}
 
@@ -213,6 +234,10 @@ export class Component extends HTMLElement {
 	) {
 		const selector = (this as unknown as typeof Component).selector;
 		return [...root.querySelectorAll(selector)] as Array<Subclass>;
+	}
+
+	static formatCss(input: string) {
+		return input.replace(/::?host/g, this.selector);
 	}
 
 	/**

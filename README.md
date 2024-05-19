@@ -57,13 +57,13 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 -	TODO1: Add TS preprocessing back in
 -	TODO1: Don't refer to functions by string -- keeps names from being minified
 -	TODO2: Image preprocessing
--	TODO2: Import SVGs
--	TODO2: Remove CSS from JS bundles
+-	TODO2: Import SVGs/arbitrary files
 -	TODO3: Use `#` private fields
 -	TODO3: CSS class and variable mapping
 
 ### Done:
 
+-	Remove CSS from JS bundles
 -	Allow anonymous event handlers, for when we know a component won't be SSGd
 -	A way to cache DOM queries, like Angular's ViewChild
 -	Fully hydrate the template on the landing page -- e.g. with event listeners and stuff -- without needing to rerender it

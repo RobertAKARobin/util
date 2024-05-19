@@ -41,6 +41,8 @@ export const spec = suite(`Build`, {},
 		$.assert(x => x(distMatchesGolden(`index.html`)) === ``);
 		$.assert(x => x(distMatchesGolden(`index.html.css`)) === ``);
 		$.assert(x => x(distMatchesGolden(`styles.css`)) === ``);
+		$.assert(x => x(distMatchesGolden(`l-indexpage.css`)) === ``);
+		$.assert(x => x(distMatchesGolden(`l-nav.css`)) === ``);
 
 		$.assert(() => hasSSG(`404`));
 		$.assert(() => hasSSG(`index`));

@@ -1,15 +1,11 @@
-import { Component, css, html } from '@robertakarobin/util/components/component.ts';
+import { Component, html } from '@robertakarobin/util/components/component.ts';
 
 import { link } from '@src/components/link.ts';
 import { router } from '@src/app.ts';
 
-const style = css`
-:host {
-	color: #444444;
-}
-`;
-
-@Component.define({ style })
+@Component.define({
+	stylePath: import.meta.url,
+})
 export class Nav extends Component.custom(`nav`) {
 	template = () => html`
 <ul>

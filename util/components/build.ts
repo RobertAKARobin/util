@@ -121,6 +121,7 @@ export class Builder {
 		await this.buildScript();
 		await this.buildRoutes();
 		await this.buildStyles();
+		await this.buildStyleFiles();
 
 		await this.cleanup();
 
@@ -153,6 +154,8 @@ export class Builder {
 		const { resolver, router } = app;
 
 		const appStyles = document.head.querySelectorAll(`[${Component.const.styleAttr}]`);
+		const appStyleFiles = document.head.querySelectorAll(`link`);
+
 		document.body.replaceWith(app);
 		document.documentElement.lang = `en`;
 
@@ -183,6 +186,9 @@ export class Builder {
 			document.head.replaceChildren();
 			for (const appStyle of appStyles) {
 				document.head.appendChild(appStyle.cloneNode(true));
+			}
+			for (const appStyleFile of appStyleFiles) {
+				document.head.appendChild(appStyleFile.cloneNode(true));
 			}
 
 			url.hash = ``;
@@ -216,7 +222,7 @@ export class Builder {
 
 			let routeCss = ``;
 			let routeCssPath = ``;
-			for (const style of document.querySelectorAll(`style`)) {
+			for (const style of document.head.querySelectorAll(`style`)) {
 				routeCss += style.textContent?.trim() ?? ``;
 				style.textContent = ``;
 			}
@@ -292,6 +298,28 @@ export class Builder {
 		}
 	}
 
+	async buildStyleFiles() {
+		const Components = [...Component.registry.values()];
+		await promiseConsecutive(Components.map(Subclass => async() => {
+			if (typeof Subclass.stylePath !== `string`) {
+				return;
+			}
+
+			let stylePath = Subclass.stylePath;
+			if (!stylePath.endsWith(`.css.ts`)) {
+				stylePath = stylePath.replace(/\.ts$/, `.css.ts`);
+			}
+
+			const styleFile = await import(stylePath) as { default: string; };
+			let style = styleFile.default;
+			style = Subclass.formatCss(style);
+			style = await this.formatCss(style);
+
+			const targetPath = path.join(this.serveDirAbs, `${Subclass.elName}.css`);
+			fs.writeFileSync(targetPath, style);
+		}));
+	}
+
 	async buildStyles() {
 		this.logHeader(`Building root styles`);
 		let styles = (await this.bustCache(this.stylesSrcFileAbs)).default as string; // eslint-disable-line @typescript-eslint/no-unsafe-member-access
@@ -365,6 +393,8 @@ export class Builder {
 	}
 
 	${Array.from(document.querySelectorAll(`style`)).map(style => style.outerHTML).join(``)}
+
+	${Array.from(document.querySelectorAll(`link`)).map(styleFile => styleFile.outerHTML).join(``)}
 	`;
 	}
 
