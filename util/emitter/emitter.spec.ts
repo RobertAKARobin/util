@@ -251,12 +251,12 @@ export const spec = suite(import.meta.url, {},
 		$.assert(x => x(incrementsWhenOlder) === 2);
 	}),
 
-	test(`reducer`, $ => {
+	test(`formatter`, $ => {
 		const reset = () => ({
 			name: ``,
 		});
 		const emitter = new Emitter(reset(), {
-			reduce: ({ name }) => ({
+			formatter: ({ name }) => ({
 				name: name.toUpperCase(),
 			}),
 			reset,

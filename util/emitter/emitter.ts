@@ -2,7 +2,7 @@ import { isPrimitive } from '../isPrimitive.ts';
 
 export type EmitterOptions<State> = EmitterCacheOptions & {
 	emitOnInit: boolean;
-	reduce: Emitter<State>[`reducer`];
+	formatter: Emitter<State>[`formatter`];
 	reset: Emitter<State>[`resetter`];
 };
 
@@ -72,12 +72,12 @@ export class Emitter<State> {
 		return this.value;
 	}
 	readonly cache: EmitterCache<State>;
+	formatter?: (...event: EmitEvent<State>) => State;
 	readonly handlers = new Set<SubscriptionHandler<State>>();
 	get last() {
 		return this.cache.list[0];
 	}
 	onUnsubscribe?: () => void;
-	reducer?: (...event: EmitEvent<State>) => State;
 	resetter?: () => State;
 	get value() {
 		return this.last;
@@ -95,7 +95,7 @@ export class Emitter<State> {
 				this.cache.add(initial);
 			}
 		}
-		this.reducer = options.reduce;
+		this.formatter = options.formatter;
 		this.resetter = options.reset;
 	}
 
@@ -152,8 +152,8 @@ export class Emitter<State> {
 			return this;
 		}
 
-		const value = typeof this.reducer === `function`
-			? this.reducer(update, {
+		const value = typeof this.formatter === `function`
+			? this.formatter(update, {
 				emitter: this,
 				previous,
 			})
