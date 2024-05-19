@@ -3,8 +3,8 @@ import { enumy } from '../group/enumy.ts';
 import { sleep } from '../time/sleep.ts';
 
 export const defaultDuration = .2;
-const durationVarName = `--modalContainerDuration`;
-const modalStatusAttr = `data-modal-status`;
+export const durationVarName = `--modalContainerDuration`;
+export const modalStatusAttr = `data-modal-status`;
 export const modalStatus = enumy(
 	`activating`,
 	`active`,
@@ -12,49 +12,6 @@ export const modalStatus = enumy(
 	`inactive`
 );
 export type ModalStatus = keyof typeof modalStatus;
-
-export const modalContainerDefaultStyles = /*css*/`
-align-items: center;
-background: transparent;
-border: 0;
-flex-direction: column;
-height: 100%;
-justify-content: center;
-max-height: none;
-max-width: none;
-padding: 0;
-width: 100%;
-
-&::backdrop {
-	backdrop-filter: blur(5px);
-	background: #000000b0;
-}
-
-&,
-&::backdrop {
-	transition: opacity var(${durationVarName}) linear;
-}
-
-&[open] {
-	display: flex;
-}
-
-&[${modalStatusAttr}='${modalStatus.inactivating}'],
-&[${modalStatusAttr}='${modalStatus.inactive}'] {
-	&,
-	&::backdrop {
-		opacity: 0;
-	}
-}
-
-&[${modalStatusAttr}='${modalStatus.activating}'],
-&[${modalStatusAttr}='${modalStatus.active}'] {
-	&,
-	&::backdrop {
-		opacity: 1;
-	}
-}
-`;
 
 /**
  * A container into which modal content can be injected with `.place()`. It's abstract so that it can be subclassed.
@@ -111,13 +68,10 @@ export abstract class BaseModalContainer extends Component.custom(`dialog`) {
 	}
 }
 
-const style = /*css*/`
-:host {
-	${modalContainerDefaultStyles}
-}
-`;
 /**
  * @see {@link BaseModalContainer}
  */
-@Component.define({ style })
+@Component.define({
+	stylePath: import.meta.url,
+})
 export class ModalContainer extends BaseModalContainer {}

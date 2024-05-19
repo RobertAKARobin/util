@@ -1,6 +1,6 @@
 import { Component, html, Page } from '@robertakarobin/util/components/component.ts';
 
-const style = `
+const style = /*css*/`
 h1 {
 	color: purple;
 }

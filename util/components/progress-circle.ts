@@ -1,6 +1,6 @@
 import { Component } from './component.ts';
 
-const style = `
+const style = /*css*/`
 :host {
 	display: contents;
 }
@@ -43,7 +43,7 @@ export class ProgressCircle extends Component {
 		});
 	}
 
-	template = () => `
+	template = () => /*html*/`
 <svg
 	height="${this.diameter}"
 	width="${this.diameter}"

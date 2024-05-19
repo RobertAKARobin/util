@@ -1,20 +1,11 @@
-import { Component, css, html } from '@robertakarobin/util/components/component.ts';
+import { Component, html } from '@robertakarobin/util/components/component.ts';
 import { ModalContainer } from '@robertakarobin/util/components/modal-container.ts';
 import { ProgressCircle } from '@robertakarobin/util/components/progress-circle.ts';
 
-const style = css`
-:host {
-	& circle {
-		stroke: #ff0000;
-		transition: stroke-dasharray 10s;
-	}
-}
-`;
-
-@Component.define({ style })
+@Component.define({
+	stylePath: import.meta.url,
+})
 export class ProgressModal extends Component {
-	static style = style;
-
 	readonly circle = this.findDown(ProgressCircle);
 	readonly modal = this.findUp(ModalContainer);
 

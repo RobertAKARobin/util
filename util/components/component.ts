@@ -15,17 +15,15 @@ type Constructor<Classtype> = new (...args: any) => Classtype; // eslint-disable
 type ComponentWithoutDecorators = Omit<typeof Component,
 	| `attribute`
 	| `cache`
+	| `cacheBust`
 	| `const`
 	| `custom`
 	| `define`
 	| `event`
+	| `normalize`
 	| `registry`
 	| `uid`
 >;
-
-const normalize = (eventName: string) => eventName
-	.toLowerCase()
-	.replaceAll(/[^\w]/g, ``);
 
 export class Component extends HTMLElement {
 	static readonly cache = new Map<string, WeakRef<Component>>();
@@ -83,6 +81,10 @@ export class Component extends HTMLElement {
 				},
 			});
 		};
+	}
+
+	static cacheBust() {
+		return `?cache=${Date.now().toString()}`;
 	}
 
 	/**
@@ -150,7 +152,7 @@ export class Component extends HTMLElement {
 				if (document.head.querySelector(`link[href="${styleUrl}"]`) === null) {
 					const linkEl = document.createElement(`link`);
 					setAttributes(linkEl, {
-						href: styleUrl,
+						href: `${styleUrl}${Component.cacheBust()}`,
 						rel: `stylesheet`,
 					});
 					document.head.appendChild(linkEl);
@@ -254,6 +256,12 @@ export class Component extends HTMLElement {
 			instance.id = id;
 		}
 		return instance as InstanceType<Ctor>;
+	}
+
+	static normalize(input: string) {
+		return input
+			.toLowerCase()
+			.replaceAll(/[^\w]/g, ``);
 	}
 
 	/**
@@ -457,9 +465,9 @@ export class Component extends HTMLElement {
 	 */
 	handleEvent(event: Event) {
 		const trigger = event.target as Element;
-		const paramsAttr = `${Component.const.attrEmit}${normalize(event.type)}-`;
+		const paramsAttr = `${Component.const.attrEmit}${Component.normalize(event.type)}-`;
 		const attrEmitDelimiter = Component.const.attrEmitDelimiter;
-		const normalizedId = normalize(this.id);
+		const normalizedId = Component.normalize(this.id);
 		for (const attribute of trigger.attributes) {
 			if (!attribute.name.startsWith(paramsAttr)) {
 				continue;
@@ -593,12 +601,12 @@ export class Component extends HTMLElement {
 			handlerArgs = args.slice(1);
 		}
 
-		const eventNameNormalized = normalize(eventName);
+		const eventNameNormalized = Component.normalize(eventName);
 		listener.id = listener.id === `` ? Component.uid() : listener.id;
 		listener.setAttribute(`${Component.const.attrOn}${eventNameNormalized}`, eventName); // TODO3: Do this only on build?
 		listener.addEventListener(eventName, listener);
 
-		const listenerIdNormalized = normalize(listener.id);
+		const listenerIdNormalized = Component.normalize(listener.id);
 		const params = [
 			handlerKey,
 			...handlerArgs,

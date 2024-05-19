@@ -1,14 +1,8 @@
-import { Component, css, html } from '@robertakarobin/util/components/component.ts';
+import { Component, html } from '@robertakarobin/util/components/component.ts';
 
-import { types } from '@src/theme.ts';
-
-const style = css`
-input {
-	${types.body}
-}
-`;
-
-@Component.define({ style })
+@Component.define({
+	stylePath: import.meta.url,
+})
 export class Textbox extends Component.custom(`div`) {
 	@Component.attribute({ name: `data-max` }) maxLength = 10;
 	@Component.attribute({ name: `data-value` }) value = ``;

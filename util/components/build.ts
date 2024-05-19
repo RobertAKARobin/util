@@ -36,9 +36,6 @@ export class Builder {
 	readonly browserServeFileRel: string | undefined;
 	readonly browserSrcFileAbs: string | undefined;
 	readonly browserSrcFileRel: string | undefined;
-	get cacheBuster() {
-		return `?cache=${Date.now().toString()}`;
-	}
 	esbuildOverride: Partial<esbuild.BuildOptions>;
 	esbuildServeOverride: Partial<esbuild.ServeOptions>;
 	readonly metaFileRel: string | undefined;
@@ -238,7 +235,7 @@ export class Builder {
 			document.head.innerHTML = this.formatHead({
 				baseUri: this.baseUri,
 				browserScriptPath: this.browserServeFileRel,
-				cacheBuster: this.cacheBuster,
+				cacheBuster: Component.cacheBust(),
 				mainCssPath: this.styleServeFileRel,
 				routeCss,
 				routeCssPath,

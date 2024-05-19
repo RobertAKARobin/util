@@ -1,0 +1,5 @@
+input {
+	--typeface-name: 'body';
+	font-family: monospace;
+	font-size: 24px;
+}
