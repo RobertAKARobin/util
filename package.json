@@ -25,12 +25,11 @@
 		"build": "npm run build --prefix example",
 		"dev": "npm run dev --prefix example",
 		"lint": "eslint . && tsc",
-		"prepare": "husky install",
 		"prepublishOnly": "bin/build.sh",
 		"spec": "tsx util/index.spec.ts",
 		"spec:browser": "open http://localhost:8000/browser.spec.html --args --auto-open-devtools-for-tabs --incognito && esbuild ./util/browser.spec.ts --servedir=./util --outdir=./util --format=esm --bundle=true --watch",
 		"test": "npm run lint && npm run spec && npm run test --prefix example"
 	},
 	"type": "module",
-	"version": "0.0.416"
+	"version": "0.0.417"
 }
