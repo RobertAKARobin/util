@@ -1,4 +1,8 @@
-# JS Linting
+# Robin's ESLint
+
+This package is named `@robertakarobin/eslint-config` instead of just `@robertakarobin/eslint` [because ESLint says so](https://eslint.org/docs/latest/extend/shareable-configs#creating-a-shareable-config).
+
+## Why not Prettier?
 
 We're not using Prettier because it's too much of a PITA, especially when supporting custom templates like `.astro`.
 

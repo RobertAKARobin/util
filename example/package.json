@@ -1,13 +1,13 @@
 {
 	"dependencies": {
-		"@robertakarobin/ssg": "file:../ssg",
-		"@robertakarobin/util": "file:../"
+		"@robertakarobin/util": "file:../",
+		"@robertakarobin/util-components-build-deps": "file:../util-components-build-deps"
 	},
 	"devDependencies": {
 		"@robertakarobin/csslint": "file:../csslint",
 		"@robertakarobin/eslint-config-ts": "file:../eslint-config-ts",
 		"@robertakarobin/htmlvalidate": "file:../htmlvalidate",
-		"diff": "^5.1.0"
+		"diff": "^5.2.0"
 	},
 	"scripts": {
 		"build": "tsx build.ts",
