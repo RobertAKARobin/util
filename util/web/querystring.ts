@@ -1,5 +1,8 @@
+/**
+ * Sets the given querystring with the given updates, then returns the string
+ */
 export function updateQuerystring(
-	input: Location | URL | string = window?.location,
+	input: Location | URL | string,
 	updates: Record<string, string> | URLSearchParams
 ) {
 	const location = input instanceof URL
