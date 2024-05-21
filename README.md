@@ -13,6 +13,8 @@ npx husky install
 
 ## Install
 
+See also: https://github.com/robertakarobin/util-starter
+
 ```sh
 cd my_project
 npm i -S https://github.com/robertakarobin/util.git
