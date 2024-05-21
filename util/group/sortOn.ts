@@ -1,19 +1,19 @@
 /**
- * Sort an array by the result of a comparer function.
- * Note that this modifies the original array, like the native `.sort` function. If you don't want to modify the original array then map it to a new array, e.g. `sortOn([...myArray])`.
+ * Returns a comparer function suitable for use in `.sort`.
+ * Note that `.sort` modifies the original array. If you don't want to modify the original array then map it to a new array, e.g. `[...myArray].sort(sortOn(...))`.
+ * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort}
  */
 export function sortOn<Value>(
-	input: Array<Value>,
-	comparer: (value: Value) => any // eslint-disable-line @typescript-eslint/no-explicit-any
+	comparer: (value: Value) => boolean | number | string
 ) {
-	return input.sort((a, b) => {
-		const aValue = comparer(a) ?? -1; // eslint-disable-line @typescript-eslint/no-unsafe-assignment
-		const bValue = comparer(b) ?? -1; // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+	return (a: Value, b: Value) => {
+		const aValue = comparer(a) ?? -1;
+		const bValue = comparer(b) ?? -1;
 		if (aValue > bValue) {
 			return 1;
 		} else if (aValue < bValue) {
 			return -1;
 		}
 		return 0;
-	});
+	};
 }

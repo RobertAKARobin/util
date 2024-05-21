@@ -19,7 +19,7 @@ const subject = [
 
 export const spec = test(import.meta.url, $ => {
 	let originalValues = subject.map(i => i.name).join(`,`);
-	let sorted = sortOn(subject, i => i.age);
+	let sorted = subject.sort(sortOn(i => i.age));
 	let sortedValues = sorted.map(i => i.name).join(`,`);
 
 	$.assert(() => subject === sorted);
@@ -28,7 +28,7 @@ export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(subject.map(i => i.name).join(`,`)) !== x(originalValues));
 
 	$.log(() => originalValues = subject.map(i => i.name).join(`,`));
-	$.log(() => sorted = sortOn([...subject], i => i.name));
+	$.log(() => sorted = [...subject].sort(sortOn(i => i.name)));
 	$.log(() => sortedValues = sorted.map(i => i.name).join(`,`));
 	$.assert(() => subject !== sorted);
 	$.assert(x => x(originalValues) === `cat,bob,ali`);
