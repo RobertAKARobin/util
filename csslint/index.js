@@ -12,8 +12,8 @@ export default {
 		{
 			customSyntax: `postcss-lit`,
 			files: [
-				`**/*.ts`,
-				`**/*.js`,
+				`**/*.css.ts`,
+				`**/*.css.js`,
 			],
 		},
 	],

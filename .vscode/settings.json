@@ -25,6 +25,7 @@
 		"css",
 		"less",
 		"postcss",
+		"typescript"
 	],
 
 	"html-validate.validate": [

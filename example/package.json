@@ -13,11 +13,11 @@
 		"build": "tsx build.ts",
 		"dev": "tsx watch --watch-preserve-output --watch-path=src build.ts -- --serve",
 		"lint": "npm run lint:ts && npm run lint:css && npm run lint:html",
-		"lint:css": "stylelint dist/**/*.css dist-golden/**/*.css",
+		"lint:css": "stylelint dist/**/*.css dist-golden/**/*.css src/**/*.css.ts",
 		"lint:html": "html-validate dist",
-		"lint:ts": "eslint .",
+		"lint:ts": "eslint . && tsc",
 		"spec": "tsx spec/run.ts",
-		"test": "npm run spec"
+		"test": "npm run spec && echo 'spec/build includes lint' > /dev/null"
 	},
 	"type": "module"
 }
