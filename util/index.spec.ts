@@ -19,8 +19,7 @@ const fileNames = await glob(
 			`util/browser.spec.ts`,
 			`util/index.spec.ts`,
 			`util/const/**/*`,
-			// `util/spec/example/**/*`, // Run by spec/spec.spec.ts
-			`util/spec/**/*`, // TODO1: Fix
+			`util/spec/example/**/*`, // Run by spec/spec.spec.ts
 			`util/svg/**/*`,
 			`**/node_modules/**/*`,
 		],

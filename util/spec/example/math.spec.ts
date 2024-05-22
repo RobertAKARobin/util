@@ -110,12 +110,10 @@ export const expected = `
 X s1t5a2 X (args.x*-1)===(args.y)
            (-3)===(4)
 • s1t5a3 • (args.x*4)===(args.y*3)
-
 Total completed assertions: 12
    0 deferred
 • 11 pass
 X  1 fail
-
 RESULT: FAIL
 ———
 `;

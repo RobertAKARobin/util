@@ -76,17 +76,17 @@ export class SpecRenderer<
 		const text = [
 			`———`,
 			...this.renderSuiteOrTest(rootSuiteResult, ``, options).flat(Infinity as 1), // https://github.com/microsoft/TypeScript/issues/49280
-			` `,
 			`Total completed assertions: ${rootSuiteResult.count.totalAssertions}`,
 			...specStepStatuses.map(statusName => {
 				const count = rootSuiteResult.count[statusName];
 				const countPadding = ` `.repeat(maxCountPlaces - count.toString().length); // For right-aligning numbers
 				return `${this.statusIndicators[statusName]} ${countPadding}${count} ${statusName}`;
 			}),
-			` `,
 			`RESULT: ${rootSuiteResult.status.toUpperCase()}`,
 			`———`,
-		].filter(line => line !== ``).join(`\n`);
+		]
+			.filter(line => (line as string).trim() !== ``)
+			.join(`\n`);
 		return options.format(rootSuiteResult, [text]).join(``);
 	};
 
@@ -146,7 +146,7 @@ export class SpecRenderer<
 		}
 
 		const out: $.Nested<string> = [
-			`${prefix} ${title}`,
+			`${prefix}${title}`,
 		];
 
 		if (result.status !== `fail`) {
@@ -157,8 +157,7 @@ export class SpecRenderer<
 			return options.format(result, out);
 		}
 
-		const linePadding = ` `.repeat(prefix.length) + ` `;
-		const linePaddingWithIndent = `${linePadding} `;
+		const linePadding = ` `.repeat(prefix.length);
 
 		const values = [...result.values];
 
@@ -171,9 +170,9 @@ export class SpecRenderer<
 
 			const out = [`(`];
 			for (const line of lines) {
-				out.push(`${linePaddingWithIndent}${line}`);
+				out.push(`${linePadding}  ${line}`);
 			}
-			out.push(`${linePadding})`);
+			out.push(`${linePadding} )`);
 			return out.join(`\n`);
 		});
 

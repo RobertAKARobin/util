@@ -98,12 +98,10 @@ X s1s2t3a3 X ((await $.args.db.get(recordId)).name)===(\`<...
               			THIS IS LONG
               >
              )
-
 Total completed assertions: 15
    0 deferred
 • 14 pass
 X  1 fail
-
 RESULT: FAIL
 ———
 `;
