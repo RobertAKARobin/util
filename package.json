@@ -30,5 +30,5 @@
 		"test": "eslint . && tsc && npm run spec && npm run test --prefix example"
 	},
 	"type": "module",
-	"version": "0.0.422"
+	"version": "0.0.423"
 }
