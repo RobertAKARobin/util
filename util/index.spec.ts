@@ -11,13 +11,18 @@ const extensions = {
 };
 
 const fileNames = await glob(
-	`util/**/*.ts`,
+	`*/**/*.ts`,
 	{
 		ignore: [
-			`*/browser.spec.ts`,
-			`*/const/**/*`,
-			`*/svg/**/*`,
-			`*/spec/**/*`,
+			`dist/**/*`,
+			`example/**/*`,
+			`util/browser.spec.ts`,
+			`util/index.spec.ts`,
+			`util/const/**/*`,
+			// `util/spec/example/**/*`, // Run by spec/spec.spec.ts
+			`util/spec/**/*`, // TODO1: Fix
+			`util/svg/**/*`,
+			`**/node_modules/**/*`,
 		],
 	}
 );
@@ -70,8 +75,10 @@ const specs = await promiseConsecutive(
 	})
 );
 
-export const spec = suite(`@robertakarobin/util/`, {}, ...specs);
-const basedir = path.dirname(import.meta.url);
+export const spec = suite(`@robertakarobin/util/`, {
+	timing: `consecutive`,
+}, ...specs);
+const basedir = `file://` + process.cwd();
 
 const rootResult = await spec({});
 run(rootResult, {

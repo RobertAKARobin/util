@@ -5,12 +5,13 @@
 		"emitDeclarationOnly": true,
 		"noEmit": false,
 		"outDir": "dist",
-		"rootDir": "util"
+		"rootDir": "."
 	},
 	"extends": [
 		"@robertakarobin/eslint-config-ts"
 	],
 	"include": [
-		"util/**/*"
+		"util/**/*",
+		"csslint/**/*"
 	]
 }
