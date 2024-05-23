@@ -1,5 +1,6 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
+import path from 'path';
 import postcss from 'postcss';
 import postcssNested from 'postcss-nested';
 
@@ -13,12 +14,21 @@ import postcssNested from 'postcss-nested';
  */
 export async function cssJs(
 	source,
-	target,
+	target = undefined,
 	options = {}
 ) {
 	const unnest = options.unnest ?? true;
 
-	let css = (await import(source)).default;
+	const sourceAbs = path.isAbsolute(source)
+		? source
+		: path.join(process.cwd(), source);
+
+	let targetAbs = target ?? source.replace(/\.css\.(js|ts)$/, `.css`);
+	targetAbs = path.isAbsolute(targetAbs)
+		? targetAbs
+		: path.join(process.cwd(), targetAbs);
+
+	let css = (await import(sourceAbs)).default;
 
 	if (css === undefined) {
 		throw new Error(`File '${source}' was empty`);
@@ -34,8 +44,8 @@ export async function cssJs(
 		css = options.format(css);
 	}
 
-	fs.writeFileSync(target, css);
+	fs.writeFileSync(targetAbs, css);
 
-	execSync(`stylelint ${target} --fix`);
-	execSync(`stylelint ${target} --fix`); // Misses a few things the first time
+	execSync(`stylelint ${targetAbs} --fix`);
+	execSync(`stylelint ${targetAbs} --fix`); // Misses a few things the first time
 }

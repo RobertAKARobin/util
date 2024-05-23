@@ -1,4 +1,7 @@
 {
+	"bin": {
+		"cssjs": "bin/css-js.js"
+	},
 	"dependencies": {
 		"@stylistic/stylelint-config": "^1.0.1",
 		"@stylistic/stylelint-plugin": "^2.1.2",
@@ -17,5 +20,5 @@
 		"test": "stylelint ./test"
 	},
 	"type": "module",
-	"version": "0.0.28"
+	"version": "0.0.30"
 }
