@@ -65,6 +65,7 @@ module.exports = {
 		'no-unused-vars': [`warn`, {
 			argsIgnorePattern: `^_`,
 			destructuredArrayIgnorePattern: `^_`,
+			ignoreRestSiblings: true,
 			varsIgnorePattern: `^_`,
 		}],
 		'prefer-spread': `off`,
