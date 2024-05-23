@@ -92,6 +92,8 @@ module.exports = {
 				'@typescript-eslint/no-unsafe-call': `warn`,
 				'@typescript-eslint/no-unsafe-member-access': `warn`,
 				'@typescript-eslint/no-unused-vars': [`warn`, {
+					argsIgnorePattern: `^_`,
+					destructuredArrayIgnorePattern: `^_`,
 					varsIgnorePattern: `^_`,
 				}],
 				'@typescript-eslint/object-curly-spacing': [`error`, `always`],
@@ -102,14 +104,22 @@ module.exports = {
 				'@typescript-eslint/unbound-method': [`warn`, {
 					ignoreStatic: true,
 				}],
-				// 'no-restricted-imports': [`error`, {
-				// 	patterns: [
-				// 		{
-				// 			group: [`../*`],
-				// 			message: `Don't use relative paths to import from parent containers. Use TSConfig to set up path aliases instead.`, // Commenting out because it's challenging to resolve path aliases in imported projects. Spent a lot of time with `references:` before giving up
-				// 		},
-				// 	],
-				// }],
+				'no-restricted-imports': [`error`, {
+					patterns: [
+						// {
+						// 	group: [`../*`],
+						// 	message: `Don't use relative paths to import from parent containers. Use TSConfig to set up path aliases instead.`, // Commenting out because it's challenging to resolve path aliases in imported projects. Spent a lot of time with `references:` before giving up
+						// },
+						{
+							group: [`*.js`],
+							message: `Import .ts files, not .js`,
+						},
+						{
+							group: [`*types.ts`],
+							message: `Use .d.ts for Type-only files`,
+						},
+					],
+				}],
 				'no-restricted-syntax': [
 					`warn`,
 					{

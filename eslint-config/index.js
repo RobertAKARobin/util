@@ -63,6 +63,8 @@ module.exports = {
 		'import-quotes/import-quotes': [`error`, `single`],
 		'import/extensions': [`error`, `ignorePackages`],
 		'no-unused-vars': [`warn`, {
+			argsIgnorePattern: `^_`,
+			destructuredArrayIgnorePattern: `^_`,
 			varsIgnorePattern: `^_`,
 		}],
 		'prefer-spread': `off`,

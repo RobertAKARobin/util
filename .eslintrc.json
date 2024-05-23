@@ -15,14 +15,6 @@
 				{
 					"group": ["util/*"],
 					"message": "Paths to util break when this package is imported. Use relative paths instead."
-				},
-				{
-					"group": ["*.js"],
-					"message": "Import .ts files, not .js"
-				},
-				{
-					"group": ["*types.ts"],
-					"message": "Use .d.ts for Type-only files"
 				}
 			]
 		}]
