@@ -1,6 +1,7 @@
 {
 	"devDependencies": {
 		"@robertakarobin/csslint": "file:./csslint",
+		"@robertakarobin/eslint-config": "file:./eslint-config",
 		"@robertakarobin/eslint-config-ts": "file:./eslint-config-ts",
 		"@robertakarobin/htmlvalidate": "file:./htmlvalidate",
 		"@robertakarobin/util-components-build-deps": "^0.0.2",

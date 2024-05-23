@@ -1,3 +1,4 @@
+// TODO3: vscode-eslint throws 'Could not find config file. at locateConfigFileToUse' on this, but `npx eslint` works fine
 module.exports = {
 	ignorePatterns: [
 		`**/dist/*`,
@@ -62,8 +63,7 @@ module.exports = {
 		'import-quotes/import-quotes': [`error`, `single`],
 		'import/extensions': [`error`, `ignorePackages`],
 		'no-unused-vars': [`warn`, {
-			argsIgnorePattern: `^_`,
-			destructuredArrayIgnorePattern: `^_`,
+			varsIgnorePattern: `^_`,
 		}],
 		'prefer-spread': `off`,
 		'sort-imports': [`error`, {

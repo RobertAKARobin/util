@@ -1,6 +1,6 @@
 module.exports = {
 	extends: [
-		`plugin:@typescript-eslint/recommended`,
+		`plugin:@typescript-eslint/base`,
 		`@robertakarobin/eslint-config`,
 	],
 	overrides: [
@@ -13,6 +13,7 @@ module.exports = {
 		},
 		{
 			extends: [
+				`plugin:@typescript-eslint/recommended`,
 				`plugin:@typescript-eslint/recommended-type-checked`,
 			],
 			files: [`*.ts`, `*.tsx`, `*.d.ts`],
@@ -91,8 +92,7 @@ module.exports = {
 				'@typescript-eslint/no-unsafe-call': `warn`,
 				'@typescript-eslint/no-unsafe-member-access': `warn`,
 				'@typescript-eslint/no-unused-vars': [`warn`, {
-					argsIgnorePattern: `^_`,
-					destructuredArrayIgnorePattern: `^_`,
+					varsIgnorePattern: `^_`,
 				}],
 				'@typescript-eslint/object-curly-spacing': [`error`, `always`],
 				'@typescript-eslint/restrict-template-expressions': `off`,
@@ -121,7 +121,6 @@ module.exports = {
 						selector: `TSInterfaceDeclaration`,
 					},
 				],
-
 			},
 		},
 	],

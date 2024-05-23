@@ -6,10 +6,6 @@
 	"files.insertFinalNewline": true,
 	"files.trimTrailingWhitespace": true,
 
-	"eslint.options": {
-		"extensions": [".js", ".json", ".ts"],
-		"resolvePluginsRelativeTo": "./eslint-config-ts"
-	},
 	"eslint.enable": true,
 	"eslint.validate": [
 		"javascript",

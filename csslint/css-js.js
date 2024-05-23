@@ -9,7 +9,7 @@ import postcssNested from 'postcss-nested';
  * @param {string} target - Path to target `.css` file
  * @param {Object} options
  * @param {boolean} options.format - Callback to run on the compiled CSS before it's written to file
- * @param {boolean} options.unnest - Whether to use PostCSS to un-nest nested CSS selectors for older browsers
+ * @param {boolean} options.unnest - Whether to use PostCSS to un-nest nested CSS selectors for older browsers. Default true
  */
 export async function cssJs(
 	source,

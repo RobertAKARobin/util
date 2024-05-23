@@ -5,6 +5,9 @@
 		"@typescript-eslint/eslint-plugin": "^7.9.0",
 		"@typescript-eslint/parser": "^7.9.0"
 	},
+	"devDependencies": {
+		"@robertakarobin/eslint-config": "file:../eslint-config"
+	},
 	"main": "index.js",
 	"name": "@robertakarobin/eslint-config-ts",
 	"scripts": {},
