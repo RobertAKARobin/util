@@ -1,15 +1,12 @@
 {
 	"dependencies": {
-		"@robertakarobin/eslint-config": "^0.0.24",
-		"@types/node": "^20.12.12",
-		"@typescript-eslint/eslint-plugin": "^7.10.0",
-		"@typescript-eslint/parser": "^7.10.0"
-	},
-	"devDependencies": {
-		"@robertakarobin/eslint-config": "file:../eslint-config"
+		"@robertakarobin/eslint-config": "^0.0.27",
+		"@types/node": "^20.14.0",
+		"@typescript-eslint/eslint-plugin": "^7.11.0",
+		"@typescript-eslint/parser": "^7.11.0"
 	},
 	"main": "index.js",
 	"name": "@robertakarobin/eslint-config-ts",
 	"scripts": {},
-	"version": "0.0.47"
+	"version": "0.0.48"
 }

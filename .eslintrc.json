@@ -9,6 +9,7 @@
 		"**/tmp/*",
 		"**/package-lock.json"
 	],
+	"root": true,
 	"rules": {
 		"no-restricted-imports": ["error", {
 			"patterns": [

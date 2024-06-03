@@ -1,7 +1,7 @@
 {
 	"editor.insertSpaces": false,
-	"files.insertFinalNewline": true,
 	"editor.tabSize": 2,
+	"files.insertFinalNewline": true,
 	"files.trimTrailingWhitespace": true,
 
 	"eslint.enable": true,
