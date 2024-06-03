@@ -1,12 +1,13 @@
 {
-	"deno.enable": false,
-
 	"editor.insertSpaces": false,
-	"editor.tabSize": 2,
 	"files.insertFinalNewline": true,
+	"editor.tabSize": 2,
 	"files.trimTrailingWhitespace": true,
 
 	"eslint.enable": true,
+	"eslint.options": {
+		"extensions": [".js", ".json", ".ts"]
+	},
 	"eslint.validate": [
 		"javascript",
 		"json",
@@ -14,17 +15,22 @@
 		"typescript"
 	],
 
-	"typescript.tsdk": "node_modules/typescript/lib",
-	"typescript.enablePromptUseWorkspaceTsdk": true,
+	"html-validate.enable": true,
+	"html-validate.validate": [
+		"html"
+	],
 
 	"stylelint.validate": [
 		"css",
 		"less",
 		"postcss",
+		"sass",
+		"scss",
 		"typescript"
 	],
 
-	"html-validate.validate": [
-		"html",
-	]
+	"typescript.tsdk": "node_modules/typescript/lib",
+	"typescript.enablePromptUseWorkspaceTsdk": true,
+
+	"workbench.remoteIndicator.showExtensionRecommendations": true,
 }

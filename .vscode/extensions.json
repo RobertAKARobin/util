@@ -2,13 +2,13 @@
 	"unwantedRecommendations": [
 		"denoland.vscode-deno",
 
-		// These are ot recommended because we're not actually using lit-html, so they complain about things that conflict with lit-html directives
+		// These are not recommended because we're not actually using lit-html, so they complain about things that conflict with lit-html directives
 		"runem.lit-plugin",
 		"bierner.lit-html"
 	],
 	"recommendations": [
 		"dbaeumer.vscode-eslint",
-		"html-validate.vscode-html-validate",
-		"pushqrdx.inline-html"
+		"pushqrdx.inline-html",
+		"html-validate.vscode-html-validate"
 	]
 }
