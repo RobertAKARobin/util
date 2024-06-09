@@ -9,6 +9,5 @@
 	"recommendations": [
 		"dbaeumer.vscode-eslint",
 		"pushqrdx.inline-html",
-		"html-validate.vscode-html-validate"
 	]
 }

@@ -12,12 +12,8 @@
 		"javascript",
 		"json",
 		"jsonc",
+		"html",
 		"typescript"
-	],
-
-	"html-validate.enable": true,
-	"html-validate.validate": [
-		"html"
 	],
 
 	"stylelint.validate": [
