@@ -6,15 +6,13 @@
 	"devDependencies": {
 		"@robertakarobin/csslint": "file:../csslint",
 		"@robertakarobin/eslint-config-ts": "file:../eslint-config-ts",
-		"@robertakarobin/htmlvalidate": "file:../htmlvalidate",
 		"diff": "^5.2.0"
 	},
 	"scripts": {
 		"build": "tsx build.ts",
 		"dev": "tsx watch --watch-preserve-output --watch-path=src build.ts -- --serve",
-		"lint": "npm run lint:ts && npm run lint:css && npm run lint:html",
+		"lint": "npm run lint:ts && npm run lint:css",
 		"lint:css": "stylelint dist/**/*.css dist-golden/**/*.css src/**/*.css.ts",
-		"lint:html": "html-validate dist",
 		"lint:ts": "eslint . && tsc",
 		"spec": "tsx spec/run.ts",
 		"test": "npm run spec && echo 'spec/build includes lint' > /dev/null"

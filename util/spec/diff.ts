@@ -1,6 +1,6 @@
 import * as Diff from 'diff';
 
-import { color } from '../shell/colors.ts';
+import { color } from '../node/colors.ts';
 
 export const diff = (
 	expected: string,

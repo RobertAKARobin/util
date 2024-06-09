@@ -4,7 +4,8 @@
 	],
 	"ignorePatterns": [
 		"!**/.*.js*",
-		"dist/**",
+		"dist/**/*.js",
+		"dist/**/*.json",
 		"dist-golden/**",
 		"node_modules/**",
 		"tmp/**"

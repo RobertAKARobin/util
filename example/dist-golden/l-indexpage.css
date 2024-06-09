@@ -12,110 +12,110 @@
 
 @keyframes bounce {
 	0% {
-		bottom: 0px
+		bottom: 0px;
 	}
 
 	16.61% {
+		animation-timing-function: ease-in;
 		bottom: 100px;
-		animation-timing-function: ease-in
 	}
 
 	26.58% {
+		animation-timing-function: ease-out;
 		bottom: 0px;
-		animation-timing-function: ease-out
 	}
 
 	36.54% {
+		animation-timing-function: ease-in;
 		bottom: 60px;
-		animation-timing-function: ease-in
 	}
 
 	42.52% {
+		animation-timing-function: ease-out;
 		bottom: 0px;
-		animation-timing-function: ease-out
 	}
 
 	48.5% {
+		animation-timing-function: ease-in;
 		bottom: 36px;
-		animation-timing-function: ease-in
 	}
 
 	52.16% {
+		animation-timing-function: ease-out;
 		bottom: 0px;
-		animation-timing-function: ease-out
 	}
 
 	55.81% {
+		animation-timing-function: ease-in;
 		bottom: 21.6px;
-		animation-timing-function: ease-in
 	}
 
 	58.14% {
+		animation-timing-function: ease-out;
 		bottom: 0px;
-		animation-timing-function: ease-out
 	}
 
 	60.47% {
+		animation-timing-function: ease-in;
 		bottom: 12.96px;
-		animation-timing-function: ease-in
 	}
 
 	61.79% {
+		animation-timing-function: ease-out;
 		bottom: 0px;
-		animation-timing-function: ease-out
 	}
 
 	63.12% {
+		animation-timing-function: ease-in;
 		bottom: 7.78px;
-		animation-timing-function: ease-in
 	}
 
 	63.79% {
+		animation-timing-function: ease-out;
 		bottom: 0px;
-		animation-timing-function: ease-out
 	}
 
 	64.45% {
+		animation-timing-function: ease-in;
 		bottom: 4.67px;
-		animation-timing-function: ease-in
 	}
 
 	64.78% {
+		animation-timing-function: ease-out;
 		bottom: 0px;
-		animation-timing-function: ease-out
 	}
 
 	65.12% {
+		animation-timing-function: ease-in;
 		bottom: 2.8px;
-		animation-timing-function: ease-in
 	}
 
 	65.45% {
+		animation-timing-function: ease-out;
 		bottom: 0px;
-		animation-timing-function: ease-out
 	}
 
 	65.78% {
+		animation-timing-function: ease-in;
 		bottom: 1.68px;
-		animation-timing-function: ease-in
 	}
 
 	66.11% {
+		animation-timing-function: ease-out;
 		bottom: 0px;
-		animation-timing-function: ease-out
 	}
 
 	66.45% {
+		animation-timing-function: ease-in;
 		bottom: 1.01px;
-		animation-timing-function: ease-in
 	}
 
 	66.78% {
+		animation-timing-function: ease-out;
 		bottom: 0px;
-		animation-timing-function: ease-out
 	}
 
 	100% {
-		bottom: 0
+		bottom: 0;
 	}
 }

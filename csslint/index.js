@@ -23,6 +23,7 @@ export default {
 	],
 	rules: {
 		'@stylistic/color-hex-case': `lower`,
+		'@stylistic/declaration-block-semicolon-newline-after': `always`,
 		'@stylistic/indentation': `tab`,
 		'@stylistic/max-empty-lines': null,
 		'@stylistic/max-line-length': null,

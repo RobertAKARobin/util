@@ -1,8 +1,0 @@
-{
-	"dependencies": {
-		"html-validate": "^8.19.0"
-	},
-	"main": ".htmlvalidate.js",
-	"name": "@robertakarobin/htmlvalidate",
-	"version": "0.0.9"
-}

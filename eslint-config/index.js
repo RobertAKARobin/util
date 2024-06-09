@@ -3,7 +3,6 @@
 // TODO3: vscode-eslint throws 'Could not find config file. at locateConfigFileToUse' on this, but `npx eslint` works fine
 module.exports = {
 	ignorePatterns: [
-		`**/dist/*`,
 		`!**/.*.js*`,
 		`**/package-lock.json`,
 		`**/node_modules/**`,
@@ -58,7 +57,7 @@ module.exports = {
 				'@html-eslint/no-multiple-empty-lines': [`error`, {
 					max: 2,
 				}],
-				'@html-eslint/no-multiple-h1': `error`,
+				'@html-eslint/no-multiple-h1': `warn`,
 				'@html-eslint/no-non-scalable-viewport': `warn`,
 				'@html-eslint/no-obsolete-tags': `error`,
 				'@html-eslint/no-positive-tabindex': `warn`,
@@ -81,6 +80,7 @@ module.exports = {
 				'@html-eslint/require-meta-viewport': `warn`,
 				'@html-eslint/require-title': `error`,
 				'@html-eslint/sort-attrs': `error`,
+				'@stylistic/max-len': `off`,
 			},
 		},
 		{

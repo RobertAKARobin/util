@@ -14,7 +14,7 @@ export function link(
 	const attributes = isExternal
 		? {
 			href: url,
-			rel: `noopener`,
+			rel: `noreferrer`,
 			target: `_blank`,
 			...attributeOverrides,
 		}
