@@ -1,4 +1,4 @@
-import { css } from '../../util/string/template.js'; // eslint-disable-line no-restricted-imports
+import { css } from '../../util/string/template.js';
 
 const vars = {
 	color: `red`,

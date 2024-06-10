@@ -1,65 +1,94 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-	<meta name="description" content="Home page">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<title>Home page</title>
-	<base href="/">
-	<link rel="stylesheet" href="/styles.css?cache=1716128543415">
-	<link rel="stylesheet" href="/index.html.css?cache=1716128543415"> <script src="/browser.js?cache=1716128543415" type="module"></script> <script type="module">import { IndexPage } from '/pages-LOXSD7XH.js';</script>
-	<style data-style="l-indexpage"></style>
-	<link href="/l-modalcontainer.css?cache=1716128543354" rel="stylesheet">
-	<link href="/l-nav.css?cache=1716128543356" rel="stylesheet">
-	<link href="/l-textbox.css?cache=1716128543399" rel="stylesheet">
-	<link href="/l-progressmodal.css?cache=1716128543400" rel="stylesheet">
-	<link href="/l-transitiontest.css?cache=1716128543401" rel="stylesheet">
-	<link href="/l-indexpage.css?cache=1716128543401" rel="stylesheet">
-</head>
-
-<body is="l-app">
-	<nav is="l-nav">
-		<ul>
-			<li id="nav-error404"> <a href="/404.html">Go error404</a> </li>
-			<li id="nav-external"> <a href="https://example.com/" rel="noopener" target="_blank">Go external</a> </li>
-			<li id="nav-home"> Active: <a href="/">Go home</a> </li>
-			<li id="nav-homeJump1"> <a href="/#jump1">Go homeJump1</a> </li>
-			<li id="nav-homeJump2"> <a href="/#jump2">Go homeJump2</a> </li>
-			<li id="nav-ssgNo"> <a href="/ssg/no/">Go ssgNo</a> </li>
-			<li id="nav-ssgYes"> <a href="/ssg/yes/">Go ssgYes</a> </li>
-			<li id="nav-ssgYesJump1"> <a href="/ssg/yes/#jump1">Go ssgYesJump1</a> </li>
-			<li id="nav-ssgYesJump2"> <a href="/ssg/yes/#jump2">Go ssgYesJump2</a> </li>
-		</ul>
-	</nav>
-	<main is="l-indexpage" data-page-title="Home page" data-message="This is a variable" id="UID7_" data-on-click="click" data-on-onlistadd="onListAdd" data-on-onlistdelete="onListDelete" data-on-onlistinput="onListInput">
-		<h1>Hello world!</h1>
-		<div is="l-transitiontest" style="background: rgb(255, 0, 0);"></div><button data-emit-click-uid7_="openModal" type="button">Modal</button>
-		<div id="jump1">Jump 1</div>
-		<ol is="l-list" id="indexList" data-emit-onlistadd-uid7_="onAdd" data-emit-onlistdelete-uid7_="onDelete" data-emit-onlistinput-uid7_="onInput" data-on-onlistitemdelete="onListItemDelete" data-on-onlistiteminput="onListItemInput" data-on-click="click">
-			<li>List ID indexList</li>
-			<li is="l-listitem" id="UID5_" data-text="hello" data-emit-onlistitemdelete-indexlist="onListDelete|UID5_" data-emit-onlistiteminput-indexlist="onListInput|UID5_" data-on-oninput="onInput" data-on-click="click">
-				<p>List item ID UID5_</p>
-				<div is="l-textbox" data-max="10" data-value="hello" data-emit-oninput-uid5_="onListItemInput" id="UID10_" data-on-input="input"><input maxlength="10" data-emit-input-uid10_="onInput" placeholder="Type here" type="text" value="hello"><span id="UID10_-remaining"> 5 / 10 Remaining</span>
-					<p>textbox ID UID10_</p>
-				</div> <button data-emit-click-uid5_="onListItemDelete" type="button">Remove</button>
-			</li>
-			<li is="l-listitem" id="UID6_" data-text="world" data-emit-onlistitemdelete-indexlist="onListDelete|UID6_" data-emit-onlistiteminput-indexlist="onListInput|UID6_" data-on-oninput="onInput" data-on-click="click">
-				<p>List item ID UID6_</p>
-				<div is="l-textbox" data-max="10" data-value="world" data-emit-oninput-uid6_="onListItemInput" id="UID12_" data-on-input="input"><input maxlength="10" data-emit-input-uid12_="onInput" placeholder="Type here" type="text" value="world"><span id="UID12_-remaining"> 5 / 10 Remaining</span>
-					<p>textbox ID UID12_</p>
-				</div> <button data-emit-click-uid6_="onListItemDelete" type="button">Remove</button>
-			</li>
-			<li> <button data-emit-click-indexlist="onListAdd" type="button">Add</button> </li>
-		</ol>
-		<div class="_swapText">
-			<h1>This should be in the source, not browser.</h1>
-		</div>
-		<p><a href="/ssg/yes/">Link to SSG Yes</a></p>
-		<p class="type-wtf">abc123</p><button data-emit-click-uid7_="anchorlessRoute" type="button">Go to SSG Yes</button>
-		<div id="jump2">Jump 2</div>
-		<div class="_bounce"></div>
-	</main>
-</body>
-
+	<head>
+		<meta content="Home page" name="description" />
+		<meta content="width=device-width, initial-scale=1" name="viewport" />
+		<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+		<title>Home page</title>
+		<base href="/" />
+		<link href="/styles.css?cache=1717989051377" rel="stylesheet" />
+		<link href="/index.html.css?cache=1717989051377" rel="stylesheet" />
+		<script type="module" src="/browser.js?cache=1717989051377"></script>
+		<script type="module">import { IndexPage } from '/pages-D4KKCEW7.js';</script>
+		<style data-style="l-indexpage"></style>
+		<link href="/l-modalcontainer.css?cache=1717989051325" rel="stylesheet" />
+		<link href="/l-nav.css?cache=1717989051327" rel="stylesheet" />
+		<link href="/l-textbox.css?cache=1717989051362" rel="stylesheet" />
+		<link href="/l-progressmodal.css?cache=1717989051363" rel="stylesheet" />
+		<link href="/l-transitiontest.css?cache=1717989051364" rel="stylesheet" />
+		<link href="/l-indexpage.css?cache=1717989051364" rel="stylesheet" />
+	</head>
+	<body is="l-app">
+		<nav is="l-nav">
+			<ul>
+				<li id="nav-error404">
+					<a href="/404.html">Go error404</a>
+				</li>
+				<li id="nav-external">
+					<a href="https://example.com/" rel="noreferrer" target="_blank">Go external</a>
+				</li>
+				<li id="nav-home">
+					Active: 			<a href="/">Go home</a>
+				</li>
+				<li id="nav-homeJump1">
+					<a href="/#jump1">Go homeJump1</a>
+				</li>
+				<li id="nav-homeJump2">
+					<a href="/#jump2">Go homeJump2</a>
+				</li>
+				<li id="nav-ssgNo">
+					<a href="/ssg/no/">Go ssgNo</a>
+				</li>
+				<li id="nav-ssgYes">
+					<a href="/ssg/yes/">Go ssgYes</a>
+				</li>
+				<li id="nav-ssgYesJump1">
+					<a href="/ssg/yes/#jump1">Go ssgYesJump1</a>
+				</li>
+				<li id="nav-ssgYesJump2">
+					<a href="/ssg/yes/#jump2">Go ssgYesJump2</a>
+				</li>
+			</ul>
+		</nav>
+		<main id="UID7_" data-message="This is a variable" data-on-click="click" data-on-onlistadd="onListAdd" data-on-onlistdelete="onListDelete" data-on-onlistinput="onListInput" data-page-title="Home page" is="l-indexpage">
+			<h1>Hello world!</h1>
+			<div style="background: rgb(255, 0, 0);" is="l-transitiontest"></div>
+			<button type="button" data-emit-click-uid7_="openModal">Modal</button>
+			<div id="jump1">Jump 1</div>
+			<ol id="indexList" data-emit-onlistadd-uid7_="onAdd" data-emit-onlistdelete-uid7_="onDelete" data-emit-onlistinput-uid7_="onInput" data-on-click="click" data-on-onlistitemdelete="onListItemDelete" data-on-onlistiteminput="onListItemInput" is="l-list">
+				<li>List ID indexList</li>
+				<li id="UID5_" data-emit-onlistitemdelete-indexlist="onListDelete|UID5_" data-emit-onlistiteminput-indexlist="onListInput|UID5_" data-on-click="click" data-on-oninput="onInput" data-text="hello" is="l-listitem">
+					<p>List item ID UID5_</p>
+					<div id="UID10_" data-emit-oninput-uid5_="onListItemInput" data-max="10" data-on-input="input" data-value="hello" is="l-textbox">
+						<input type="text" data-emit-input-uid10_="onInput" maxlength="10" placeholder="Type here" value="hello" />
+						<span id="UID10_-remaining">	5 / 10 Remaining</span>
+						<p>textbox ID UID10_</p>
+					</div>
+					<button type="button" data-emit-click-uid5_="onListItemDelete">Remove</button>
+				</li>
+				<li id="UID6_" data-emit-onlistitemdelete-indexlist="onListDelete|UID6_" data-emit-onlistiteminput-indexlist="onListInput|UID6_" data-on-click="click" data-on-oninput="onInput" data-text="world" is="l-listitem">
+					<p>List item ID UID6_</p>
+					<div id="UID12_" data-emit-oninput-uid6_="onListItemInput" data-max="10" data-on-input="input" data-value="world" is="l-textbox">
+						<input type="text" data-emit-input-uid12_="onInput" maxlength="10" placeholder="Type here" value="world" />
+						<span id="UID12_-remaining">	5 / 10 Remaining</span>
+						<p>textbox ID UID12_</p>
+					</div>
+					<button type="button" data-emit-click-uid6_="onListItemDelete">Remove</button>
+				</li>
+				<li>
+					<button type="button" data-emit-click-indexlist="onListAdd">Add</button>
+				</li>
+			</ol>
+			<div class="_swapText">
+				<h1>This should be in the source, not browser.</h1>
+			</div>
+			<p>
+				<a href="/ssg/yes/">Link to SSG Yes</a>
+			</p>
+			<p class="type-wtf">abc123</p>
+			<button type="button" data-emit-click-uid7_="anchorlessRoute">Go to SSG Yes</button>
+			<div id="jump2">Jump 2</div>
+			<div class="_bounce"></div>
+		</main>
+	</body>
 </html>

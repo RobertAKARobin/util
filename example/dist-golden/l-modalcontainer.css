@@ -26,7 +26,6 @@
 
 	&[data-modal-status='inactivating'],
 	&[data-modal-status='inactive'] {
-
 		&,
 		&::backdrop {
 			opacity: 0;
@@ -35,7 +34,6 @@
 
 	&[data-modal-status='activating'],
 	&[data-modal-status='active'] {
-
 		&,
 		&::backdrop {
 			opacity: 1;

@@ -1,4 +1,3 @@
-import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import postcss from 'postcss';
@@ -45,7 +44,4 @@ export async function cssJs(
 	}
 
 	fs.writeFileSync(targetAbs, css);
-
-	execSync(`stylelint ${targetAbs} --fix`);
-	execSync(`stylelint ${targetAbs} --fix`); // Misses a few things the first time
 }
