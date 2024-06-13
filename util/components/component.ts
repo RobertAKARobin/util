@@ -149,7 +149,7 @@ export class Component extends HTMLElement {
 			const stylePath = options.stylePath;
 			if (typeof stylePath === `string`) {
 				const styleUrl = `/${elName}.css`;
-				if (document.head.querySelector(`link[href="${styleUrl}"]`) === null) {
+				if (document.head.querySelector(`link[href^="${styleUrl}"]`) === null) {
 					const linkEl = document.createElement(`link`);
 					setAttributes(linkEl, {
 						href: `${styleUrl}${Component.cacheBust()}`,
