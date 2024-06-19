@@ -1,5 +1,18 @@
 # Thinking through things
 
+-	HTML validation
+	-	https://www.npmjs.com/package/html-validate
+		-	Doesn't support autofix: https://gitlab.com/html-validate/html-validate/-/issues/116
+		-	86k weekly downloads
+	-	https://www.npmjs.com/package/markuplint
+		-	Like that it isn't an ESLint package
+		-	As of v4.9.1 doesn't throw enough errors; fails silently
+		-	Missing attr ordering
+		-	29k weekly downloads
+	-	https://www.npmjs.com/package/@html-eslint/eslint-plugin
+		-	Why is this an ESLint package? HTML is not Javascript
+		-	Missing attr newline: https://github.com/yeonjuan/html-eslint/issues/191
+		-	37k weekly downloads
 -	Using `[on]` attributes
 	-	+ Easier to debug in HTML
 	-	+ Don't need to place event listeners

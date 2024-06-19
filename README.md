@@ -62,9 +62,12 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 -	TODO2: Import SVGs/arbitrary files
 -	TODO3: Use `#` private fields
 -	TODO3: CSS class and variable mapping
+-	TODO3: rm dependence on Esbuild?
+-	TODO3: rm dependence on JSDOM?
 
 ### Done:
 
+-	HTML linting
 -	Remove CSS from JS bundles
 -	Allow anonymous event handlers, for when we know a component won't be SSGd
 -	A way to cache DOM queries, like Angular's ViewChild
