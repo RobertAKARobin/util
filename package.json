@@ -29,5 +29,5 @@
 		"test:example": "npm run test --prefix example"
 	},
 	"type": "module",
-	"version": "0.0.423"
+	"version": "0.0.424"
 }
