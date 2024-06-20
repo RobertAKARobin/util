@@ -356,42 +356,44 @@ export class Builder {
 		viewCtorName: string;
 	}> = {}) {
 		return /*html*/`
+		<meta charset="utf-8">
 		<meta name="description" content="${input.description ?? input.title ?? ``}">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
 		${typeof input.title === `string`
-		? /*html*/`<title>${input.title}</title>`
-		: ``
-	}
+			? /*html*/`<title>${input.title}</title>`
+			: ``
+		}
 
-	${typeof input.baseUri === `string`
-		? /*html*/`<base href="${input.baseUri}">`
-		: ``
-	}
+		${typeof input.baseUri === `string`
+			? /*html*/`<base href="${input.baseUri}">`
+			: ``
+		}
 
-	${typeof input.mainCssPath === `string`
-	? /*html*/`<link rel="stylesheet" href="${path.join(`/`, input.mainCssPath)}${input.cacheBuster ?? ``}">`
-	: ``}
+		${typeof input.mainCssPath === `string`
+			? /*html*/`<link rel="stylesheet" href="${path.join(`/`, input.mainCssPath)}${input.cacheBuster ?? ``}">`
+			: ``
+		}
 
-	${typeof input.routeCssPath === `string` && typeof input.routeCss === `string` && input.routeCss.length > 0
-	? /*html*/`<link rel="stylesheet" href="${path.join(`/`, input.routeCssPath)}${input.cacheBuster ?? ``}">`
-	: ``
-	}
+		${typeof input.routeCssPath === `string` && typeof input.routeCss === `string` && input.routeCss.length > 0
+			? /*html*/`<link rel="stylesheet" href="${path.join(`/`, input.routeCssPath)}${input.cacheBuster ?? ``}">`
+			: ``
+		}
 
-	${typeof input.browserScriptPath === `string`
-	? /*html*/`<script src="${path.join(`/`, input.browserScriptPath)}${input.cacheBuster ?? ``}" type="module"></script>`
-	: ``
-	}
+		${typeof input.browserScriptPath === `string`
+			? /*html*/`<script src="${path.join(`/`, input.browserScriptPath)}${input.cacheBuster ?? ``}" type="module"></script>`
+			: ``
+		}
 
-	${typeof input.viewCtorName === `string` && typeof input.viewCompilePath === `string`
-	? /*html*/`<script type="module">import { ${input.viewCtorName} } from '${path.join(`/`, input.viewCompilePath)}';</script>`
-	: ``
-	}
+		${typeof input.viewCtorName === `string` && typeof input.viewCompilePath === `string`
+			? /*html*/`<script type="module">import { ${input.viewCtorName} } from '${path.join(`/`, input.viewCompilePath)}';</script>`
+			: ``
+		}
 
-	${Array.from(document.querySelectorAll(`style`)).map(style => style.outerHTML).join(``)}
+		${Array.from(document.querySelectorAll(`style`)).map(style => style.outerHTML).join(``)}
 
-	${Array.from(document.querySelectorAll(`link`)).map(styleFile => styleFile.outerHTML).join(``)}
+		${Array.from(document.querySelectorAll(`link`)).map(styleFile => styleFile.outerHTML).join(``)}
 	`;
 	}
 

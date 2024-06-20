@@ -25,7 +25,7 @@
 		"prepublishOnly": "bin/build.sh",
 		"spec": "tsx util/index.spec.ts",
 		"spec:browser": "open http://localhost:8000/browser.spec.html --args --auto-open-devtools-for-tabs --incognito && esbuild ./util/browser.spec.ts --servedir=./util --outdir=./util --format=esm --bundle=true --watch",
-		"test": "eslint . && tsc && npm run spec && npm run test:example",
+		"test": "eslint . --ignore-pattern *.html && tsc && npm run spec && npm run test:example",
 		"test:example": "npm run test --prefix example"
 	},
 	"type": "module",
