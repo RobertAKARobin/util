@@ -1,9 +1,9 @@
 {
 	"dependencies": {
-		"@robertakarobin/eslint-config": "^0.0.27",
-		"@types/node": "^20.14.2",
-		"@typescript-eslint/eslint-plugin": "^7.12.0",
-		"@typescript-eslint/parser": "^7.12.0"
+		"@robertakarobin/eslint-config": "^0.0.28",
+		"@types/node": "^20.14.6",
+		"@typescript-eslint/eslint-plugin": "^7.13.1",
+		"@typescript-eslint/parser": "^7.13.1"
 	},
 	"devDependencies": {
 		"@robertakarobin/eslint-config": "file:../eslint-config"

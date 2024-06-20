@@ -12,6 +12,10 @@ module.exports = {
 			files: `*.html`,
 			parser: `@html-eslint/parser`,
 			rules: {
+				'@html-eslint/attrs-newline': [`error`, {
+					closeStyle: `newline`,
+					ifAttrsMoreThan: 2,
+				}],
 				'@html-eslint/element-newline': [`error`, {
 					skip: [
 						`a`,
@@ -79,7 +83,9 @@ module.exports = {
 				'@html-eslint/require-meta-description': `warn`,
 				'@html-eslint/require-meta-viewport': `warn`,
 				'@html-eslint/require-title': `error`,
-				'@html-eslint/sort-attrs': `error`,
+				'@html-eslint/sort-attrs': [`error`, {
+					priority: [],
+				}],
 				'@stylistic/max-len': `off`,
 			},
 		},
