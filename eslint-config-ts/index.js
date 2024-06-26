@@ -3,12 +3,27 @@ module.exports = {
 		`plugin:@typescript-eslint/base`,
 		`@robertakarobin/eslint-config`,
 	],
+	ignorePatterns: [
+		`!**/*.json`,
+		`**/package-lock.json`,
+	],
 	overrides: [
 		{
 			files: [`*.js`, `*.cjs`],
 			rules: {
 				'@typescript-eslint/explicit-member-accessibility': `off`,
 				'@typescript-eslint/no-var-requires': `off`,
+			},
+		},
+		{
+			files: `*.json`,
+			rules: {
+				'@stylistic/comma-dangle': [`error`, `never`],
+				'@stylistic/indent': [`error`, `tab`],
+				'@stylistic/max-len': `off`,
+				'@stylistic/quote-props': [`error`, `consistent`],
+				'@stylistic/quotes': [`error`, `double`],
+				'@stylistic/semi': `off`,
 			},
 		},
 		{

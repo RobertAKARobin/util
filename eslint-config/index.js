@@ -4,7 +4,7 @@
 module.exports = {
 	ignorePatterns: [
 		`!**/.*.js*`,
-		`**/package-lock.json`,
+		`**/*.json`,
 		`**/node_modules/**`,
 	],
 	overrides: [
@@ -89,25 +89,19 @@ module.exports = {
 				'@stylistic/max-len': `off`,
 			},
 		},
-		{
-			files: `*.json`,
-			rules: {
-				'@stylistic/comma-dangle': [`error`, `never`],
-				'@stylistic/indent': [`error`, `tab`],
-				'@stylistic/max-len': `off`,
-				'@stylistic/quote-props': [`error`, `consistent`],
-				'@stylistic/quotes': [`error`, `double`],
-				'@stylistic/semi': `off`,
-			},
-		},
 	],
+	parserOptions: {
+		ecmaVersion: `latest`,
+	},
 	plugins: [
-		`@stylistic`,
+		`@stylistic/eslint-plugin`,
 		`eslint-plugin-import`,
 		`eslint-plugin-import-quotes`,
-		`@html-eslint`,
+		`@html-eslint/eslint-plugin`,
+		`@robertakarobin/eslint-plugin`,
 	],
 	rules: {
+		'@robertakarobin/no-bang-negation': [`warn`],
 		'@stylistic/arrow-parens': [`error`, `as-needed`],
 		'@stylistic/arrow-spacing': `error`,
 		'@stylistic/brace-style': [`error`, `1tbs`],

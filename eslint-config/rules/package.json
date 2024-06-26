@@ -1,0 +1,6 @@
+{
+	"main": "index.js",
+	"name": "@robertakarobin/eslint-plugin",
+	"scripts": {},
+	"version": "0.0.1"
+}
