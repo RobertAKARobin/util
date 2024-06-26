@@ -61,7 +61,7 @@ const animations = keyframesMulti(
 
 	4.5, {
 		container: `opacity: 0`,
-	}
+	},
 );
 
 const keyframesFront = `0% {opacity: 0; top: 50%}

@@ -36,7 +36,7 @@ export class List extends Component.custom(`ol`) {
 		new ListItem(id)
 			.set({ text: value })
 			.on(`onListItemDelete`, this, `onListDelete`, id)
-			.on(`onListItemInput`, this, `onListInput`, id)
+			.on(`onListItemInput`, this, `onListInput`, id),
 	)}
 
 	<li>

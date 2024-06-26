@@ -3,7 +3,7 @@
  */
 export function indexOn<Type extends object>(
 	inputs: Iterable<Type>,
-	key: keyof Type
+	key: keyof Type,
 ) {
 	const out = {} as Record<string, Type>;
 	for (const input of inputs) {

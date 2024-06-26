@@ -3,7 +3,7 @@
  * Each Promise is wrapped in a callback; otherwise they would all start at the same time.
  */
 export async function promiseConsecutive<Value>(
-	inputs: Array<(soFar: Array<Value>, index: number) => Promise<Value>> // Using a spread ... seems to break the typing
+	inputs: Array<(soFar: Array<Value>, index: number) => Promise<Value>>, // Using a spread ... seems to break the typing
 ): Promise<Array<Value>> {
 	const out: Array<Value> = [];
 	// TODO3: Use `for await..of` instead?

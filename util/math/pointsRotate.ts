@@ -9,7 +9,7 @@ export function pointsRotate(
 	options: {
 		precision?: number;
 		unit?: `degree` | `radian`;
-	} = {}
+	} = {},
 ) {
 	const out = [] as Array<Coordinate>;
 	for (const point of points) {

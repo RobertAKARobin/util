@@ -10,7 +10,7 @@ export function pointsToMidpoints(
 	options: {
 		includeGiven?: boolean;
 		percent?: number;
-	} = {}
+	} = {},
 ): Array<Coordinate> {
 	const includeGiven = options.includeGiven ?? false;
 	const percent = options.percent ?? .5;

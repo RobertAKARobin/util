@@ -14,7 +14,7 @@ import postcssNested from 'postcss-nested';
 export async function cssJs(
 	source,
 	target = undefined,
-	options = {}
+	options = {},
 ) {
 	const unnest = options.unnest ?? true;
 

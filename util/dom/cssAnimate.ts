@@ -5,7 +5,7 @@ export function cssAnimate(
 	input: Pick<AnimationData,
 		| `name`
 		| `timeDuration`
-	>
+	>,
 ) {
 	return new Promise<void>(resolve => {
 		const handler = (event: AnimationEvent) => {

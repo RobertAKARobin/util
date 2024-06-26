@@ -9,7 +9,7 @@ export function findPercent(
 	options: {
 		iterationCap?: number;
 		precision?: number;
-	} = {}
+	} = {},
 ) {
 	const iterationCap = options.iterationCap ?? 100;
 	const precision = options.precision ?? 2;

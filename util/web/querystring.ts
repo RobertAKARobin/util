@@ -3,7 +3,7 @@
  */
 export function updateQuerystring(
 	input: Location | URL | string,
-	updates: Record<string, string> | URLSearchParams
+	updates: Record<string, string> | URLSearchParams,
 ) {
 	const location = input instanceof URL
 		? input

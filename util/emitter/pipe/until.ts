@@ -25,7 +25,7 @@ export function pipeUntil<State>(
 		| Emitter<unknown>
 		| EventTarget
 		| ((...args: SubscriptionEvent<State>) => boolean),
-	eventName?: unknown
+	eventName?: unknown,
 ): PipeFunction<State, State> {
 	let shouldCancel = false;
 
@@ -37,7 +37,7 @@ export function pipeUntil<State>(
 		condition.addEventListener(
 			eventName as string,
 			() => shouldCancel = true,
-			{ once: true }
+			{ once: true },
 		);
 	}
 

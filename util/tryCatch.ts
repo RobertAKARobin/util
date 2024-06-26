@@ -14,7 +14,7 @@ export function tryCatch<Result, DefaultIfError>(
 ): Promise<DefaultIfError> | Result;
 export function tryCatch<Result, DefaultIfError>(
 	callback: () => Result,
-	defaultIfError?: DefaultIfError
+	defaultIfError?: DefaultIfError,
 ) {
 	try {
 		const result = callback();

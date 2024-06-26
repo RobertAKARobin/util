@@ -7,7 +7,7 @@ export function isBetween(
 	max: number,
 	options: {
 		inclusive?: boolean;
-	} = {}
+	} = {},
 ) {
 	const isInclusive = options.inclusive ?? false;
 	if (isInclusive) {

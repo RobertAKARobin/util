@@ -20,5 +20,5 @@ export const degreesByDirection = directionsByIndex.reduce(
 		directions[directionName] = index * 45;
 		return directions;
 	},
-	{} as Record<keyof typeof directions, number>
+	{} as Record<keyof typeof directions, number>,
 );

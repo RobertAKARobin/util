@@ -20,7 +20,7 @@ export class EntityStateEmitter<Type extends Record<EntityId, unknown>>
 		({ byId, ids }) => ids.map(id => ({
 			...byId[id],
 			id,
-		}))
+		})),
 	).set([]);
 
 	constructor(

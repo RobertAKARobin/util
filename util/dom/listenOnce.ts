@@ -13,7 +13,7 @@ export function listenOnce<
 		element.addEventListener(
 			eventName,
 			resolve as (event: Event) => void,
-			{ once: true }
+			{ once: true },
 		);
 	});
 }

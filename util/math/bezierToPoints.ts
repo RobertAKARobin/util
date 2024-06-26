@@ -8,7 +8,7 @@ export function bezierToPoints(
 	beginHandle: Coordinate,
 	endHandle: Coordinate,
 	end: Coordinate,
-	progressPerLine = .1
+	progressPerLine = .1,
 ): Array<Coordinate> {
 	const points = [] as Array<Coordinate>;
 

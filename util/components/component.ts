@@ -75,7 +75,7 @@ export class Component extends HTMLElement {
 					} else {
 						this.setAttribute(
 							attributeName,
-							(value as Exclude<Textish, null | undefined>).toString()
+							(value as Exclude<Textish, null | undefined>).toString(),
 						);
 					}
 				},
@@ -136,7 +136,7 @@ export class Component extends HTMLElement {
 			elName?: string;
 			style?: string;
 			stylePath?: string;
-		} = {}
+		} = {},
 	) {
 		return function(Subclass: Subclass) {
 			const Constructor = Subclass as unknown as typeof Component;
@@ -168,7 +168,7 @@ export class Component extends HTMLElement {
 			globalThis.customElements.define( // This should come last because when a custom element is defined its constructor runs for all instances on the page
 				elName,
 				Constructor,
-				Subclass.tagName === undefined ? undefined : { extends: Subclass.tagName }
+				Subclass.tagName === undefined ? undefined : { extends: Subclass.tagName },
 			);
 
 			if ( // Has to come after elName has been assigned
@@ -588,7 +588,7 @@ export class Component extends HTMLElement {
 				handlerKeyOrListener as (event: Event) => void,
 				eventName === `disconnected`
 					? { once: true }
-					: { signal: this.disconnectedSignal }
+					: { signal: this.disconnectedSignal },
 			);
 			return this;
 		} else if (typeof handlerKeyOrListener === `string`) {

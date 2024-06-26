@@ -4,7 +4,7 @@
  * @see {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort}
  */
 export function sortOn<Value>(
-	comparer: (value: Value) => boolean | number | string
+	comparer: (value: Value) => boolean | number | string,
 ) {
 	return (a: Value, b: Value) => {
 		const aValue = comparer(a) ?? -1;

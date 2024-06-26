@@ -6,7 +6,7 @@ import url from 'url';
  */
 export function pathRelative(
 	importMetaUrl: string,
-	target: string
+	target: string,
 ) {
 	return path.join(path.dirname(url.fileURLToPath(importMetaUrl)), target);
 }

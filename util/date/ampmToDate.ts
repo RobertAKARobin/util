@@ -6,7 +6,7 @@ export function ampmToDate(input: undefined, date?: Date): undefined;
 export function ampmToDate(input: string | undefined, date?: Date): Date | undefined;
 export function ampmToDate(
 	input: string | undefined,
-	date: Date = new Date()
+	date: Date = new Date(),
 ) {
 	if (input === undefined) {
 		return undefined;

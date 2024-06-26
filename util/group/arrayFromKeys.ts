@@ -7,7 +7,7 @@ export function arrayFromKeys<Value>(
 	input: Record<string, Value>,
 	options: {
 		assertAll?: boolean;
-	} = {}
+	} = {},
 ) {
 	const assertAll = options.assertAll ?? false;
 	if (assertAll) {

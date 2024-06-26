@@ -29,7 +29,7 @@ export function getAttributes(target: Element) {
  */
 export function setAttributes<Subclass extends Element>(
 	target: Subclass,
-	source: Element | Partial<ElAttributes<Subclass>>
+	source: Element | Partial<ElAttributes<Subclass>>,
 ) {
 	const updates = {
 		...source instanceof Element ? getAttributes(source) : source,

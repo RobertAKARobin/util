@@ -85,7 +85,7 @@ export class Emitter<State> {
 
 	constructor(
 		initial?: State | null | undefined,
-		options: Partial<EmitterOptions<State>> = {}
+		options: Partial<EmitterOptions<State>> = {},
 	) {
 		this.cache = new EmitterCache(options ?? {});
 		if (initial !== undefined && initial !== null) {

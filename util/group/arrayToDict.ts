@@ -3,7 +3,7 @@
  */
 export function arrayToDict<Key extends number | string | symbol, Fill>(
 	input: Array<Key> | Readonly<Array<Key>>,
-	fill: Fill
+	fill: Fill,
 ) {
 	const output = {} as Record<Key, Fill>;
 	for (const key of input) {

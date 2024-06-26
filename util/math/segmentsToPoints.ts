@@ -6,7 +6,7 @@ export function segmentsToPoints(
 	segments: Array<Segment>,
 	options: {
 		overlap?: boolean;
-	} = {}
+	} = {},
 ) {
 	const hasOverlap = options.overlap ?? false;
 

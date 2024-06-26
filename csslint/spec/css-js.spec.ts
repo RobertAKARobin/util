@@ -9,7 +9,7 @@ import { cssJs } from '../css-js.js';
 export const spec = test(import.meta.url, async $ => {
 	await cssJs(
 		pathRelative(import.meta.url, `./css-js.spec.css.js`),
-		pathRelative(import.meta.url, `./css-js.spec.css`)
+		pathRelative(import.meta.url, `./css-js.spec.css`),
 	);
 
 	execUntil(`stylelint --fix csslint/spec/css-js.spec.css`);

@@ -73,7 +73,7 @@ export class FPSLoop {
 		options: Partial<{
 			duration: FPSLoop[`duration`];
 			loopsPerSecond: FPSLoop[`loopsPerSecond`];
-		}> = {}
+		}> = {},
 	) {
 		this.doWhat = doWhat;
 		this.duration = options.duration ?? Infinity;

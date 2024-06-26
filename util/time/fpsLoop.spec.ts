@@ -29,7 +29,7 @@ export const spec = suite(`FPSLoop`,
 						loop.end();
 					}
 				},
-				{ loopsPerSecond }
+				{ loopsPerSecond },
 			);
 			return {
 				expectedDuration,

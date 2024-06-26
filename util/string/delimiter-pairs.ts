@@ -88,14 +88,14 @@ export function delimiterPairs(
 			if (previousSibling === undefined) {
 
 				parentResult.inner.push(
-					input.slice(parentResult.indexFrom, match.index)
+					input.slice(parentResult.indexFrom, match.index),
 				);
 			} else if (typeof previousSibling === `object`) {
 				parentResult.inner.push(
 					input.slice(
 						previousSibling.indexTo + previousSibling.delimiters.closer.length,
-						match.index
-					)
+						match.index,
+					),
 				);
 			}
 
@@ -118,12 +118,12 @@ export function delimiterPairs(
 				result.inner.push(
 					input.slice(
 						lastChild.indexTo + lastChild.delimiters.closer.length,
-						result.indexTo
-					)
+						result.indexTo,
+					),
 				);
 			} else {
 				result.inner.push(
-					input.slice(result.indexFrom, result.indexTo)
+					input.slice(result.indexFrom, result.indexTo),
 				);
 			}
 		}
@@ -131,7 +131,7 @@ export function delimiterPairs(
 
 	const final = input.slice(rootResult.inner.length === 0
 		? rootResult.indexFrom
-		: result.indexTo + result.delimiters.closer.length
+		: result.indexTo + result.delimiters.closer.length,
 	);
 	if (final.length > 0) {
 		rootResult.inner.push(final);

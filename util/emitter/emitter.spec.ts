@@ -284,7 +284,7 @@ export const spec = suite(import.meta.url, {},
 
 	test(`fromPromise`, async $ => {
 		const promise = new Promise<boolean>(resolve =>
-			setTimeout(() => resolve(true), 100)
+			setTimeout(() => resolve(true), 100),
 		);
 
 		const emitter = Emitter.fromPromise(promise, false);

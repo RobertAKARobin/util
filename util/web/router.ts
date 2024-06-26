@@ -53,7 +53,7 @@ export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>
 				controlUrl
 					.replace(/[.?]/g, `\\$&`)
 					.replaceAll(Router.paramDelimeter, `([\\w ]+)`)
-					+ `$`
+					+ `$`,
 			);
 			const match = subjectUrl.match(matcher);
 			if (match === null) {
@@ -233,7 +233,7 @@ export class Resolver<
 
 	async onPage<PageEvent extends RouterEvent<Routes>>(
 		event: PageEvent,
-		{ previous }: { previous: PageEvent; }
+		{ previous }: { previous: PageEvent; },
 	) {
 		const to = event.url;
 		const from = previous?.url;

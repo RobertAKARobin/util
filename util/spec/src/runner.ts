@@ -47,7 +47,7 @@ export class SpecRunner {
 		assertion: (valueWrap: typeof Type.AssertionValueWrap) => Promise<boolean>
 	): Promise<Type.AssertionResult>;
 	assert(
-		assertion: (valueWrap: typeof Type.AssertionValueWrap) => $.PromiseMaybe<boolean>
+		assertion: (valueWrap: typeof Type.AssertionValueWrap) => $.PromiseMaybe<boolean>,
 	): $.PromiseMaybe<Type.AssertionResult> {
 		const result: Type.AssertionResult = {
 			contents: assertion.toString(),
@@ -95,7 +95,7 @@ export class SpecRunner {
 	log(message: () => Promise<unknown>): Promise<Type.SpecLog>;
 	log(message: string): Type.SpecLog;
 	log(
-		message: string | (() => $.PromiseMaybe<unknown>)
+		message: string | (() => $.PromiseMaybe<unknown>),
 	): $.PromiseMaybe<Type.SpecLog> {
 		const logResult = () => ({
 			message: (typeof message === `string` ? message : message.toString()),
@@ -162,7 +162,7 @@ export class SpecRunner {
 					children,
 					index,
 					timing: result.timing,
-				})
+				}),
 			);
 
 			result.iterations = (result.timing === `consecutive`
@@ -207,10 +207,10 @@ export class SpecRunner {
 
 		result.children = (input.timing === `consecutive`
 			? await promiseConsecutive(
-				input.children.map(child => async(_nil, index) => child(await input.args(), index))
+				input.children.map(child => async(_nil, index) => child(await input.args(), index)),
 			)
 			: await Promise.all(
-				input.children.map(async(child, index) => child(await input.args(), index))
+				input.children.map(async(child, index) => child(await input.args(), index)),
 			)
 		);
 
@@ -233,7 +233,7 @@ export class SpecRunner {
 	test = <Args>( // TODO2: Error on suites or tests inside of tests
 		title: string,
 		testDefinition: typeof Type.TestDefinition<Args>,
-		options: Partial<Type.TestOptions> = {}
+		options: Partial<Type.TestOptions> = {},
 	): typeof Type.Test<Args> => {
 		return async(args, index) => {
 			const result: Type.TestResult = {
@@ -254,7 +254,7 @@ export class SpecRunner {
 					args,
 					index,
 					testDefinition,
-				})
+				}),
 			);
 
 			result.iterations = (result.timing === `consecutive`

@@ -26,10 +26,10 @@ export function apiFactory<
 			parameters: RequestInit,
 			options: RequestOptions<Flags>
 		) => void;
-	} = {}
+	} = {},
 ) {
 	return async function request<Response>(
-		options: RequestOptions<Flags>
+		options: RequestOptions<Flags>,
 	) {
 		const parameters = {} as RequestInit;
 

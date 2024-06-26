@@ -10,7 +10,7 @@ export function pointRotate(
 	options: {
 		precision?: number;
 		unit?: `degree` | `radian`;
-	} = {}
+	} = {},
 ) {
 	const target = toCoordinate(coordinateLike);
 	const relativeTo = toCoordinate(around);

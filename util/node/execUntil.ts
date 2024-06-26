@@ -10,7 +10,7 @@ export function execUntil(
 	command: string,
 	options: {
 		attemptsMax?: number;
-	} = {}
+	} = {},
 ) {
 	const attemptsMax = options.attemptsMax ?? 10;
 

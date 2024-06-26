@@ -31,7 +31,7 @@ export function assert(input: unknown): boolean {
 	} else {
 		if (input !== true) {
 			throw new AssertionError(
-				(input as string).toString()
+				(input as string).toString(),
 			);
 		}
 	}

@@ -4,7 +4,7 @@ import { radiansTo } from './radians.ts';
 
 export function slopeTo(
 	lineLike: LineLike,
-	unit: `degrees` | `radians` = `degrees`
+	unit: `degrees` | `radians` = `degrees`,
 ) {
 	const slope = getSlope(lineLike);
 	if (unit === `degrees`) {

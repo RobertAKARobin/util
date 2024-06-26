@@ -9,7 +9,7 @@ export const modalStatus = enumy(
 	`activating`,
 	`active`,
 	`inactivating`,
-	`inactive`
+	`inactive`,
 );
 export type ModalStatus = keyof typeof modalStatus;
 

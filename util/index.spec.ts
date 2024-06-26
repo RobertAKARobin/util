@@ -23,7 +23,7 @@ const fileNames = await glob(
 			`util/svg/**/*`,
 			`**/node_modules/**/*`,
 		],
-	}
+	},
 );
 const files = new Set(fileNames.sort());
 
@@ -54,12 +54,12 @@ for (const file of files) {
 
 console.log(`>>> Specs without source:`);
 console.log(specWithoutSource.map((entry, index) =>
-	`${index}.\t${entry}\n`
+	`${index}.\t${entry}\n`,
 ).join(``));
 
 console.log(`>>> Sources without spec:`);
 console.log(sourceWithoutSpec.map((entry, index) =>
-	`${index}.\t${entry}\n`
+	`${index}.\t${entry}\n`,
 ).join(``));
 
 const specs = await promiseConsecutive(
@@ -71,7 +71,7 @@ const specs = await promiseConsecutive(
 			throw new Error(file);
 		}
 		return spec;
-	})
+	}),
 );
 
 export const spec = suite(`@robertakarobin/util/`, {

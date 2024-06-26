@@ -21,13 +21,13 @@ export abstract class BaseApp<
 		}
 
 		const components: Array<Component> = Array.from(
-			document.querySelectorAll(`[${Component.const.attrEl}]`)
+			document.querySelectorAll(`[${Component.const.attrEl}]`),
 		);
 
 		const componentsLoaded = components.map(component =>
 			customElements.whenDefined(
-				component.getAttribute(Component.const.attrEl)!
-			)
+				component.getAttribute(Component.const.attrEl)!,
+			),
 		);
 
 		await Promise.all(componentsLoaded);

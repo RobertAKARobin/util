@@ -46,7 +46,7 @@ export class SpecRenderer<
 	};
 
 	constructor(
-		inputOptions: Partial<RenderOptions> = {}
+		inputOptions: Partial<RenderOptions> = {},
 	) {
 		this.renderOptions = {
 			...this.renderOptions,
@@ -115,7 +115,7 @@ export class SpecRenderer<
 			body = body.replace(match.functionParam, (_, param: string) => {
 				valueWrapperName = param?.trim();
 				return ` `;
-			},);
+			});
 		} else {
 			body = body.replace(match.fatArrowParam, (_, braces: string, noBraces: string) => {
 				valueWrapperName = (braces || noBraces)?.trim();
@@ -199,9 +199,9 @@ export class SpecRenderer<
 			`  ${prefix} ${indicator} ${result.title}${options.showTiming ? ` <${roundTo(result.timeEnd - result.timeBegin, .01)}ms>` : ``}`,
 			result.iterations.length > 1
 				? result.iterations.map(iteration =>
-					this.renderSuiteOrTestIteration(iteration, prefix, options)
+					this.renderSuiteOrTestIteration(iteration, prefix, options),
 				) : result.iterations[0].children.map(child =>
-					this.renderSuiteOrTestIterationChild(child, prefix, options)
+					this.renderSuiteOrTestIterationChild(child, prefix, options),
 				),
 		]);
 	}
@@ -221,7 +221,7 @@ export class SpecRenderer<
 		return options.format(result, [
 			`  ${prefix} ${indicator}${options.showTiming ? ` <${roundTo(result.timeEnd - result.timeBegin, .01)}ms>` : ``}`,
 			result.children.map(child =>
-				this.renderSuiteOrTestIterationChild(child, prefix, options)
+				this.renderSuiteOrTestIterationChild(child, prefix, options),
 			),
 		]);
 	}
@@ -233,7 +233,7 @@ export class SpecRenderer<
 			| Type.SuiteResult
 			| Type.TestResult,
 		parentPrefix: string,
-		inputOptions: Partial<RenderOptions> = {}
+		inputOptions: Partial<RenderOptions> = {},
 	) {
 		const options = {
 			...this.renderOptions,
@@ -254,7 +254,7 @@ export class SpecRenderer<
 	renderSuiteOrTestLog(
 		result: Type.SpecLog,
 		parentPrefix: string,
-		inputOptions: Partial<RenderOptions> = {}
+		inputOptions: Partial<RenderOptions> = {},
 	): $.Nested<string> {
 		const options = {
 			...this.renderOptions,
@@ -270,7 +270,7 @@ export class SpecRenderer<
 		results: Type.SuiteResult,
 		options: Partial<RenderOptions & {
 			verbose: boolean;
-		}> = {}
+		}> = {},
 	) => {
 		if (results.count.fail > 0) {
 			this.print(results, options);
