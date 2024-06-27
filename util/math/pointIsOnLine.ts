@@ -17,7 +17,7 @@ export function pointIsOnLine(coordinateLike: CoordinateLike, lineLike: LineLike
 	const lineSlope = getSlope(line);
 
 	if (isNaN(lineSlope)) {
-		return !pointsAreDifferent(point, line.begin);
+		return (pointsAreDifferent(point, line.begin) === false);
 	}
 
 	const lineYOffset = getYOffset(line);

@@ -32,7 +32,7 @@ export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(Router.isMatch(`/foo/bar`, `/foo/bar/`)));
 	$.assert(x => x(Router.isMatch(`/foo/bar?foo=bar`, `/foo/bar/`)));
 	$.assert(x => x(Router.isMatch(`/foo/bar`, `/foo/bar/?foo=bar`)));
-	$.assert(x => x(!Router.isMatch(`/foo/bar&foo=bar`, `/foo/bar/`)));
+	$.assert(x => x(Router.isMatch(`/foo/bar&foo=bar`, `/foo/bar/`)) === false);
 	$.assert(x => x(Router.isMatch(`https://a.test`, `https://a.test`)));
 	$.assert(x => x(Router.isMatch(`https://a.test/`, `https://a.test`)));
 	$.assert(x => x(Router.isMatch(`https://a.test`, `https://a.test/`)));
@@ -46,9 +46,9 @@ export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(Router.isMatch(`/foo/bar/`, routes.builder)));
 	$.assert(x => x(Router.match(`/foo/bar/`, routes.builder))?.join(`,`) === `bar`);
 	$.assert(x => x(Router.match(`/foo/bar/baz`, routes.builder)) === null);
-	$.assert(x => x(!Router.isMatch(`/foo/`, routes.builder)));
-	$.assert(x => x(!Router.isMatch(`/foo/bar/baz`, routes.builder)));
-	$.assert(x => x(!Router.isMatch(`/foo/bar.html`, routes.builder)));
+	$.assert(x => x(Router.isMatch(`/foo/`, routes.builder) === false));
+	$.assert(x => x(Router.isMatch(`/foo/bar/baz`, routes.builder) === false));
+	$.assert(x => x(Router.isMatch(`/foo/bar.html`, routes.builder) === false));
 
 	let route: RoutePathFunction;
 

@@ -37,7 +37,7 @@ export const specs = suite(`DB`, {},
 			const hasRecord2 = () => tryCatch(() => args.db.has(record.id));
 			await assert(async x => x(await hasRecord2()) === false);
 
-			await assert(async x => !(await x(args.db.getIds())).includes(record.id));
+			await assert(async x => (await x(args.db.getIds())).includes(record.id) === false);
 
 			const record2 = await args.db.create({ name: `bob` });
 			await assert(async x => (await x(args.db.getIds())).includes(record2.id));
@@ -82,7 +82,7 @@ export const expected = `
 • s1s2t2a4 • typeof (await doDelete())===\`undefined\`
 • s1s2t2a5 • (await doDelete())instanceof Error
 • s1s2t2a6 • (await hasRecord2())===false
-• s1s2t2a7 • !(await (args.db.getIds())).includes(record.id)
+• s1s2t2a7 • (await (args.db.getIds())).includes(record.id)===false
 • s1s2t2a8 • (await (args.db.getIds())).includes(record2.id)
 • s1s2t2a9 • (record.id)!==(record2.id)
   s1s2t3 X update

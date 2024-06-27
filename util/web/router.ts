@@ -73,7 +73,7 @@ export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>
 		const url = Router.toUrl(input);
 		let path = `${url.origin}${url.pathname}`;
 
-		if (!Router.hasExtension.test(path) && path.endsWith(`/`)) {
+		if (Router.hasExtension.test(path) === false && path.endsWith(`/`)) {
 			path = path.slice(0, -1);
 		}
 

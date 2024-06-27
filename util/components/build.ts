@@ -189,7 +189,7 @@ export class Builder {
 			}
 
 			url.hash = ``;
-			if (!Router.hasExtension.test(url.pathname)) {
+			if (Router.hasExtension.test(url.pathname) === false) {
 				url.pathname += `/index.html`;
 			}
 
@@ -303,7 +303,7 @@ export class Builder {
 			}
 
 			let stylePath = Subclass.stylePath;
-			if (!stylePath.endsWith(`.css.ts`)) {
+			if (stylePath.endsWith(`.css.ts`) === false) {
 				stylePath = stylePath.replace(/\.ts$/, `.css.ts`);
 			}
 
@@ -404,19 +404,19 @@ export class Builder {
 	}
 
 	log(...args: Array<string>) {
-		if (!this.quiet) {
+		if (this.quiet === false) {
 			console.log(args.join(`\n`));
 		}
 	}
 
 	logBreak() {
-		if (!this.quiet) {
+		if (this.quiet === false) {
 			console.log(``);
 		}
 	}
 
 	logHeader(input: string) {
-		if (!this.quiet) {
+		if (this.quiet === false) {
 			console.log(`...${input}...\n`);
 		}
 	}

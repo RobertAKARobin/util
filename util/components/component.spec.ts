@@ -209,8 +209,8 @@ export const spec = suite(import.meta.url, {},
 		const listener = new EventListener();
 		let lastTime = performance.now();
 		$.log(() => listener.render());
-		$.assert(() => !(listener.isConnected));
-		$.assert(() => !(listener.source().isConnected));
+		$.assert(() => listener.isConnected === false);
+		$.assert(() => listener.source().isConnected === false);
 		$.assert(x => x(lastTime) < x(lastTime = listener.source().time));
 
 		const existing = listener.source();

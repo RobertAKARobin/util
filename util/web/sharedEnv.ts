@@ -21,12 +21,12 @@ export async function sharedEnv<Value>(
 	$filename: string;
 }> {
 	let filename = fileBase;
-	if (!filename.endsWith(`.json`)) {
+	if (filename.endsWith(`.json`) === false) {
 		filename += `.json`;
 	}
 
 	if (appContext === `browser`) {
-		if (!filename.startsWith(`/`)) {
+		if (filename.startsWith(`/`) === false) {
 			filename = `/${filename}`;
 		}
 

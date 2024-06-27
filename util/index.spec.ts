@@ -41,12 +41,12 @@ for (const file of files) {
 		specFiles.push(file);
 
 		const base = file.substring(0, file.length - extensions.spec.length);
-		if (!files.has(`${base}${extensions.ts}`)) {
+		if (files.has(`${base}${extensions.ts}`) === false) {
 			specWithoutSource.push(file);
 		}
 	} else {
 		const base = file.substring(0, file.length - extensions.ts.length);
-		if (!files.has(`${base}${extensions.spec}`)) {
+		if (files.has(`${base}${extensions.spec}`) === false) {
 			sourceWithoutSpec.push(file);
 		}
 	}

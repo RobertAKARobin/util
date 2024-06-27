@@ -36,7 +36,7 @@ export function serialize(input: unknown): string {
 						continue;
 					}
 					let propertyName = key;
-					if (!/^[a-zA-Z\$_]\w*$/.test(propertyName)) {
+					if (/^[a-zA-Z\$_]\w*$/.test(propertyName) === false) {
 						propertyName = `'${propertyName}'`;
 						propertyName = propertyName.replaceAll(`"`, `&quot;`);
 					}

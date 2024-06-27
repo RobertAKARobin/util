@@ -47,7 +47,10 @@ export function segmentNearestPoint(
 		const begin = segment[0];
 		const end = segment[segment.length - 1];
 
-		if (!pointsAreDifferent(target, begin) || !pointsAreDifferent(target, end)) {
+		if (
+			pointsAreDifferent(target, begin) === false
+			|| pointsAreDifferent(target, end) === false
+		) {
 			return index;
 		}
 

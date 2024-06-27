@@ -153,7 +153,7 @@ export class SpecRenderer<
 			return options.format(result, out);
 		}
 
-		if (!valueWrapperMatcher) {
+		if (valueWrapperMatcher === undefined || valueWrapperMatcher === null) {
 			return options.format(result, out);
 		}
 

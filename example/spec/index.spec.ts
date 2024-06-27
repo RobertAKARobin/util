@@ -37,7 +37,7 @@ export const spec = suite(`Build`, {},
 		$.assert(x => x(distMatchesGolden(`ssg/yes/index.html`)) === ``);
 		$.assert(x => x(distMatchesGolden(`ssg/yes/index.html.css`)) === ``);
 		$.assert(x => x(distMatchesGolden(`404.html`)) === ``);
-		$.assert(x => x(!fs.existsSync(`404.html.css`)));
+		$.assert(x => x(fs.existsSync(`404.html.css`)) === false);
 		$.assert(x => x(distMatchesGolden(`index.html`)) === ``);
 		$.assert(x => x(distMatchesGolden(`index.html.css`)) === ``);
 		$.assert(x => x(distMatchesGolden(`styles.css`)) === ``);
@@ -51,7 +51,7 @@ export const spec = suite(`Build`, {},
 		$.assert(() => hasSSG(`404`));
 		$.assert(() => hasSSG(`index`));
 		$.assert(() => hasSSG(`ssg/yes/index`));
-		$.assert(() => !hasSSG(`ssg/no/index`));
+		$.assert(() => hasSSG(`ssg/no/index`) === false);
 
 		// $.assert(() => hasMarkdown.test(src(`pages/index.ts`)));
 		// $.assert(() => !hasMarkdown.test(dist(`index.html`)));

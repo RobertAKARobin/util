@@ -75,7 +75,7 @@ export class Component extends HTMLElement {
 					} else {
 						this.setAttribute(
 							attributeName,
-							(value as Exclude<Textish, null | undefined>).toString(),
+							value.toString(),
 						);
 					}
 				},
@@ -469,7 +469,7 @@ export class Component extends HTMLElement {
 		const attrEmitDelimiter = Component.const.attrEmitDelimiter;
 		const normalizedId = Component.normalize(this.id);
 		for (const attribute of trigger.attributes) {
-			if (!attribute.name.startsWith(paramsAttr)) {
+			if (attribute.name.startsWith(paramsAttr) === false) {
 				continue;
 			}
 
@@ -648,7 +648,7 @@ export class Component extends HTMLElement {
 				break;
 			}
 
-			if (!(target instanceof HTMLElement)) {
+			if (target instanceof HTMLElement === false) {
 				target = iterator.nextNode();
 				continue;
 			}
@@ -663,7 +663,7 @@ export class Component extends HTMLElement {
 				sourceRoot !== undefined && sourceRoot !== target && sourceRoot.contains(target) // TODO3: Can probably optimize this to not need to call `.contains` each time
 			);
 
-			if (treeIsInSourceRoot && !targetIsInSourceRoot) { // The current tree was in sourceRoot, now it's not, so assume we've exited sourceRoot and shouldn't process further
+			if (treeIsInSourceRoot && targetIsInSourceRoot === false) { // The current tree was in sourceRoot, now it's not, so assume we've exited sourceRoot and shouldn't process further
 				break;
 			}
 
@@ -677,7 +677,7 @@ export class Component extends HTMLElement {
 				let cached = Component.cache.get(id)!.deref()!;
 				Component.cache.delete(id);
 
-				if (cached.isConnected && !targetIsInSourceRoot) {
+				if (cached.isConnected && targetIsInSourceRoot === false) {
 					cached = cached.cloneNode() as Component; // Note that cloneNode calls the constructor!
 				}
 
@@ -747,7 +747,7 @@ export class Component extends HTMLElement {
 	watch<State>(emitter: Emitter<State>) {
 		const ignore: typeof IGNORE = `_IGNORE_`; // Just using type so we don't accidentally import the entire Emitter library
 		return emitter.pipe((value, meta) => {
-			if (!this.isConnected) {
+			if (this.isConnected === false) {
 				meta.emitter.unsubscribe(meta.handler);
 				return ignore;
 			}

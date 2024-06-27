@@ -7,7 +7,7 @@ export function indexOn<Type extends object>(
 ) {
 	const out = {} as Record<string, Type>;
 	for (const input of inputs) {
-		if (!(key in input)) {
+		if (key in input === false) {
 			throw new Error(`Property '${key.toString()}' missing`);
 		}
 

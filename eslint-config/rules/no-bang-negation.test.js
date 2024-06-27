@@ -4,7 +4,7 @@ const messageId = `noBangNegation`;
 
 const ruleTester = new RuleTester({
 	parserOptions: {
-		ecmaVersion: `latest`,
+		ecmaVersion: 6,
 	},
 });
 ruleTester.run(`no-bang-negation`, rule, {

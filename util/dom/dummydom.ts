@@ -12,7 +12,7 @@ export class DummyDOM {
 	}> = {}) {
 		const force = options.force ?? false;
 
-		if (`document` in globalThis && !force) {
+		if (`document` in globalThis && force === false) {
 			return;
 		}
 

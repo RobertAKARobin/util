@@ -42,7 +42,7 @@ export function setAttributes<Subclass extends Element>(
 		}
 		if (attributeValueIsEmpty(value)) {
 			target.removeAttribute(attributeName);
-		} else if (!(attributeKey in target)) {
+		} else if (attributeKey in target === false) {
 			target.setAttribute(attributeKey as string, value as string);
 		}
 	}

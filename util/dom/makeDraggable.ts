@@ -78,7 +78,7 @@ export function makeDraggable(
 
 	const offsetOrigin = options.offsetOrigin ?? `top left`;
 	target.ownerDocument.addEventListener(`mousemove`, event => {
-		if (!isDragging) {
+		if (isDragging === false) {
 			return;
 		}
 

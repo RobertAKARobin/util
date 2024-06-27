@@ -41,7 +41,7 @@ export class DB {
 	}
 
 	async assertConnection() {
-		if (!this.isConnected_) {
+		if (this.isConnected_ === false) {
 			throw new Error(`Database is not connected`);
 		}
 		await DB.latency();
@@ -81,7 +81,7 @@ export class DB {
 	}
 
 	disconnect() {
-		if (!this.isConnected_) {
+		if (this.isConnected_ === false) {
 			throw new Error(`This connection is already disconnected.`);
 		}
 		return DB.disconnect(this);
@@ -109,7 +109,7 @@ export class DB {
 		await this.assertConnection();
 
 		const exists = DB.data.has(id);
-		if (options?.assert !== undefined && !exists) {
+		if (options?.assert !== undefined && exists === false) {
 			throw new Error(`ID '${id}' is not present in database.`);
 		}
 		return exists;
