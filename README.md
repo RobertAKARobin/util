@@ -51,20 +51,18 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ## TODO
 
+-	TODO1: Add `<host>` back in
 -	TODO1: Add TS preprocessing back in
--	TODO1: Don't refer to functions by string -- keeps names from being minified
 -	TODO1: Image preprocessing
 -	TODO1: Import SVGs/arbitrary files
+-	TODO1: Don't refer to functions by string -- keeps names from being minified
 -	TODO2: Use `#` private fields
--	TODO3: Strong typing for CSS classes and CSS variables
--	TODO3: rm dependence on Esbuild
-	-	Probably not possible since code is transpiled for the front-end. Esbuild has 0(?) dependencies anyway
--	TODO3: rm dependence on JSDOM
-	-	Got pretty close by writing my own "dummy DOM", but we want the HTML rendered on the server to match what is rendered in the browser as much as possible, which would require reinventing a lot of wheels that JSDOM has already invented.
 -	TODO3: Lint HTML in JS template literals (https://github.com/yeonjuan/html-eslint/issues/196)
 
 ### Done:
 
+-	Won't do: rm dependence on Esbuild. Probably not possible since code is transpiled for the front-end. Esbuild has 0(?) dependencies anyway
+-	rm dependence on JSDOM
 -	HTML linting
 -	Remove CSS from JS bundles
 -	Allow anonymous event handlers, for when we know a component won't be SSGd

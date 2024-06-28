@@ -51,8 +51,11 @@ export class App extends BaseApp {
 		resolver.subscribe(() => this.render(Nav.selector));
 	}
 
-	template = () => html`
+	template = () => {
+		console.log(`>>> ${this.page.Ctor.name}`);
+		return html`
 ${new Nav()}
 ${this.page}
 	`;
+	};
 }

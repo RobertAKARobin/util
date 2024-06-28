@@ -102,7 +102,10 @@ ${List.id(`indexList`)
 
 <p class="${theme.typeClassNames.wtf}">abc123</p>
 
-<button ${this.on(`click`, `anchorlessRoute`)}><host type="button">Go to SSG Yes</host></button>
+<button
+	${this.on(`click`, `anchorlessRoute`)}
+	type="button"
+>Go to SSG Yes</button>
 
 <div id="jump2">Jump 2</div>
 

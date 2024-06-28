@@ -47,19 +47,19 @@ export abstract class BaseApp<
 		}
 	}
 
-	onPage(newPage: Page, previous: Page) {
+	onPage(newPage: Page, previous?: Page) {
 		if (newPage === previous) {
 			return;
 		}
 
-		if (previous === undefined) {
-			this.page = newPage;
-			if (appContext !== `browser`) {
-				this.render();
-			}
-		} else {
+		if (previous !== undefined) {
 			this.page.replaceWith(newPage.render());
-			this.page = newPage;
+		}
+
+		this.page = newPage;
+
+		if (previous === undefined || appContext === `build`) {
+			this.render();
 		}
 
 		document.title = this.page.pageTitle;

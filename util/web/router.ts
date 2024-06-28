@@ -1,4 +1,4 @@
-import { appContext, baseUrl, defaultBaseUrl } from './context.ts';
+import { baseUrl, defaultBaseUrl } from './context.ts';
 import { Emitter, type EmitterOptions } from '../emitter/emitter.ts';
 import { proxyDeep } from '../proxyDeep.ts';
 
@@ -36,7 +36,10 @@ export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>
 		return (Router.match(...args) !== null);
 	}
 
-	static match(subject: RouteDefinition, control: RouteDefinition) {
+	static match(
+		subject: RoutePathFunction | URL | string,
+		control: RouteDefinition,
+	) {
 		if (subject === control) {
 			return [];
 		}
@@ -248,7 +251,7 @@ export class Resolver<
 		}
 
 		if (to.pathname !== from?.pathname) { // On new page
-			if (from !== undefined && appContext === `browser` && event.type === `navigate`) {
+			if (from !== undefined && event.type === `navigate`) {
 				globalThis.history.pushState({}, ``, `${to.pathname}${to.search}`);
 			}
 

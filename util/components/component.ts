@@ -12,7 +12,7 @@ export { css, html } from '../string/template.ts';
 
 type Constructor<Classtype> = new (...args: any) => Classtype; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-type ComponentWithoutDecorators = Omit<typeof Component,
+export type ComponentWithoutDecorators = Omit<typeof Component,
 	| `attribute`
 	| `cache`
 	| `cacheBust`
@@ -40,6 +40,7 @@ export class Component extends HTMLElement {
 	static readonly propertyNamesByAttribute: Record<string, string> = {};
 	static readonly registry = new Set<typeof Component>();
 	static readonly selector: string;
+	static readonly style: string | undefined;
 	static readonly stylePath: string | undefined;
 	static readonly tagName?: keyof HTMLElementTagNameMap;
 
@@ -106,6 +107,7 @@ export class Component extends HTMLElement {
 			static readonly observedAttributes = Component.observedAttributes;
 			static readonly propertyNamesByAttribute = Component.propertyNamesByAttribute;
 			static readonly selector = Component.selector;
+			static readonly style = Component.style;
 			static readonly stylePath = Component.stylePath;
 			static readonly tagName = tagName;
 
@@ -171,14 +173,16 @@ export class Component extends HTMLElement {
 				Subclass.tagName === undefined ? undefined : { extends: Subclass.tagName },
 			);
 
+			const style = options.style;
 			if ( // Has to come after elName has been assigned
-				typeof options.style === `string`
+				typeof style === `string`
 				&& document.head.querySelector(`[${Component.const.styleAttr}='${elName}']`) === null
 			) {
-				const styleOverride = Subclass.formatCss(options.style);
+				const styleOverride = Subclass.formatCss(style);
 				const styleEl = document.createElement(`style`);
 				styleEl.textContent = styleOverride;
 				styleEl.setAttribute(Component.const.styleAttr, elName);
+				Object.assign(Subclass, { style });
 				document.head.appendChild(styleEl);
 			}
 

@@ -1,6 +1,7 @@
 // TODO2: Can't get ESlint to check dotfolders, e.g. `.vscode/settings.json`
 // TODO3: Upgrade to eslint@^9 when this is resolved: https://github.com/import-js/eslint-plugin-import/issues/2948
 // TODO3: vscode-eslint throws 'Could not find config file. at locateConfigFileToUse' on this, but `npx eslint` works fine
+// TODO3: Lint HTML in JS template literals (https://github.com/yeonjuan/html-eslint/issues/196)
 module.exports = {
 	ignorePatterns: [
 		`!**/.*.js*`,

@@ -1,10 +1,12 @@
-import '@robertakarobin/util/dom/dummydom.ts';
+// import '@robertakarobin/util/dom/dummydom.ts';
+
+import './dummydom.js';
 
 import esbuild from 'esbuild';
 import fs from 'fs';
 import path from 'path';
 
-import { Component, type Page } from '@robertakarobin/util/components/component.ts';
+import { Component, Page } from '@robertakarobin/util/components/component.ts';
 import { Resolver, type RouteMap, Router } from '@robertakarobin/util/web/router.ts';
 import type { BaseApp } from '@robertakarobin/util/components/app.ts';
 import { baseUrl } from '@robertakarobin/util/web/context.ts';
@@ -18,8 +20,22 @@ const trimNewlines = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
 
 const compilePathsByExportName = {} as Record<string, string>;
 
-Resolver.prototype.onPage = async function(to, { previous }) {
-	this.set(await this.resolve(to.url, previous?.url));
+// Override DOM-dependent methods since these may not be availble during SSR. Doing it here instead of in Component because these methods are run a lot, and we don't have to do an unnecessary `appContext` check each time.
+// Have to set Page here too because Page doesn't directly extend Component; it uses Component.custom
+// TODO2: Do this in a way that subclasses can still customize `render` and `toString`
+Component.prototype.render = Page.prototype.render = function() {
+	this.innerHTML = this.template();
+	return this;
+};
+
+Component.prototype.toString = Page.prototype.toString = function() {
+	this.render();
+	return this.outerHTML;
+};
+
+Resolver.prototype.onPage = async function(to) {
+	const page = await this.resolve(to.url) as Page;
+	this.set(page);
 };
 
 /**
@@ -150,19 +166,12 @@ export class Builder {
 		const app = new App();
 		const { resolver, router } = app;
 
-		const appStyles = document.head.querySelectorAll(`[${Component.const.styleAttr}]`);
-		const appStyleFiles = document.head.querySelectorAll(`link`);
-
-		document.body.replaceWith(app);
-		document.documentElement.lang = `en`;
-
 		const builtRoutes = new Set<string>();
 
 		const ssgRoutes = this.ssgRoutes ?? Object.values(router.routes);
 
 		const routes = ssgRoutes.map(route => async() => {
 			this.log(`Route ${route}`);
-
 			const routeName = router.findRouteName(route);
 
 			this.log(`Route ${route} matches route ${routeName}`);
@@ -173,19 +182,11 @@ export class Builder {
 				return;
 			}
 
-			const url = new URL(route, baseUrl);
+			const url = Router.toUrl(route);
 			if (url.origin !== baseUrl.origin) {
 				this.log(`Route is external. Skipping...`);
 				this.logBreak();
 				return;
-			}
-
-			document.head.replaceChildren();
-			for (const appStyle of appStyles) {
-				document.head.appendChild(appStyle.cloneNode(true));
-			}
-			for (const appStyleFile of appStyleFiles) {
-				document.head.appendChild(appStyleFile.cloneNode(true));
 			}
 
 			url.hash = ``;
@@ -204,6 +205,7 @@ export class Builder {
 				resolver.pipe(pipeFirst()).subscribe(resolve);
 				router.go(route);
 			});
+			app.onPage(page);
 
 			builtRoutes.add(serveFileRel);
 
@@ -219,9 +221,8 @@ export class Builder {
 
 			let routeCss = ``;
 			let routeCssPath = ``;
-			for (const style of document.head.querySelectorAll(`style`)) {
-				routeCss += style.textContent?.trim() ?? ``;
-				style.textContent = ``;
+			for (const Subclass of Component.registry) {
+				routeCss += Subclass.style ?? ``;
 			}
 
 			if (routeCss.length > 0) {
@@ -232,19 +233,20 @@ export class Builder {
 				fs.writeFileSync(routeCssAbs, routeCss);
 			}
 
-			document.head.innerHTML = this.formatHead({
+			const html = await this.formatHtml({
 				baseUri: this.baseUri,
+				body: app.outerHTML,
 				browserScriptPath: this.browserServeFileRel,
 				cacheBuster: Component.cacheBust(),
+				components: [...Component.registry],
+				description: undefined,
 				mainCssPath: this.styleServeFileRel,
 				routeCss,
 				routeCssPath,
-				title: document.title,
+				title: page.pageTitle,
 				viewCompilePath: compilePathsByExportName[page.Ctor.name],
 				viewCtorName: page.Ctor.name,
 			});
-
-			const html = await this.formatHtml(`<!DOCTYPE html>` + this.formatDocument(document));
 
 			this.log(local(serveFileAbs));
 			fs.writeFileSync(serveFileAbs, html);
@@ -319,8 +321,10 @@ export class Builder {
 
 	async buildStyles() {
 		this.logHeader(`Building root styles`);
-		let styles = (await this.bustCache(this.stylesSrcFileAbs)).default as string; // eslint-disable-line @typescript-eslint/no-unsafe-member-access
-		styles = await this.formatCss(styles);
+
+		const styleSrcFile = (await this.bustCache(this.stylesSrcFileAbs)) as { default: string; };
+
+		const styles = await this.formatCss(styleSrcFile.default);
 		this.log(local(this.stylesServeFileAbs));
 		fs.writeFileSync(this.stylesServeFileAbs, styles);
 		this.logBreak();
@@ -339,22 +343,19 @@ export class Builder {
 		return css;
 	}
 
-	formatDocument(document: Document) {
-		return document.documentElement.outerHTML;
-	}
-
-	formatHead(input: Partial<{
+	formatHead(input: {
 		baseUri: string;
-		browserScriptPath: string;
+		browserScriptPath: string | undefined;
 		cacheBuster: string;
-		description: string;
+		components: Array<typeof Component>;
+		description: string | undefined;
 		mainCssPath: string;
 		routeCss: string;
 		routeCssPath: string;
 		title: string;
 		viewCompilePath: string;
 		viewCtorName: string;
-	}> = {}) {
+	}) {
 		return /*html*/`
 		<meta charset="utf-8">
 		<meta name="description" content="${input.description ?? input.title ?? ``}">
@@ -391,14 +392,20 @@ export class Builder {
 			: ``
 		}
 
-		${Array.from(document.querySelectorAll(`style`)).map(style => style.outerHTML).join(``)}
-
-		${Array.from(document.querySelectorAll(`link`)).map(styleFile => styleFile.outerHTML).join(``)}
+		${/* Array.from(document.querySelectorAll(`link`)).map(styleFile => styleFile.outerHTML).join(``) */ ``}
 	`;
 	}
 
-	formatHtml(input: string): Promise<string> | string {
-		let html = input;
+	formatHtml(input: Parameters<Builder[`formatHead`]>[0] & {
+		body: string;
+	}): Promise<string> | string {
+		const head = this.formatHead(input);
+		let html = `
+<!DOCTYPE html>
+<html lang="en">
+	<head>${head}</head>
+	${input.body}
+</html>`;
 		html = trimNewlines(html);
 		return html;
 	}
