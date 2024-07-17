@@ -1,4 +1,5 @@
-import '@robertakarobin/util/dom/dummydom.ts';
+// eslint-disable-next-line no-restricted-imports
+import '@robertakarobin/util/components/dummydom.js';
 
 import { suite, test } from '@robertakarobin/util/spec/index.ts';
 import { Component } from '@robertakarobin/util/components/component.ts';

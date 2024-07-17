@@ -9,7 +9,6 @@ const style = /*css*/`
 @Component.define()
 export class ProgressCircle extends Component {
 	static style = style;
-
 	@Component.attribute() borderWidth = 10;
 	readonly circle = this.findDown(`circle`);
 	@Component.attribute() diameter = 100;

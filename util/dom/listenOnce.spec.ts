@@ -1,4 +1,4 @@
-import './dummydom.ts';
+// import './dummydom.ts';
 import { test } from '../spec/index.ts';
 
 import { listenOnce } from './listenOnce.ts';

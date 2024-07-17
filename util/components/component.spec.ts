@@ -1,4 +1,4 @@
-import '@robertakarobin/util/dom/dummydom.ts';
+// import './dummydom.js';
 
 import { suite, test } from '@robertakarobin/util/spec/index.ts';
 import { Component } from '@robertakarobin/util/components/component.ts';

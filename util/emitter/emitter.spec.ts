@@ -1,4 +1,4 @@
-import '../dom/dummydom.ts';
+// import '../dom/dummydom.ts';
 
 import { suite, test } from '../spec/index.ts';
 import { sleep } from '../time/sleep.ts';

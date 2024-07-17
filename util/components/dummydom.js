@@ -1,8 +1,12 @@
 /**
- * Naive minimal substitution for the DOM standard library, allowing Components to be built without needing to import e.g. JSDOM
+ * Very naive and minimal substitution for the DOM standard library, allowing Components to be built without needing to import e.g. JSDOM
  */
 
 const elementsById = {};
+
+const voidElements = new Set(
+	`area, base, br, col, embed, hr, img, input, link, meta, source, track, wbr`.split(`, `),
+); // https://html.spec.whatwg.org/multipage/syntax.html#void-elements
 
 export class Element {
 	attributes = {};
@@ -15,12 +19,22 @@ export class Element {
 	}
 	innerHTML;
 	get outerHTML() {
+		const tagName = this.tagName.toLowerCase();
 		const attributes = Object.entries(this.attributes).map(
 			([key, value]) => `${key}="${value}"`,
 		).join(` `);
-		return `<${this.tagName} ${attributes}>${this.innerHTML}</${this.tagName}>`;
+		if (voidElements.has(tagName)) {
+			return `<${tagName} ${attributes} />`;
+		}
+		return `<${tagName} ${attributes}>${this.innerHTML ?? ``}</${tagName}>`;
 	}
 	tagName;
+	get textContent() {
+		return this.innerHTML;
+	}
+	set textContent(value) {
+		this.innerHTML = value;
+	}
 
 	constructor() {
 		this.tagName = this.constructor.tagName;
@@ -58,7 +72,11 @@ export class Element {
 export class HTMLElement extends Element {}
 
 export const customElements = {
-	define() {},
+	define(elName, Constructor) {
+		customElements.registry[elName] = Constructor;
+	},
+
+	registry: {},
 };
 
 export const document = {

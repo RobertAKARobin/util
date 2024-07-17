@@ -1,6 +1,6 @@
 import { BaseApp, Resolver, Router } from '@robertakarobin/util/components/app.ts';
-import { Component, html } from '@robertakarobin/util/components/component.ts';
 import { appContext } from '@robertakarobin/util/web/context.ts';
+import { Component } from '@robertakarobin/util/components/component.ts';
 import { ModalContainer } from '@robertakarobin/util/components/modal-container.ts';
 
 import { Nav } from '@src/components/nav.ts';
@@ -51,11 +51,8 @@ export class App extends BaseApp {
 		resolver.subscribe(() => this.render(Nav.selector));
 	}
 
-	template = () => {
-		console.log(`>>> ${this.page.Ctor.name}`);
-		return html`
+	template = () => /*html*/`
 ${new Nav()}
 ${this.page}
 	`;
-	};
 }

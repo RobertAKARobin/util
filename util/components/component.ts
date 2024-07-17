@@ -22,6 +22,8 @@ export type ComponentWithoutDecorators = Omit<typeof Component,
 	| `event`
 	| `normalize`
 	| `registry`
+	| `style`
+	| `stylePath`
 	| `uid`
 >;
 
@@ -34,11 +36,12 @@ export class Component extends HTMLElement {
 		attrOn: `data-on-`,
 		globalRef: `C`,
 		styleAttr: `data-style`,
+		styleUrlAttrPrefix: `data-`,
 	} as const;
 	static readonly elName: string;
 	static readonly observedAttributes = [] as Array<string>;
 	static readonly propertyNamesByAttribute: Record<string, string> = {};
-	static readonly registry = new Set<typeof Component>();
+	static readonly registry = new Map<typeof Component[`elName`], typeof Component>();
 	static readonly selector: string;
 	static readonly style: string | undefined;
 	static readonly stylePath: string | undefined;
@@ -132,12 +135,14 @@ export class Component extends HTMLElement {
 	 * @param options.elName The name that will be used for the component, e.g. `app-foo`
 	 * @param options.style The stylesheet that will be attached to the document the first time the component is used. `:host` will be replaced with the component's selector.
 	 * @param options.stylePath The path to an external stylesheet for this component. If it ends with `.ts`, the Builder will change the path to `.css.ts`. This means you can always set the stylepath to `import.meta.url` if the files will all follow the convention of `{component}.css.ts`.
+	 * @param options.styleSrc
 	 */
 	static define<Subclass extends ComponentWithoutDecorators>(
 		options: {
 			elName?: string;
 			style?: string;
 			stylePath?: string;
+			styleSrc?: string;
 		} = {},
 	) {
 		return function(Subclass: Subclass) {
@@ -148,23 +153,25 @@ export class Component extends HTMLElement {
 				? elName
 				: `[${Component.const.attrEl}='${elName}']`;
 
-			const stylePath = options.stylePath;
+			const stylePath = options.stylePath ?? Constructor.stylePath;
 			if (typeof stylePath === `string`) {
-				const styleUrl = `/${elName}.css`;
-				if (document.head.querySelector(`link[href^="${styleUrl}"]`) === null) {
-					const linkEl = document.createElement(`link`);
-					setAttributes(linkEl, {
-						href: `${styleUrl}${Component.cacheBust()}`,
+				const styleUrl = `/${elName}.css${Component.cacheBust()}`;
+				const styleUrlAttr = `${Component.const.styleUrlAttrPrefix}${elName}`;
+				if (document.head.querySelector(`link[${styleUrlAttr}]`) === null) {
+					const styleUrlEl = document.createElement(`link`);
+					setAttributes(styleUrlEl, {
+						href: styleUrl,
 						rel: `stylesheet`,
 					});
-					document.head.appendChild(linkEl);
+					styleUrlEl.setAttribute(styleUrlAttr, ``);
+					document.head.appendChild(styleUrlEl);
+					Object.assign(Constructor, { stylePath });
 				}
 			}
 
 			Object.assign(Constructor, {
 				elName,
 				selector,
-				stylePath,
 			});
 
 			globalThis.customElements.define( // This should come last because when a custom element is defined its constructor runs for all instances on the page
@@ -173,20 +180,20 @@ export class Component extends HTMLElement {
 				Subclass.tagName === undefined ? undefined : { extends: Subclass.tagName },
 			);
 
-			const style = options.style;
+			const style = options.style ?? Constructor.style;
 			if ( // Has to come after elName has been assigned
 				typeof style === `string`
 				&& document.head.querySelector(`[${Component.const.styleAttr}='${elName}']`) === null
 			) {
-				const styleOverride = Subclass.formatCss(style);
+				const styleOverride = Constructor.formatCss(style);
 				const styleEl = document.createElement(`style`);
 				styleEl.textContent = styleOverride;
 				styleEl.setAttribute(Component.const.styleAttr, elName);
-				Object.assign(Subclass, { style });
 				document.head.appendChild(styleEl);
+				Object.assign(Constructor, { style });
 			}
 
-			Component.registry.add(Constructor);
+			Component.registry.set(elName, Constructor);
 		};
 	}
 

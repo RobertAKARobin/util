@@ -1,5 +1,3 @@
-// import '@robertakarobin/util/dom/dummydom.ts';
-
 import './dummydom.js';
 
 import esbuild from 'esbuild';
@@ -19,6 +17,10 @@ const local = (input: string) => path.relative(process.cwd(), input);
 const trimNewlines = (input: string) => input.trim().replace(/[\n\r]+/g, ``);
 
 const compilePathsByExportName = {} as Record<string, string>;
+
+const componentsInApp: Record<typeof Component[`elName`], typeof Component> = {};
+
+const stylesByElName = {} as Record<string, string | undefined>;
 
 // Override DOM-dependent methods since these may not be availble during SSR. Doing it here instead of in Component because these methods are run a lot, and we don't have to do an unnecessary `appContext` check each time.
 // Have to set Page here too because Page doesn't directly extend Component; it uses Component.custom
@@ -133,8 +135,7 @@ export class Builder {
 		await this.buildAssets();
 		await this.buildScript();
 		await this.buildRoutes();
-		await this.buildStyles();
-		await this.buildStyleFiles();
+		await this.buildStylesForAppRoot();
 
 		await this.cleanup();
 
@@ -166,11 +167,15 @@ export class Builder {
 		const app = new App();
 		const { resolver, router } = app;
 
+		const componentsInAppRoot = Object.fromEntries(Component.registry.entries());
+
 		const builtRoutes = new Set<string>();
 
 		const ssgRoutes = this.ssgRoutes ?? Object.values(router.routes);
 
 		const routes = ssgRoutes.map(route => async() => {
+			Component.registry.clear();
+
 			this.log(`Route ${route}`);
 			const routeName = router.findRouteName(route);
 
@@ -201,6 +206,8 @@ export class Builder {
 				return;
 			}
 
+			const routePath = path.join(`/`, serveFileRel);
+
 			const page = await new Promise<Page>(resolve => {
 				resolver.pipe(pipeFirst()).subscribe(resolve);
 				router.go(route);
@@ -219,16 +226,32 @@ export class Builder {
 				return;
 			}
 
+			const componentsInRoute = {
+				...componentsInAppRoot,
+				...Object.fromEntries(Component.registry.entries()),
+			};
+
+			const routeCssElNames: Array<typeof Component[`elName`]> = [];
 			let routeCss = ``;
-			let routeCssPath = ``;
-			for (const Subclass of Component.registry) {
-				routeCss += Subclass.style ?? ``;
+			for (const Subclass of Object.values(componentsInRoute)) {
+				if (Subclass.elName in componentsInApp) {
+					continue;
+				}
+
+				componentsInApp[Subclass.elName] = Subclass;
+
+				const style = (
+					stylesByElName[Subclass.elName] = await this.buildStylesForComponent(Subclass)
+				);
+				if (typeof style === `string` && style.length > 0) {
+					routeCss += style;
+					routeCssElNames.push(Subclass.elName);
+				}
 			}
 
 			if (routeCss.length > 0) {
 				routeCss = await this.formatCss(routeCss);
-				routeCssPath = `${serveFileRel}.css`;
-				const routeCssAbs = path.join(this.serveDirAbs, routeCssPath);
+				const routeCssAbs = path.join(this.serveDirAbs, `${serveFileRel}.css`);
 				this.log(local(routeCssAbs));
 				fs.writeFileSync(routeCssAbs, routeCss);
 			}
@@ -238,11 +261,11 @@ export class Builder {
 				body: app.outerHTML,
 				browserScriptPath: this.browserServeFileRel,
 				cacheBuster: Component.cacheBust(),
-				components: [...Component.registry],
 				description: undefined,
 				mainCssPath: this.styleServeFileRel,
 				routeCss,
-				routeCssPath,
+				routeCssElNames,
+				routePath,
 				title: page.pageTitle,
 				viewCompilePath: compilePathsByExportName[page.Ctor.name],
 				viewCtorName: page.Ctor.name,
@@ -297,30 +320,8 @@ export class Builder {
 		}
 	}
 
-	async buildStyleFiles() {
-		const Components = [...Component.registry.values()];
-		await promiseConsecutive(Components.map(Subclass => async() => {
-			if (typeof Subclass.stylePath !== `string`) {
-				return;
-			}
-
-			let stylePath = Subclass.stylePath;
-			if (stylePath.endsWith(`.css.ts`) === false) {
-				stylePath = stylePath.replace(/\.ts$/, `.css.ts`);
-			}
-
-			const styleFile = await import(stylePath) as { default: string; };
-			let style = styleFile.default;
-			style = Subclass.formatCss(style);
-			style = await this.formatCss(style);
-
-			const targetPath = path.join(this.serveDirAbs, `${Subclass.elName}.css`);
-			fs.writeFileSync(targetPath, style);
-		}));
-	}
-
-	async buildStyles() {
-		this.logHeader(`Building root styles`);
+	async buildStylesForAppRoot() {
+		this.logHeader(`Building style file for app root`);
 
 		const styleSrcFile = (await this.bustCache(this.stylesSrcFileAbs)) as { default: string; };
 
@@ -329,6 +330,35 @@ export class Builder {
 		fs.writeFileSync(this.stylesServeFileAbs, styles);
 		this.logBreak();
 	}
+
+	async buildStylesForComponent(Subclass: typeof Component) {
+		let stylePath = Subclass.stylePath;
+
+		let style = Subclass.style ?? ``;
+
+		if (typeof stylePath === `string`) {
+			if (stylePath.endsWith(`.css.ts`) === false) {
+				stylePath = stylePath.replace(/\.ts$/, `.css.ts`);
+			}
+
+			const styleFile = await import(stylePath) as { default: string; };
+			style = `${styleFile.default} ${style}`;
+		}
+
+		style = Subclass.formatCss(style);
+		style = await this.formatCss(style);
+
+		if (style.length > 0) {
+			const targetPath = path.join(this.serveDirAbs, `${Subclass.elName}.css`);
+			fs.writeFileSync(targetPath, style);
+			this.log(targetPath);
+			return style;
+		}
+
+		return undefined;
+	}
+
+	async buildStylesForRoute() {}
 
 	bustCache(pathname: string) {
 		const url = new URL(`file:///${pathname}?v=${Date.now() + performance.now()}`); // URL is necessary for running on Windows
@@ -347,11 +377,11 @@ export class Builder {
 		baseUri: string;
 		browserScriptPath: string | undefined;
 		cacheBuster: string;
-		components: Array<typeof Component>;
 		description: string | undefined;
 		mainCssPath: string;
 		routeCss: string;
-		routeCssPath: string;
+		routeCssElNames: Array<string>;
+		routePath: string;
 		title: string;
 		viewCompilePath: string;
 		viewCtorName: string;
@@ -377,8 +407,13 @@ export class Builder {
 			: ``
 		}
 
-		${typeof input.routeCssPath === `string` && typeof input.routeCss === `string` && input.routeCss.length > 0
-			? /*html*/`<link rel="stylesheet" href="${path.join(`/`, input.routeCssPath)}${input.cacheBuster ?? ``}">`
+		${typeof input.routeCss === `string` && input.routeCss.length > 0
+			? /*html*/`
+				<link
+					${input.routeCssElNames.map(elName => `data-${elName}`).join(` `)}
+					href="${input.routePath}.css${input.cacheBuster ?? ``}"
+					rel="stylesheet"
+				/>`
 			: ``
 		}
 
@@ -391,8 +426,6 @@ export class Builder {
 			? /*html*/`<script type="module">import { ${input.viewCtorName} } from '${path.join(`/`, input.viewCompilePath)}';</script>`
 			: ``
 		}
-
-		${/* Array.from(document.querySelectorAll(`link`)).map(styleFile => styleFile.outerHTML).join(``) */ ``}
 	`;
 	}
 

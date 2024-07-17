@@ -1,4 +1,4 @@
-import './dummydom.ts';
+// import './dummydom.ts';
 import { suite, test } from '../spec/index.ts';
 
 import { setAttributes, setStyle } from './attributes.ts';
