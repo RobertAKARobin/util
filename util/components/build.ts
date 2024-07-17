@@ -40,9 +40,6 @@ Resolver.prototype.onPage = async function(to) {
 	this.set(page);
 };
 
-/**
- * `npm i @robertakarobin/util-components-build-deps`
- */
 export class Builder {
 	readonly appSrcFileAbs: string;
 	readonly appSrcFileRel: string;

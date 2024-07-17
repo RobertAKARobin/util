@@ -3,7 +3,6 @@
 		"@robertakarobin/csslint": "file:./csslint",
 		"@robertakarobin/eslint-config": "file:./eslint-config",
 		"@robertakarobin/eslint-config-ts": "file:./eslint-config-ts",
-		"@robertakarobin/util-components-build-deps": "^0.0.2",
 		"@types/diff": "^5.2.1",
 		"diff": "^5.2.0",
 		"glob": "^10.4.2",
