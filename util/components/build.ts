@@ -4,7 +4,7 @@ import esbuild from 'esbuild';
 import fs from 'fs';
 import path from 'path';
 
-import { Component, Page } from '@robertakarobin/util/components/component.ts';
+import { Component, type Page } from '@robertakarobin/util/components/component.ts';
 import { Resolver, type RouteMap, Router } from '@robertakarobin/util/web/router.ts';
 import type { BaseApp } from '@robertakarobin/util/components/app.ts';
 import { baseUrl } from '@robertakarobin/util/web/context.ts';
@@ -21,19 +21,6 @@ const compilePathsByExportName = {} as Record<string, string>;
 const componentsInApp: Record<typeof Component[`elName`], typeof Component> = {};
 
 const stylesByElName = {} as Record<string, string | undefined>;
-
-// Override DOM-dependent methods since these may not be availble during SSR. Doing it here instead of in Component because these methods are run a lot, and we don't have to do an unnecessary `appContext` check each time.
-// Have to set Page here too because Page doesn't directly extend Component; it uses Component.custom
-// TODO2: Do this in a way that subclasses can still customize `render` and `toString`
-Component.prototype.render = Page.prototype.render = function() {
-	this.innerHTML = this.template();
-	return this;
-};
-
-Component.prototype.toString = Page.prototype.toString = function() {
-	this.render();
-	return this.outerHTML;
-};
 
 Resolver.prototype.onPage = async function(to) {
 	const page = await this.resolve(to.url) as Page;

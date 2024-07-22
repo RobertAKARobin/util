@@ -5,6 +5,7 @@ import {
 	setStyle,
 } from '../dom/attributes.ts';
 import { type Emitter, type IGNORE } from '../emitter/emitter.ts';
+import { appContext } from '../web/context.ts';
 import { newUid } from '../uid.ts';
 import type { Textish } from '../types.d.ts';
 
@@ -787,4 +788,20 @@ export class Page extends Component.custom(`main`) {
 			this.pageTitle = input.title;
 		}
 	}
+}
+
+if (appContext !== `browser`) {
+	// Override DOM-dependent methods since these may not be availble during SSR. Doing it here instead of in Component because these methods are run a lot, and we don't have to do an unnecessary `appContext` check each time.
+	// Have to set Page here too because Page doesn't directly extend Component; it uses Component.custom
+	// TODO2: Do this in a way that subclasses can still customize `render` and `toString`
+	// TODO2: Do this such that we don't need to include it in front-end code
+	Component.prototype.render = Page.prototype.render = function() {
+		this.innerHTML = this.template();
+		return this;
+	};
+
+	Component.prototype.toString = Page.prototype.toString = function() {
+		this.render();
+		return this.outerHTML;
+	};
 }

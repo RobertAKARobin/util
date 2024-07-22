@@ -28,6 +28,7 @@ export class Element {
 		}
 		return `<${tagName} ${attributes}>${this.innerHTML ?? ``}</${tagName}>`;
 	}
+	style = {};
 	tagName;
 	get textContent() {
 		return this.innerHTML;
