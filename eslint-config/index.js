@@ -56,6 +56,7 @@ module.exports = {
 				'@html-eslint/no-duplicate-id': `error`,
 				'@html-eslint/no-extra-spacing-attrs': [`error`, {
 					disallowMissing: true,
+					disallowTabs: true,
 					enforceBeforeSelfClose: true,
 				}],
 				'@html-eslint/no-inline-styles': `off`,
