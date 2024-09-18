@@ -5,7 +5,7 @@
 	"devDependencies": {
 		"@robertakarobin/csslint": "file:../csslint",
 		"@robertakarobin/eslint-config-ts": "file:../eslint-config-ts",
-		"diff": "^5.2.0"
+		"diff": "^7.0.0"
 	},
 	"scripts": {
 		"build": "tsx build.ts",

@@ -10,7 +10,7 @@ export class ListItem extends Component.custom(`li`) {
 	constructor(id: EntityId) {
 		super();
 		if (this.id === ``) {
-			this.id = `${id}` ?? Component.uid();
+			this.id = `${id ?? Component.uid()}`;
 		}
 	}
 

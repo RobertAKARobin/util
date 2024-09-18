@@ -3,12 +3,12 @@
 		"@robertakarobin/csslint": "file:./csslint",
 		"@robertakarobin/eslint-config": "file:./eslint-config",
 		"@robertakarobin/eslint-config-ts": "file:./eslint-config-ts",
-		"@types/diff": "^5.2.1",
-		"diff": "^5.2.0",
-		"glob": "^10.4.2",
-		"husky": "^9.0.11",
-		"npm-check-updates": "^16.14.20",
-		"tsx": "^4.15.6"
+		"@types/diff": "^5.2.2",
+		"diff": "^7.0.0",
+		"glob": "^11.0.0",
+		"husky": "^9.1.6",
+		"npm-check-updates": "^17.1.1",
+		"tsx": "^4.19.1"
 	},
 	"exports": {
 		"./*": "./util/*"
@@ -25,7 +25,7 @@
 		"prepublishOnly": "bin/build.sh",
 		"spec": "tsx util/index.spec.ts",
 		"spec:browser": "open http://localhost:8000/browser.spec.html --args --auto-open-devtools-for-tabs --incognito && esbuild ./util/browser.spec.ts --servedir=./util --outdir=./util --format=esm --bundle=true --watch",
-		"test": "npm run lint && tsc && npm run spec",
+		"test": "npm run lint && tsc && npm run spec && npm run test:example",
 		"test:example": "npm run test --prefix example"
 	},
 	"type": "module",

@@ -36,27 +36,24 @@ module.exports = {
 				`@stylistic/ts`,
 			],
 			rules: {
+				'@stylistic/ts/member-delimiter-style': [`error`, {
+					singleline: {
+						requireLast: true,
+					},
+				}],
+				'@stylistic/ts/object-curly-spacing': [`error`, `always`],
+				'@stylistic/ts/space-before-function-paren': [`error`, `never`],
 				'@stylistic/ts/type-annotation-spacing': [`error`],
 				'@typescript-eslint/array-type': [`error`, {
 					default: `generic`,
 				}],
 				'@typescript-eslint/await-thenable': `error`,
 				'@typescript-eslint/ban-ts-comment': `error`,
-				'@typescript-eslint/ban-types': [`error`, {
-					types: {
-						Function: false,
-					},
-				}],
 				'@typescript-eslint/consistent-type-imports': [`error`, {
 					prefer: `type-imports`,
 				}],
 				'@typescript-eslint/explicit-member-accessibility': [`error`, {
 					accessibility: `no-public`,
-				}],
-				'@typescript-eslint/member-delimiter-style': [`error`, {
-					singleline: {
-						requireLast: true,
-					},
 				}],
 				'@typescript-eslint/member-ordering': [`error`, {
 					default: {
@@ -106,7 +103,11 @@ module.exports = {
 				'@typescript-eslint/no-implied-eval': `error`,
 				'@typescript-eslint/no-loss-of-precision': `error`,
 				'@typescript-eslint/no-misused-new': `error`,
-				'@typescript-eslint/no-misused-promises': `error`,
+				'@typescript-eslint/no-misused-promises': [`error`, {
+					checksVoidReturn: {
+						inheritedMethods: false,
+					},
+				}],
 				'@typescript-eslint/no-namespace': `off`,
 				'@typescript-eslint/no-non-null-asserted-optional-chain': `error`,
 				'@typescript-eslint/no-redundant-type-constituents': `error`,
@@ -127,13 +128,11 @@ module.exports = {
 					varsIgnorePattern: `^_`,
 				}],
 				'@typescript-eslint/no-var-requires': `error`,
-				'@typescript-eslint/object-curly-spacing': [`error`, `always`],
 				'@typescript-eslint/prefer-as-const': `error`,
 				'@typescript-eslint/require-await': `error`,
 				'@typescript-eslint/restrict-plus-operands': `error`,
 				'@typescript-eslint/restrict-template-expressions': `off`,
 				'@typescript-eslint/sort-type-constituents': [`error`],
-				'@typescript-eslint/space-before-function-paren': [`error`, `never`],
 				'@typescript-eslint/strict-boolean-expressions': `error`,
 				'@typescript-eslint/triple-slash-reference': `error`,
 				'@typescript-eslint/unbound-method': [`warn`, {

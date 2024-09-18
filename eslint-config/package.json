@@ -1,14 +1,14 @@
 {
 	"dependencies": {
-		"@html-eslint/eslint-plugin": "file:../../html-eslint/packages/eslint-plugin",
-		"@html-eslint/parser": "file:../../html-eslint/packages/parser",
+		"@html-eslint/eslint-plugin": "^0.27.0",
+		"@html-eslint/parser": "^0.27.0",
 		"@robertakarobin/eslint-plugin": "file:./rules",
-		"@stylistic/eslint-plugin": "^2.2.2",
-		"eslint-plugin-import": "^2.29.1",
+		"@stylistic/eslint-plugin": "^2.8.0",
+		"eslint-plugin-import": "^2.30.0",
 		"eslint-plugin-import-quotes": "^0.0.1"
 	},
 	"main": "index.js",
 	"name": "@robertakarobin/eslint-config",
 	"scripts": {},
-	"version": "0.0.28"
+	"version": "0.0.29"
 }
