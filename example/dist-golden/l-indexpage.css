@@ -119,3 +119,9 @@
 		bottom: 0;
 	}
 }
+
+[is='l-indexpage'] {
+	h1 {
+		color: red;
+	}
+}
