@@ -4,10 +4,11 @@ import url from 'url';
 
 import { run, suite, type Type } from './spec/index.ts';
 import { promiseConsecutive } from './time/promiseConsecutive.ts';
+import { substringBetween } from './string/substringBetween.ts';
 
 const extensions = {
 	spec: `.spec.ts`,
-	ts: `.ts`,
+	specWeb: `.spec.web.ts`,
 };
 
 const targets = process.argv.slice(2);
@@ -24,12 +25,16 @@ const fileNames = await glob(
 			`util/spec/example/**/*`, // Run by spec/spec.spec.ts
 			`util/svg/**/*`,
 			`**/node_modules/**/*`,
+			`**/*.d.ts`,
 		],
 	},
 );
 const files = new Set(fileNames.sort());
 
-const specFiles = [];
+const specFilesByPlatform = {
+	node: [] as Array<string>,
+	web: [] as Array<string>,
+};
 const specWithoutSource = [] as Array<string>;
 const sourceWithoutSpec = [] as Array<string>;
 const thisFile = url.fileURLToPath(import.meta.url);
@@ -39,16 +44,26 @@ for (const file of files) {
 		continue;
 	}
 
-	if (file.endsWith(extensions.spec)) {
-		specFiles.push(file);
+	if (file.includes(`.spec`)) {
+		if (file.endsWith(extensions.specWeb)) {
+			specFilesByPlatform.web.push(file);
+		} else {
+			specFilesByPlatform.node.push(file);
+		}
 
-		const base = file.substring(0, file.length - extensions.spec.length);
-		if (files.has(`${base}${extensions.ts}`) === false) {
+		const base = substringBetween(file, { end: /\.spec/ });
+		if (files.has(`${base}.ts`) === false) {
 			specWithoutSource.push(file);
 		}
 	} else {
-		const base = file.substring(0, file.length - extensions.ts.length);
-		if (files.has(`${base}${extensions.spec}`) === false) {
+		const base = substringBetween(file, { end: /\.ts/ });
+		let hasSpec = false;
+		for (const extension of Object.values(extensions)) {
+			if (files.has(`${base}${extension}`)) {
+				hasSpec = true;
+			}
+		}
+		if (hasSpec === false) {
 			sourceWithoutSpec.push(file);
 		}
 	}
@@ -65,7 +80,7 @@ console.log(sourceWithoutSpec.map((entry, index) =>
 ).join(``));
 
 const specs = await promiseConsecutive(
-	specFiles.sort().map(file => async() => {
+	specFilesByPlatform.node.sort().map(file => async() => {
 		const { spec } = await import(file) as {
 			spec: typeof Type.Test;
 		};
