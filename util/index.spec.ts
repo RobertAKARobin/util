@@ -10,8 +10,10 @@ const extensions = {
 	ts: `.ts`,
 };
 
+const targets = process.argv.slice(2);
+
 const fileNames = await glob(
-	`*/**/*.ts`,
+	targets.length === 0 ? `*/**/*.ts` : targets,
 	{
 		ignore: [
 			`dist/**/*`,
