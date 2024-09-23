@@ -136,12 +136,12 @@ export class SpecRunner {
 		>
 	): (
 			inheritedArgs: InheritedArgs,
-			index?: number,
+			index: number,
 		) => Promise<Type.SuiteResult> {
 		return async(inheritedArgs, index) => {
 			const result: Type.SuiteResult = {
 				count: { ...specStepCountDefault },
-				indexAtDefinition: isNaN(index as number) ? 0 : index as number,
+				indexAtDefinition: isNaN(index) ? 0 : index,
 				iterations: [],
 				status: `pass`,
 				timeBegin: this.getTime(),
