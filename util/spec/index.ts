@@ -15,6 +15,5 @@ export const renderer = new SpecRenderer();
 
 export const print = renderer.print;
 export const render = renderer.render;
-export const run = renderer.run;
 
 export type * as Type from './src/types.d.ts';

@@ -57,6 +57,7 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 -	TODO1: Import SVGs/arbitrary files
 -	TODO1: Don't refer to functions by string -- keeps names from being minified
 -	TODO2: Use `#` private fields
+-	TODO2: Add Eslint rule warning on using `Partial` when defining an object -- better to use explicitly optional properties
 -	TODO3: Lint HTML in JS template literals (https://github.com/yeonjuan/html-eslint/issues/196)
 
 ### Done:

@@ -54,12 +54,24 @@ export class SpecRenderer<
 		};
 	}
 
-	print = (...[rootSuiteResult, inputOptions]: Parameters<typeof this.render>) => {
-		const failMatcher = new RegExp(`^${this.statusIndicators.fail} ${this.typeIndicators.suite}.*$`, `mg`);
-		return console.log(
-			this.render(rootSuiteResult, inputOptions)
-				.replace(failMatcher, line => `\x1b[31m${line}\x1b[0m`),
-		);
+	print = (
+		rootSuiteResult: Type.SuiteResult,
+		inputOptions: Partial<RenderOptions> & {
+			exit?: boolean;
+			verbose?: boolean;
+		} = {},
+	) => {
+		if (inputOptions.verbose === true) {
+			console.log(this.render(rootSuiteResult, inputOptions));
+		}
+
+		if (inputOptions.exit === true) {
+			if (rootSuiteResult.count.fail > 0) {
+				process.exit(1);
+			} else {
+				process.exit(0);
+			}
+		}
 	};
 
 	render = (
@@ -265,21 +277,4 @@ export class SpecRenderer<
 			`  ${parentPrefix}${this.typeIndicators.log}  ${result.message}`,
 		]);
 	}
-
-	run = (
-		results: Type.SuiteResult,
-		options: Partial<RenderOptions & {
-			verbose: boolean;
-		}> = {},
-	) => {
-		if (results.count.fail > 0) {
-			this.print(results, options);
-			process.exit(1);
-		} else {
-			if (options.verbose === true) {
-				this.print(results, options);
-			}
-			process.exit(0);
-		}
-	};
 }

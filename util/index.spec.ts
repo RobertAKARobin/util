@@ -2,7 +2,7 @@ import { glob } from 'glob';
 import path from 'path';
 import url from 'url';
 
-import { run, suite, type Type } from './spec/index.ts';
+import { print, suite, type Type } from './spec/index.ts';
 import { promiseConsecutive } from './time/promiseConsecutive.ts';
 import { substringBetween } from './string/substringBetween.ts';
 
@@ -97,7 +97,8 @@ export const spec = suite(`@robertakarobin/util/`, {
 const basedir = `file://` + process.cwd();
 
 const rootResult = await spec({});
-run(rootResult, {
+print(rootResult, {
+	exit: true,
 	format: (result, text) => {
 		if (result.type === `suite` || result.type === `test`) {
 			if (typeof text[0] === `string`) {
