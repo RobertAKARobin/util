@@ -4,13 +4,11 @@
 export function listenOnce<
 	EventName extends keyof HTMLElementEventMap,
 	EventType extends HTMLElementEventMap[EventName],
->(element: HTMLElement, eventName: EventName): Promise<EventType>;
-export function listenOnce<
-	EventName extends keyof ElementEventMap,
-	EventType extends ElementEventMap[EventName],
->(element: Element, eventName: EventName): Promise<EventType> {
-	return new Promise<EventType>(resolve => {
-		element.addEventListener(
+>(target: HTMLElement, eventName: EventName): Promise<EventType>;
+export function listenOnce(target: EventTarget, eventName: string): Promise<Event>;
+export function listenOnce(target: EventTarget, eventName: string) {
+	return new Promise<Event>(resolve => {
+		target.addEventListener(
 			eventName,
 			resolve as (event: Event) => void,
 			{ once: true },
