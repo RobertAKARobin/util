@@ -181,7 +181,7 @@ void await new Promise<void>(resolve => {
 				}
 
 				console.log(specFile);
-				const spec = execSync(`esbuild ${specFile} --format=esm --bundle=true`);
+				const spec = execSync(`esbuild ${specFile} --format=esm --bundle=true`); // Using esbuild's CLI because it requires less finagling than the Node import
 				response.writeHead(200, { 'Content-Type': `text/javascript` });
 				response.end(spec);
 
@@ -207,7 +207,7 @@ void await new Promise<void>(resolve => {
 			}
 
 			default: {
-				response.writeHead(200);
+				response.writeHead(200); // TODO1: Serve static files
 				response.end(`foo`);
 			}
 		}
@@ -222,14 +222,16 @@ void await new Promise<void>(resolve => {
 		`--incognito`,
 		`--allow-file-access-from-files`,
 		`--allow-external-pages`,
-		`--user-data-dir=dist`,
+		`--user-data-dir=dist`, // Forces a new/local instance of Chrome with data stored in `./dist`
 	]);
 
 	function close() {
-		chrome.stdin.end();
+		chrome.stdin.end(); // https://stackoverflow.com/questions/18694684/spawn-and-kill-a-process-in-node-js#comment135166575_18694940
 		chrome.kill(`SIGKILL`);
+
 		server.closeAllConnections();
 		resolve();
+
 		process.exit();
 	}
 });
