@@ -31,12 +31,15 @@ export type SpecStepIterationResult<Child extends SpecResult> = SpecStepResult &
 	children: Array<Child>;
 };
 
-export type SpecStepResult = SpecResult & {
+export type SpecStepResultCount = {
 	count: SpecStepCount;
-	indexAtDefinition: number;
 	status: SpecStepStatusName;
 	timeBegin: number;
 	timeEnd: number;
+};
+
+export type SpecStepResult = SpecResult & SpecStepResultCount & {
+	indexAtDefinition: number;
 };
 
 export type SpecStepStatusName = typeof specStepStatuses[number];

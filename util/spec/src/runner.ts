@@ -87,6 +87,28 @@ export class SpecRunner {
 		}
 	}
 
+	count(...children: Array<Type.SpecStepResult>) {
+		const result: Type.SpecStepResultCount = {
+			count: { ...specStepCountDefault },
+			status: `pass`,
+			timeBegin: children[0]?.timeBegin ?? NaN,
+			timeEnd: children[children.length - 1]?.timeEnd ?? NaN,
+		};
+
+		for (const child of children) {
+			if (SpecStepStatus[child.status] > SpecStepStatus[result.status]) {
+				result.status = child.status;
+			}
+
+			for (const status in result.count) {
+				const count = child.count[status as Type.SpecStepStatusName];
+				result.count[status as Type.SpecStepStatusName] += count;
+			}
+		}
+
+		return result;
+	}
+
 	getTime(): number {
 		return performance.now();
 	}
@@ -139,21 +161,11 @@ export class SpecRunner {
 			index: number,
 		) => Promise<Type.SuiteResult> {
 		return async(inheritedArgs, index) => {
-			const result: Type.SuiteResult = {
-				count: { ...specStepCountDefault },
-				indexAtDefinition: isNaN(index) ? 0 : index,
-				iterations: [],
-				status: `pass`,
-				timeBegin: this.getTime(),
-				timeEnd: NaN,
-				timing: options.timing || `concurrent`,
-				title,
-				type: `suite`,
-			};
-
 			const args = typeof options?.args === `function`
 				? () => options.args!(inheritedArgs) // eslint-disable-line
 				: () => ({ ...inheritedArgs });
+
+			const timing = options.timing || `concurrent`;
 
 			const iterations = nTimes(
 				isNaN(options.iterations as number) ? 1 : options.iterations as number,
@@ -161,29 +173,25 @@ export class SpecRunner {
 					args,
 					children,
 					index,
-					timing: result.timing,
+					timing,
 				}),
 			);
 
-			result.iterations = (result.timing === `consecutive`
+			const results = (timing === `consecutive`
 				? await promiseConsecutive(iterations)
 				: await Promise.all(iterations.map(iteration => iteration()))
 			);
 
-			for (const iteration of result.iterations) {
-				if (SpecStepStatus[iteration.status] > SpecStepStatus[result.status]) {
-					result.status = iteration.status;
-				}
+			const count = this.count(...results);
 
-				for (const status in result.count) {
-					const count = iteration.count[status as Type.SpecStepStatusName];
-					result.count[status as Type.SpecStepStatusName] += count;
-				}
-			}
-
-			result.timeEnd = this.getTime();
-
-			return result;
+			return {
+				indexAtDefinition: isNaN(index) ? 0 : index,
+				iterations: results,
+				timing,
+				title,
+				type: `suite`,
+				...count,
+			};
 		};
 	}
 
@@ -195,17 +203,7 @@ export class SpecRunner {
 		index: number;
 		timing: Type.SpecStepTiming;
 	}): Promise<Type.SuiteIterationResult> {
-		const result: Type.SuiteIterationResult = {
-			children: [],
-			count: { ...specStepCountDefault },
-			indexAtDefinition: input.index || 0,
-			status: `pass`,
-			timeBegin: this.getTime(),
-			timeEnd: NaN,
-			type: `suiteIteration`,
-		};
-
-		result.children = (input.timing === `consecutive`
+		const results: Array<Type.SuiteResult | Type.TestResult> = (input.timing === `consecutive`
 			? await promiseConsecutive(
 				input.children.map(child => async(_nil, index) => child(await input.args(), index)),
 			)
@@ -214,20 +212,14 @@ export class SpecRunner {
 			)
 		);
 
-		for (const child of result.children) {
-			if (SpecStepStatus[child.status] > SpecStepStatus[result.status]) {
-				result.status = child.status;
-			}
+		const count = this.count(...results);
 
-			for (const status in result.count) {
-				const count = child.count[status as Type.SpecStepStatusName];
-				result.count[status as Type.SpecStepStatusName] += count;
-			}
-		}
-
-		result.timeEnd = this.getTime();
-
-		return result;
+		return {
+			children: results,
+			indexAtDefinition: input.index || 0,
+			type: `suiteIteration`,
+			...count,
+		};
 	}
 
 	test = <Args>( // TODO2: Error on suites or tests inside of tests
@@ -236,17 +228,7 @@ export class SpecRunner {
 		options: Partial<Type.TestOptions> = {},
 	): typeof Type.Test<Args> => {
 		return async(args, index) => {
-			const result: Type.TestResult = {
-				count: { ...specStepCountDefault },
-				indexAtDefinition: isNaN(index as number) ? 0 : index as number,
-				iterations: [],
-				status: `pass`,
-				timeBegin: this.getTime(),
-				timeEnd: NaN,
-				timing: options.timing || `concurrent`,
-				title,
-				type: `test`,
-			};
+			const timing = options.timing || `concurrent`;
 
 			const iterations = nTimes(
 				isNaN(options.iterations as number) ? 1 : options.iterations as number,
@@ -257,25 +239,21 @@ export class SpecRunner {
 				}),
 			);
 
-			result.iterations = (result.timing === `consecutive`
+			const results = (timing === `consecutive`
 				? await promiseConsecutive(iterations)
 				: await Promise.all(iterations.map(iteration => iteration()))
 			);
 
-			for (const iteration of result.iterations) {
-				if (SpecStepStatus[iteration.status] > SpecStepStatus[result.status]) {
-					result.status = iteration.status;
-				}
+			const count = this.count(...results);
 
-				for (const status in result.count) {
-					const count = iteration.count[status as Type.SpecStepStatusName];
-					result.count[status as Type.SpecStepStatusName] += count;
-				}
-			}
-
-			result.timeEnd = this.getTime();
-
-			return result;
+			return {
+				indexAtDefinition: isNaN(index as number) ? 0 : index as number,
+				iterations: results,
+				timing,
+				title,
+				type: `test`,
+				...count,
+			};
 		};
 	};
 
