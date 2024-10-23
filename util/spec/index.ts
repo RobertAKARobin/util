@@ -1,12 +1,12 @@
+import { SpecBuilder } from './src/builder.ts';
 import { SpecRenderer } from './src/renderer.ts';
-import { SpecRunner } from './src/runner.ts';
 
 export {
+	SpecBuilder,
 	SpecRenderer,
-	SpecRunner,
 };
 
-export const runner = new SpecRunner();
+export const runner = new SpecBuilder();
 
 export const suite = runner.suite; // eslint-disable-line @typescript-eslint/unbound-method
 export const test = runner.test;

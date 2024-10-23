@@ -1,6 +1,6 @@
 import type * as $ from '../../types.d.ts';
 
-import type { specStepStatuses, specStepTiming, specStepTypes } from './runner.ts';
+import type { specStepStatuses, specStepTiming, specStepTypes } from './builder.ts';
 
 //#region SpecStep
 export type SpecLog = SpecResult & {

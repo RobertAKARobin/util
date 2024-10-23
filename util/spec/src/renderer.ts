@@ -2,7 +2,7 @@ import type * as $ from '../../types.d.ts';
 import { roundTo } from '../../math/roundTo.ts';
 
 import type * as Type from './types.d.ts';
-import { specStepStatuses } from './runner.ts';
+import { specStepStatuses } from './builder.ts';
 
 const match = {
 	fatArrowParam: /^(?:\(([\w$]*).*?\)|([\w$]*))\s*=>\s*/,

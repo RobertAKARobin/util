@@ -34,7 +34,7 @@ export const specStepTypes = [
 	`suiteIteration`,
 ] as const;
 
-export class SpecRunner {
+export class SpecBuilder {
 	constructor() {
 		this.log = this.log.bind(this); // Typescript doesn't yet support overloads for arrow functions https://github.com/microsoft/TypeScript/issues/47669
 		this.suite = this.suite.bind(this);

@@ -5,7 +5,7 @@ import { sleep } from '../time/sleep.ts';
 import * as dbTests from './example/db.spec.ts';
 import * as mathTests from './example/math.spec.ts';
 
-export const spec = suite(`SpecRunner`, {},
+export const spec = suite(`SpecBuilder`, {},
 	suite(`example: math`,
 		{
 			args: async() => {
