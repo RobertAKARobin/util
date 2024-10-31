@@ -34,10 +34,13 @@ export const specStepTypes = [
 	`suiteIteration`,
 ] as const;
 
+// TODO2: Not really any advantage to this being a class with instance methods, except being able to subclass. Use a different structure?
 export class SpecBuilder {
 	constructor() {
+		this.count = this.count.bind(this);
 		this.log = this.log.bind(this); // Typescript doesn't yet support overloads for arrow functions https://github.com/microsoft/TypeScript/issues/47669
 		this.suite = this.suite.bind(this);
+		this.test = this.test.bind(this);
 	}
 
 	assert(
@@ -222,11 +225,11 @@ export class SpecBuilder {
 		};
 	}
 
-	test = <Args>( // TODO2: Error on suites or tests inside of tests
+	test<Args>( // TODO2: Error on suites or tests inside of tests
 		title: string,
 		testDefinition: typeof Type.TestDefinition<Args>,
 		options: Partial<Type.TestOptions> = {},
-	): typeof Type.Test<Args> => {
+	): typeof Type.Test<Args> {
 		return async(args, index) => {
 			const timing = options.timing || `concurrent`;
 

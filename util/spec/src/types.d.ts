@@ -21,6 +21,18 @@ export type SpecResult = {
 	type: SpecStepTypeName;
 };
 
+export type SpecRunner<Args = {}> = (
+	specFilenames: Array<string>,
+	options?: SuiteOptions<{}, Args>
+) => Promise<SuiteResult>;
+
+export type SpecRunnerMap = Record<string,
+	{
+		extension: string;
+		runner: SpecRunner;
+	}
+>;
+
 export type SpecStepCount = Record<
 	|	SpecStepStatusName
 	| `totalAssertions`,

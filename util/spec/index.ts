@@ -6,10 +6,11 @@ export {
 	SpecRenderer,
 };
 
-export const runner = new SpecBuilder();
+export const builder = new SpecBuilder();
 
-export const suite = runner.suite; // eslint-disable-line @typescript-eslint/unbound-method
-export const test = runner.test;
+export const count = builder.count; // eslint-disable-line @typescript-eslint/unbound-method
+export const suite = builder.suite; // eslint-disable-line @typescript-eslint/unbound-method
+export const test = builder.test; // eslint-disable-line @typescript-eslint/unbound-method
 
 export const renderer = new SpecRenderer();
 
