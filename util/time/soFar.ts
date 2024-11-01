@@ -1,21 +1,23 @@
-import { roundTo } from '../math/roundTo.ts';
+// soFar.ts => soFarts, lol
 
-// soFarts, lol
-
-let timeMemory: number | undefined;
+import { preciseTo } from '../math/preciseTo.ts';
 
 /**
- * Just compares performance.now() to its last value
+ * Time "so far". Just compares performance.now() to its last value.
  */
-export const soFar = (precision = .01): number => {
-	const timeNow = performance.now();
-	const timeLast = timeMemory;
-	timeMemory = timeNow;
+export const soFarTimer = () => {
+	let timeMemory: number | undefined;
 
-	if (timeLast === undefined) {
-		return NaN;
-	}
+	return () => {
+		const timeNow = performance.now();
+		const timeLast = timeMemory;
+		timeMemory = timeNow;
 
-	const timeDifference = timeNow - timeLast;
-	return roundTo(timeDifference, precision);
+		if (timeLast === undefined) {
+			return NaN;
+		}
+
+		const timeDifference = timeNow - timeLast;
+		return preciseTo(timeDifference);
+	};
 };

@@ -1,7 +1,8 @@
 /**
- * Rounds the given number out to the given number of decimal places (default 11)
+ * Rounds the given number out to the given number of decimal places
  */
-export function preciseTo(input: number, places = 11) {
+export const precisionDefault = 11; // See https://stackoverflow.com/questions/1458633/how-can-i-deal-with-floating-point-number-precision-in-javascript. Some like 10, some like 12, so I split the difference
+export function preciseTo(input: number, places = precisionDefault) {
 	if (isNaN(places)) {
 		return input;
 	}
