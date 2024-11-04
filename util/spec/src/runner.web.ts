@@ -79,13 +79,16 @@ export const specRunWeb: Type.SpecRunner = (
 				}
 
 				request.setEncoding(`utf8`);
-				request.on(`data`, (data: string) => {
-					const result = JSON.parse(data) as Type.SuiteResult;
+
+				let json = ``;
+				request.on(`data`, (data: string) => json += data);
+				request.on(`end`, () => {
+					const result = JSON.parse(json) as Type.SuiteResult;
 					results.push(result);
+					response.writeHead(200);
+					response.end();
 				});
 
-				response.writeHead(200);
-				response.end();
 				break;
 			}
 
