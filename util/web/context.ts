@@ -1,7 +1,7 @@
 
 export const appContexts = [
 	`browser`,
-	`build`,
+	`build`, // TODO1: Change this to `server` or something
 ] as const;
 
 export type AppContext = typeof appContexts[number];

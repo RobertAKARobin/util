@@ -69,31 +69,31 @@ export const expected = `
 ———
   s1 X DB
   s1t1 • #constructor
-• s1t1a1 • (db.isConnected)===true
+• s1t1a1 • (db.isConnected) === true
   s1s2 X when connected
   s1s2t1 • #disconnect
-• s1s2t1a1 • (args.db.isConnected)===false
-• s1s2t1a2 • (tryCatch(args.db.disconnect))instanceof Error
+• s1s2t1a1 • (args.db.isConnected) === false
+• s1s2t1a2 • (tryCatch(args.db.disconnect)) instanceof Error
   s1s2t2 • create and delete
-• s1s2t2a1 • (record.name)===\`alice\`
+• s1s2t2a1 • (record.name) === \`alice\`
 • s1s2t2a2 • (await (args.db.getIds())).includes((record.id))
 • s1s2t2a3 • args.db.has(record.id)
   s1s2t2#  can only delete once
-• s1s2t2a4 • typeof (await doDelete())===\`undefined\`
-• s1s2t2a5 • (await doDelete())instanceof Error
-• s1s2t2a6 • (await hasRecord2())===false
-• s1s2t2a7 • (await (args.db.getIds())).includes(record.id)===false
+• s1s2t2a4 • typeof (await doDelete()) === \`undefined\`
+• s1s2t2a5 • (await doDelete()) instanceof Error
+• s1s2t2a6 • (await hasRecord2()) === false
+• s1s2t2a7 • (await (args.db.getIds())).includes(record.id) === false
 • s1s2t2a8 • (await (args.db.getIds())).includes(record2.id)
-• s1s2t2a9 • (record.id)!==(record2.id)
+• s1s2t2a9 • (record.id) !== (record2.id)
   s1s2t3 X update
-• s1s2t3a1 • (recordIds.length)===2
-• s1s2t3a2 • ((await $.args.db.get(recordId)).name)===(\`<...
-X s1s2t3a3 X ((await $.args.db.get(recordId)).name)===(\`<...
+• s1s2t3a1 • (recordIds.length) === 2
+• s1s2t3a2 • ((await $.args.db.get(recordId)).name) === (\`<...
+X s1s2t3a3 X ((await $.args.db.get(recordId)).name) === (\`<...
              (
               <
               			this is long
               >
-             )===(
+             ) === (
               <
               			THIS IS LONG
               >

@@ -84,32 +84,32 @@ export const expected = `
   s1s1 • types
   s1s1x1 •
   s1s1x1t1 • number
-• s1s1x1t1a1 • (typeof args.a)===\`number\`
+• s1s1x1t1a1 • (typeof args.a) === \`number\`
   s1s1x2 •
   s1s1x2t1 • number
-• s1s1x2t1a1 • (typeof args.a)===\`number\`
+• s1s1x2t1a1 • (typeof args.a) === \`number\`
   s1t2 • addition
-• s1t2a1 • (args.x+1)===(args.y)
+• s1t2a1 • (args.x + 1) === (args.y)
   s1t2#  TODO: Add more assertions?
   s1t3 • subtraction
   s1t3x1 •
   s1t3x1#  Delayed by 13 - 27 ms
-• s1t3x1a1 • (args.x-1)===(args.y)
+• s1t3x1a1 • (args.x - 1) === (args.y)
   s1t3x2 •
   s1t3x2#  Delayed by 13 - 27 ms
-• s1t3x2a1 • (args.x-1)===(args.y)
+• s1t3x2a1 • (args.x - 1) === (args.y)
   s1s4 • division
   s1s4t1 • by int
-• s1s4t1a1 • (args.x)===(args.a)
-• s1s4t1a2 • (args.x)/(args.y)===(args.a)/(args.y)
-• s1s4t1a3 • (tryCatch(throwMe))instanceof (Error)
+• s1s4t1a1 • (args.x) === (args.a)
+• s1s4t1a2 • (args.x) / (args.y) === (args.a) / (args.y)
+• s1s4t1a3 • (tryCatch(throwMe)) instanceof (Error)
   s1s4t2 • by zero
-• s1s4t2a1 • (args.a)/0===(Infinity)
+• s1s4t2a1 • (args.a) / 0 === (Infinity)
   s1t5 X multiplication
-• s1t5a1 • (args.x*4)!==(args.y)
-X s1t5a2 X (args.x*-1)===(args.y)
-           (-3)===(4)
-• s1t5a3 • (args.x*4)===(args.y*3)
+• s1t5a1 • (args.x * 4) !== (args.y)
+X s1t5a2 X (args.x * -1) === (args.y)
+           (-3) === (4)
+• s1t5a3 • (args.x * 4) === (args.y * 3)
 Total completed assertions: 12
    0 deferred
 • 11 pass

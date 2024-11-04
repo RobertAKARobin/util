@@ -1,9 +1,20 @@
 import { render, suite, test } from './index.ts';
+import { appContext } from '../web/context.ts';
 import { diff } from './diff.ts';
 import { sleep } from '../time/sleep.ts';
 
 import * as dbTests from './example/db.spec.ts';
 import * as mathTests from './example/math.spec.ts';
+
+function diffSansWhitespace(...inputs: [string, string]) {
+	let [expected, actual] = inputs;
+
+	if (appContext === `build`) {
+		[expected, actual] = inputs.map(input => input.replaceAll(/ /g, ``)); // MDN says the output of Function.prototype.toString is exactly the same as the source code for all runtimes except Node (https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/toString#browser_compatibility). Node likes to remove any whitespace around operators, and probably won't change this since the spec says the syntax is implementation-specific (https://262.ecma-international.org/9.0/index.html#sec-function.prototype.tostring). So for now I'm just stripping all space characters.
+	}
+
+	return diff(expected, actual);
+}
 
 export const spec = suite(`SpecBuilder`, {},
 	suite(`example: math`,
@@ -20,7 +31,7 @@ export const spec = suite(`SpecBuilder`, {},
 		},
 
 		test(`rendered results match expected`, ({ args, assert }) => {
-			assert(x => x(diff(args.expected, args.actual)) === ``);
+			assert(x => x(diffSansWhitespace(args.expected, args.actual)) === ``);
 		}),
 	),
 
@@ -38,7 +49,7 @@ export const spec = suite(`SpecBuilder`, {},
 		},
 
 		test(`rendered results match expected`, ({ args, assert }) => {
-			assert(x => x(diff(args.expected, args.rendered)) === ``);
+			assert(x => x(diffSansWhitespace(args.expected, args.rendered)) === ``);
 		}),
 	),
 

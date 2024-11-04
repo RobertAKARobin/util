@@ -7,7 +7,7 @@ import { specStepStatuses } from './builder.ts';
 const match = {
 	fatArrowParam: /^(?:\(([\w$]*).*?\)|([\w$]*))\s*=>\s*/,
 	functionParam: /^function\s*(?:[\w$]*)\s*\(\s*([\w$]*).*?\)\s*(?=\{)/,
-	valueWrapper: /\s*\((.*?)\)(?=[^)]*(?:\(|$))/.toString().slice(1, -1),
+	valueWrapper: /\s*\((.*?)\)(?=[^)]*(?:\(|$))/.toString().slice(1, -1), // TODO3: Why did I use toString here? Something having to do escaping special characters, I think... Some tests break without it. Shame on me for not documenting. >:(
 };
 
 export class SpecRenderer<
