@@ -19,7 +19,7 @@ export function execUntil(
 	while (attemptCount < attemptsMax) {
 		console.log(`Attempt #${attemptCount + 1}:\t\`${command}\`...`);
 
-		const result = tryCatch(() => execSync(command, { encoding: `utf8`, stdio: `pipe` }));
+		const result = tryCatch(() => execSync(command, { encoding: `utf8`, stdio: `pipe` })); // TODO3: Async? Blocking due to sync can cause issues when processes are running concurrently, like FPSLoop spec
 
 		if (result instanceof Error) {
 			const attemptReport = result.toString();

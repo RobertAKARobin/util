@@ -96,7 +96,9 @@ for (const platformName of platformNames) {
 	}
 
 	const runner = platforms[platformName].runner;
-	const rootResult = await runner(filenames);
+	const rootResult = await runner(filenames, {
+		timing: `consecutive`, // `concurrent` causes timing issues, e.g. blocking FPSLoop until another test completes which throws off FPSLoop's timers
+	});
 	const basedir = `file://` + process.cwd();
 
 	print(rootResult, {

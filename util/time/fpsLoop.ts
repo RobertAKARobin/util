@@ -1,5 +1,5 @@
 import { enumy } from '../group/enumy.ts';
-import { indexesByValues } from '../group/indexesByValues.ts';
+import { preciseTo } from '../math/preciseTo.ts';
 import { setImmediate } from './setImmediate.ts';
 
 export const loopStatuses = [
@@ -11,20 +11,6 @@ export const loopStatuses = [
 ] as const;
 
 export const loopStatus = enumy(...loopStatuses);
-
-const loopStatuses_start = indexesByValues(
-	loopStatus.starting,
-	loopStatus.started,
-);
-
-export type LoopStatus_Start = keyof typeof loopStatuses_start;
-
-const loopStatuses_end = indexesByValues(
-	loopStatus.ending,
-	loopStatus.ended,
-);
-
-export type LoopStatus_End = keyof typeof loopStatuses_end;
 
 export type LoopStatus = typeof loopStatuses[number];
 
@@ -97,7 +83,7 @@ export class FPSLoop {
 			this.resolve_ = resolve;
 		});
 		this.status_ = `starting`;
-		this.timeStarted_ = performance.now();
+		this.timeStarted_ = preciseTo(performance.now());
 		this.timeElapsed_ = 0;
 
 		const period = typeof this.loopsPerSecond === `number`
@@ -110,7 +96,7 @@ export class FPSLoop {
 				return;
 			}
 
-			const timeNow = performance.now();
+			const timeNow = preciseTo(performance.now());
 			this.timeElapsed_ = timeNow - this.timeStarted;
 
 			if (timeNow >= timeNextLoop) {

@@ -94,9 +94,9 @@ export type SuiteOptions<
 	InheritedArgs,
 	Args,
 > = {
-	args: (inheritedArgs: InheritedArgs) => $.PromiseMaybe<Args>;
-	iterations: number;
-	timing: SpecStepTiming;
+	args?: (inheritedArgs: InheritedArgs) => $.PromiseMaybe<Args>;
+	iterations?: number;
+	timing?: SpecStepTiming;
 };
 
 export type SuiteResult = SpecStepResult & {

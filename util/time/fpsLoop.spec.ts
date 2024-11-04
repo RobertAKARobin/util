@@ -1,6 +1,7 @@
 import { suite, test } from '../spec/index.ts';
 import { getDifference } from '../math/difference.ts';
 import { mean } from '../math/average.ts';
+import { preciseTo } from '../math/preciseTo.ts';
 import { roundTo } from '../math/roundTo.ts';
 import { sleep } from './sleep.ts';
 
@@ -19,9 +20,9 @@ export const spec = suite(`FPSLoop`,
 			const expectedDuration = msPerLoop * maxLoops;
 			const loop = new FPSLoop(
 				() => {
-					const time = performance.now();
+					const time = preciseTo(performance.now());
 					if (lastTime !== undefined) {
-						const timeSinceLast = roundTo(time - lastTime, .001);
+						const timeSinceLast = time - lastTime;
 						times.push(timeSinceLast);
 					}
 					lastTime = time;
