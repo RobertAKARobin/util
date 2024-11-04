@@ -26,10 +26,10 @@ for (const platformName of platformNames) {
 	filenamesByPlatformName[platformName] = [];
 }
 
-const targets = process.argv.slice(2);
+const targetFiles = process.argv.slice(2);
 
 const filenames = (await glob(
-	targets.length === 0 ? `*/**/*.ts` : targets,
+	targetFiles.length === 0 ? `*/**/*.ts` : targetFiles,
 	{
 		ignore: [
 			`dist/**/*`,
@@ -102,7 +102,6 @@ for (const platformName of platformNames) {
 	const basedir = `file://` + process.cwd();
 
 	print(rootResult, {
-		exit: true,
 		format: (result, text) => {
 			if (result.type === `suite` || result.type === `test`) {
 				if (typeof text[0] === `string`) {
