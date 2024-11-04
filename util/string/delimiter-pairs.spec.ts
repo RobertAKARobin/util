@@ -1,15 +1,6 @@
-import fs from 'fs';
-import path from 'path';
-
 import { suite, test } from '../spec/index.ts';
 
 import { delimiterPairs, type Result } from './delimiter-pairs.ts';
-
-const readFile = (filepath: string) => {
-	const dirname = new URL(`.`, import.meta.url).pathname;
-	const abspath = path.join(dirname, filepath);
-	return fs.readFileSync(abspath, { encoding: `utf8` });
-};
 
 function at<ReturnType extends Result | string = string>(result: Result) {
 	return (...indexes: Array<number>): ReturnType => {
@@ -135,7 +126,25 @@ export const spec = suite(import.meta.url, {},
 			[`/*css*/\``, `\``],
 			[`\${`, `}`],
 		];
-		const template = readFile(`../mock/css.ts`);
+		const template = `export const foo = /*css*/\`
+:host {
+	color: red;
+}
+\`;
+
+const color = \`blue\`;
+const colors: Array<string> = [];
+export const bar = /*css*/\`
+:host {
+	color: \${color};
+
+	\${colors.map(color => /*css*/\`
+		--color-\${color}: \${color};
+	\`)}
+}
+\`;
+`; // Had this in a `util/mock` file, but that made the test hard to run in the browser
+
 		const result = delimiterPairs(template, tags);
 		const stringAt = at(result);
 		const resultAt = at<Result>(result);
