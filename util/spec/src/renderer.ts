@@ -175,6 +175,7 @@ export class SpecRenderer<
 
 		explanation = explanation.replace(valueWrapperMatcher, () => {
 			const value = values.shift() as string;
+
 			const lines = value.split(`\n`);
 			if (lines.length === 1 && value.length < 20) {
 				return `(${value})`;

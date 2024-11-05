@@ -27,6 +27,8 @@ export const specRunWeb: Type.SpecRunner = (
 			return close();
 		}
 
+		const specFile = specFiles[specFileIndex];
+
 		switch (request.url) {
 			case specRoutes.root: {
 				response.writeHead(200, { 'Content-Type': `html` });
@@ -56,14 +58,12 @@ export const specRunWeb: Type.SpecRunner = (
 			}
 
 			case specRoutes.next: {
-				const specFile = specFiles[specFileIndex];
 				if (specFile === undefined) {
 					response.writeHead(200, { 'Content-Type': `text/javascript` });
 					response.end(`const spec = undefined; export { spec }`);
 					return close();
 				}
 
-				console.log(specFile);
 				// TODO1: Extract out build step
 				const spec = execSync(`esbuild ${specFile} --format=esm --bundle=true`); // Using esbuild's CLI because it requires less finagling than the Node import
 				response.writeHead(200, { 'Content-Type': `text/javascript` });
