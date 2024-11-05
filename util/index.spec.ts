@@ -125,4 +125,10 @@ for (const platformName of platformNames) {
 		},
 		verbose: true,
 	});
+
+	if (rootResult.status === `fail`) {
+		process.exit(1);
+	}
 }
+
+process.exit(0);
