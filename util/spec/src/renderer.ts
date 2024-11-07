@@ -10,21 +10,7 @@ const match = {
 	valueWrapper: /\s*\((.*?)\)(?=[^)]*(?:\(|$))/.toString().slice(1, -1), // TODO3: Why did I use toString here? Something having to do escaping special characters, I think... Some tests break without it. Shame on me for not documenting. >:(
 };
 
-export class SpecRenderer<
-	RenderOptions extends {
-		format: (
-			input:
-				| Type.AssertionResult
-				| Type.SpecLog
-				| Type.SuiteIterationResult
-				| Type.SuiteResult
-				| Type.TestIterationResult
-				| Type.TestResult,
-			defaultText: $.Nested<string>,
-		) => $.Nested<string>;
-		showTiming: boolean;
-	},
-> {
+export class SpecRenderer<RenderOptions extends Type.SpecRenderOptions> {
 	readonly renderOptions = <RenderOptions>{
 		format: (_result, text) => text,
 		showTiming: true,

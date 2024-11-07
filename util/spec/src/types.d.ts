@@ -17,6 +17,20 @@ export type SpecLogMessage =
 
 export function SpecLogFactory(message: SpecLogMessage): void;
 
+export type SpecRenderOptions = {
+	format: (
+		input:
+			| AssertionResult
+			| SpecLog
+			| SuiteIterationResult
+			| SuiteResult
+			| TestIterationResult
+			| TestResult,
+		defaultText: $.Nested<string>,
+	) => $.Nested<string>;
+	showTiming: boolean;
+};
+
 export type SpecResult = {
 	type: SpecStepTypeName;
 };
