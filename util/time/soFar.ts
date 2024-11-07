@@ -18,6 +18,11 @@ export const soFarTimer = () => {
 		}
 
 		const timeDifference = timeNow - timeLast;
+
+		if (timeDifference === 0) {
+			return Number.MIN_VALUE; // Node's performance.now is higher-res than Chrome, which sometimes returns the same value multiple times. TODO3: Are there reasons to NOT always want performance.now() to increment?
+		}
+
 		return preciseTo(timeDifference);
 	};
 };
