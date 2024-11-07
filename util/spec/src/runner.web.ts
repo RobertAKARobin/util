@@ -68,8 +68,6 @@ export const specRunWeb: Type.SpecRunner = (
 				const spec = execSync(`esbuild ${specFile} --format=esm --bundle=true`); // Using esbuild's CLI because it requires less finagling than the Node import
 				response.writeHead(200, { 'Content-Type': `text/javascript` });
 				response.end(spec);
-
-				specFileIndex += 1;
 				break;
 			}
 
@@ -84,7 +82,11 @@ export const specRunWeb: Type.SpecRunner = (
 				request.on(`data`, (data: string) => json += data);
 				request.on(`end`, () => {
 					const result = JSON.parse(json) as Type.SuiteResult;
+					result.title = specFile;
+
 					results.push(result);
+					specFileIndex += 1;
+
 					response.writeHead(200);
 					response.end();
 				});
