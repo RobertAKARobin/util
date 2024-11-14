@@ -14,6 +14,8 @@ export const loopStatus = enumy(...loopStatuses);
 
 export type LoopStatus = typeof loopStatuses[number];
 
+const msPerSecond = 1000;
+
 /**
  * Loops over the given callback at the given number of iterations/frames per second.
  */
@@ -87,7 +89,7 @@ export class FPSLoop {
 		this.timeElapsed_ = 0;
 
 		const period = typeof this.loopsPerSecond === `number`
-			? 1000 / this.loopsPerSecond
+			? msPerSecond / this.loopsPerSecond
 			: 0;
 
 		let timeNextLoop = 0;
