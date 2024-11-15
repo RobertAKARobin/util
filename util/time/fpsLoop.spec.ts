@@ -1,13 +1,14 @@
 import { suite, test } from '../spec/index.ts';
+import { appContext } from '../web/context.ts';
 import { getDifference } from '../math/difference.ts';
 import { mean } from '../math/average.ts';
-import { preciseTo } from '../math/preciseTo.ts';
 import { roundTo } from '../math/roundTo.ts';
 import { sleep } from './sleep.ts';
 
 import { FPSLoop } from './fpsLoop.ts';
 
 const msPerSecond = 1000;
+const msPerTick = appContext === `browser` ? 15 : 1; // FPSLoop uses `setImmediate` in Node which has a tick of ~1ms, and `requestAnimationFrame` in browser which has a tick of ~15ms (usually ~10ms, but sometimes a bit more, not sure why)
 
 export const spec = suite(`FPSLoop`,
 	{
@@ -20,7 +21,7 @@ export const spec = suite(`FPSLoop`,
 			const expectedDuration = msPerLoop * maxLoops;
 			const loop = new FPSLoop(
 				() => {
-					const time = preciseTo(performance.now());
+					const time = performance.now();
 					if (lastTime !== undefined) {
 						const timeSinceLast = time - lastTime;
 						times.push(timeSinceLast);
@@ -32,7 +33,7 @@ export const spec = suite(`FPSLoop`,
 				},
 				{ loopsPerSecond },
 			);
-			return {
+			const args = {
 				expectedDuration,
 				loop,
 				loopsPerSecond,
@@ -40,6 +41,7 @@ export const spec = suite(`FPSLoop`,
 				msPerLoop,
 				times,
 			};
+			return args;
 		},
 		iterations: 10,
 	},
@@ -50,11 +52,10 @@ export const spec = suite(`FPSLoop`,
 		$.assert(x => x(loop.status) === `unstarted`);
 		await loop.start();
 		$.assert(x => x(loop.status) === `ended`);
-		$.assert(x => getDifference(x(times.length), x($.args.maxLoops)) <= 3);
+		$.assert(x => getDifference(x(times.length), x($.args.maxLoops)) === 0);
 		const average = mean(...times);
-		$.assert(x => x($.args.msPerLoop) <= x(average));
-		$.assert(x => x(average) <= x($.args.msPerLoop + 1));
-		$.assert(x => getDifference(x(loop.timeElapsed), x($.args.expectedDuration)) <= 50);
+		$.assert(x => getDifference(x(average), x($.args.msPerLoop)) <= msPerTick);
+		$.assert(x => getDifference(x(loop.timeElapsed), x($.args.expectedDuration)) <= msPerTick);
 	}),
 
 	test(`sleep`, async $ => {
@@ -64,12 +65,11 @@ export const spec = suite(`FPSLoop`,
 		$.assert(x => x(loop.status) === `started`);
 		await sleep($.args.expectedDuration + ($.args.msPerLoop * 1));
 		$.assert(x => x(loop.status) === `ended`);
-		$.assert(x => getDifference(x(times.length), x($.args.maxLoops)) <= 3);
+		$.assert(x => getDifference(x(times.length), x($.args.maxLoops)) === 0);
 		const average = mean(...times);
-		$.assert(x => x($.args.msPerLoop) <= x(average));
-		$.assert(x => x(average) <= x($.args.msPerLoop + 1));
+		$.assert(x => getDifference(x(average), x($.args.msPerLoop)) <= msPerTick);
 		await loop.currentLoop;
-		$.assert(x => getDifference(x(loop.timeElapsed), x($.args.expectedDuration)) <= 50);
+		$.assert(x => getDifference(x(loop.timeElapsed), x($.args.expectedDuration)) <= msPerTick);
 	}),
 
 	test(`pause`, async $ => {
@@ -77,14 +77,14 @@ export const spec = suite(`FPSLoop`,
 		$.log(`${$.args.loopsPerSecond} loops per second`);
 		void loop.start();
 		$.assert(x => x(loop.status) === `started`);
-		await sleep($.args.expectedDuration / 2);
+		await sleep(($.args.expectedDuration / 2) + msPerTick);
 		$.log(() => loop.pause());
 		$.assert(x => x(loop.isPaused));
-		$.assert(x => getDifference(x(times.length), x($.args.maxLoops / 2)) <= 3);
+		$.assert(x => getDifference(x(times.length), x($.args.maxLoops / 2)) <= 1);
 		$.log(() => loop.unpause());
-		await sleep(($.args.expectedDuration / 2) + 50);
+		await sleep(($.args.expectedDuration / 2) + msPerTick);
 		$.assert(x => x(loop.status) === `ended`);
-		$.assert(x => getDifference(x(times.length), x($.args.maxLoops)) <= 3);
-		$.assert(x => getDifference(x(loop.timeElapsed), x($.args.expectedDuration)) <= 50);
+		$.assert(x => getDifference(x(times.length), x($.args.maxLoops)) < 1);
+		$.assert(x => getDifference(x(loop.timeElapsed), x($.args.expectedDuration)) <= msPerTick);
 	}),
 );

@@ -1,5 +1,4 @@
 import { enumy } from '../group/enumy.ts';
-import { preciseTo } from '../math/preciseTo.ts';
 import { setImmediate } from './setImmediate.ts';
 
 export const loopStatuses = [
@@ -35,6 +34,11 @@ export class FPSLoop {
 	private isPaused_ = false;
 
 	loopsPerSecond?: number;
+
+	get loopsSoFar() {
+		return this.loopsSoFar_;
+	}
+	private loopsSoFar_ = 0;
 
 	private resolve_?: Function;
 
@@ -85,26 +89,27 @@ export class FPSLoop {
 			this.resolve_ = resolve;
 		});
 		this.status_ = `starting`;
-		this.timeStarted_ = preciseTo(performance.now());
+		this.timeStarted_ = performance.now();
 		this.timeElapsed_ = 0;
+		this.loopsSoFar_ = 0;
 
-		const period = typeof this.loopsPerSecond === `number`
-			? msPerSecond / this.loopsPerSecond
-			: 0;
-
-		let timeNextLoop = 0;
+		let timeElapsedNextLoop = -1;
 		const step = () => {
 			if (this.isPaused) {
 				return;
 			}
 
-			const timeNow = preciseTo(performance.now());
-			this.timeElapsed_ = timeNow - this.timeStarted;
+			this.timeElapsed_ = performance.now() - this.timeStarted;
 
-			if (timeNow >= timeNextLoop) {
-				timeNextLoop = timeNow + period;
+			if (this.timeElapsed_ >= timeElapsedNextLoop) {
+				const period = typeof this.loopsPerSecond === `number`
+					? msPerSecond / this.loopsPerSecond
+					: 0;
+				timeElapsedNextLoop = timeElapsedNextLoop + period;
+
 				if (this.status === `started`) {
 					this.doWhat();
+					this.loopsSoFar_ += 1;
 
 					if (this.timeElapsed > this.duration) {
 						this.end();

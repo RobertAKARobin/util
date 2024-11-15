@@ -56,6 +56,7 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 -	TODO1: Component: Image preprocessing
 -	TODO1: Component: Import SVGs/arbitrary files
 -	TODO1: Component: Don't refer to functions by string -- keeps names from being minified
+-	TODO1: Validate it all works with regular JS, not TS
 -	TODO2: Eslint: Require `Array<>` notation in eslint
 -	TODO2: Eslint: warn on using `Partial` when defining an object -- better to use explicitly optional properties
 -	TODO2: Component: Use `#` private fields

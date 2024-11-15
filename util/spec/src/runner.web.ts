@@ -77,7 +77,7 @@ export const specRunWeb: Type.SpecRunner = (
 				}
 
 				// TODO1: Extract out build step
-				const spec = execSync(`esbuild ${specFile} --format=esm --bundle=true`); // Using esbuild's CLI because it requires less finagling than the Node import. TODO1: This re-compiles util/spec on each iteration, though it was already compiled ebove. How to resuse? --external keeps esbuild from translating `.ts` imports to `.js`
+				const spec = execSync(`esbuild ${specFile} --format=esm --bundle=true`); // Using esbuild's CLI because it requires less finagling than the Node import. TODO1: This re-compiles util/spec on each iteration, though it was already compiled above. How to resuse? --external keeps esbuild from translating `.ts` imports to `.js`
 				response.writeHead(200, { 'Content-Type': mimeMap.js });
 				response.end(spec);
 				break;
