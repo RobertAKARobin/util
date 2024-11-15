@@ -1,5 +1,9 @@
 import { execSync, spawn } from 'child_process';
+import fs from 'fs';
 import http from 'http';
+
+import { mimeFor, mimeMap } from '../../web/mime.ts';
+import { tryCatch } from '../../tryCatch.ts';
 
 import { count } from '../index.ts';
 
@@ -12,11 +16,14 @@ const specRoutes = {
 	report: `/report`,
 	root: `/`,
 };
+const staticDir = `dist`;
 
 export const specRunWeb: Type.SpecRunner = (
 	specFiles,
 	options,
 ) => new Promise(resolve => {
+	execSync(`esbuild util/spec/index.ts --format=esm --bundle=true --outdir=${staticDir}`);
+
 	const results: Array<Type.SuiteResult> = [];
 	let specFileIndex = 0;
 
@@ -31,23 +38,28 @@ export const specRunWeb: Type.SpecRunner = (
 
 		switch (request.url) {
 			case specRoutes.root: {
-				response.writeHead(200, { 'Content-Type': `html` });
+				response.writeHead(200, { 'Content-Type': mimeMap.html });
 				response.end(/*html*/`
 <!DOCTYPE html>
 <html>
 	<head>
 		<title>Spec ${specFileIndex}</title>
 		<script type="module">
+		import { render } from '/index.js';
+
 		import { spec } from '${specRoutes.next}';
 		if (typeof spec !== 'function') {
 			close();
 		}
+
 		const result = await spec({}, ${optionsForBrowser});
-		console.log(result.status);
+		console.log(render(result));
+
 		await fetch('${specRoutes.report}', {
 			body: JSON.stringify(result),
 			method: 'POST',
 		});
+
 		location.href = '${specRoutes.root}';
 		</script>
 	</head>
@@ -59,14 +71,14 @@ export const specRunWeb: Type.SpecRunner = (
 
 			case specRoutes.next: {
 				if (specFile === undefined) {
-					response.writeHead(200, { 'Content-Type': `text/javascript` });
+					response.writeHead(200, { 'Content-Type': mimeMap.js });
 					response.end(`const spec = undefined; export { spec }`);
 					return close();
 				}
 
 				// TODO1: Extract out build step
-				const spec = execSync(`esbuild ${specFile} --format=esm --bundle=true`); // Using esbuild's CLI because it requires less finagling than the Node import
-				response.writeHead(200, { 'Content-Type': `text/javascript` });
+				const spec = execSync(`esbuild ${specFile} --format=esm --bundle=true`); // Using esbuild's CLI because it requires less finagling than the Node import. TODO1: This re-compiles util/spec on each iteration, though it was already compiled ebove. How to resuse? --external keeps esbuild from translating `.ts` imports to `.js`
+				response.writeHead(200, { 'Content-Type': mimeMap.js });
 				response.end(spec);
 				break;
 			}
@@ -95,8 +107,25 @@ export const specRunWeb: Type.SpecRunner = (
 			}
 
 			default: {
-				response.writeHead(200); // TODO1: Serve static files
-				response.end(`foo`);
+				const staticPath = `${staticDir}${request.url}`;
+
+				if (fs.existsSync(staticPath) === false) {
+					response.writeHead(404);
+					response.end();
+					break;
+				}
+
+				const staticContents = tryCatch(() => fs.readFileSync(staticPath));
+
+				if (staticContents instanceof Error) {
+					response.writeHead(500);
+					response.end(staticContents);
+					break;
+				}
+
+				const mimeType = mimeFor(staticPath);
+				response.writeHead(200, { 'Content-Type': mimeType });
+				response.end(staticContents);
 			}
 		}
 	});
@@ -109,7 +138,7 @@ export const specRunWeb: Type.SpecRunner = (
 		`--incognito`,
 		`--allow-file-access-from-files`,
 		`--allow-external-pages`,
-		`--user-data-dir=dist`, // Forces a new/local instance of Chrome with data stored in `./dist`
+		`--user-data-dir=tmp`, // Forces a new/local instance of Chrome with data stored in `./dist`
 	]);
 
 	function close() {
