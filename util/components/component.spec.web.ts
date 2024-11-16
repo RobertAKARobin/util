@@ -52,13 +52,14 @@ class EventSource extends Component {
 	button = this.findDown(`button`);
 	index: number;
 	sourceValue = 0;
-	@Component.attribute() time = performance.now();
+	@Component.attribute() time!: number;
 
 	constructor() {
 		super();
 
 		EventSource.count += 1;
 		this.index = EventSource.count;
+		this.setTime();
 	}
 
 	@Component.event() doDispatch() {
@@ -78,6 +79,9 @@ class EventSource extends Component {
 
 export const spec = suite(import.meta.url, {},
 	test(`contents`, $ => {
+		EventSource.count = 0;
+		EventSource.prototype.sourceValue = 0;
+
 		let widget: Widget;
 
 		$.assert(x => x(new Widget().outerHTML) === x(`<h1 is="l-widget" attr="attrDefault" data-attr="dataAttrDefault"></h1>`));
@@ -211,7 +215,7 @@ export const spec = suite(import.meta.url, {},
 		$.log(() => listener.render());
 		$.assert(() => listener.isConnected === false);
 		$.assert(() => listener.source().isConnected === false);
-		$.assert(x => x(lastTime) < x(lastTime = listener.source().time));
+		$.assert(x => x(lastTime) <= x(lastTime = listener.source().time)); // In Node it should always be `<`, but in the browser `performance.now()` has a worse resolution so may be `=`
 
 		const existing = listener.source();
 		$.log(() => document.body.appendChild(listener));
@@ -221,7 +225,7 @@ export const spec = suite(import.meta.url, {},
 		$.assert(() => listener.source() === existing);
 		$.assert(x => x(listener.source().index) === 1);
 		$.assert(x => x(EventSource.count) === 1);
-		$.assert(x => x(lastTime) < x(lastTime = listener.source().time));
+		$.assert(x => x(lastTime) <= x(lastTime = listener.source().time));
 
 		$.log(() => listener.source().cloneNode()); // Causes constructor to run
 		$.assert(x => x(listener.source().index) === 1);
@@ -233,7 +237,7 @@ export const spec = suite(import.meta.url, {},
 		$.assert(() => listener.source() === existing);
 		$.assert(x => x(listener.source().index) === 1);
 		$.assert(x => x(EventSource.count) === 2);
-		$.assert(x => x(lastTime) < x(lastTime = listener.source().time));
+		$.assert(x => x(lastTime) <= x(lastTime = listener.source().time));
 
 		$.log(() => listener.source().render());
 		$.assert(() => listener.source() === existing);
@@ -245,7 +249,7 @@ export const spec = suite(import.meta.url, {},
 		$.assert(() => listener.source() === existing);
 		$.assert(x => x(listener.source().index) === 1);
 		$.assert(x => x(EventSource.count) === 3);
-		$.assert(x => x(lastTime) < x(listener.source().time));
+		$.assert(x => x(lastTime) <= x(listener.source().time));
 
 		let disconnectedCount = 0;
 		listener.source().on(`disconnected`, () => {

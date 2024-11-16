@@ -3,7 +3,7 @@ export const defaultFlagMatcher = /^-(.*?)(=(.*))?$/; // TODO3: Pass in as an op
 /**
  * Parses and returns 0 or more "flag" params (that begin with `-`) from an array of strings (e.g. `process.argv`)
  */
-export function cliArgs<Flags extends Record<string, string>>(
+export function cliArgs<Flags extends object>(
 	params: Array<string>,
 	options: {
 		flagMatcher?: string;

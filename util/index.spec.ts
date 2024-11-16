@@ -3,6 +3,7 @@ import path from 'path';
 import url from 'url';
 
 import { print, type Type } from './spec/index.ts';
+import { cliArgs } from './node/cliArgs.ts';
 import { keysOf } from './group/keysOf.ts';
 import { specRunNative } from './spec/src/runner.native.ts';
 import { specRunWeb } from './spec/src/runner.web.ts';
@@ -26,7 +27,10 @@ for (const platformName of platformNames) {
 	filenamesByPlatformName[platformName] = [];
 }
 
-const targetFiles = process.argv.slice(2);
+const [args, ...targetFiles] = cliArgs<{
+	platform: keyof typeof platforms;
+	verbose: string;
+}>(process.argv.slice(2));
 
 const filenames = (await glob(
 	targetFiles.length === 0 ? `*/**/*.ts` : targetFiles,
@@ -89,7 +93,11 @@ Object.values(files)
 	.filter(file => file.spec === undefined && file.source !== undefined)
 	.forEach((file, index) => console.log(`${index + 1}.\t${file.source}`));
 
-for (const platformName of platformNames) {
+const targetPlatformNames = `platform` in args
+	? [args.platform]
+	: platformNames;
+
+for (const platformName of targetPlatformNames) {
 	const filenames = filenamesByPlatformName[platformName];
 	if (filenames.length === 0) {
 		continue;
@@ -103,6 +111,10 @@ for (const platformName of platformNames) {
 	const basedir = `file://` + process.cwd();
 	print(rootResult, {
 		format: (result, text) => {
+			if (args.verbose) {
+				return text;
+			}
+
 			if (result.type === `suite` || result.type === `test`) {
 				if (typeof text[0] === `string`) {
 					text[0] = text[0].replace(basedir, ``);

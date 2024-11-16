@@ -3,7 +3,10 @@ import { test } from '../spec/index.ts';
 import { cliArgs } from './cliArgs.ts';
 
 function argsFor(command: string) {
-	return cliArgs(command.split(` `))[0];
+	return cliArgs<{
+		age: string;
+		name: string;
+	}>(command.split(` `))[0];
 }
 
 function restFor(command: string) {
