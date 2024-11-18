@@ -51,13 +51,13 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ## TODO
 
--	TODO1: Rename `node` to something not node-y
 -	TODO1: Add more specs for utils that don't have them
 -	TODO1: Component: Add `<host>` back in
 -	TODO1: Component: Add TS preprocessing back in
 -	TODO1: Component: Image preprocessing
 -	TODO1: Component: Import SVGs/arbitrary files
 -	TODO1: Component: Don't refer to functions by string -- keeps names from being minified
+-	TODO1: TS: Add `noImplicitAny`
 -	TODO1: Validate it all works with regular JS, not TS
 -	TODO2: Eslint: Require `Array<>` notation in eslint
 -	TODO2: Eslint: warn on using `Partial` when defining an object -- better to use explicitly optional properties

@@ -14,7 +14,7 @@ export function posixPath(
 		.join(path.posix.sep);
 	try {
 		return new URL(fileUrl).pathname;
-	} catch (e) { // TODO3: Why is this triggering eslint error?
+	} catch (_e) {
 		return fileUrl;
 	}
 }
