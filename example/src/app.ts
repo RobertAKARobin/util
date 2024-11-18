@@ -1,7 +1,7 @@
 import { BaseApp, Resolver, Router } from '@robertakarobin/util/components/app.ts';
-import { appContext } from '@robertakarobin/util/web/context.ts';
 import { Component } from '@robertakarobin/util/components/component.ts';
 import { ModalContainer } from '@robertakarobin/util/components/modal-container.ts';
+import { runContext } from '@robertakarobin/util/web/context.ts';
 
 import { Nav } from '@src/components/nav.ts';
 import { routes } from './routes.ts';
@@ -43,7 +43,7 @@ export class App extends BaseApp {
 	async connectedCallback() {
 		await super.connectedCallback();
 
-		if (appContext === `browser`) {
+		if (runContext === `browser`) {
 			this.appendChild(new ModalContainer());
 			this.render(Nav.selector);
 		}

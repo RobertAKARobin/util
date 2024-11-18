@@ -1,5 +1,5 @@
 import { Resolver, type RouteMap, Router } from '../web/router.ts';
-import { appContext } from '../web/context.ts';
+import { runContext } from '../web/context.ts';
 
 import { Component, Page } from './component.ts';
 
@@ -16,7 +16,7 @@ export abstract class BaseApp<
 	async connectedCallback() {
 		super.connectedCallback();
 
-		if (appContext === `browser`) {
+		if (runContext === `browser`) {
 			this.router.init();
 		}
 
@@ -36,7 +36,7 @@ export abstract class BaseApp<
 			this.onPage(newPage, previous);
 		});
 
-		if (appContext === `browser`) {
+		if (runContext === `browser`) {
 			const landingPage = this.findDown(Page)();
 			this.resolver.set(landingPage);
 
@@ -58,7 +58,7 @@ export abstract class BaseApp<
 
 		this.page = newPage;
 
-		if (previous === undefined || appContext === `build`) {
+		if (previous === undefined || runContext === `server`) {
 			this.render();
 		}
 

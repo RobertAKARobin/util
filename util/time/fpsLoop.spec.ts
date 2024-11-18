@@ -1,14 +1,14 @@
 import { suite, test } from '../spec/index.ts';
-import { appContext } from '../web/context.ts';
 import { getDifference } from '../math/difference.ts';
 import { mean } from '../math/average.ts';
 import { roundTo } from '../math/roundTo.ts';
+import { runContext } from '../web/context.ts';
 import { sleep } from './sleep.ts';
 
 import { FPSLoop } from './fpsLoop.ts';
 
 const msPerSecond = 1000;
-const msPerTick = appContext === `browser` ? 15 : 1; // FPSLoop uses `setImmediate` in Node which has a tick of ~1ms, and `requestAnimationFrame` in browser which has a tick of ~15ms (usually ~10ms, but sometimes a bit more, not sure why)
+const msPerTick = runContext === `browser` ? 15 : 1; // FPSLoop uses `setImmediate` in Node which has a tick of ~1ms, and `requestAnimationFrame` in browser which has a tick of ~15ms (usually ~10ms, but sometimes a bit more, not sure why)
 
 export const spec = suite(`FPSLoop`,
 	{

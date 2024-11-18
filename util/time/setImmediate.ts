@@ -1,4 +1,4 @@
-import { appContext } from '../web/context.ts';
+import { runContext } from '../web/context.ts';
 
 /**
  * requestAnimationFrame in browser environments, setImmediate otherwise
@@ -6,6 +6,6 @@ import { appContext } from '../web/context.ts';
  * https://developer.mozilla.org/en-US/docs/Web/API/Window/setImmediate
  * https://nodejs.org/en/learn/asynchronous-work/understanding-setimmediate
  */
-export const setImmediate = appContext === `browser`
+export const setImmediate = runContext === `browser`
 	? globalThis.requestAnimationFrame.bind(globalThis) // Throws "Illegal invocation" if `this` not `null` or `window
 	: globalThis.setImmediate;

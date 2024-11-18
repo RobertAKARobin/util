@@ -1,18 +1,18 @@
 
-export const appContexts = [
+export const runContexts = [
 	`browser`,
-	`build`, // TODO1: Change this to `server` or something
+	`server`,
 ] as const;
 
-export type AppContext = typeof appContexts[number];
+export type RunContext = typeof runContexts[number];
 
-export const appContext: AppContext = typeof window !== `undefined`
+export const runContext: RunContext = typeof window !== `undefined`
 	? `browser`
-	: `build`;
+	: `server`;
 
 export const defaultBaseUrl = new URL(`https://a.test`);
 
-export const baseUrl = appContext === `browser`
+export const baseUrl = runContext === `browser`
 	? new URL(document.baseURI)
 	: process.env.baseURI === undefined
 		? defaultBaseUrl

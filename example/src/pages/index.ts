@@ -1,7 +1,7 @@
 import { Component, css, html, Page } from '@robertakarobin/util/components/component.ts';
-import { appContext } from '@robertakarobin/util/web/context.ts';
 import { type EntityId } from '@robertakarobin/util/emitter/entities.ts';
 import { ModalContainer } from '@robertakarobin/util/components/modal-container.ts';
+import { runContext } from '@robertakarobin/util/web/context.ts';
 
 import type * as Type from '@src/types.d.ts';
 import { link } from '@src/components/link.ts';
@@ -37,7 +37,7 @@ export class IndexPage extends Page {
 	connectedCallback() {
 		super.connectedCallback();
 
-		if (appContext === `browser`) {
+		if (runContext === `browser`) {
 			for (const listItem of this.listItems()) {
 				state.upsert(
 					listItem.id,
@@ -92,7 +92,7 @@ ${List.id(`indexList`)
 }
 
 <div class="_swapText">
-	${appContext === `build`
+	${runContext === `server`
 		? html`<h1>This should be in the source, not browser.</h1>`
 		: html`<h1>This should be in the browser, not source.</h1>`
 	}

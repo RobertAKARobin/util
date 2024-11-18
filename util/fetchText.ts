@@ -1,11 +1,11 @@
 import type fsType from 'fs';
 import type pathType from 'path';
 
-import { appContext } from './web/context.ts';
 import { importAs } from './importAs.ts';
+import { runContext } from './web/context.ts';
 
 export async function fetchText(target: string) {
-	if (appContext === `browser`) {
+	if (runContext === `browser`) {
 		const response = await fetch(target);
 		const text = await response.text();
 		return text;

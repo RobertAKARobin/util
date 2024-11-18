@@ -1,4 +1,4 @@
-import { appContext } from './web/context.ts';
+import { runContext } from './web/context.ts';
 import { test } from './spec/index.ts';
 import { tryCatch } from './tryCatch.ts';
 
@@ -14,7 +14,7 @@ export const spec = test(import.meta.url, $ => {
 	$.assert(() => error instanceof AssertionError);
 
 	$.assert(x => x(error.message) === (
-		appContext === `build`
+		runContext === `server`
 			? `x=>x(3)===x(4)` // Node likes to remove spaces from around operators in Function.prototype.toString. @see spec.spec.ts
 			: `(x) => x(3) === x(4)`
 	));
