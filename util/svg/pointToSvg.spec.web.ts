@@ -4,7 +4,10 @@ import { pointToSvg } from './pointToSvg.ts';
 import { setStyle } from '../dom/attributes.ts';
 import { svgCreate } from './svgCreate.ts';
 
+const testSvg = await (await fetch(`/mock/test.svg`)).text();
 export const spec = test(import.meta.url, $ => {
+	document.body.innerHTML = testSvg;
+
 	const svg = document.querySelector(`svg`)!;
 	setStyle(svg, {
 		height: `200px`, // Make sure positioning works when the svg is scaled

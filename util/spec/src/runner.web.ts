@@ -16,13 +16,15 @@ const specRoutes = {
 	report: `/report`,
 	root: `/`,
 };
+const rootDir = `util`;
 const staticDir = `dist`;
+const staticCopyDir = `mock`;
 
 export const specRunWeb: Type.SpecRunner = (
 	specFiles,
 	options,
 ) => new Promise(resolve => {
-	execSync(`esbuild util/spec/index.ts --format=esm --bundle=true --outdir=${staticDir}`);
+	execSync(`cp -pR ${rootDir}/${staticCopyDir} ${staticDir}/${staticCopyDir}`);
 
 	const results: Array<Type.SuiteResult> = [];
 	let specFileIndex = 0;

@@ -30,20 +30,23 @@ export function getAttributes(target: Element) {
 export function setAttributes<Subclass extends Element>(
 	target: Subclass,
 	source: Element | Partial<ElAttributes<Subclass>>,
+	options: {
+		attrsOnly?: boolean;
+	} = {},
 ) {
 	const updates = {
-		...source instanceof Element ? getAttributes(source) : source,
+		...(source instanceof Element ? getAttributes(source) : source),
 	};
 	for (const attributeName in updates) {
 		const attributeKey = attributeName as keyof Subclass;
 		const value = updates[attributeName as keyof typeof updates];
-		if (attributeKey in target) {
+		if (attributeKey in target && options.attrsOnly !== true) { // Try using a regular setter first, e.g. `target[propertyName]`. Useful if an attribute's corresponding property is spelled differently, e.g. data-foo becomes dataFoo
 			target[attributeKey] = value as unknown as Subclass[keyof Subclass];
+		} else {
+			target.setAttribute(attributeKey as string, value as string);
 		}
 		if (attributeValueIsEmpty(value)) {
 			target.removeAttribute(attributeName);
-		} else if (attributeKey in target === false) {
-			target.setAttribute(attributeKey as string, value as string);
 		}
 	}
 	return target;

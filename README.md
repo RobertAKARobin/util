@@ -51,7 +51,6 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ## TODO
 
--	TODO1: Add more specs for utils that don't have them
 -	TODO1: Component: Add `<host>` back in
 -	TODO1: Component: Add TS preprocessing back in
 -	TODO1: Component: Image preprocessing

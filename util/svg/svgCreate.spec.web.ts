@@ -1,9 +1,13 @@
 import { test } from '../spec/index.ts';
 
-import { setAttributes, setStyle } from '../dom/attributes.ts';
+import { setStyle } from '../dom/attributes.ts';
 import { svgCreate } from './svgCreate.ts';
 
+const testSvg = await (await fetch(`/mock/test.svg`)).text();
+
 export const spec = test(import.meta.url, $ => {
+	document.body.innerHTML = testSvg;
+
 	const subject = svgCreate(`circle`);
 	$.assert(x => x(subject) instanceof SVGCircleElement);
 	$.assert(x => x(svgCreate(`path`)) instanceof SVGPathElement);
@@ -11,10 +15,8 @@ export const spec = test(import.meta.url, $ => {
 	$.log(() => setStyle(subject, { cx: `100px` }));
 	$.assert(x => x(subject.style.cx) === `100px`);
 
-	$.log(() => setAttributes(subject, { cx: `200px` }));
-	$.assert(x => x(subject.getAttribute(`cx`)) === `200px`);
+	$.log(() => subject.setAttribute(`cx`, `200`));
+	$.assert(x => x(subject.getAttribute(`cx`)) === `200`);
 
-	setAttributes(subject, {
-		cx: 3,
-	});
+	subject.setAttribute(`cx`, `3`);
 });

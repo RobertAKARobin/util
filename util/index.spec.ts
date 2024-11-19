@@ -38,11 +38,8 @@ const filenames = (await glob(
 		ignore: [
 			`dist/**/*`,
 			`example/**/*`,
-			`util/browser.spec.ts`,
 			`util/index.spec.ts`,
-			`util/const/**/*`,
 			`util/spec/example/**/*`, // Run by spec/spec.spec.ts
-			`util/svg/**/*`,
 			`**/node_modules/**/*`,
 			`**/*.d.ts`,
 		],
