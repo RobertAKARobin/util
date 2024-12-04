@@ -24,7 +24,9 @@
 		"dev": "npm run dev --prefix example",
 		"lint": "eslint . --ignore-pattern *.html",
 		"prepublishOnly": "bin/build.sh",
-		"spec": "tsx index.spec.ts",
+		"spec": "npm run spec:node && npm run spec:web",
+		"spec:node": "tsx index.spec.ts -platform=node $(glob util/**/*.spec?\\(.node\\).ts)",
+		"spec:web": "tsx index.spec.ts -platform=web $(glob util/**/*.spec?\\(.web\\).ts)",
 		"test": "npm run lint && tsc && npm run spec && npm run test:example",
 		"test:example": "npm run test --prefix example"
 	},

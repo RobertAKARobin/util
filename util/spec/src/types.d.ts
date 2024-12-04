@@ -40,13 +40,6 @@ export type SpecRunner<Args = {}> = (
 	options?: SuiteOptions<{}, Args>
 ) => Promise<SuiteResult>;
 
-export type SpecRunnerMap = Record<string,
-	{
-		extension: string;
-		runner: SpecRunner;
-	}
->;
-
 export type SpecStepCount = Record<
 	|	SpecStepStatusName
 	| `totalAssertions`,

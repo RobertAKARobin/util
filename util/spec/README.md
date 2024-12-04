@@ -14,8 +14,6 @@
 
 Steps in execution:
 
-1.	Load
-	-	Arguments to spec file names
 1.	Build
 	-	Spec file names to spec functions
 1.	Run

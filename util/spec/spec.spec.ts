@@ -3,8 +3,8 @@ import { diff } from './diff.ts';
 import { runContext } from '../web/context.ts';
 import { sleep } from '../time/sleep.ts';
 
-import * as dbTests from './example/db.spec.ts';
-import * as mathTests from './example/math.spec.ts';
+import * as dbTests from './example/db-spec.ts';
+import * as mathTests from './example/math-spec.ts';
 
 function diffSansWhitespace(...inputs: [string, string]) {
 	let [expected, actual] = inputs;
