@@ -9,14 +9,19 @@
 -	Usable on FE or BE
 -	Easy to shuffle test order
 -	Easy to run tests concurrently or consecutively
--	No weird async stuff with shared state between tests
 
 ## Concepts
 
-Each SpecContext has two phases:
+Steps in execution:
 
-1.	Definition
-2.	Execution
+1.	Load
+	-	Arguments to spec file names
+1.	Build
+	-	Spec file names to spec functions
+1.	Run
+	-	Spec functions to results
+1.	Render
+	-	Results to text
 
 Specs are made of "SpecSteps":
 
@@ -62,7 +67,7 @@ Assertion | Execution | 1 per test | - | No
 -	TODO2: Can log from within args
 -	TODO2: Shuffle
 -	TODO2: Catch errors?
--	TODO2: Print as you go
+-	TODO2: Print results as you go
 -	TODO2: Make `suite()` support no options
 -	TODO2: Suppress iteration details; assertions should not count toward total if in suppressed iteration (but failures should still override status)
 -	TODO2: Add examples with more complex assertionhelper names

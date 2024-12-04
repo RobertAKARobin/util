@@ -22,14 +22,12 @@ const staticCopyDir = `mock`;
 
 export const specRunWeb: Type.SpecRunner = (
 	specFiles,
-	options,
+	options, // TODO2: Better way of passing options to the front-end... What if they aren't serializable?
 ) => new Promise(resolve => {
 	execSync(`cp -pR ${rootDir}/${staticCopyDir} ${staticDir}/${staticCopyDir}`);
 
 	const results: Array<Type.SuiteResult> = [];
 	let specFileIndex = 0;
-
-	const optionsForBrowser = JSON.stringify(options); // TODO2: Better way to pass in options/arguments... What if arguments aren't serializable?
 
 	const server = http.createServer((request, response) => {
 		if (typeof request.url === `undefined`) {
@@ -54,7 +52,7 @@ export const specRunWeb: Type.SpecRunner = (
 			close();
 		}
 
-		const result = await spec({}, ${optionsForBrowser});
+		const result = await spec({}, ${JSON.stringify(options)});
 		console.log(render(result));
 
 		await fetch('${specRoutes.report}', {
