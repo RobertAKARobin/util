@@ -2,12 +2,12 @@ import { glob } from 'glob';
 import path from 'path';
 import url from 'url';
 
-import { print, type Type } from './spec/index.ts';
-import { cliArgs } from './node/cliArgs.ts';
-import { keysOf } from './group/keysOf.ts';
-import { specRunNative } from './spec/src/runner.native.ts';
-import { specRunWeb } from './spec/src/runner.web.ts';
-import { substringBetween } from './string/substringBetween.ts';
+import { print, type Type } from './util/spec/index.ts';
+import { cliArgs } from './util/node/cliArgs.ts';
+import { keysOf } from './util/group/keysOf.ts';
+import { specRunNative } from './util/spec/src/runner.native.ts';
+import { specRunWeb } from './util/spec/src/runner.web.ts';
+import { substringBetween } from './util/string/substringBetween.ts';
 
 const platforms = {
 	node: {
