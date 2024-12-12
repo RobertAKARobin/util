@@ -16,16 +16,12 @@ const specRoutes = {
 	report: `/report`,
 	root: `/`,
 };
-const rootDir = `util`;
 const staticDir = `dist`;
-const staticCopyDir = `mock`;
 
 export const specRunWeb: Type.SpecRunner = (
 	specFiles,
 	options, // TODO2: Better way of passing options to the front-end... What if they aren't serializable?
 ) => new Promise(resolve => {
-	execSync(`cp -pR ${rootDir}/${staticCopyDir} ${staticDir}/${staticCopyDir}`);
-
 	const results: Array<Type.SuiteResult> = [];
 	let specFileIndex = 0;
 
@@ -45,15 +41,13 @@ export const specRunWeb: Type.SpecRunner = (
 	<head>
 		<title>Spec ${specFileIndex}</title>
 		<script type="module">
-		import { render } from '/index.js';
-
 		import { spec } from '${specRoutes.next}';
 		if (typeof spec !== 'function') {
 			close();
 		}
 
 		const result = await spec({}, ${JSON.stringify(options)});
-		console.log(render(result));
+		// console.log(render(result));
 
 		await fetch('${specRoutes.report}', {
 			body: JSON.stringify(result),
