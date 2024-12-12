@@ -3,13 +3,13 @@
 		"@robertakarobin/csslint": "file:./csslint",
 		"@robertakarobin/eslint-config": "file:./eslint-config",
 		"@robertakarobin/eslint-config-ts": "file:./eslint-config-ts",
-		"@types/diff": "^5.2.2",
+		"@types/diff": "^6.0.0",
 		"diff": "^7.0.0",
 		"glob": "^11.0.0",
-		"husky": "^9.1.6",
-		"npm-check-updates": "^17.1.1",
-		"tsx": "^4.19.1",
-		"typescript": "^5.5.4"
+		"husky": "^9.1.7",
+		"npm-check-updates": "^17.1.11",
+		"tsx": "^4.19.2",
+		"typescript": "^5.7.2"
 	},
 	"exports": {
 		"./*": "./util/*"
@@ -20,10 +20,10 @@
 		"url": "https://github.com/RobertAKARobin/util"
 	},
 	"scripts": {
-		"build": "npm run build --prefix example",
+		"build": "bin/build.sh",
 		"dev": "npm run dev --prefix example",
 		"lint": "eslint . --ignore-pattern *.html",
-		"prepublishOnly": "bin/build.sh",
+		"prepublishOnly": "npm run build",
 		"spec": "npm run spec:node && npm run spec:web",
 		"spec:node": "tsx index.spec.ts -platform=node $(glob util/**/*.spec?\\(.node\\).ts)",
 		"spec:web": "rm -rf dist && mkdir dist && cp -pR util/mock dist && tsx index.spec.ts -platform=web $(glob util/**/*.spec?\\(.web\\).ts)",

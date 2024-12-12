@@ -1,4 +1,4 @@
-import segments from '../mock/segments.json';
+import segments from '../mock/segments.json' with { type: 'json' };
 import { test } from '../spec/index.ts';
 
 import type { Bezier } from '../types.d.ts';

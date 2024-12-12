@@ -2,7 +2,7 @@ import type { Bezier } from '../types.d.ts';
 import { test } from '../spec/index.ts';
 
 import { bezierToPoints } from './bezierToPoints.ts';
-import segments from '../mock/segments.json';
+import segments from '../mock/segments.json' with { type: 'json' };
 
 export const spec = test(import.meta.url, $ => {
 	const curve = segments[1] as Bezier;

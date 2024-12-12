@@ -2,7 +2,7 @@
 	"dependencies": {
 		"@robertakarobin/eslint-config": "^0.0.29",
 		"@stylistic/eslint-plugin-ts": "^2.8.0",
-		"@types/node": "^22.5.5",
+		"@types/node": "^22.10.2",
 		"@typescript-eslint/eslint-plugin": "^8.6.0",
 		"@typescript-eslint/parser": "^8.6.0"
 	},

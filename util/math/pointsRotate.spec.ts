@@ -1,5 +1,5 @@
 import type { Coordinate } from '../types.d.ts';
-import segments from '../mock/segments.json';
+import segments from '../mock/segments.json' with { type: 'json' };
 import { test } from '../spec/index.ts';
 
 import { pointsRotate } from './pointsRotate.ts';

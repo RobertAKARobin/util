@@ -2,7 +2,7 @@ import type { Bezier } from '../types.d.ts';
 import { test } from '../spec/index.ts';
 
 import { bezierPoint } from './bezierPoint.ts';
-import segments from '../mock/segments.json';
+import segments from '../mock/segments.json' with { type: 'json' };
 
 export const spec = test(import.meta.url, $ => {
 	const curves = segments.filter(segment => segment.length > 2) as Array<Bezier>;

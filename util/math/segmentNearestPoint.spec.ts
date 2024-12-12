@@ -1,7 +1,7 @@
 import { test } from '../spec/index.ts';
 
 import { segmentNearestPoint } from './segmentNearestPoint.ts';
-import segments from '../mock/segments.json';
+import segments from '../mock/segments.json' with { type: 'json' };
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(segmentNearestPoint([0, 0], ...segments)) === 0);

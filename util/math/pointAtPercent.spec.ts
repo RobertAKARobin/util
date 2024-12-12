@@ -1,7 +1,7 @@
 import { test } from '../spec/index.ts';
 
 import { pointAtPercent } from './pointAtPercent.ts';
-import segments from '../mock/segments.json';
+import segments from '../mock/segments.json' with { type: 'json' };
 
 export const spec = test(import.meta.url, $ => {
 	const points = segments[1];

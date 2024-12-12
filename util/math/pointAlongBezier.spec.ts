@@ -3,7 +3,7 @@ import { test } from '../spec/index.ts';
 
 import { pointAlongBezier } from './pointAlongBezier.ts';
 import { pointToString } from './pointToString.ts';
-import segments from '../mock/segments.json';
+import segments from '../mock/segments.json' with { type: 'json' };
 
 export const spec = test(import.meta.url, $ => {
 	const bezier = segments[4] as Bezier;
