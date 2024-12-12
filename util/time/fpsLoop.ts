@@ -40,7 +40,7 @@ export class FPSLoop {
 	}
 	private loopsSoFar_ = 0;
 
-	private resolve_?: Function;
+	private resolve_?: () => void;
 
 	get status() {
 		return this.status_;

@@ -15,7 +15,11 @@ export function assert(
 		valueWrap: <Value>(value: Value) => Value,
 	) => boolean
 ): boolean;
-export function assert(input: unknown): boolean {
+export function assert(
+	input:
+		| boolean
+		| ((valueWrap: <Value>(value: Value) => Value) => boolean),
+): boolean {
 	if (typeof input === `function`) {
 		const values = [] as Array<unknown>;
 		const valueWrap = <Value>(value: Value) => {
@@ -31,7 +35,7 @@ export function assert(input: unknown): boolean {
 	} else {
 		if (input !== true) {
 			throw new AssertionError(
-				(input as string).toString(),
+				(input as unknown as string).toString(),
 			);
 		}
 	}
