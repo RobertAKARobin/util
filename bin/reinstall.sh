@@ -7,7 +7,7 @@ root=$(pwd)
 for repo in ${repos[@]}; do
 	cd $repo
 	echo ">>> $repo"
-	rm -rf node_modules package-lock.json
-	npm i
+	rm -rf node_modules
+	npm ci
 	cd $root
 done
