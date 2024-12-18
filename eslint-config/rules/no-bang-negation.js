@@ -1,5 +1,12 @@
+/**
+ * @typedef {import('@typescript-eslint/utils').TSESLint.RuleModule} RuleModule
+ */
+
 const messageId = `noBangNegation`;
 
+/**
+ * @type RuleModule
+ */
 module.exports = {
 	meta: {
 		docs: {

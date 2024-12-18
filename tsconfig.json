@@ -11,8 +11,6 @@
 		"@robertakarobin/eslint-config-ts"
 	],
 	"include": [
-		"index.spec.ts",
-		"util/**/*",
-		"csslint/**/*"
-	]
+		"**/*"
+	],
 }

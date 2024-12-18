@@ -4,10 +4,12 @@ import stylisticPlugin from '@stylistic/eslint-plugin-js';
 
 import localPlugin from './rules/index.js';
 
+export const files = [`**/*.js`, `**/*.cjs`, `**/*.mjs`, `**/*.ts`];
+
 // TODO2: Can't get ESlint to check dotfolders, e.g. `.vscode/settings.json`
 // TODO3: vscode-eslint throws 'Could not find config file. at locateConfigFileToUse' on this, but `npx eslint` works fine
 // TODO3: Lint HTML in JS template literals (https://github.com/yeonjuan/html-eslint/issues/196)
-export default [
+export const config = [
 	// { TODO1: Extract to json package
 	// 	files: [`*.json`],
 	// 	ignores: [
@@ -28,11 +30,11 @@ export default [
 	// },
 
 	{
-		files: [`**/*.js`, `**/*.cjs`, `**/*.mjs`, `**/*.ts`],
+		files,
 		plugins: {
 			'@robertakarobin': localPlugin,
 			'@stylistic': stylisticPlugin,
-			'import': importPlugin,
+			'import': importPlugin, // TODO2: These throw a @typescript-eslint/no-unsafe-assignment warning
 			'import-quotes': importQuotesPlugin,
 		},
 		rules: {
@@ -74,6 +76,7 @@ export default [
 			'eqeqeq': `error`,
 			'import-quotes/import-quotes': [`error`, `single`],
 			'import/extensions': [`error`, `ignorePackages`],
+			'no-undef': [`error`],
 			'no-unused-vars': [`warn`, {
 				argsIgnorePattern: `^_`,
 				destructuredArrayIgnorePattern: `^_`,
@@ -174,3 +177,5 @@ export default [
 	// 	},
 	// },
 ];
+
+export default config;

@@ -27,20 +27,21 @@ export async function cssJs(
 		? targetAbs
 		: path.join(process.cwd(), targetAbs);
 
-	let css = (await import(sourceAbs)).default;
+	/** @type {string} */
+	let css = (await import(sourceAbs)).default; // eslint-disable-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
 
 	if (css === undefined) {
 		throw new Error(`File '${source}' was empty`);
 	}
 
 	if (unnest) {
-		css = await postcss([postcssNested]).process(css, {
+		css = postcss([postcssNested]).process(css, {
 			from: undefined,
 		}).css;
 	}
 
 	if (options.format) {
-		css = options.format(css);
+		css = options.format(css); // eslint-disable-line @typescript-eslint/no-unsafe-assignment
 	}
 
 	fs.writeFileSync(targetAbs, css);

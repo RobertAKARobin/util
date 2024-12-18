@@ -1,21 +1,13 @@
 import stylisticTsPlugin from '@stylistic/eslint-plugin-ts';
 import tsEslint from 'typescript-eslint';
 
-import robinsConfig from '@robertakarobin/eslint-config';
+import { config, files } from '@robertakarobin/eslint-config';
 
 export default tsEslint.config(
-	robinsConfig,
-
-	// {
-	// 	files: [`**/*.js`, `**/*.cjs`],
-	// 	rules: {
-	// 		'@typescript-eslint/explicit-member-accessibility': `off`,
-	// 		'@typescript-eslint/no-var-requires': `off`,
-	// 	},
-	// },
+	...config,
 
 	{
-		files: [`**/*.ts`],
+		files,
 		languageOptions: {
 			parser: tsEslint.parser,
 			parserOptions: {
@@ -164,6 +156,14 @@ export default tsEslint.config(
 			],
 			'no-unused-vars': `off`,
 			'require-await': `off`,
+		},
+	},
+
+	{
+		files: [`**/*.js`],
+		rules: {
+			'@typescript-eslint/explicit-member-accessibility': `off`,
+			'@typescript-eslint/no-var-requires': `off`,
 		},
 	},
 );

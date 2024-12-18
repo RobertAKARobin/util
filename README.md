@@ -65,6 +65,7 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 -	TODO2: Eslint: Enforce single quotes in `import ... with { type: 'json' }`
 -	TODO2: Component: Use `#` private fields
 -	TODO3: Eslint: Lint HTML in JS template literals (https://github.com/yeonjuan/html-eslint/issues/196)
+-	TODO3: Eslint: spacing between JSDOC curlies
 
 ### Done:
 

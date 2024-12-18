@@ -52,6 +52,9 @@ ruleTester.run(`no-bang-negation`, rule, {
 	],
 });
 
+/**
+ * @param {string} code
+ */
 function invalid(code, count = 1) {
 	return {
 		code,
