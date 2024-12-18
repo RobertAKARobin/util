@@ -5,7 +5,7 @@
 		"noEmitOnError": true,
 		"paths": {
 			"@src/*": ["src/*"]
-		}
+		},
 	},
 	"extends": [
 		"@robertakarobin/eslint-config-ts"

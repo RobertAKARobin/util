@@ -11,6 +11,10 @@
 		"@robertakarobin/eslint-config-ts"
 	],
 	"include": [
-		"**/*"
+		"csslint/**/*",
+		"eslint-config/**/*",
+		"eslint-config-ts/**/*",
+		"util/**/*",
+		"*"
 	],
 }
