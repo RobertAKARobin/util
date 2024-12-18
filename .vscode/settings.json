@@ -5,9 +5,6 @@
 	"files.trimTrailingWhitespace": true,
 
 	"eslint.enable": true,
-	"eslint.options": {
-		"extensions": [".js", ".json", ".ts"]
-	},
 	"eslint.validate": [
 		"javascript",
 		"json",

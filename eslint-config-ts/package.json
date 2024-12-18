@@ -3,13 +3,12 @@
 		"@robertakarobin/eslint-config": "^0.0.29",
 		"@stylistic/eslint-plugin-ts": "^2.12.1",
 		"@types/node": "^22.10.2",
-		"@typescript-eslint/eslint-plugin": "^8.18.0",
-		"@typescript-eslint/parser": "^8.18.0"
+		"typescript-eslint": "^8.18.1"
 	},
 	"devDependencies": {
 		"@robertakarobin/eslint-config": "file:../eslint-config"
 	},
-	"main": "index.js",
+	"main": "eslint.config.mjs",
 	"name": "@robertakarobin/eslint-config-ts",
 	"scripts": {},
 	"version": "0.0.49"

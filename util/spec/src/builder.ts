@@ -165,7 +165,7 @@ export class SpecBuilder {
 		) => Promise<Type.SuiteResult> {
 		return async(inheritedArgs, index) => {
 			const args = typeof options?.args === `function`
-				? () => options.args!(inheritedArgs) // eslint-disable-line
+				? () => options.args!(inheritedArgs)
 				: () => ({ ...inheritedArgs });
 
 			const timing = options.timing || `concurrent`;

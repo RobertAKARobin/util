@@ -225,7 +225,7 @@ export class Resolver<
 	AppRouter extends Router<Routes> = Router<Routes>,
 > extends Emitter<View> {
 	constructor(
-		readonly router: AppRouter, // eslint-disable-line @typescript-eslint/no-explicit-any
+		readonly router: AppRouter,
 		readonly resolve: (to: URL, from?: URL) => Promise<View> | View,
 	) {
 		super();

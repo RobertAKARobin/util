@@ -9,7 +9,7 @@ export function serialize(input: unknown): string {
 	}
 	return result;
 
-	function iterate(input: unknown): string { // eslint-disable-line @typescript-eslint/no-explicit-any
+	function iterate(input: unknown): string {
 		if (input === undefined) {
 			return ``;
 		}
@@ -24,7 +24,7 @@ export function serialize(input: unknown): string {
 			return ``;
 		}
 		if (typeof input === `object`) {
-			const toString = input.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
+			const toString = input.toString();
 			if (toString === `[object Object]`) {
 				let out = ``;
 				const inputObject = input as Record<string, unknown>;
@@ -55,6 +55,6 @@ export function serialize(input: unknown): string {
 				.replaceAll(`'`, `\\'`);
 			return `'${out}'`;
 		}
-		return input.toString(); // eslint-disable-line
+		return input.toString();
 	}
 }

@@ -1,4 +1,3 @@
-// eslint-disable-next-line no-restricted-imports
 import '@robertakarobin/util/components/dummydom.js';
 
 import { suite, test } from '@robertakarobin/util/spec/index.ts';

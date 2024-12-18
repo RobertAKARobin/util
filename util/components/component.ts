@@ -554,7 +554,7 @@ export class Component extends HTMLElement {
 	on<
 		EventName extends keyof HTMLElementEventMap,
 		EventType extends HTMLElementEventMap[EventName],
-		Handler extends (event: EventType) => void, // eslint-disable-line @typescript-eslint/no-explicit-any
+		Handler extends (event: EventType) => void,
 	>(
 		eventName: EventName,
 		handler: Handler,
@@ -567,7 +567,7 @@ export class Component extends HTMLElement {
 		EventName extends PropertyKey,
 		EventDetail extends ReturnType<Self[EventName]>,
 		EventType extends CustomEvent<EventDetail>,
-		Handler extends (event: EventType) => void, // eslint-disable-line @typescript-eslint/no-explicit-any
+		Handler extends (event: EventType) => void,
 	>(
 		this: Self,
 		eventName: EventName,
