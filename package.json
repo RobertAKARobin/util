@@ -7,7 +7,6 @@
 		"@types/node": "^22.10.2",
 		"diff": "^7.0.0",
 		"glob": "^11.0.0",
-		"globals": "^15.14.0",
 		"husky": "^9.1.7",
 		"npm-check-updates": "^17.1.11",
 		"tsx": "^4.19.2",
@@ -24,7 +23,8 @@
 	"scripts": {
 		"build": "bin/build.sh",
 		"dev": "npm run dev --prefix example",
-		"lint": "eslint . --ignore-pattern *.html",
+		"lint": "eslint .",
+		"lint:list": "DEBUG=eslint:eslint eslint .",
 		"prepublishOnly": "npm run build",
 		"spec": "npm run spec:node && npm run spec:web",
 		"spec:node": "tsx index.spec.ts -platform=node $(glob util/**/*.spec?\\(.node\\).ts)",

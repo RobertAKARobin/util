@@ -7,8 +7,9 @@
 	"devDependencies": {
 		"@robertakarobin/eslint-config": "file:../eslint-config"
 	},
-	"main": "eslint.config.mjs",
+	"main": "index.js",
 	"name": "@robertakarobin/eslint-config-ts",
 	"scripts": {},
+	"type": "module",
 	"version": "0.0.49"
 }

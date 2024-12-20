@@ -51,21 +51,23 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ## TODO
 
+-	TODO1: Eslint: Add recommended rules back in?
+-	TODO1: TS: Add `noImplicitAny`
+-	TODO2: Eslint: Require `Array<>` notation in eslint
+-	TODO2: Eslint: warn on using `Partial` when defining an object -- better to use explicitly optional properties
+-	TODO2: Eslint: Enforce single quotes in `import ... with { type: 'json' }`
+-	TODO3: Eslint: spacing between JSDOC curlies
+
 -	TODO1: Component: Extract out the build step so that ESBuild isn't required
 -	TODO1: Component: Add `<host>` back in
 -	TODO1: Component: Add TS preprocessing back in
 -	TODO1: Component: Image preprocessing
 -	TODO1: Component: Import SVGs/arbitrary files
 -	TODO1: Add mini markdown converter
--	TODO1: TS: Add `noImplicitAny`
 -	TODO1: Validate it all works with regular JS, not TS
 -	TODO2: Component: Don't refer to functions by string -- keeps names from being minified
--	TODO2: Eslint: Require `Array<>` notation in eslint
--	TODO2: Eslint: warn on using `Partial` when defining an object -- better to use explicitly optional properties
--	TODO2: Eslint: Enforce single quotes in `import ... with { type: 'json' }`
 -	TODO2: Component: Use `#` private fields
 -	TODO3: Eslint: Lint HTML in JS template literals (https://github.com/yeonjuan/html-eslint/issues/196)
--	TODO3: Eslint: spacing between JSDOC curlies
 
 ### Done:
 

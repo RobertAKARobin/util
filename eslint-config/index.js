@@ -1,3 +1,4 @@
+import globals from 'globals';
 import importPlugin from 'eslint-plugin-import';
 import importQuotesPlugin from 'eslint-plugin-import-quotes';
 import stylisticPlugin from '@stylistic/eslint-plugin-js';
@@ -8,7 +9,6 @@ export const files = [`**/*.js`, `**/*.cjs`, `**/*.mjs`, `**/*.ts`];
 
 // TODO2: Can't get ESlint to check dotfolders, e.g. `.vscode/settings.json`
 // TODO3: vscode-eslint throws 'Could not find config file. at locateConfigFileToUse' on this, but `npx eslint` works fine
-// TODO3: Lint HTML in JS template literals (https://github.com/yeonjuan/html-eslint/issues/196)
 export const config = [
 	// { TODO1: Extract to json package
 	// 	files: [`*.json`],
@@ -30,7 +30,19 @@ export const config = [
 	// },
 
 	{
+		ignores: [
+			`**/node_modules/*`,
+		],
+	},
+
+	{
 		files,
+		languageOptions: {
+			globals: { // Needed for eslint `no-undef`. Would be more explicit to go through each file and explicitly declare which environment-dependent variables are needed, but (a) that's a lot of work, and (b) if we try to use a variable in the wrong environment then that should be caught when running tests
+				...globals.browser,
+				...globals.node,
+			},
+		},
 		plugins: {
 			'@robertakarobin': localPlugin,
 			'@stylistic': stylisticPlugin,
@@ -93,89 +105,6 @@ export const config = [
 			}],
 		},
 	},
-
-	// { TODO1: Extract to html package
-	// 	files: [`*.html`],
-	// 	parser: `@html-eslint/parser`,
-	// 	rules: {
-	// 		'@html-eslint/attrs-newline': [`error`, {
-	// 			closeStyle: `newline`,
-	// 			ifAttrsMoreThan: 2,
-	// 		}],
-	// 		'@html-eslint/element-newline': [`error`, {
-	// 			skip: [
-	// 				`a`,
-	// 				`abbr`,
-	// 				`acronym`,
-	// 				`b`,
-	// 				`br`,
-	// 				`cite`,
-	// 				`code`,
-	// 				`del`,
-	// 				`dfn`,
-	// 				`em`,
-	// 				`i`,
-	// 				`img`,
-	// 				`kbd`,
-	// 				`mark`,
-	// 				`q`,
-	// 				`samp`,
-	// 				`span`,
-	// 				`strong`,
-	// 				`sub`,
-	// 				`sup`,
-	// 				`time`,
-	// 				`u`,
-	// 				`s`,
-	// 				`slot`,
-	// 				`td`,
-	// 				`var`,
-	// 			],
-	// 		}],
-	// 		'@html-eslint/indent': [`error`, `tab`],
-	// 		'@html-eslint/lowercase': `error`,
-	// 		'@html-eslint/no-abstract-roles': `error`,
-	// 		'@html-eslint/no-accesskey-attrs': `error`,
-	// 		'@html-eslint/no-aria-hidden-body': `error`,
-	// 		'@html-eslint/no-duplicate-attrs': `error`,
-	// 		'@html-eslint/no-duplicate-id': `error`,
-	// 		'@html-eslint/no-extra-spacing-attrs': [`error`, {
-	// 			disallowMissing: true,
-	// 			disallowTabs: true,
-	// 			enforceBeforeSelfClose: true,
-	// 		}],
-	// 		'@html-eslint/no-inline-styles': `off`,
-	// 		'@html-eslint/no-multiple-empty-lines': [`error`, {
-	// 			max: 2,
-	// 		}],
-	// 		'@html-eslint/no-multiple-h1': `warn`,
-	// 		'@html-eslint/no-non-scalable-viewport': `warn`,
-	// 		'@html-eslint/no-obsolete-tags': `error`,
-	// 		'@html-eslint/no-positive-tabindex': `warn`,
-	// 		'@html-eslint/no-script-style-type': `error`,
-	// 		'@html-eslint/no-skip-heading-levels': `warn`,
-	// 		'@html-eslint/no-target-blank': `error`,
-	// 		'@html-eslint/no-trailing-spaces': `error`,
-	// 		'@html-eslint/quotes': [`error`, `double`],
-	// 		'@html-eslint/require-button-type': `error`,
-	// 		'@html-eslint/require-closing-tags': [`error`, {
-	// 			selfClosing: `always`,
-	// 		}],
-	// 		'@html-eslint/require-doctype': `error`,
-	// 		'@html-eslint/require-frame-title': `error`,
-	// 		'@html-eslint/require-img-alt': `error`,
-	// 		'@html-eslint/require-lang': `error`,
-	// 		'@html-eslint/require-li-container': `error`,
-	// 		'@html-eslint/require-meta-charset': `warn`,
-	// 		'@html-eslint/require-meta-description': `warn`,
-	// 		'@html-eslint/require-meta-viewport': `warn`,
-	// 		'@html-eslint/require-title': `error`,
-	// 		'@html-eslint/sort-attrs': [`error`, {
-	// 			priority: [],
-	// 		}],
-	// 		'@stylistic/max-len': `off`,
-	// 	},
-	// },
 ];
 
 export default config;

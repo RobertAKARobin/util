@@ -11,9 +11,9 @@
 		"@robertakarobin/eslint-config-ts"
 	],
 	"include": [
-		"../util/**/*.ts",
+		"../util/**/*",
 		"build.ts",
-		"spec/**/*.ts",
-		"src/**/*.ts"
+		"spec/**/*",
+		"src/**/*"
 	]
 }

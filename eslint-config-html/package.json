@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@html-eslint/eslint-plugin": "^0.31.1",
+    "@html-eslint/parser": "^0.31.0"
+  },
+	"main": "index.js",
+	"name": "@robertakarobin/eslint-config-html",
+	"scripts": {},
+	"type": "module",
+	"version": "0.0.1"
+}

@@ -5,6 +5,7 @@
 	"devDependencies": {
 		"@robertakarobin/csslint": "file:../csslint",
 		"@robertakarobin/eslint-config-ts": "file:../eslint-config-ts",
+		"@robertakarobin/eslint-config-html": "file:../eslint-config-html",
 		"diff": "^7.0.0"
 	},
 	"scripts": {
