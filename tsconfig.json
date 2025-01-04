@@ -2,26 +2,15 @@
 	"compilerOptions": {
 		"baseUrl": ".",
 		"declaration": true,
-		"emitDeclarationOnly": true,
-		"noEmit": false,
+		"noEmit": true,
 		"outDir": "dist",
-		"rootDir": "."
+		"rootDir": ".",
+		"skipLibCheck": true
 	},
 	"exclude": [
-		"csslint/index.js",
-		"eslint-config/index.js",
-		"eslint-config-html/index.js",
-		"eslint-config-ts/index.js",
+		"example"
 	],
 	"extends": [
 		"@robertakarobin/eslint-config-ts"
-	],
-	"include": [
-		"csslint/**/*",
-		"eslint-config/**/*",
-		"eslint-config-html/**/*",
-		"eslint-config-ts/**/*",
-		"util/**/*",
-		"index.spec.ts",
-	],
+	]
 }

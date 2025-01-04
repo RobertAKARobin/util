@@ -4,14 +4,7 @@ import * as robinsConfig from '@robertakarobin/eslint-config-ts';
 import { files } from '@robertakarobin/eslint-config';
 
 export default tsESLint.config(
-	robinsConfig.createConfig({
-		filesNotInTsconfig: [
-			`eslint.config.mjs`,
-			`csslint/index.js`,
-			`eslint-config/index.js`,
-			`eslint-config-html/index.js`,
-		],
-	}),
+	robinsConfig.createConfig(),
 
 	{
 		files,

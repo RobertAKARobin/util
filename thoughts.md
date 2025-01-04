@@ -1,5 +1,20 @@
 # Thinking through things
 
+-	JSON linting
+	-	Old way: use TS
+		-	- Dependent on TS extension which is odd
+		-	- Requires manually adding all JSON to TSConfig
+		-	+ Has all the rules
+	-	Use eslint/json
+		-	+ Sensible dependencies
+		-	+ Seems to pick up on all the JSON files without anything updating TSConfig
+		-	- Not enough rules
+	-	Use separate tsconfig for non-compiled stuff
+		-	+ Better separation of concerns, splitting out TSConfig for code from TSConfig for tooling:
+			-	eslint
+			-	json
+		-	- Same problems as before
+		-	- Doesn't play nice with VSCode?
 -	HTML validation
 	-	https://www.npmjs.com/package/html-validate
 		-	Doesn't support autofix: https://gitlab.com/html-validate/html-validate/-/issues/116

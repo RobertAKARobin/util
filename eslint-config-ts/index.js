@@ -34,6 +34,7 @@ export function createConfig(options = {}) {
 					},
 				}],
 				'@stylistic/ts/object-curly-spacing': [`error`, `always`],
+				'@stylistic/ts/semi': [`error`, `always`],
 				'@stylistic/ts/space-before-function-paren': [`error`, `never`],
 				'@stylistic/ts/type-annotation-spacing': [`error`],
 				'@typescript-eslint/array-type': [`error`, {
