@@ -2,7 +2,7 @@
 	"dependencies": {
 		"@robertakarobin/eslint-config": "^0.0.29",
 		"@stylistic/eslint-plugin-ts": "^2.12.1",
-		"typescript-eslint": "^8.18.1"
+		"typescript-eslint": "^8.19.0"
 	},
 	"devDependencies": {
 		"@robertakarobin/eslint-config": "file:../eslint-config"

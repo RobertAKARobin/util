@@ -2,11 +2,7 @@ const rule = require(`./no-bang-negation`);
 const RuleTester = require(`eslint`).RuleTester;
 const messageId = `noBangNegation`;
 
-const ruleTester = new RuleTester({
-	parserOptions: {
-		ecmaVersion: 6,
-	},
-});
+const ruleTester = new RuleTester();
 ruleTester.run(`no-bang-negation`, rule, {
 	valid: [
 		`isNo = isYes == false`,

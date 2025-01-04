@@ -4,12 +4,17 @@ import postcss from 'postcss';
 import postcssNested from 'postcss-nested';
 
 /**
+ * @callback cssFormatCallback
+ * @param {string} css
+ */
+
+/**
  * Compiles `.css.js` file to `.css`
  * @param {string} source - Path to source `.css.js` file, where the `default` export is a CSS string
- * @param {string} target - Path to target `.css` file
+ * @param {string|undefined} target - Path to target `.css` file
  * @param {Object} options
- * @param {boolean} options.format - Callback to run on the compiled CSS before it's written to file
- * @param {boolean} options.unnest - Whether to use PostCSS to un-nest nested CSS selectors for older browsers. Default true
+ * @param {cssFormatCallback} [options.format=undefined] - Callback to run on the compiled CSS before it's written to file
+ * @param {boolean} [options.unnest=true] - Whether to use PostCSS to un-nest nested CSS selectors for older browsers
  */
 export async function cssJs(
 	source,
@@ -40,7 +45,7 @@ export async function cssJs(
 		}).css;
 	}
 
-	if (options.format) {
+	if (typeof options.format === `function`) {
 		css = options.format(css); // eslint-disable-line @typescript-eslint/no-unsafe-assignment
 	}
 

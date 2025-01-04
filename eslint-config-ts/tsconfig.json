@@ -2,13 +2,14 @@
 	"compilerOptions": {
 		"allowImportingTsExtensions": true,
 		"allowJs": true,
-		"checkJs": false,
+		"checkJs": true,
 		"experimentalDecorators": true,
 		"lib": ["ESNext", "DOM", "DOM.Iterable"],
 		"module": "NodeNext",
 		"moduleResolution": "NodeNext",
 		"noEmit": true,
 		"resolveJsonModule": true,
+		"skipLibCheck": true,
 		"strict": true,
 		"target": "ESNext",
 		"useDefineForClassFields": false // https://lit.dev/docs/components/decorators/#decorators-typescript

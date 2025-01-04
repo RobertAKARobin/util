@@ -1,7 +1,14 @@
 import htmlEslintParser from '@html-eslint/parser';
 import htmlEslintPlugin from '@html-eslint/eslint-plugin';
 
+/**
+ * @typedef {import('eslint').Linter.Config} Config
+ */
+
 // TODO3: Lint HTML in JS template literals (https://github.com/yeonjuan/html-eslint/issues/196)
+/**
+ * @type Array<Config>
+ */
 export const config = [
 	{
 		files: [`**/*.html`],
@@ -9,6 +16,7 @@ export const config = [
 			parser: htmlEslintParser,
 		},
 		plugins: {
+			// @ts-expect-error TODO3 Add bug to html-eslint for this?
 			'@html-eslint': htmlEslintPlugin,
 		},
 		rules: {

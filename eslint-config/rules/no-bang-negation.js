@@ -1,5 +1,5 @@
 /**
- * @typedef {import('@typescript-eslint/utils').TSESLint.RuleModule} RuleModule
+ * @typedef {import('eslint').Rule.RuleModule} RuleModule
  */
 
 const messageId = `noBangNegation`;

@@ -1,14 +1,11 @@
 {
 	"compilerOptions": {
 		"baseUrl": ".",
-		"declaration": true,
-		"noEmit": true,
-		"outDir": "dist",
 		"rootDir": ".",
-		"skipLibCheck": true
 	},
 	"exclude": [
-		"example"
+		"example",
+		"tmp"
 	],
 	"extends": [
 		"@robertakarobin/eslint-config-ts"

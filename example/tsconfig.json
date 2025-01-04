@@ -13,6 +13,7 @@
 	"include": [
 		"../util/**/*",
 		"build.ts",
+		"eslint.config.mjs",
 		"spec/**/*",
 		"src/**/*"
 	]

@@ -1,5 +1,11 @@
+/**
+ * @typedef {import('eslint').Linter.Config} Config
+ */
+
 import globals from 'globals';
+// @ts-expect-error TODO2 Types are incoming https://github.com/import-js/eslint-plugin-import/pull/3097
 import importPlugin from 'eslint-plugin-import';
+// @ts-expect-error TODO1 Minor package, copy it
 import importQuotesPlugin from 'eslint-plugin-import-quotes';
 import stylisticPlugin from '@stylistic/eslint-plugin-js';
 
@@ -8,7 +14,9 @@ import localPlugin from './rules/index.js';
 export const files = [`**/*.js`, `**/*.cjs`, `**/*.mjs`, `**/*.ts`];
 
 // TODO2: Can't get ESlint to check dotfolders, e.g. `.vscode/settings.json`
-// TODO3: vscode-eslint throws 'Could not find config file. at locateConfigFileToUse' on this, but `npx eslint` works fine
+/**
+ * @type Array<Config>
+ */
 export const config = [
 	// { TODO1: Extract to json package
 	// 	files: [`*.json`],
@@ -45,6 +53,7 @@ export const config = [
 		},
 		plugins: {
 			'@robertakarobin': localPlugin,
+			// @ts-expect-error TODO3 Tracking in https://github.com/eslint-stylistic/eslint-stylistic/issues/437
 			'@stylistic': stylisticPlugin,
 			'import': importPlugin, // TODO2: These throw a @typescript-eslint/no-unsafe-assignment warning
 			'import-quotes': importQuotesPlugin,
