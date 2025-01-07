@@ -1,5 +1,5 @@
-import { enumy } from '../group/enumy.ts';
-import { setImmediate } from './setImmediate.ts';
+import { enumy } from '../group/enumy';
+import { setImmediate } from './setImmediate';
 
 export const loopStatuses = [
 	`unstarted`,

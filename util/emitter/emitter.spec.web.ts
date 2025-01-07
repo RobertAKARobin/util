@@ -1,7 +1,7 @@
-import { suite, test } from '../spec/index.ts';
+import { suite, test } from '../spec/index';
 
-import { Emitter } from './emitter.ts';
-import { pipeUntil } from './pipe/until.ts';
+import { Emitter } from './emitter';
+import { pipeUntil } from './pipe/until';
 
 export const spec = suite(import.meta.url, {},
 	test(`fromEvent`, $ => {

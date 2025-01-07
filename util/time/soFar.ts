@@ -1,6 +1,6 @@
 // soFar.ts => soFarts, lol
 
-import { preciseTo } from '../math/preciseTo.ts';
+import { preciseTo } from '../math/preciseTo';
 
 /**
  * Time "so far". Just compares performance.now() to its last value.

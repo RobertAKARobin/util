@@ -1,4 +1,4 @@
-import type * as Type from '../types.d.ts';
+import type * as Type from '../types.d';
 
 export function throttle(
 	callback: () => unknown,

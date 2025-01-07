@@ -1,8 +1,8 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import type { Bezier, CoordinateLike, Segment } from '../types.d.ts';
-import { pointNearestBezier } from './pointNearestBezier.ts';
-import { pointToString } from './pointToString.ts';
+import type { Bezier, CoordinateLike, Segment } from '../types.d';
+import { pointNearestBezier } from './pointNearestBezier';
+import { pointToString } from './pointToString';
 import segments from '../mock/segments.json' with { type: 'json' };
 
 export const spec = test(import.meta.url, $ => {

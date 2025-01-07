@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { enumy } from './enumy.ts';
+import { enumy } from './enumy';
 
 export const spec = test(import.meta.url, $ => {
 	const subject = enumy(`alice`, `bob`, `carol`);

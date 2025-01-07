@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { getSum } from './sum.ts';
+import { getSum } from './sum';
 
 export const spec = test(import.meta.url, $ => {
 	const subject = `8675309`.split(``).map(Number);

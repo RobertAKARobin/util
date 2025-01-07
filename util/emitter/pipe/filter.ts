@@ -1,4 +1,4 @@
-import { IGNORE, type PipeFunction, type SubscriptionEvent } from '../emitter.ts';
+import { IGNORE, type PipeFunction, type SubscriptionEvent } from '../emitter';
 
 /**
  * Emits the source only when the given condition is met

@@ -1,8 +1,8 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import type { CoordinateLike } from '../types.d.ts';
-import { pointNearestPoint } from './pointNearestPoint.ts';
-import { pointToString } from './pointToString.ts';
+import type { CoordinateLike } from '../types.d';
+import { pointNearestPoint } from './pointNearestPoint';
+import { pointToString } from './pointToString';
 
 export const spec = test(import.meta.url, $ => {
 	const points = [[0, 0], [3, 0], [3, 4]];

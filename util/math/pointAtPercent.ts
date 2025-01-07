@@ -1,7 +1,7 @@
-import type { Coordinate } from '../types.d.ts';
+import type { Coordinate } from '../types.d';
 
-import { pointsSeparated } from './pointsSeparated.ts';
-import { pointsToMidpoints } from './pointsToMidpoints.ts';
+import { pointsSeparated } from './pointsSeparated';
+import { pointsToMidpoints } from './pointsToMidpoints';
 
 /**
  * Given points along a line, and n% percent of the line's total length, approximate the coordinates of the point at that length.

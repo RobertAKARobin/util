@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { deleteAt } from './deleteAt.ts';
+import { deleteAt } from './deleteAt';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(deleteAt(`abcdef`, 3)) === `abcef`);

@@ -1,5 +1,5 @@
-import type * as Type from './types.d.ts';
-import { suite } from '../index.ts';
+import type * as Type from './types.d';
+import { suite } from '../index';
 
 export const specRunNative: Type.SpecRunner = async function(
 	specFiles,

@@ -1,8 +1,8 @@
-import { diff } from '../../util/spec/diff.ts';
-import { execUntil } from '../../util/node/execUntil.ts';
-import { pathRelative } from '../../util/node/pathRelative.ts';
-import { readRelative } from '../../util/node/readRelative.ts';
-import { test } from '../../util/spec/index.ts';
+import { diff } from '../../util/spec/diff';
+import { execUntil } from '../../util/node/execUntil';
+import { pathRelative } from '../../util/node/pathRelative';
+import { readRelative } from '../../util/node/readRelative';
+import { test } from '../../util/spec/index';
 
 import { cssJs } from '../css-js.js';
 

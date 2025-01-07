@@ -1,9 +1,9 @@
 import { execSync } from 'child_process';
 
-import { Builder } from '@robertakarobin/util/components/build.ts';
+import { Builder } from '@robertakarobin/util/util/components/build';
 
-import { execUntil } from '../util/node/execUntil.ts';
-import { routes } from '@src/routes.ts';
+import { execUntil } from '../util/node/execUntil';
+import { routes } from '@src/routes';
 
 class CustomBuilder extends Builder {
 	override cleanup() {

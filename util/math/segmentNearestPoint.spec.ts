@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { segmentNearestPoint } from './segmentNearestPoint.ts';
+import { segmentNearestPoint } from './segmentNearestPoint';
 import segments from '../mock/segments.json' with { type: 'json' };
 
 export const spec = test(import.meta.url, $ => {

@@ -1,4 +1,4 @@
-import { type EntityWithId } from '@robertakarobin/util/emitter/entities.ts';
+import { type EntityWithId } from '@robertakarobin/util/util/emitter/entities';
 
 export type ListItem = {
 	value: string;

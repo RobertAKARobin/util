@@ -1,7 +1,7 @@
-import type { Coordinate } from '../types.d.ts';
+import type { Coordinate } from '../types.d';
 
-import { bezierPoint } from './bezierPoint.ts';
-import { preciseTo } from './preciseTo.ts';
+import { bezierPoint } from './bezierPoint';
+import { preciseTo } from './preciseTo';
 
 export function bezierToPoints(
 	begin: Coordinate,

@@ -3,8 +3,6 @@
  */
 
 import globals from 'globals';
-// @ts-expect-error TODO2 Types are incoming https://github.com/import-js/eslint-plugin-import/pull/3097
-import importPlugin from 'eslint-plugin-import';
 // @ts-expect-error TODO1 Minor package, copy it
 import importQuotesPlugin from 'eslint-plugin-import-quotes';
 import stylisticPlugin from '@stylistic/eslint-plugin-js';
@@ -53,9 +51,7 @@ export const config = [
 		},
 		plugins: {
 			'@robertakarobin': localPlugin,
-			// @ts-expect-error TODO3 Tracking in https://github.com/eslint-stylistic/eslint-stylistic/issues/437
 			'@stylistic': stylisticPlugin,
-			'import': importPlugin, // TODO2: These throw a @typescript-eslint/no-unsafe-assignment warning
 			'import-quotes': importQuotesPlugin,
 		},
 		rules: {
@@ -96,7 +92,6 @@ export const config = [
 			'curly': [`error`, `all`],
 			'eqeqeq': `error`,
 			'import-quotes/import-quotes': [`error`, `single`],
-			'import/extensions': [`error`, `ignorePackages`],
 			'no-undef': [`error`],
 			'no-unused-vars': [`warn`, {
 				argsIgnorePattern: `^_`,

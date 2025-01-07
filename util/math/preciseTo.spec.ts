@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { preciseTo } from './preciseTo.ts';
+import { preciseTo } from './preciseTo';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(preciseTo(Math.PI, 0)) === 3);

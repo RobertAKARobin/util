@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { type EntityId, EntityStateEmitter } from './entities.ts';
+import { type EntityId, EntityStateEmitter } from './entities';
 
 type Item = {
 	value: string;

@@ -1,6 +1,6 @@
-import type { Coordinate, CoordinateLike } from '../types.d.ts';
+import type { Coordinate, CoordinateLike } from '../types.d';
 
-import { pointRotate } from './pointRotate.ts';
+import { pointRotate } from './pointRotate';
 
 export function pointsRotate(
 	points: Array<CoordinateLike>,

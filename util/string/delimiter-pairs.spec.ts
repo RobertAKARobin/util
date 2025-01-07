@@ -1,6 +1,6 @@
-import { suite, test } from '../spec/index.ts';
+import { suite, test } from '../spec/index';
 
-import { delimiterPairs, type Result } from './delimiter-pairs.ts';
+import { delimiterPairs, type Result } from './delimiter-pairs';
 
 function at<ReturnType extends Result | string = string>(result: Result) {
 	return (...indexes: Array<number>): ReturnType => {

@@ -1,4 +1,4 @@
-import { delay } from './delay.ts';
+import { delay } from './delay';
 
 /**
  * Returns a promise that resolves after the provided milliseconds

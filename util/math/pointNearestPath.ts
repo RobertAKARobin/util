@@ -1,8 +1,8 @@
-import type { Bezier, CoordinateLike, LineLike, Segment } from '../types.d.ts';
-import { pointNearestBezier } from './pointNearestBezier.ts';
-import { pointNearestLine } from './pointNearestLine.ts';
-import { segmentNearestPoint } from './segmentNearestPoint.ts';
-import { toCoordinate } from './toCoordinate.ts';
+import type { Bezier, CoordinateLike, LineLike, Segment } from '../types.d';
+import { pointNearestBezier } from './pointNearestBezier';
+import { pointNearestLine } from './pointNearestLine';
+import { segmentNearestPoint } from './segmentNearestPoint';
+import { toCoordinate } from './toCoordinate';
 
 /**
  * Given a target coordinate and a path (which is an array of segments), approximate the point on the path closest to the target

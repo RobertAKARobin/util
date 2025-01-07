@@ -1,8 +1,8 @@
 // import './dummydom.js';
 
-import { suite, test } from '@robertakarobin/util/spec/index.ts';
-import { Component } from '@robertakarobin/util/components/component.ts';
-import { Emitter } from '@robertakarobin/util/emitter/emitter.ts';
+import { suite, test } from '../spec/index';
+import { Component } from './component';
+import { Emitter } from '../emitter/emitter';
 
 @Component.define()
 class Widget extends Component.custom(`h1`) {

@@ -4,13 +4,13 @@ import esbuild from 'esbuild';
 import fs from 'fs';
 import path from 'path';
 
-import { Component, type Page } from '@robertakarobin/util/components/component.ts';
-import { Resolver, type RouteMap, Router } from '@robertakarobin/util/web/router.ts';
-import type { BaseApp } from '@robertakarobin/util/components/app.ts';
-import { baseUrl } from '@robertakarobin/util/web/context.ts';
-import { pipeFirst } from '@robertakarobin/util/emitter/pipe/first.ts';
-import { posixPath } from '@robertakarobin/util/node/posixPath.ts';
-import { promiseConsecutive } from '@robertakarobin/util/time/promiseConsecutive.ts';
+import { Component, type Page } from './component';
+import { Resolver, type RouteMap, Router } from '../web/router';
+import type { BaseApp } from './app';
+import { baseUrl } from '../web/context';
+import { pipeFirst } from '../emitter/pipe/first';
+import { posixPath } from '../node/posixPath';
+import { promiseConsecutive } from '../time/promiseConsecutive';
 
 const local = (input: string) => path.relative(process.cwd(), input);
 

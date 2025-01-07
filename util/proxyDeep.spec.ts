@@ -2,9 +2,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { test } from './spec/index.ts';
+import { test } from './spec/index';
 
-import { proxyDeep } from './proxyDeep.ts';
+import { proxyDeep } from './proxyDeep';
 
 export const spec = test(import.meta.url, $ => {
 	const proxy = proxyDeep(`%`) as any;

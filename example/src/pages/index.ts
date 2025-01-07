@@ -1,17 +1,17 @@
-import { Component, css, html, Page } from '@robertakarobin/util/components/component.ts';
-import { type EntityId } from '@robertakarobin/util/emitter/entities.ts';
-import { ModalContainer } from '@robertakarobin/util/components/modal-container.ts';
-import { runContext } from '@robertakarobin/util/web/context.ts';
+import { Component, css, html, Page } from '@robertakarobin/util/util/components/component';
+import { type EntityId } from '@robertakarobin/util/util/emitter/entities';
+import { ModalContainer } from '@robertakarobin/util/util/components/modal-container';
+import { runContext } from '@robertakarobin/util/util/web/context';
 
-import type * as Type from '@src/types.d.ts';
-import { link } from '@src/components/link.ts';
-import { List } from '@src/components/list.ts';
-import { ListItem } from '@src/components/listitem.ts';
-import { ProgressModal } from '@src/modals/progress.ts';
-import { router } from '@src/app.ts';
-import { state } from '@src/state.ts';
-import { theme } from '@src/theme.ts';
-import { TransitionTest } from '@src/components/transition-test.ts';
+import type * as Type from '@src/types.d';
+import { link } from '@src/components/link';
+import { List } from '@src/components/list';
+import { ListItem } from '@src/components/listitem';
+import { ProgressModal } from '@src/modals/progress';
+import { router } from '@src/app';
+import { state } from '@src/state';
+import { theme } from '@src/theme';
+import { TransitionTest } from '@src/components/transition-test';
 
 const style = css`
 :host {

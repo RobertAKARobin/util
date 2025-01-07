@@ -1,5 +1,5 @@
-import { dateFormatYYYYMMDD } from './dateFormat.ts';
-import { test } from '../spec/index.ts';
+import { dateFormatYYYYMMDD } from './dateFormat';
+import { test } from '../spec/index';
 
 export const spec = test(import.meta.url, $ => {
 	const now = new Date();

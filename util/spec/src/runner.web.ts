@@ -2,12 +2,12 @@ import { execSync, spawn } from 'child_process';
 import fs from 'fs';
 import http from 'http';
 
-import { mimeFor, mimeMap } from '../../web/mime.ts';
-import { tryCatch } from '../../tryCatch.ts';
+import { mimeFor, mimeMap } from '../../web/mime';
+import { tryCatch } from '../../tryCatch';
 
-import { count } from '../index.ts';
+import { count } from '../index';
 
-import type * as Type from './types.d.ts';
+import type * as Type from './types.d';
 
 const specHost = `localhost`;
 const specPort = 8001;

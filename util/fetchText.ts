@@ -1,8 +1,8 @@
 import type fsType from 'fs';
 import type pathType from 'path';
 
-import { importAs } from './importAs.ts';
-import { runContext } from './web/context.ts';
+import { importAs } from './importAs';
+import { runContext } from './web/context';
 
 export async function fetchText(target: string) {
 	if (runContext === `browser`) {

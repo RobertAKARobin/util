@@ -1,5 +1,5 @@
-import type { CoordinateLike } from '../types.d.ts';
-import { toCoordinate } from './toCoordinate.ts';
+import type { CoordinateLike } from '../types.d';
+import { toCoordinate } from './toCoordinate';
 
 export function pointToString(point: CoordinateLike) {
 	const { x, y } = toCoordinate(point);

@@ -1,7 +1,7 @@
-import type { CoordinateLike } from '../types.d.ts';
+import type { CoordinateLike } from '../types.d';
 
-import { pointToString } from './pointToString.ts';
-import { toCoordinate } from './toCoordinate.ts';
+import { pointToString } from './pointToString';
+import { toCoordinate } from './toCoordinate';
 
 /**
  * Returns whether all the given points are unique.

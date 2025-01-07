@@ -1,7 +1,7 @@
 import type fs from 'fs';
 
-import { importAs } from '../importAs.ts';
-import { runContext } from './context.ts';
+import { importAs } from '../importAs';
+import { runContext } from './context';
 
 /**
  * A way of sharing backend variables with the frontend that is (a) type-safe, and (b) lets both environments use the same import.

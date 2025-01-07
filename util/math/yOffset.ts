@@ -1,7 +1,7 @@
-import type { LineLike } from '../types.d.ts';
+import type { LineLike } from '../types.d';
 
-import { getSlope } from './slope.ts';
-import { toLine } from './toLine.ts';
+import { getSlope } from './slope';
+import { toLine } from './toLine';
 
 export function getYOffset(lineLike: LineLike) {
 	const path = toLine(lineLike);

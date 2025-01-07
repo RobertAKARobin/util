@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { listenOnce } from './listenOnce.ts';
+import { listenOnce } from './listenOnce';
 
 export const spec = test(import.meta.url, async $ => {
 	const subject = document.createElement(`div`);

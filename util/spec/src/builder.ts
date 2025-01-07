@@ -1,9 +1,9 @@
-import type * as $ from '../../types.d.ts';
-import { arrayToEnum } from '../../group/arrayToEnum.ts';
-import { nTimes } from '../../group/nTimes.ts';
-import { promiseConsecutive } from '../../time/promiseConsecutive.ts';
+import type * as $ from '../../types.d';
+import { arrayToEnum } from '../../group/arrayToEnum';
+import { nTimes } from '../../group/nTimes';
+import { promiseConsecutive } from '../../time/promiseConsecutive';
 
-import type * as Type from './types.d.ts';
+import type * as Type from './types.d';
 
 const specStepCountDefault: Type.SpecStepCount = {
 	deferred: 0,

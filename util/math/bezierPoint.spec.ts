@@ -1,7 +1,7 @@
-import type { Bezier } from '../types.d.ts';
-import { test } from '../spec/index.ts';
+import type { Bezier } from '../types.d';
+import { test } from '../spec/index';
 
-import { bezierPoint } from './bezierPoint.ts';
+import { bezierPoint } from './bezierPoint';
 import segments from '../mock/segments.json' with { type: 'json' };
 
 export const spec = test(import.meta.url, $ => {

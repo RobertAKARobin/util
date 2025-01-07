@@ -1,10 +1,10 @@
-import type { Bezier, CoordinateLike } from '../types.d.ts';
-import { bezierPoint } from './bezierPoint.ts';
-import { findPercent } from './findPercent.ts';
-import { pointsRotate } from './pointsRotate.ts';
-import { pointsToAngles } from './pointsToAngles.ts';
-import { roundTo } from './roundTo.ts';
-import { toCoordinate } from './toCoordinate.ts';
+import type { Bezier, CoordinateLike } from '../types.d';
+import { bezierPoint } from './bezierPoint';
+import { findPercent } from './findPercent';
+import { pointsRotate } from './pointsRotate';
+import { pointsToAngles } from './pointsToAngles';
+import { roundTo } from './roundTo';
+import { toCoordinate } from './toCoordinate';
 
 /**
  * Given a coordinate and a Bezier, returns the point on the Bezier that would meet the coordinate at a slope perpendicular to the Bezier's overall slope. (`pointPerpendicularToBezier` was a bit wordy.)

@@ -1,4 +1,4 @@
-import { preciseTo } from './preciseTo.ts';
+import { preciseTo } from './preciseTo';
 
 /**
  * Round to the specified multiple

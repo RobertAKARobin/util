@@ -1,9 +1,9 @@
-import type { Bezier, Coordinate, CoordinateLike } from '../types.d.ts';
-import { bezierPoint } from './bezierPoint.ts';
-import { findPercent } from './findPercent.ts';
-import { getDistance } from './distance.ts';
-import { roundTo } from './roundTo.ts';
-import { toCoordinate } from './toCoordinate.ts';
+import type { Bezier, Coordinate, CoordinateLike } from '../types.d';
+import { bezierPoint } from './bezierPoint';
+import { findPercent } from './findPercent';
+import { getDistance } from './distance';
+import { roundTo } from './roundTo';
+import { toCoordinate } from './toCoordinate';
 
 /**
  * Given a target coordinate and a Bezier curve, approximate the point on the curve nearest the coordinate.

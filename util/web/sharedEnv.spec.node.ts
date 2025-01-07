@@ -1,9 +1,9 @@
 import { execSync } from 'child_process';
 import fs from 'fs';
 
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { sharedEnv } from './sharedEnv.ts';
+import { sharedEnv } from './sharedEnv';
 
 export const spec = test(import.meta.url, async $ => {
 	const env = await sharedEnv(`env`, () => ({

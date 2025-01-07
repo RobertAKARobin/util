@@ -1,6 +1,6 @@
-import { newUid } from '../uid.ts';
+import { newUid } from '../uid';
 
-import { Emitter } from './emitter.ts';
+import { Emitter } from './emitter';
 
 export type EntityId = number | string;
 

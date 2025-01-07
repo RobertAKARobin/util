@@ -1,5 +1,5 @@
-import type { Coordinate, LineLike } from '../types.d.ts';
-import { toCoordinate } from './toCoordinate.ts';
+import type { Coordinate, LineLike } from '../types.d';
+import { toCoordinate } from './toCoordinate';
 
 /**
  * Returns a positive number representing the total distance between points

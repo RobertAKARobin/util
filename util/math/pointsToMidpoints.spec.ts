@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { pointsToMidpoints } from './pointsToMidpoints.ts';
+import { pointsToMidpoints } from './pointsToMidpoints';
 import segments from '../mock/segments.json' with { type: 'json' };
 
 export const spec = test(import.meta.url, $ => {

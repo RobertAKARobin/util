@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { nTimes } from './nTimes.ts';
+import { nTimes } from './nTimes';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(nTimes(2, `foo`).join(` `)) === `foo foo`);

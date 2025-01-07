@@ -1,4 +1,4 @@
-import { CssTheme } from '@robertakarobin/util/css/theme.ts';
+import { CssTheme } from '@robertakarobin/util/util/css/theme';
 
 const breakpoints = {
 	phone: 600,

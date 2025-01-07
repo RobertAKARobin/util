@@ -1,4 +1,4 @@
-import { durationVarName, modalStatus, modalStatusAttr } from './modal-container.ts';
+import { durationVarName, modalStatus, modalStatusAttr } from './modal-container';
 
 export default /*css*/`
 :host {

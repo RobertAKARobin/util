@@ -1,7 +1,7 @@
-import type { Coordinate, CoordinateLike, LineLike } from '../types.d.ts';
-import { constrain } from './constrain.ts';
-import { toCoordinate } from './toCoordinate.ts';
-import { toLine } from './toLine.ts';
+import type { Coordinate, CoordinateLike, LineLike } from '../types.d';
+import { constrain } from './constrain';
+import { toCoordinate } from './toCoordinate';
+import { toLine } from './toLine';
 
 /**
  * Given a target coordinate and a line, find the point on the line nearest the coordinate

@@ -1,6 +1,6 @@
-import type { CoordinateLike } from '../types.d.ts';
-import { getDistance } from './distance.ts';
-import { toCoordinate } from './toCoordinate.ts';
+import type { CoordinateLike } from '../types.d';
+import { getDistance } from './distance';
+import { toCoordinate } from './toCoordinate';
 
 export function pointsToAngles(
 	...points: [CoordinateLike, CoordinateLike, CoordinateLike]

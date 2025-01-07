@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { findPercent } from './findPercent.ts';
+import { findPercent } from './findPercent';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(findPercent(pct => Math.abs((100 * pct) - 45))) === .45);

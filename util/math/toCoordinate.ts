@@ -1,4 +1,4 @@
-import type { Coordinate, CoordinateLike } from '../types.d.ts';
+import type { Coordinate, CoordinateLike } from '../types.d';
 
 /**
  * Converts a tuple of 2 numbers to a Coordinate. Using `Array<number>` because otherwise keeps requiring we specify `as [number, number]`

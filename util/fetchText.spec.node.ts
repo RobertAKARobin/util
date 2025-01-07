@@ -1,6 +1,6 @@
-import { test } from './spec/index.ts';
+import { test } from './spec/index';
 
-import { fetchText } from './fetchText.ts';
+import { fetchText } from './fetchText';
 
 export const spec = test(import.meta.url, async $ => {
 	const text = await fetchText(`/util/mock/text.txt`);

@@ -1,6 +1,6 @@
-import { Component, html } from '@robertakarobin/util/components/component.ts';
-import { ModalContainer } from '@robertakarobin/util/components/modal-container.ts';
-import { ProgressCircle } from '@robertakarobin/util/components/progress-circle.ts';
+import { Component, html } from '@robertakarobin/util/util/components/component';
+import { ModalContainer } from '@robertakarobin/util/util/components/modal-container';
+import { ProgressCircle } from '@robertakarobin/util/util/components/progress-circle';
 
 @Component.define({
 	stylePath: import.meta.url,

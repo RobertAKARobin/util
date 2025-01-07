@@ -1,7 +1,7 @@
-import { baseUrl } from '@robertakarobin/util/web/context.ts';
-import { toAttributes } from '@robertakarobin/util/dom/attributes.ts';
+import { baseUrl } from '@robertakarobin/util/util/web/context';
+import { toAttributes } from '@robertakarobin/util/util/dom/attributes';
 
-import { router } from '@src/app.ts';
+import { router } from '@src/app';
 
 export function link(
 	routeName: keyof typeof router.routes,

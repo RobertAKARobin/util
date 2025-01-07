@@ -1,4 +1,4 @@
-import { Component, html } from '@robertakarobin/util/components/component.ts';
+import { Component, html } from '@robertakarobin/util/util/components/component';
 
 @Component.define({
 	stylePath: import.meta.url,

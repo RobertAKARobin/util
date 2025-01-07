@@ -1,4 +1,4 @@
-import { Component, html, Page } from '@robertakarobin/util/components/component.ts';
+import { Component, html, Page } from '@robertakarobin/util/util/components/component';
 
 const style = /*css*/`
 h1 {

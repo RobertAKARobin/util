@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { getSlope } from './slope.ts';
+import { getSlope } from './slope';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(getSlope([[0, 0], [3, 4]])) === x(4 / 3));

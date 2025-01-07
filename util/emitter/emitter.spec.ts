@@ -1,11 +1,11 @@
-import { suite, test } from '../spec/index.ts';
-import { sleep } from '../time/sleep.ts';
+import { suite, test } from '../spec/index';
+import { sleep } from '../time/sleep';
 
-import { type EmitEvent, Emitter, type Subscription } from './emitter.ts';
-import { pipeFilter } from './pipe/filter.ts';
-import { pipeFirst } from './pipe/first.ts';
-import { pipeOn } from './pipe/on.ts';
-import { pipeUntil } from './pipe/until.ts';
+import { type EmitEvent, Emitter, type Subscription } from './emitter';
+import { pipeFilter } from './pipe/filter';
+import { pipeFirst } from './pipe/first';
+import { pipeOn } from './pipe/on';
+import { pipeUntil } from './pipe/until';
 
 type State = {
 	age: number;

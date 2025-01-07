@@ -1,10 +1,10 @@
-import type { Bezier, Coordinate, CoordinateLike } from '../types.d.ts';
-import { bezierPoint } from './bezierPoint.ts';
-import { findPercent } from './findPercent.ts';
-import { isBetween } from './isBetween.ts';
-import { pointsToAngles } from './pointsToAngles.ts';
-import { roundTo } from './roundTo.ts';
-import { toCoordinate } from './toCoordinate.ts';
+import type { Bezier, Coordinate, CoordinateLike } from '../types.d';
+import { bezierPoint } from './bezierPoint';
+import { findPercent } from './findPercent';
+import { isBetween } from './isBetween';
+import { pointsToAngles } from './pointsToAngles';
+import { roundTo } from './roundTo';
+import { toCoordinate } from './toCoordinate';
 
 /**
  * Given a coordinate and a bezier, return the point on the bezier most vertically- or horizontally-aligned to the coordinate

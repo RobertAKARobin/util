@@ -1,8 +1,8 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { pointToSvg } from './pointToSvg.ts';
-import { setStyle } from '../dom/attributes.ts';
-import { svgCreate } from './svgCreate.ts';
+import { pointToSvg } from './pointToSvg';
+import { setStyle } from '../dom/attributes';
+import { svgCreate } from './svgCreate';
 
 const testSvg = await (await fetch(`/mock/test.svg`)).text();
 export const spec = test(import.meta.url, $ => {

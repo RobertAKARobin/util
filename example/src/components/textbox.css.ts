@@ -1,5 +1,5 @@
-import { css } from '@robertakarobin/util/string/template.ts';
-import { types } from '@src/theme.ts';
+import { css } from '@robertakarobin/util/util/string/template';
+import { types } from '@src/theme';
 
 export default css`
 input {

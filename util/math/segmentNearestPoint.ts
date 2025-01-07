@@ -1,9 +1,9 @@
-import type { CoordinateLike, Segment } from '../types.d.ts';
-import { getDistance } from './distance.ts';
-import { pointsAreDifferent } from './pointsAreDifferent.ts';
-import { pointsToAngles } from './pointsToAngles.ts';
-import { pointsToMidpoints } from './pointsToMidpoints.ts';
-import { toCoordinate } from './toCoordinate.ts';
+import type { CoordinateLike, Segment } from '../types.d';
+import { getDistance } from './distance';
+import { pointsAreDifferent } from './pointsAreDifferent';
+import { pointsToAngles } from './pointsToAngles';
+import { pointsToMidpoints } from './pointsToMidpoints';
+import { toCoordinate } from './toCoordinate';
 
 /**
  * Given a list of segments and a coordinate, find the index of the segment nearest the coordinate

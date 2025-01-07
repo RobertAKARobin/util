@@ -1,7 +1,7 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { setStyle } from '../dom/attributes.ts';
-import { svgCreate } from './svgCreate.ts';
+import { setStyle } from '../dom/attributes';
+import { svgCreate } from './svgCreate';
 
 const testSvg = await (await fetch(`/mock/test.svg`)).text();
 

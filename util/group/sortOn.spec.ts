@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { sortOn } from './sortOn.ts';
+import { sortOn } from './sortOn';
 
 const subject = [
 	{

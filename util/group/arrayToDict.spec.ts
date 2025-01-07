@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { arrayToDict } from './arrayToDict.ts';
+import { arrayToDict } from './arrayToDict';
 
 export const spec = test(import.meta.url, $ => {
 	const subject = arrayToDict([`foo`, `bar`], `baz`);

@@ -1,7 +1,7 @@
-import type { Coordinate, CoordinateLike } from '../types.d.ts';
-import { preciseTo } from './preciseTo.ts';
-import { radiansFrom } from './radians.ts';
-import { toCoordinate } from './toCoordinate.ts';
+import type { Coordinate, CoordinateLike } from '../types.d';
+import { preciseTo } from './preciseTo';
+import { radiansFrom } from './radians';
+import { toCoordinate } from './toCoordinate';
 
 export function pointRotate(
 	coordinateLike: CoordinateLike,

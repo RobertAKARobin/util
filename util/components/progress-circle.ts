@@ -1,4 +1,4 @@
-import { Component } from './component.ts';
+import { Component } from './component';
 
 const style = /*css*/`
 :host {

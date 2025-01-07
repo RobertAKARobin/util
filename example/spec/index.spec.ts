@@ -1,9 +1,9 @@
-import '@robertakarobin/util/components/dummydom.js';
+import '@robertakarobin/util/util/components/dummydom.js';
 
-import { suite, test } from '@robertakarobin/util/spec/index.ts';
-import { Component } from '@robertakarobin/util/components/component.ts';
-import { diff } from '@robertakarobin/util/spec/diff.ts';
-import { EntityStateEmitter } from '@robertakarobin/util/emitter/entities.ts';
+import { suite, test } from '@robertakarobin/util/util/spec/index';
+import { Component } from '@robertakarobin/util/util/components/component';
+import { diff } from '@robertakarobin/util/util/spec/diff';
+import { EntityStateEmitter } from '@robertakarobin/util/util/emitter/entities';
 
 import fs from 'fs';
 
@@ -32,7 +32,7 @@ const hasSSG = (page: string) =>
 
 export const spec = suite(`Build`, {},
 	test(`build`, async $ => {
-		await import(`../build.ts`);
+		await import(`../build`);
 
 		$.assert(x => x(distMatchesGolden(`ssg/yes/index.html`)) === ``);
 		$.assert(x => x(distMatchesGolden(`ssg/yes/index.html.css`)) === ``);

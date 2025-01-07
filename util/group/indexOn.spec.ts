@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { indexOn } from './indexOn.ts';
+import { indexOn } from './indexOn';
 
 export const spec = test(import.meta.url, $ => {
 	const items = [

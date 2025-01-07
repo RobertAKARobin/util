@@ -12,9 +12,6 @@
 		"tsx": "^4.19.2",
 		"typescript": "^5.7.2"
 	},
-	"exports": {
-		"./*": "./util/*"
-	},
 	"name": "@robertakarobin/util",
 	"repository": {
 		"type": "git",

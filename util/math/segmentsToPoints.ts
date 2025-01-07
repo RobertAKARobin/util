@@ -1,6 +1,6 @@
-import type { Coordinate, Segment } from '../types.d.ts';
+import type { Coordinate, Segment } from '../types.d';
 
-import { pointsAreDifferent } from './pointsAreDifferent.ts';
+import { pointsAreDifferent } from './pointsAreDifferent';
 
 export function segmentsToPoints(
 	segments: Array<Segment>,

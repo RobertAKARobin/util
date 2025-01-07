@@ -1,6 +1,6 @@
-import type { Coordinate, CoordinateLike } from '../types.d.ts';
-import { getDistance } from './distance.ts';
-import { toCoordinate } from './toCoordinate.ts';
+import type { Coordinate, CoordinateLike } from '../types.d';
+import { getDistance } from './distance';
+import { toCoordinate } from './toCoordinate';
 
 /**
  * Given a target coordinate and an array of points, return the point closest to the target

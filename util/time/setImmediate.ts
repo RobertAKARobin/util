@@ -1,4 +1,4 @@
-import { runContext } from '../web/context.ts';
+import { runContext } from '../web/context';
 
 /**
  * requestAnimationFrame in browser environments, setImmediate otherwise

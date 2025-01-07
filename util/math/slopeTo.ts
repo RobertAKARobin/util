@@ -1,6 +1,6 @@
-import { getSlope } from './slope.ts';
-import type { LineLike } from '../types.d.ts';
-import { radiansTo } from './radians.ts';
+import { getSlope } from './slope';
+import type { LineLike } from '../types.d';
+import { radiansTo } from './radians';
 
 export function slopeTo(
 	lineLike: LineLike,

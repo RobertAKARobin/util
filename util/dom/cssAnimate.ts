@@ -1,4 +1,4 @@
-import { type AnimationData } from '../css/keyframes.ts';
+import { type AnimationData } from '../css/keyframes';
 
 export function cssAnimate(
 	target: HTMLElement,

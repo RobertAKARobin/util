@@ -1,5 +1,5 @@
-import type { CoordinateLike } from '../types.d.ts';
-import { toCoordinate } from '../math/toCoordinate.ts';
+import type { CoordinateLike } from '../types.d';
+import { toCoordinate } from '../math/toCoordinate';
 
 /**
  * Converts the coordinate at the given viewport x/y to the given SVG's x/y

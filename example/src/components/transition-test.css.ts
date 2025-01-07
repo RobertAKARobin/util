@@ -1,4 +1,4 @@
-import { css } from '@robertakarobin/util/string/template.ts';
+import { css } from '@robertakarobin/util/util/string/template';
 
 export default css`
 :host {

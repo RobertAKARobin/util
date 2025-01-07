@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { isPowerOf } from './isPowerOf.ts';
+import { isPowerOf } from './isPowerOf';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(isPowerOf(2, 0)) === false);

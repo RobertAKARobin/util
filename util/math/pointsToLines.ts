@@ -1,4 +1,4 @@
-import type { Coordinate, Line } from '../types.d.ts';
+import type { Coordinate, Line } from '../types.d';
 
 /**
  * Given an array of coordinates, convert them to an array of lines connecting all coordinates

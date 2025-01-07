@@ -1,9 +1,9 @@
 import segments from '../mock/segments.json' with { type: 'json' };
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import type { Bezier } from '../types.d.ts';
-import { pointCrossesBezier } from './pointCrossesBezier.ts';
-import { pointToString } from './pointToString.ts';
+import type { Bezier } from '../types.d';
+import { pointCrossesBezier } from './pointCrossesBezier';
+import { pointToString } from './pointToString';
 
 export const spec = test(import.meta.url, $ => {
 	let bezier: Bezier;

@@ -3,13 +3,13 @@ import {
 	type ElAttributes,
 	setAttributes,
 	setStyle,
-} from '../dom/attributes.ts';
-import { type Emitter, type IGNORE } from '../emitter/emitter.ts';
-import { newUid } from '../uid.ts';
-import { runContext } from '../web/context.ts';
-import type { Textish } from '../types.d.ts';
+} from '../dom/attributes';
+import { type Emitter, type IGNORE } from '../emitter/emitter';
+import { newUid } from '../uid';
+import { runContext } from '../web/context';
+import type { Textish } from '../types.d';
 
-export { css, html } from '../string/template.ts';
+export { css, html } from '../string/template';
 
 type Constructor<Classtype> = new (...args: any) => Classtype; // eslint-disable-line @typescript-eslint/no-explicit-any
 

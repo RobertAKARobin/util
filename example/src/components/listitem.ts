@@ -1,7 +1,7 @@
-import { Component, html } from '@robertakarobin/util/components/component.ts';
-import { type EntityId } from '@robertakarobin/util/emitter/entities.ts';
+import { Component, html } from '@robertakarobin/util/util/components/component';
+import { type EntityId } from '@robertakarobin/util/util/emitter/entities';
 
-import { Textbox } from '@src/components/textbox.ts';
+import { Textbox } from '@src/components/textbox';
 
 @Component.define()
 export class ListItem extends Component.custom(`li`) {

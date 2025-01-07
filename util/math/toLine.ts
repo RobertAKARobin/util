@@ -1,6 +1,6 @@
-import type { Line, LineLike } from '../types.d.ts';
+import type { Line, LineLike } from '../types.d';
 
-import { toCoordinate } from './toCoordinate.ts';
+import { toCoordinate } from './toCoordinate';
 
 /**
  * Returns a line made from the first and last of the given points

@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { constrain } from './constrain.ts';
+import { constrain } from './constrain';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(constrain(3, 2, 5)) === 3);

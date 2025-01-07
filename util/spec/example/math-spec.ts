@@ -1,6 +1,6 @@
-import { tryCatch } from '../../tryCatch.ts';
+import { tryCatch } from '../../tryCatch';
 
-import { suite, test } from '../index.ts';
+import { suite, test } from '../index';
 
 /**
  * Stub out async functions, with less boilerplate

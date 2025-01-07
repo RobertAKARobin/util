@@ -1,10 +1,10 @@
-import { render, suite, test } from './index.ts';
-import { diff } from './diff.ts';
-import { runContext } from '../web/context.ts';
-import { sleep } from '../time/sleep.ts';
+import { render, suite, test } from './index';
+import { diff } from './diff';
+import { runContext } from '../web/context';
+import { sleep } from '../time/sleep';
 
-import * as dbTests from './example/db-spec.ts';
-import * as mathTests from './example/math-spec.ts';
+import * as dbTests from './example/db-spec';
+import * as mathTests from './example/math-spec';
 
 function diffSansWhitespace(...inputs: [string, string]) {
 	let [expected, actual] = inputs;

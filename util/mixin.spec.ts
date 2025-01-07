@@ -1,8 +1,8 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable @typescript-eslint/no-unsafe-declaration-merging */
-import { test } from './spec/index.ts';
+import { test } from './spec/index';
 
-import { mixin } from './mixin.ts';
+import { mixin } from './mixin';
 
 class Base {
 	static baseStaticProperty = `base static property`;

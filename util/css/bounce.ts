@@ -1,5 +1,5 @@
-import { type keyframesMulti } from './keyframes.ts';
-import { roundTo } from '../math/roundTo.ts';
+import { type keyframesMulti } from './keyframes';
+import { roundTo } from '../math/roundTo';
 
 export function bounce(options: {
 	bounciness?: number;

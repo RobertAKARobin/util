@@ -1,7 +1,7 @@
-import { EntityStateEmitter } from '@robertakarobin/util/emitter/entities.ts';
-import { runContext } from '@robertakarobin/util/web/context.ts';
+import { EntityStateEmitter } from '@robertakarobin/util/util/emitter/entities';
+import { runContext } from '@robertakarobin/util/util/web/context';
 
-import type * as Type from '@src/types.d.ts';
+import type * as Type from '@src/types.d';
 
 export const state = new EntityStateEmitter<Type.ListItem>();
 if (runContext === `server`) {

@@ -1,7 +1,7 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { keysOf } from './keysOf.ts';
-import { pick } from './pick.ts';
+import { keysOf } from './keysOf';
+import { pick } from './pick';
 
 const data = {
 	age: 42,

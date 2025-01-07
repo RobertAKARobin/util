@@ -1,5 +1,5 @@
-import { SpecBuilder } from './src/builder.ts';
-import { SpecRenderer } from './src/renderer.ts';
+import { SpecBuilder } from './src/builder';
+import { SpecRenderer } from './src/renderer';
 
 export {
 	SpecBuilder,
@@ -17,4 +17,4 @@ export const renderer = new SpecRenderer();
 export const print = renderer.print;
 export const render = renderer.render;
 
-export type * as Type from './src/types.d.ts';
+export type * as Type from './src/types.d';

@@ -1,7 +1,7 @@
-import type { Coordinate, CoordinateLike } from '../types.d.ts';
+import type { Coordinate, CoordinateLike } from '../types.d';
 
-import { pointsAreDifferent } from './pointsAreDifferent.ts';
-import { toCoordinate } from './toCoordinate.ts';
+import { pointsAreDifferent } from './pointsAreDifferent';
+import { toCoordinate } from './toCoordinate';
 
 /**
  * Given a list of points, returns a new list with overlapping adjacent points removed

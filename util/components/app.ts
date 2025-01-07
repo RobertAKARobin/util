@@ -1,7 +1,7 @@
-import { Resolver, type RouteMap, Router } from '../web/router.ts';
-import { runContext } from '../web/context.ts';
+import { Resolver, type RouteMap, Router } from '../web/router';
+import { runContext } from '../web/context';
 
-import { Component, Page } from './component.ts';
+import { Component, Page } from './component';
 
 export { Resolver, RouteMap, Router };
 

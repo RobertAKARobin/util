@@ -1,4 +1,4 @@
-import type { OneOrMany } from '../types.d.ts';
+import type { OneOrMany } from '../types.d';
 
 /**
  * Converts an item to an array, if it isn't one already

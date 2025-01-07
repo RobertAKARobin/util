@@ -1,8 +1,8 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { pointsAreDifferent } from './pointsAreDifferent.ts';
-import { pointsSeparated } from './pointsSeparated.ts';
-import { toCoordinate } from './toCoordinate.ts';
+import { pointsAreDifferent } from './pointsAreDifferent';
+import { pointsSeparated } from './pointsSeparated';
+import { toCoordinate } from './toCoordinate';
 
 export const spec = test(import.meta.url, $ => {
 	const points = [[2, 0], [1, 0], [0, 0], [1, 0], [1, 0], [0, 1], [0, 2]].map(toCoordinate);

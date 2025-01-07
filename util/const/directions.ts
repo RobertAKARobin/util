@@ -1,4 +1,4 @@
-import { enumy } from '../group/enumy.ts';
+import { enumy } from '../group/enumy';
 
 export type Direction = keyof typeof directions;
 

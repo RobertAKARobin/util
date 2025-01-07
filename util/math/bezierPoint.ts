@@ -1,6 +1,6 @@
-import type { Coordinate } from '../types.d.ts';
+import type { Coordinate } from '../types.d';
 
-import { preciseTo } from './preciseTo.ts';
+import { preciseTo } from './preciseTo';
 
 /**
  * Given the points of a Bezier curve, and n% progress along the curve, calculate the coordinates of the point at that progress.

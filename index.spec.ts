@@ -1,7 +1,7 @@
-import { cliArgs } from './util/node/cliArgs.ts';
-import { print } from './util/spec/index.ts';
-import { specRunNative } from './util/spec/src/runner.native.ts';
-import { specRunWeb } from './util/spec/src/runner.web.ts';
+import { cliArgs } from './util/node/cliArgs';
+import { print } from './util/spec/index';
+import { specRunNative } from './util/spec/src/runner.native';
+import { specRunWeb } from './util/spec/src/runner.web';
 
 const [args, ...targetFiles] = cliArgs<{
 	platform: string;

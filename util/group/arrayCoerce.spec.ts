@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { arrayCoerce } from './arrayCoerce.ts';
+import { arrayCoerce } from './arrayCoerce';
 
 export const spec = test(import.meta.url, $ => {
 	const subject = [`foo`];

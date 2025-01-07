@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { cliArgs } from './cliArgs.ts';
+import { cliArgs } from './cliArgs';
 
 function argsFor(command: string) {
 	return cliArgs<{

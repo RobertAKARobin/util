@@ -1,5 +1,5 @@
-import { bp, theme, types } from '@src/theme.ts';
-import { css } from '@robertakarobin/util/css/theme.ts';
+import { bp, theme, types } from '@src/theme';
+import { css } from '@robertakarobin/util/util/css/theme';
 
 export default css`
 :root {

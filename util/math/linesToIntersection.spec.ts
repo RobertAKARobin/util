@@ -1,7 +1,7 @@
-import type { Coordinate } from '../types.d.ts';
-import { test } from '../spec/index.ts';
+import type { Coordinate } from '../types.d';
+import { test } from '../spec/index';
 
-import { linesToIntersection } from './linesToIntersection.ts';
+import { linesToIntersection } from './linesToIntersection';
 
 export const spec = test(import.meta.url, $ => {
 	let intersection: Coordinate;

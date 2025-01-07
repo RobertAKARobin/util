@@ -1,5 +1,5 @@
-import type { Coordinate } from '../types.d.ts';
-import { pointToSvg } from '../svg/pointToSvg.ts';
+import type { Coordinate } from '../types.d';
+import { pointToSvg } from '../svg/pointToSvg';
 
 export const customDragEventName = `customdrag`;
 

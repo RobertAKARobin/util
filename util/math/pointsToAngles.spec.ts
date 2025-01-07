@@ -1,10 +1,10 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { getSum } from './sum.ts';
-import { pointsToAngles } from './pointsToAngles.ts';
-import { preciseTo } from './preciseTo.ts';
-import { radiansTo } from './radians.ts';
-import { roundTo } from './roundTo.ts';
+import { getSum } from './sum';
+import { pointsToAngles } from './pointsToAngles';
+import { preciseTo } from './preciseTo';
+import { radiansTo } from './radians';
+import { roundTo } from './roundTo';
 
 export const spec = test(import.meta.url, $ => {
 	let subject: Array<number>;

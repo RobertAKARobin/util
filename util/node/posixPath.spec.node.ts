@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { posixPath } from './posixPath.ts';
+import { posixPath } from './posixPath';
 
 const urls = {
 	file: `file:///foo/bar`,

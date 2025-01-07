@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { soFarTimer } from './soFar.ts';
+import { soFarTimer } from './soFar';
 
 export const spec = test(import.meta.url, $ => {
 	const soFar = soFarTimer();

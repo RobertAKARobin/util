@@ -1,7 +1,7 @@
-import { Component, html } from '@robertakarobin/util/components/component.ts';
+import { Component, html } from '@robertakarobin/util/util/components/component';
 
-import { link } from '@src/components/link.ts';
-import { router } from '@src/app.ts';
+import { link } from '@src/components/link';
+import { router } from '@src/app';
 
 @Component.define({
 	stylePath: import.meta.url,

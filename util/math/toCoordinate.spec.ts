@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { toCoordinate } from './toCoordinate.ts';
+import { toCoordinate } from './toCoordinate';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(toCoordinate([3, 6]).x) === 3);

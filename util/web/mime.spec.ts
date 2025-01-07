@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { mimeFor } from './mime.ts';
+import { mimeFor } from './mime';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(mimeFor(`foo.jpg`)) === x(`image/jpeg`));

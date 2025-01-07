@@ -1,7 +1,7 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import type { Coordinate } from '../types.d.ts';
-import { pointNearestLine } from './pointNearestLine.ts';
+import type { Coordinate } from '../types.d';
+import { pointNearestLine } from './pointNearestLine';
 
 export const spec = test(import.meta.url, $ => {
 	let foot: Coordinate;

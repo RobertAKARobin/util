@@ -1,5 +1,5 @@
-import { Emitter, IGNORE, type PipeFunction, type SubscriptionEvent } from '../emitter.ts';
-import { pipeFirst } from './first.ts';
+import { Emitter, IGNORE, type PipeFunction, type SubscriptionEvent } from '../emitter';
+import { pipeFirst } from './first';
 
 /**
  * Waits for the given EventTarget to emit an event with the specified name, then starts emitting the source

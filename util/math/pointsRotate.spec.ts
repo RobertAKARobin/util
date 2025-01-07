@@ -1,9 +1,9 @@
-import type { Coordinate } from '../types.d.ts';
+import type { Coordinate } from '../types.d';
 import segments from '../mock/segments.json' with { type: 'json' };
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { pointsRotate } from './pointsRotate.ts';
-import { pointToString } from './pointToString.ts';
+import { pointsRotate } from './pointsRotate';
+import { pointToString } from './pointToString';
 
 export const spec = test(import.meta.url, $ => {
 	let subject: Array<Coordinate>;

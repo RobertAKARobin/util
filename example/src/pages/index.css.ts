@@ -1,6 +1,6 @@
-import { bounce } from '@robertakarobin/util/css/bounce.ts';
-import { css } from '@robertakarobin/util/components/component.ts';
-import { keyframesMulti } from '@robertakarobin/util/css/keyframes.ts';
+import { bounce } from '@robertakarobin/util/util/css/bounce';
+import { css } from '@robertakarobin/util/util/components/component';
+import { keyframesMulti } from '@robertakarobin/util/util/css/keyframes';
 
 const bouncer = keyframesMulti(
 	...bounce({

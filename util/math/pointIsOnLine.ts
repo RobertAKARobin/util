@@ -1,10 +1,10 @@
-import type { CoordinateLike, LineLike } from '../types.d.ts';
+import type { CoordinateLike, LineLike } from '../types.d';
 
-import { getSlope } from './slope.ts';
-import { getYOffset } from './yOffset.ts';
-import { pointsAreDifferent } from './pointsAreDifferent.ts';
-import { toCoordinate } from './toCoordinate.ts';
-import { toLine } from './toLine.ts';
+import { getSlope } from './slope';
+import { getYOffset } from './yOffset';
+import { pointsAreDifferent } from './pointsAreDifferent';
+import { toCoordinate } from './toCoordinate';
+import { toLine } from './toLine';
 
 /**
  * Returns whether the given coordinate is on the given line.

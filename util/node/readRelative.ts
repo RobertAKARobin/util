@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-import { pathRelative } from './pathRelative.ts';
+import { pathRelative } from './pathRelative';
 
 /**
  * Returns the contents of the file at the given target that is relative to the given `import.meta.url`

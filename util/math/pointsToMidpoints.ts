@@ -1,4 +1,4 @@
-import type { Coordinate } from '../types.d.ts';
+import type { Coordinate } from '../types.d';
 
 /**
  * Given an array of points, as in control points along a Bezier curve, return a new array of midpoints at the given points.

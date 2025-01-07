@@ -1,7 +1,7 @@
-import { tryCatch } from '../../tryCatch.ts';
+import { tryCatch } from '../../tryCatch';
 
-import { suite, test } from '../index.ts';
-import { DB } from './db.ts';
+import { suite, test } from '../index';
+import { DB } from './db';
 
 export const specs = suite(`DB`, {},
 	test(`#constructor`, ({ assert }) => {

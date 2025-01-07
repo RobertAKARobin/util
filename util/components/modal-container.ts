@@ -1,6 +1,6 @@
-import { Component } from './component.ts';
-import { enumy } from '../group/enumy.ts';
-import { sleep } from '../time/sleep.ts';
+import { Component } from './component';
+import { enumy } from '../group/enumy';
+import { sleep } from '../time/sleep';
 
 export const defaultDuration = .2;
 export const durationVarName = `--modalContainerDuration`;

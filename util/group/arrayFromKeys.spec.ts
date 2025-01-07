@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { arrayFromKeys } from './arrayFromKeys.ts';
+import { arrayFromKeys } from './arrayFromKeys';
 
 export const spec = test(import.meta.url, $ => {
 	const subject = 	{

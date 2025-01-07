@@ -18,7 +18,6 @@ export default tsEslint.config(
 			},
 		},
 		plugins: {
-			// @ts-expect-error TODO3 Tracking in https://github.com/eslint-stylistic/eslint-stylistic/issues/437
 			'@stylistic/ts': stylisticTsPlugin,
 			'@typescript-eslint': tsEslint.plugin,
 		},

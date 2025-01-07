@@ -1,4 +1,4 @@
-import { FPSLoop } from './fpsLoop.ts';
+import { FPSLoop } from './fpsLoop';
 
 export function transition(
 	options: {

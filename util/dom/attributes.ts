@@ -1,4 +1,4 @@
-import type { Textish } from '../types.d.ts';
+import type { Textish } from '../types.d';
 
 export type ElAttributes<Subclass extends Element> = {
 	[Key in keyof Subclass]: Subclass[Key] extends Function ? Function : number | string;

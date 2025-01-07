@@ -1,9 +1,9 @@
-import type { Coordinate, LineLike } from '../types.d.ts';
-import { roundTo } from './roundTo.ts';
+import type { Coordinate, LineLike } from '../types.d';
+import { roundTo } from './roundTo';
 
-import { getSlope } from './slope.ts';
-import { getYOffset } from './yOffset.ts';
-import { toLine } from './toLine.ts';
+import { getSlope } from './slope';
+import { getYOffset } from './yOffset';
+import { toLine } from './toLine';
 
 /**
  * Find the intersection of two straight lines

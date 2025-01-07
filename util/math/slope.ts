@@ -1,6 +1,6 @@
-import type { LineLike } from '../types.d.ts';
+import type { LineLike } from '../types.d';
 
-import { toLine } from './toLine.ts';
+import { toLine } from './toLine';
 
 export function getSlope(lineLike: LineLike) {
 	const path = toLine(lineLike);

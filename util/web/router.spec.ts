@@ -1,7 +1,7 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { type RouteMap, type RoutePathFunction, Router } from './router.ts';
-import { baseUrl } from './context.ts';
+import { type RouteMap, type RoutePathFunction, Router } from './router';
+import { baseUrl } from './context';
 
 const routes = {
 	builder: (param: string) => `/foo/${param}`,

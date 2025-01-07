@@ -1,8 +1,8 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { pointsSeparated } from './pointsSeparated.ts';
-import { pointsToLines } from './pointsToLines.ts';
-import { pointToString } from './pointToString.ts';
+import { pointsSeparated } from './pointsSeparated';
+import { pointsToLines } from './pointsToLines';
+import { pointToString } from './pointToString';
 import segments from '../mock/segments.json' with { type: 'json' };
 
 export const spec = test(import.meta.url, $ => {

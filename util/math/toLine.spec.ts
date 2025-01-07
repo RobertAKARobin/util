@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { toLine } from './toLine.ts';
+import { toLine } from './toLine';
 
 export const spec = test(import.meta.url, $ => {
 	const subject = [[1, 2], [9, 8], [3, 5]];

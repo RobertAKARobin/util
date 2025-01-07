@@ -1,6 +1,6 @@
-import { print } from '@robertakarobin/util/spec/index.ts';
+import { print } from '@robertakarobin/util/util/spec/index';
 
-import * as Web from './index.spec.ts';
+import * as Web from './index.spec';
 
 print(await Web.spec({}), {
 	exit: true,

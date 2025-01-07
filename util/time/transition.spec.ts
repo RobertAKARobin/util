@@ -1,7 +1,7 @@
-import { getDifference } from '../math/difference.ts';
-import { test } from '../spec/index.ts';
+import { getDifference } from '../math/difference';
+import { test } from '../spec/index';
 
-import { transition } from './transition.ts';
+import { transition } from './transition';
 
 export const spec = test(import.meta.url, async $ => {
 	const loopsPerSecond = 60;

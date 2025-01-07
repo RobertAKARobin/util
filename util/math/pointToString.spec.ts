@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { pointToString } from './pointToString.ts';
+import { pointToString } from './pointToString';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(pointToString([3, 9])) === `3,9`);

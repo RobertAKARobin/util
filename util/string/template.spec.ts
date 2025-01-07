@@ -1,6 +1,6 @@
-import { test } from '../spec/index.ts';
+import { test } from '../spec/index';
 
-import { css, html } from './template.ts';
+import { css, html } from './template';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(html`<div>${`foo`}</div>`) === `<div>foo</div>`);

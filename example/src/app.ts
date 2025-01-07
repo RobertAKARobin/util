@@ -1,10 +1,10 @@
-import { BaseApp, Resolver, Router } from '@robertakarobin/util/components/app.ts';
-import { Component } from '@robertakarobin/util/components/component.ts';
-import { ModalContainer } from '@robertakarobin/util/components/modal-container.ts';
-import { runContext } from '@robertakarobin/util/web/context.ts';
+import { BaseApp, Resolver, Router } from '@robertakarobin/util/util/components/app';
+import { Component } from '@robertakarobin/util/util/components/component';
+import { ModalContainer } from '@robertakarobin/util/util/components/modal-container';
+import { runContext } from '@robertakarobin/util/util/web/context';
 
-import { Nav } from '@src/components/nav.ts';
-import { routes } from './routes.ts';
+import { Nav } from '@src/components/nav';
+import { routes } from './routes';
 
 export const router = new Router(routes);
 
@@ -13,23 +13,23 @@ export const resolver = new Resolver(router, async(route: URL) => {
 		case `home`:
 		case `homeJump1`:
 		case `homeJump2`:
-			return new (await import(`@src/pages/index.ts`)).IndexPage({
+			return new (await import(`@src/pages/index`)).IndexPage({
 				title: `Home page`,
 			}).set({
 				message: `This is a variable`,
 			});
 		case `ssgNo`:
-			return new (await import(`@src/pages/ssg-no.ts`)).NoSSGPage({
+			return new (await import(`@src/pages/ssg-no`)).NoSSGPage({
 				title: `SSG no`,
 			});
 		case `ssgYes`:
 		case `ssgYesJump1`:
 		case `ssgYesJump2`:
-			return new (await import(`@src/pages/ssg-yes.ts`)).YesSSGPage({
+			return new (await import(`@src/pages/ssg-yes`)).YesSSGPage({
 				title: `SSG yes`,
 			});
 	}
-	return new (await import(`@src/pages/error.ts`)).ErrorPage({
+	return new (await import(`@src/pages/error`)).ErrorPage({
 		title: `Error 404`,
 	});
 });

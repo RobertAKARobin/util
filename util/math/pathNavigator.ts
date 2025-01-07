@@ -1,7 +1,7 @@
-import type { Segment } from '../types.d.ts';
+import type { Segment } from '../types.d';
 
-import { pointsAreDifferent } from '../math/pointsAreDifferent.ts';
-import { pointToString } from '../math/pointToString.ts';
+import { pointsAreDifferent } from '../math/pointsAreDifferent';
+import { pointToString } from '../math/pointToString';
 
 const pointsByCommand = {
 	c: 6,

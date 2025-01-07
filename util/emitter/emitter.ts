@@ -1,4 +1,4 @@
-import { isPrimitive } from '../isPrimitive.ts';
+import { isPrimitive } from '../isPrimitive';
 
 export type EmitterOptions<State> = EmitterCacheOptions & {
 	emitOnInit: boolean;

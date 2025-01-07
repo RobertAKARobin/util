@@ -1,6 +1,6 @@
-import { suite, test } from '../spec/index.ts';
+import { suite, test } from '../spec/index';
 
-import { setAttributes, setStyle } from './attributes.ts';
+import { setAttributes, setStyle } from './attributes';
 
 export const spec = suite(import.meta.url,
 	{
