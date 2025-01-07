@@ -1,5 +1,6 @@
-module.exports = {
+export default {
 	rules: {
-		'no-bang-negation': require(`./no-bang-negation.js`),
+		'import-quotes': (await import(`./import-quotes.js`)).default,
+		'no-bang-negation': (await import(`./no-bang-negation.js`)).default,
 	},
 };

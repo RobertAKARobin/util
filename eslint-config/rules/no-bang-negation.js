@@ -7,7 +7,7 @@ const messageId = `noBangNegation`;
 /**
  * @type RuleModule
  */
-module.exports = {
+export default {
 	meta: {
 		docs: {
 			description: `Prevents using bang (!) to negate conditions. Based on the opinion that \`(!isYes)\` is significantly harder to read than \`(isYes === false)\``,
@@ -18,7 +18,7 @@ module.exports = {
 		type: `suggestion`,
 	},
 
-	create: function(context) {
+	create(context) {
 		return {
 			UnaryExpression(node) {
 				if (node.operator === `!`) {

@@ -1,6 +1,17 @@
-const rule = require(`./no-bang-negation`);
-const RuleTester = require(`eslint`).RuleTester;
+import rule from './no-bang-negation.js';
+import { RuleTester } from 'eslint';
+
 const messageId = `noBangNegation`;
+
+/**
+ * @param {string} code
+ */
+function invalid(code, count = 1) {
+	return {
+		code,
+		errors: Array(count).fill({ messageId }),
+	};
+}
 
 const ruleTester = new RuleTester();
 ruleTester.run(`no-bang-negation`, rule, {
@@ -23,7 +34,6 @@ ruleTester.run(`no-bang-negation`, rule, {
 		`isNo=(   isYes      ==     false )`,
 		`isNo= (   isYes      ==     false )`,
 		`isNo =(   isYes      ==     false )`,
-		`isNo=(   isYes      ==     false )`,
 		`isNo=(
 			isYes      ==
 			false
@@ -47,13 +57,3 @@ ruleTester.run(`no-bang-negation`, rule, {
 		invalid(`var foo = \`3\${!isYes}\``),
 	],
 });
-
-/**
- * @param {string} code
- */
-function invalid(code, count = 1) {
-	return {
-		code,
-		errors: Array(count).fill({ messageId }),
-	};
-}

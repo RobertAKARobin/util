@@ -2,12 +2,14 @@
 	"dependencies": {
 		"@robertakarobin/eslint-plugin": "file:./rules",
 		"@stylistic/eslint-plugin-js": "^2.12.1",
-		"eslint-plugin-import-quotes": "^0.0.1",
+		"eslint": "^9.17.0",
 		"globals": "^15.14.0"
 	},
 	"main": "index.js",
 	"name": "@robertakarobin/eslint-config",
-	"scripts": {},
+	"scripts": {
+		"test": "node test.js"
+	},
 	"type": "module",
 	"version": "0.0.29"
 }

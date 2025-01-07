@@ -3,8 +3,6 @@
  */
 
 import globals from 'globals';
-// @ts-expect-error TODO1 Minor package, copy it
-import importQuotesPlugin from 'eslint-plugin-import-quotes';
 import stylisticPlugin from '@stylistic/eslint-plugin-js';
 
 import localPlugin from './rules/index.js';
@@ -52,9 +50,9 @@ export const config = [
 		plugins: {
 			'@robertakarobin': localPlugin,
 			'@stylistic': stylisticPlugin,
-			'import-quotes': importQuotesPlugin,
 		},
 		rules: {
+			'@robertakarobin/import-quotes': [`error`],
 			'@robertakarobin/no-bang-negation': [`warn`],
 			'@stylistic/arrow-parens': [`error`, `as-needed`],
 			'@stylistic/arrow-spacing': `error`,
@@ -91,7 +89,6 @@ export const config = [
 
 			'curly': [`error`, `all`],
 			'eqeqeq': `error`,
-			'import-quotes/import-quotes': [`error`, `single`],
 			'no-undef': [`error`],
 			'no-unused-vars': [`warn`, {
 				argsIgnorePattern: `^_`,
