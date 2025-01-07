@@ -7,7 +7,7 @@ import { router } from '@src/app.ts';
 	stylePath: import.meta.url,
 })
 export class Nav extends Component.custom(`nav`) {
-	template = () => html`
+	override template = () => html`
 <ul>
 	${[...router.routeNames].map(routeName => html`
 		<li id="nav-${routeName}">

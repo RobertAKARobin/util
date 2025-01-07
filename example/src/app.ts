@@ -40,7 +40,7 @@ export class App extends BaseApp {
 	readonly resolver = resolver;
 	readonly router = router;
 
-	async connectedCallback() {
+	override async connectedCallback() {
 		await super.connectedCallback();
 
 		if (runContext === `browser`) {
@@ -51,7 +51,7 @@ export class App extends BaseApp {
 		resolver.subscribe(() => this.render(Nav.selector));
 	}
 
-	template = () => /*html*/`
+	override template = () => /*html*/`
 ${new Nav()}
 ${this.page}
 	`;

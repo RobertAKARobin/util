@@ -9,7 +9,7 @@ export class ProgressModal extends Component {
 	readonly circle = this.findDown(ProgressCircle);
 	readonly modal = this.findUp(ModalContainer);
 
-	connectedCallback() {
+	override connectedCallback() {
 		super.connectedCallback();
 
 		this.modal().on(`status`, ({ detail }) => {
@@ -30,7 +30,7 @@ export class ProgressModal extends Component {
 		void this.modal().close();
 	}
 
-	template = () => html`
+	override template = () => html`
 ${new ProgressCircle().set({
 	borderWidth: 10,
 	diameter: 300,

@@ -8,12 +8,12 @@ export { Resolver, RouteMap, Router };
 export abstract class BaseApp<
 	Routes extends RouteMap = any, // eslint-disable-line @typescript-eslint/no-explicit-any
 > extends Component.custom(`body`) {
-	static readonly elName = `l-app`;
+	static override readonly elName = `l-app`;
 	page!: Page;
 	abstract readonly resolver: Resolver<Page>;
 	abstract readonly router: Router<Routes>;
 
-	async connectedCallback() {
+	override async connectedCallback() {
 		super.connectedCallback();
 
 		if (runContext === `browser`) {
@@ -65,7 +65,7 @@ export abstract class BaseApp<
 		document.title = this.page.pageTitle;
 	}
 
-	template() {
+	override template() {
 		return `${this.page}`;
 	}
 }

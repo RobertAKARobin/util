@@ -747,7 +747,7 @@ export class Component extends HTMLElement {
 	/**
 	 * Returns a placeholder element that will be hydrated into the full component during rendering.
 	 */
-	toString() {
+	override toString() {
 		const tempId = this.id === `` ? Component.uid() : this.id;
 		Component.cache.set(tempId, new WeakRef(this));
 		return `<placeholder id="${tempId}"></placeholder>`;

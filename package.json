@@ -23,7 +23,7 @@
 	"scripts": {
 		"build": "bin/build.sh",
 		"dev": "npm run dev --prefix example",
-		"lint": "eslint .",
+		"lint": "tsc && tsc -p example/tsconfig.json && eslint .",
 		"lint:list": "DEBUG=eslint:eslint eslint .",
 		"prepublishOnly": "npm run build",
 		"spec": "npm run spec:node && npm run spec:web",

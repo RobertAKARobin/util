@@ -6,7 +6,7 @@ import { execUntil } from '../util/node/execUntil.ts';
 import { routes } from '@src/routes.ts';
 
 class CustomBuilder extends Builder {
-	cleanup() {
+	override cleanup() {
 		execUntil(`eslint --quiet --fix dist/**/*.html`, { attemptsMax: 10 });
 		execUntil(`stylelint --fix dist/**/*.css && stylelint --quiet dist/**/*.css`, { attemptsMax: 10 });
 		execSync(`npm run lint:ts`, { encoding: `utf8`, stdio: `inherit` });

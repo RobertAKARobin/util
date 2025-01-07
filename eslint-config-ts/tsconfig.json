@@ -8,6 +8,8 @@
 		"module": "NodeNext",
 		"moduleResolution": "NodeNext",
 		"noEmit": true,
+		"noImplicitReturns": true,
+		"noImplicitOverride": true,
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
 		"strict": true,

@@ -9,7 +9,7 @@ class Widget extends Component.custom(`h1`) {
 	@Component.attribute() attr = `attrDefault`;
 	@Component.attribute({ name: `data-attr` }) dataAttr = `dataAttrDefault`;
 
-	template = () => `content:${this.content ?? ``}`;
+	override template = () => `content:${this.content ?? ``}`;
 }
 
 @Component.define()
@@ -17,7 +17,7 @@ class Parent extends Component.custom(`div`) {
 	widget = this.findDown(Widget);
 	@Component.attribute() widgetClass = undefined as string | undefined;
 
-	template = () => new Widget().set({
+	override template = () => new Widget().set({
 		attr: undefined,
 		class: this.widgetClass,
 		dataAttr: undefined,
@@ -38,7 +38,7 @@ class EventListener extends Component {
 		this.listenerValue += event.detail;
 	}
 
-	template = () => /*html*/`
+	override template = () => /*html*/`
 ${EventSource.id(`source`)
 	.setTime()
 	.on(`doDispatch`, this, `onDispatch`)
@@ -72,7 +72,7 @@ class EventSource extends Component {
 		return this;
 	}
 
-	template = () => /*html*/`
+	override template = () => /*html*/`
 <button ${this.on(`click`, `doDispatch`)}></button>
 	`;
 }

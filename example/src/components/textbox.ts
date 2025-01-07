@@ -17,7 +17,7 @@ export class Textbox extends Component.custom(`div`) {
 		return updated;
 	}
 
-	template = () => html`
+	override template = () => html`
 <input
 	maxlength="${this.maxLength}"
 	${this.on(`input`, `onInput`)}

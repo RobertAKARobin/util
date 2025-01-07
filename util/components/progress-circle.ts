@@ -8,7 +8,7 @@ const style = /*css*/`
 
 @Component.define()
 export class ProgressCircle extends Component {
-	static style = style;
+	static override style = style;
 	@Component.attribute() borderWidth = 10;
 	readonly circle = this.findDown(`circle`);
 	@Component.attribute() diameter = 100;
@@ -21,7 +21,7 @@ export class ProgressCircle extends Component {
 
 	@Component.attribute() value = 50;
 
-	connectedCallback() {
+	override connectedCallback() {
 		super.connectedCallback();
 
 		this.on(`attributeChanged`, () => {
@@ -42,7 +42,7 @@ export class ProgressCircle extends Component {
 		});
 	}
 
-	template = () => /*html*/`
+	override template = () => /*html*/`
 <svg
 	height="${this.diameter}"
 	width="${this.diameter}"

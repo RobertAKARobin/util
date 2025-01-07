@@ -29,7 +29,7 @@ export abstract class BaseModalContainer extends Component.custom(`dialog`) {
 		});
 	}
 
-	async close() {
+	override async close() {
 		if (this.status !== `active`) {
 			return;
 		}
@@ -41,7 +41,7 @@ export abstract class BaseModalContainer extends Component.custom(`dialog`) {
 		return this;
 	}
 
-	connectedCallback() {
+	override connectedCallback() {
 		super.connectedCallback();
 		this.style.setProperty(durationVarName, `${this.duration}s`);
 	}
@@ -51,7 +51,7 @@ export abstract class BaseModalContainer extends Component.custom(`dialog`) {
 		return this;
 	}
 
-	async show() {
+	override async show() {
 		if (this.status !== `inactive`) {
 			return;
 		}
@@ -63,7 +63,7 @@ export abstract class BaseModalContainer extends Component.custom(`dialog`) {
 		return this;
 	}
 
-	showModal() {
+	override showModal() {
 		return this.show();
 	}
 }

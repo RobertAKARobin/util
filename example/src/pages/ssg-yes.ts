@@ -8,7 +8,7 @@ h1 {
 
 @Component.define({ style })
 export class YesSSGPage extends Page {
-	template = () => html`
+	override template = () => html`
 <h1>SSG yes</h1>
 
 <div id="jump1">Jump 1</div>

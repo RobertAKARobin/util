@@ -2,7 +2,7 @@ import { Component, html, Page } from '@robertakarobin/util/components/component
 
 @Component.define()
 export class NoSSGPage extends Page {
-	template = () => html`
+	override template = () => html`
 <h1>SSG no</h1>
 `;
 }

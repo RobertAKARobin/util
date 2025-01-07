@@ -52,7 +52,6 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 ## TODO
 
 -	TODO1: Eslint: Add recommended rules back in?
--	TODO1: TS: Add `noImplicitAny`
 -	TODO2: Eslint: Require `Array<>` notation in eslint
 -	TODO2: Eslint: warn on using `Partial` when defining an object -- better to use explicitly optional properties
 -	TODO2: Eslint: Enforce single quotes in `import ... with { type: 'json' }`

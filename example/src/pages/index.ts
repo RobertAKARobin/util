@@ -34,7 +34,7 @@ export class IndexPage extends Page {
 		router.go(`ssgYes`);
 	}
 
-	connectedCallback() {
+	override connectedCallback() {
 		super.connectedCallback();
 
 		if (runContext === `browser`) {
@@ -72,7 +72,7 @@ export class IndexPage extends Page {
 		void ModalContainer.find().place(new ProgressModal().render()).show();
 	}
 
-	template = () => html`
+	override template = () => html`
 <h1>Hello world!</h1>
 
 ${new TransitionTest()}

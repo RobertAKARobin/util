@@ -29,7 +29,7 @@ export class List extends Component.custom(`ol`) {
 		return this;
 	}
 
-	template = () => html`
+	override template = () => html`
 	<li>List ID ${this.id}</li>
 
 	${this.listItems.map(({ id, value }) =>

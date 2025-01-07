@@ -22,7 +22,7 @@ export class ListItem extends Component.custom(`li`) {
 		return event.detail;
 	}
 
-	template = () => html`
+	override template = () => html`
 	<p>List item ID ${this.id}</p>
 
 	${new Textbox()

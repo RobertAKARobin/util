@@ -4,7 +4,7 @@ import { Component } from '@robertakarobin/util/components/component.ts';
 	stylePath: import.meta.url,
 })
 export class TransitionTest extends Component.custom(`div`) {
-	async connectedCallback() {
+	override async connectedCallback() {
 		super.connectedCallback();
 
 		this.style.background = `#ff0000`;

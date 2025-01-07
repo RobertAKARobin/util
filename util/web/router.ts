@@ -30,6 +30,8 @@ export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>
 				return routeName;
 			}
 		}
+
+		return undefined;
 	}
 
 	static isMatch(...args: Parameters<typeof Router.match>) {
