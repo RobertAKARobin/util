@@ -44,6 +44,7 @@ const test = (quoteTypeGood, code) => {
 };
 
 test(`single`, `import foo from 'bar'`);
+test(`single`, `import { foo } from 'bar' with { type: 'json' }`);
 test(`single`, `import { foo as bar } from 'bar'`);
 test(`single`, `import {
 	foo as bar,
@@ -51,6 +52,7 @@ test(`single`, `import {
 } from 'bar'`);
 
 test(`double`, `import foo from "bar"`);
+test(`double`, `import { foo } from "bar" with { type: "json" }`);
 test(`double`, `import { foo as bar } from "bar"`);
 test(`double`, `import {
 	foo as bar,
@@ -69,5 +71,5 @@ ruleTester.run(`import-quotes`, rule, {
 		...valid,
 	],
 
-	invalid,
+	invalid: [],
 });

@@ -47,8 +47,7 @@ export default {
 			Program: program => program.body.forEach(node => {
 				if (
 					node.type === `ImportDeclaration`
-					&& node.source.raw !== undefined
-					&& node.source.raw.includes(quoteCharBad)
+					&& sourceCode.getText(node).includes(quoteCharBad)
 				) {
 					context.report({
 						message: `Use ${quoteTypeGood} quotes in imports`,

@@ -52,8 +52,6 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 ## TODO
 
 -	TODO1: Eslint: JSON
--	TODO1: Eslint: Add recommended rules back in?
--	TODO2: Eslint: Enforce single quotes in `import ... with { type: 'json' }`
 
 -	TODO1: Component: Extract out the build step so that ESBuild isn't required
 -	TODO1: Component: Add `<host>` back in
@@ -70,6 +68,7 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ### Done:
 
+-	TODO2: Eslint: Enforce single quotes in `import ... with { type: 'json' }`
 -	TODO2: Eslint: warn on using `Partial` when defining an object -- better to use explicitly optional properties
 -	TODO1: Eslint: Copy over eslint-plugin-import-quotes
 -	TODO2: Eslint: Require `Array<>` notation in eslint
