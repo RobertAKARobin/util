@@ -2,6 +2,7 @@
 	"devDependencies": {
 		"@robertakarobin/csslint": "file:./csslint",
 		"@robertakarobin/eslint-config": "file:./eslint-config",
+		"@robertakarobin/eslint-config-json": "file:./eslint-config-json",
 		"@robertakarobin/eslint-config-ts": "file:./eslint-config-ts",
 		"@types/diff": "^6.0.0",
 		"@types/node": "^22.10.2",

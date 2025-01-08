@@ -14,26 +14,7 @@ export const files = [`**/*.js`, `**/*.cjs`, `**/*.mjs`, `**/*.ts`];
 /**
  * @type Array<Config>
  */
-export const config = [
-	// { TODO1: Extract to json package
-	// 	files: [`*.json`],
-	// 	ignores: [
-	// 		`!**/*.json`,
-	// 		`**/package-lock.json`,
-	// 	],
-	// 	plugins: {
-	// 		'@stylistic': stylisticPlugin,
-	// 	},
-	// 	rules: {
-	// 		'@stylistic/comma-dangle': [`error`, `never`],
-	// 		'@stylistic/indent': [`error`, `tab`],
-	// 		'@stylistic/max-len': `off`,
-	// 		'@stylistic/quote-props': [`error`, `consistent`],
-	// 		'@stylistic/quotes': [`error`, `double`],
-	// 		'@stylistic/semi': `off`,
-	// 	},
-	// },
-
+export default [
 	{
 		ignores: [
 			`**/node_modules/*`,
@@ -107,5 +88,3 @@ export const config = [
 		},
 	},
 ];
-
-export default config;

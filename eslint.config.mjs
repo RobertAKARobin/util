@@ -1,10 +1,12 @@
 import tsESLint from 'typescript-eslint';
 
 import { files } from '@robertakarobin/eslint-config';
-import robinsConfig from '@robertakarobin/eslint-config-ts';
+import robinsConfig_json from '@robertakarobin/eslint-config-json';
+import robinsConfig_ts from '@robertakarobin/eslint-config-ts';
 
 export default tsESLint.config(
-	robinsConfig,
+	robinsConfig_json,
+	robinsConfig_ts,
 
 	{
 		files,

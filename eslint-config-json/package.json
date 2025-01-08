@@ -1,0 +1,12 @@
+{
+	"dependencies": {
+		"@eslint/json": "^0.9.0"
+	},
+	"main": "index.js",
+	"name": "@robertakarobin/eslint-config-json",
+	"scripts": {
+		"test": "node test.js"
+	},
+	"type": "module",
+	"version": "0.0.1"
+}

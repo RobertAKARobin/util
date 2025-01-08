@@ -3,7 +3,7 @@
 		"baseUrl": ".",
 		"noEmit": false,
 		"outDir": "dist",
-		"rootDir": ".",
+		"rootDir": "."
 	},
 	"extends": [
 		"@robertakarobin/eslint-config-ts"

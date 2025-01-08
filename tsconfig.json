@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"baseUrl": ".",
 		"noEmit": true,
-		"rootDir": ".",
+		"rootDir": "."
 	},
 	"exclude": [
 		"dist",

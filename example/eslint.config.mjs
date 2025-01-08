@@ -1,12 +1,12 @@
 import tsESLint from 'typescript-eslint';
 
-import robinsConfig from '@robertakarobin/eslint-config-ts';
-import robinsConfigHtml from '@robertakarobin/eslint-config-html';
+import robinsConfig_html from '@robertakarobin/eslint-config-html';
+import robinsConfig_ts from '@robertakarobin/eslint-config-ts';
 
 export default tsESLint.config(
-	robinsConfig,
+	robinsConfig_ts,
 
-	robinsConfigHtml,
+	robinsConfig_html,
 
 	{
 		ignores: [
