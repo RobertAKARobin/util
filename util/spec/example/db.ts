@@ -105,7 +105,7 @@ export class DB {
 		);
 	}
 
-	async has(id: DBRecord[`id`], options: Partial<{ assert: boolean; }> = {}) {
+	async has(id: DBRecord[`id`], options: { assert?: boolean; } = {}) {
 		await this.assertConnection();
 
 		const exists = DB.data.has(id);

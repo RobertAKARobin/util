@@ -1,0 +1,7 @@
+{
+	"main": "index.js",
+	"name": "@robertakarobin/typescript-eslint-plugin",
+	"scripts": {},
+	"type": "module",
+	"version": "0.0.1"
+}

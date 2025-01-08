@@ -1,9 +1,9 @@
 import { isPrimitive } from '../isPrimitive';
 
 export type EmitterOptions<State> = EmitterCacheOptions & {
-	emitOnInit: boolean;
-	formatter: Emitter<State>[`formatter`];
-	reset: Emitter<State>[`resetter`];
+	emitOnInit?: boolean;
+	formatter?: Emitter<State>[`formatter`];
+	reset?: Emitter<State>[`resetter`];
 };
 
 export type EmitEvent<State> = [
@@ -233,7 +233,7 @@ export class EmitterCache<State> {
 
 	private readonly memory: Array<State> = [];
 
-	constructor(options: Partial<EmitterCacheOptions> = {}) {
+	constructor(options: EmitterCacheOptions = {}) {
 		this.limit = options.limit ?? emitterCacheOptionsDefault.limit;
 	}
 
@@ -255,4 +255,4 @@ export const emitterCacheOptionsDefault = {
 	limit: 1,
 };
 
-export type EmitterCacheOptions = typeof emitterCacheOptionsDefault;
+export type EmitterCacheOptions = Partial<typeof emitterCacheOptionsDefault>;

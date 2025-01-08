@@ -58,9 +58,9 @@ export class Component extends HTMLElement {
 	 * Defines a property that will be exposed as an HTML element in the DOM
 	 * @param options.name The name that will be used for the attribute. If not specified, the property name will be used, downcased and prefixed with `l-`
 	 */
-	static attribute(options: Partial<{
-		name: string;
-	}> = {}) {
+	static attribute(options: {
+		name?: string;
+	} = {}) {
 		return function(
 			target: Component,
 			propertyName: string,
@@ -429,9 +429,9 @@ export class Component extends HTMLElement {
 	>(selector: Select, options: { all: true; }): () => Array<Descendant>;
 	findDown(select: string): () => HTMLElement;
 	findDown(select: string, options: { all: true; }): () => Array<HTMLElement>;
-	findDown(select: Function | string, options: Partial<{
-		all: boolean;
-	}> = {}) {
+	findDown(select: Function | string, options: {
+		all?: boolean;
+	} = {}) {
 		const selector = (select as Function) === Page
 			? `[${Page.pageAttr}]`
 			: typeof select === `string`
@@ -780,9 +780,9 @@ export class Page extends Component.custom(`main`) {
 	static pageAttr = `data-page-title`;
 	@Component.attribute({ name: Page.pageAttr }) pageTitle!: string;
 
-	constructor(input: Partial<{
-		title: Page[`pageTitle`];
-	}> = {}) {
+	constructor(input: {
+		title?: Page[`pageTitle`];
+	} = {}) {
 		super();
 		if (input.title !== undefined) {
 			this.pageTitle = input.title;

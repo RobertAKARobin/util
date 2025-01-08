@@ -1,6 +1,6 @@
-export function findCommentsByContents(root: Node, contents: string, options: Partial<{
-	limitTo: number;
-}> = {}) {
+export function findCommentsByContents(root: Node, contents: string, options: {
+	limitTo?: number;
+} = {}) {
 	const newCommentIterator = () => document.createNodeIterator(
 		root,
 		NodeFilter.SHOW_COMMENT,

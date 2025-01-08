@@ -84,12 +84,12 @@ export class CssTheme<
 	 */
 	readonly vname = {} as Record<keyof Constants, string>;
 
-	constructor(input: Partial<{
-		bps: Breakpoints;
-		fonts: Fonts;
-		types: Typefaces;
-		val: Constants;
-	}> = {}) {
+	constructor(input: {
+		bps?: Breakpoints;
+		fonts?: Fonts;
+		types?: Typefaces;
+		val?: Constants;
+	} = {}) {
 		this.fonts = input.fonts ?? {} as Fonts;
 		this.fontFaces = Object.entries(this.fonts).map(([fontName, font]) => /*css*/`
 @font-face {

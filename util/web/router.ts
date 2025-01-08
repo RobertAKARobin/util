@@ -100,7 +100,7 @@ export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>
 	readonly routeNames: Set<keyof Routes>;
 	readonly routes: Routes;
 
-	constructor(routes: Routes, options: Partial<EmitterOptions<RouterEvent<Routes>>> = {}) {
+	constructor(routes: Routes, options: EmitterOptions<RouterEvent<Routes>> = {}) {
 		const landingUrl = globalThis.location !== undefined
 			? new URL(globalThis.location.href)
 			: undefined;

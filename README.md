@@ -53,7 +53,6 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 -	TODO1: Eslint: JSON
 -	TODO1: Eslint: Add recommended rules back in?
--	TODO2: Eslint: warn on using `Partial` when defining an object -- better to use explicitly optional properties
 -	TODO2: Eslint: Enforce single quotes in `import ... with { type: 'json' }`
 
 -	TODO1: Component: Extract out the build step so that ESBuild isn't required
@@ -71,6 +70,7 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ### Done:
 
+-	TODO2: Eslint: warn on using `Partial` when defining an object -- better to use explicitly optional properties
 -	TODO1: Eslint: Copy over eslint-plugin-import-quotes
 -	TODO2: Eslint: Require `Array<>` notation in eslint
 -	Won't do: rm dependence on Esbuild. Probably not possible since code is transpiled for the front-end. Esbuild has 0(?) dependencies anyway

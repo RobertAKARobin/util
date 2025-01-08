@@ -38,8 +38,8 @@ export class Builder {
 	readonly browserServeFileRel: string | undefined;
 	readonly browserSrcFileAbs: string | undefined;
 	readonly browserSrcFileRel: string | undefined;
-	esbuildOverride: Partial<esbuild.BuildOptions>;
-	esbuildServeOverride: Partial<esbuild.ServeOptions>;
+	esbuildOverride: esbuild.BuildOptions;
+	esbuildServeOverride: esbuild.ServeOptions;
 	readonly metaFileRel: string | undefined;
 	readonly quiet: boolean;
 	readonly serveDirAbs: string;
@@ -63,22 +63,22 @@ export class Builder {
 	* @param input.srcRawDirRel Relative path to the source code. Defaults to `./src`
 	* @param input.styleServeFileRel Relative path to the root CSS file that will be loaded on all pages. Defaults to `./styles.css`
 	*/
-	constructor(input: Partial<{
-		appSrcFileRel: string;
-		assetsSrcDirRel: Array<string> | string;
-		baseDirAbs: string;
-		baseUri: string;
-		browserSrcFileRel: string | undefined;
-		esbuild: Partial<esbuild.BuildOptions>;
-		esbuildServe: Partial<esbuild.ServeOptions>;
-		metaFileRel: string;
-		quiet: boolean;
-		serveDirRel: string;
-		srcDirRel: string;
-		ssgRoutes: Array<string>;
-		styleServeFileRel: string;
-		tsconfigFileRel: string;
-	}> = {}) {
+	constructor(input: {
+		appSrcFileRel?: string;
+		assetsSrcDirRel?: Array<string> | string;
+		baseDirAbs?: string;
+		baseUri?: string;
+		browserSrcFileRel?: string | undefined;
+		esbuild?: esbuild.BuildOptions;
+		esbuildServe?: esbuild.ServeOptions;
+		metaFileRel?: string;
+		quiet?: boolean;
+		serveDirRel?: string;
+		srcDirRel?: string;
+		ssgRoutes?: Array<string>;
+		styleServeFileRel?: string;
+		tsconfigFileRel?: string;
+	} = {}) {
 		this.esbuildOverride = input.esbuild ?? {};
 		this.esbuildServeOverride = input.esbuildServe ?? {};
 

@@ -2,6 +2,7 @@ import stylisticTsPlugin from '@stylistic/eslint-plugin-ts';
 import tsEslint from 'typescript-eslint';
 
 import { config, files } from '@robertakarobin/eslint-config';
+import localPlugin from './rules/index.js';
 
 export default tsEslint.config(
 	config,
@@ -18,10 +19,12 @@ export default tsEslint.config(
 			},
 		},
 		plugins: {
+			'@robertakarobin/ts': localPlugin,
 			'@stylistic/ts': stylisticTsPlugin,
 			'@typescript-eslint': tsEslint.plugin,
 		},
 		rules: {
+			'@robertakarobin/ts/no-partial-with-literal': `warn`,
 			'@stylistic/ts/member-delimiter-style': [`error`, {
 				singleline: {
 					requireLast: true,
