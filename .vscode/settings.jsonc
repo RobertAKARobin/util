@@ -22,8 +22,8 @@
 		"typescript"
 	],
 
-	"typescript.tsdk": "node_modules/typescript/lib",
 	"typescript.enablePromptUseWorkspaceTsdk": true,
+	"typescript.tsdk": "node_modules/typescript/lib",
 
 	"workbench.remoteIndicator.showExtensionRecommendations": true
 }

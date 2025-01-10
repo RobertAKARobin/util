@@ -1,7 +1,26 @@
+/**
+ * @typedef {import('eslint').Linter.RuleEntry} RuleEntry
+ * TODO2: Why is this required by TS?
+ */
+
 import json from '@eslint/json';
 
 const rules_shared = {
 	...json.configs.recommended,
+
+	rules: {
+		...json.configs.recommended.rules,
+
+		'json/sort-keys': /** @type {RuleEntry} **/([
+			`error`,
+			`asc`,
+			{
+				allowLineSeparatedGroups: true,
+				caseSensitive: false,
+				natural: true,
+			},
+		]),
+	},
 };
 
 export default [
