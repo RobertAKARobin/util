@@ -1,28 +1,31 @@
 /**
- * @typedef {import('eslint').Linter.RuleEntry} RuleEntry
- * TODO2: Why is this required by TS?
+ * @typedef {import('eslint').Linter.Config} Config
+ * @typedef {import('eslint').Linter.RulesRecord} RulesRecord
  */
+
 
 import json from '@eslint/json';
 
-const rules_shared = {
-	...json.configs.recommended,
+/**
+ * @type {RulesRecord}
+ */
+const rules = {
+	...json.configs.recommended.rules,
 
-	rules: {
-		...json.configs.recommended.rules,
-
-		'json/sort-keys': /** @type {RuleEntry} **/([
-			`error`,
-			`asc`,
-			{
-				allowLineSeparatedGroups: true,
-				caseSensitive: false,
-				natural: true,
-			},
-		]),
-	},
+	'json/sort-keys': [
+		`error`,
+		`asc`,
+		{
+			allowLineSeparatedGroups: true,
+			caseSensitive: false,
+			natural: true,
+		},
+	],
 };
 
+/**
+ * @type {Array<Config>}
+ */
 export default [
 	{
 		plugins: {
@@ -37,18 +40,18 @@ export default [
 			`**/package-lock.json`,
 		],
 		language: `json/json`,
-		...rules_shared,
+		rules,
 	},
 
 	{
 		files: [`**/*.jsonc`],
 		language: `json/jsonc`,
-		...rules_shared,
+		rules,
 	},
 
 	{
 		files: [`**/*.json5`],
 		language: `json/json5`,
-		...rules_shared,
+		rules,
 	},
 ];

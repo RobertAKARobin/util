@@ -51,7 +51,7 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ## TODO
 
--	TODO1: Eslint: JSON
+-	TODO1: Eslint: JSON (Waiting on https://github.com/eslint/json/pull/76)
 
 -	TODO1: Component: Extract out the build step so that ESBuild isn't required
 -	TODO1: Component: Add `<host>` back in
