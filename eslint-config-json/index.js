@@ -17,7 +17,7 @@ const rules = {
 		`asc`,
 		{
 			allowLineSeparatedGroups: true,
-			caseSensitive: false,
+			caseSensitive: true,
 			natural: true,
 		},
 	],

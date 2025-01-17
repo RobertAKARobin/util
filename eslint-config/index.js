@@ -84,6 +84,8 @@ export default [
 			}],
 			'sort-keys': [`error`, `asc`, {
 				allowLineSeparatedGroups: true,
+				caseSensitive: true,
+				natural: true,
 			}],
 		},
 	},
