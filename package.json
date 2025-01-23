@@ -21,7 +21,7 @@
 		"url": "https://github.com/RobertAKARobin/util"
 	},
 	"scripts": {
-		"build": "bin/build.sh",
+		"build": "rm -rf dist && tsc -p tsconfig.build.json",
 		"dev": "npm run dev --prefix example",
 		"lint": "tsc && tsc -p example/tsconfig.json && eslint .",
 		"lint:list": "DEBUG=eslint:eslint eslint .",

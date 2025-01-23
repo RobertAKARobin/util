@@ -59,6 +59,7 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 	-	rm diff
 	-	rm glob
 -	TODO1: Validate it all works with regular JS, not TS
+	-	Require `.js` extension? Doesn't work with external modules otherwise
 
 -	TODO1: Component: Add `<host>` back in
 -	TODO1: Component: Add TS preprocessing back in
