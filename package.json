@@ -12,6 +12,9 @@
 		"npm-check-updates": "^17.1.11",
 		"tsx": "^4.19.2"
 	},
+	"engines": {
+		"node": "23.6.0"
+	},
 	"name": "@robertakarobin/util",
 	"repository": {
 		"type": "git",
