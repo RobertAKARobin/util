@@ -1,0 +1,12 @@
+{
+	"dependencies": {
+		"eslint-plugin-jsdoc": "^50.6.2"
+	},
+	"devDependencies": {
+		"@robertakrobin/eslint-config-ts": "file:../eslint-config-ts"
+	},
+	"main": "index.js",
+	"name": "@robertakarobin/eslint-config-jsdoc",
+	"type": "module",
+	"version": "0.0.1"
+}
