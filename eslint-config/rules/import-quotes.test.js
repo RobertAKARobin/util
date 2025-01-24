@@ -17,9 +17,8 @@ const valid = [];
 const invalid = [];
 
 /**
- *
- * @param {string} code
  * @param {'double'|'single'} quoteTypeGood
+ * @param {string} code
  */
 const test = (quoteTypeGood, code) => {
 	const quoteTypeBad = quoteTypeGood === `single` ? `double` : `single`;

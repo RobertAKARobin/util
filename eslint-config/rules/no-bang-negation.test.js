@@ -5,11 +5,12 @@ const messageId = `noBangNegation`;
 
 /**
  * @param {string} code
+ * @param {number} countOfErrors
  */
-function invalid(code, count = 1) {
+function invalid(code, countOfErrors = 1) {
 	return {
 		code,
-		errors: Array(count).fill({ messageId }),
+		errors: Array(countOfErrors).fill({ messageId }),
 	};
 }
 

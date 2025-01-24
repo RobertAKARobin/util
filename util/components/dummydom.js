@@ -2,7 +2,7 @@
  * Very naive and minimal substitution for the DOM standard library, allowing Components to be built without needing to import e.g. JSDOM
  */
 /**
- * @type Record<string, Element>
+ * @type {Record<string, Element>}
  */
 const elementsById = {};
 

@@ -7,7 +7,7 @@ import htmlEslintPlugin from '@html-eslint/eslint-plugin';
 
 // TODO3: Lint HTML in JS template literals (https://github.com/yeonjuan/html-eslint/issues/196)
 /**
- * @type Array<Config>
+ * @type {Array<Config>}
  */
 export const config = [
 	{

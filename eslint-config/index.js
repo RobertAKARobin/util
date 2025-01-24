@@ -12,7 +12,7 @@ export const files = [`**/*.js`, `**/*.cjs`, `**/*.mjs`, `**/*.ts`];
 // TODO2: Can't get ESlint to check dotfolders, e.g. `.vscode/settings.json`
 // TODO3: Add eslint/js recommended config?
 /**
- * @type Array<Config>
+ * @type {Array<Config>}
  */
 export default [
 	{

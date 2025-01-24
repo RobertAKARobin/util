@@ -5,7 +5,7 @@
 const messageId = `noBangNegation`;
 
 /**
- * @type RuleModule
+ * @type {RuleModule}
  */
 export default {
 	meta: {

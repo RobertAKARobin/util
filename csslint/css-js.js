@@ -12,7 +12,7 @@ import postcssNested from 'postcss-nested';
  * Compiles `.css.js` file to `.css`
  * @param {string} source - Path to source `.css.js` file, where the `default` export is a CSS string
  * @param {string|undefined} target - Path to target `.css` file
- * @param {Object} options
+ * @param {object} options
  * @param {cssFormatCallback} [options.format=undefined] - Callback to run on the compiled CSS before it's written to file
  * @param {boolean} [options.unnest=true] - Whether to use PostCSS to un-nest nested CSS selectors for older browsers
  */

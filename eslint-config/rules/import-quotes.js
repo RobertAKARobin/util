@@ -10,7 +10,7 @@ export const quoteCharsByType = {
 
 /**
  * Cribbed from https://www.npmjs.com/package/eslint-plugin-import-quotes, which is small and not actively maintained
- * @type RuleModule
+ * @type {RuleModule}
  */
 export default {
 	meta: {
@@ -31,9 +31,7 @@ export default {
 
 	create(context) {
 		/**
-		 * @type {[
-		 * 	'double'|'single'
-		 * ]}
+		 * @type {['double'|'single']}
 		 */
 		// @ts-expect-error TODO3 Can't figure out how to cast `any[]` to tuple
 		const options = context.options;
