@@ -28,7 +28,7 @@
 		"prepublishOnly": "npm run build",
 		"spec": "npm run spec:node && npm run spec:web",
 		"spec:node": "tsx index.spec.ts -platform=node $(glob util/**/*.spec?\\(.node\\).ts)",
-		"spec:web": "rm -rf dist && mkdir dist && cp -pR util/mock dist && tsx index.spec.ts -platform=web $(glob util/**/*.spec?\\(.web\\).ts)",
+		"spec:web": "npm run build && cp -pR util/mock dist && tsx index.spec.ts -platform=web $(glob util/**/*.spec?\\(.web\\).ts)",
 		"test": "npm run lint && npm run test:rules && tsc && npm run spec && npm run test:example",
 		"test:example": "npm run test --prefix example",
 		"test:rules": "npm run test --prefix eslint-config && npm run test --prefix eslint-config-ts"
