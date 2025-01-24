@@ -2,7 +2,11 @@ import { test } from '../spec/index';
 
 import { preciseTo } from './preciseTo';
 
-import { polygonRadius } from './polygonRadius';
+import { polygonRadius as polygonRadius_ } from './polygonRadius';
+
+function polygonRadius(...args: Parameters<typeof polygonRadius_>) {
+	return preciseTo(polygonRadius_(...args));
+}
 
 function hypotenuseFromSide(sideLength: number) {
 	return preciseTo(Math.sqrt(2 * Math.pow(sideLength, 2)));
