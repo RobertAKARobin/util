@@ -51,8 +51,6 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ## TODO
 
--	TODO1: Eslint: JSON (Waiting on https://github.com/eslint/json/pull/76)
-
 -	TODO1: Component: Extract out the build step so that ESBuild isn't required
 	-	rm esbuild
 	-	rm tsx
@@ -73,11 +71,12 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ### Done:
 
--	TODO1: sort-keys case-sensitive
--	TODO2: Eslint: Enforce single quotes in `import ... with { type: 'json' }`
--	TODO2: Eslint: warn on using `Partial` when defining an object -- better to use explicitly optional properties
--	TODO1: Eslint: Copy over eslint-plugin-import-quotes
--	TODO2: Eslint: Require `Array<>` notation in eslint
+-	Eslint: JSON (Waiting on https://github.com/eslint/json/pull/76)
+-	sort-keys case-sensitive
+-	Eslint: Enforce single quotes in `import ... with { type: 'json' }`
+-	Eslint: warn on using `Partial` when defining an object -- better to use explicitly optional properties
+-	Eslint: Copy over eslint-plugin-import-quotes
+-	Eslint: Require `Array<>` notation in eslint
 -	Won't do: rm dependence on Esbuild. Probably not possible since code is transpiled for the front-end. Esbuild has 0(?) dependencies anyway
 	-	Actually trying to remove dependence on Esbuild. Conceded on using file extensions in imports, which means TSC or pretty much anything can transpile.
 -	rm dependence on JSDOM
