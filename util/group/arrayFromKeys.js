@@ -1,13 +1,16 @@
 /**
  * Map each of the specified keys in an object to an array of values
- * @param _options.assertAll - If true, throws an error if not all of the object's keys are specified
+ * @template Value
+ * @param {Array<string>} keys
+ * @param {Record<string, Value>} input
+ * @param {object} [options={}]
+ * @param {boolean} [options.assertAll=false] - If true, throws an error if not all of the object's keys are specified
+ * @returns {Array<Value>}
  */
-export function arrayFromKeys<Value>(
-	keys: Array<string>,
-	input: Record<string, Value>,
-	options: {
-		assertAll?: boolean;
-	} = {},
+export function arrayFromKeys(
+	keys,
+	input,
+	options = {},
 ) {
 	const assertAll = options.assertAll ?? false;
 	if (assertAll) {

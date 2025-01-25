@@ -1,9 +1,10 @@
 /**
  * Literally just `Object.keys`, but strongly typed.
+ * @template {Record<string | symbol, unknown>} Input
+ * @template {keyof Input} Key
+ * @param {Input} input
+ * @returns {Array<Key>}
  */
-export function keysOf<
-	Input extends Record<string | symbol, unknown>,
-	Key extends keyof Input,
->(input: Input) {
-	return Object.keys(input) as Array<Key>;
+export function keysOf(input) {
+	return /** @type {Array<Key>} */(Object.keys(input));
 }
