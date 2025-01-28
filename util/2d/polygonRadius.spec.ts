@@ -1,6 +1,6 @@
 import { test } from '../spec/index';
 
-import { preciseTo } from './preciseTo';
+import { preciseTo } from '../math/preciseTo';
 
 import { polygonRadius as polygonRadius_ } from './polygonRadius';
 

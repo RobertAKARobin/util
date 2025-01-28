@@ -1,5 +1,5 @@
 import type { Coordinate, LineLike } from '../types.d';
-import { roundTo } from './roundTo';
+import { roundTo } from '../math/roundTo';
 
 import { getSlope } from './slope';
 import { getYOffset } from './yOffset';

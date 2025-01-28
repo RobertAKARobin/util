@@ -1,4 +1,4 @@
-import { preciseTo } from './preciseTo';
+import { preciseTo } from '../math/preciseTo';
 
 /**
 * Perform a binary search: evaluate the midpoint of a progressively smaller range of percents until the difference between the top and bottom results is 0, or the results stop changing.

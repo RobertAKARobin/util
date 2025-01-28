@@ -1,9 +1,10 @@
+import { isBetween } from '../math/isBetween';
+import { roundTo } from '../math/roundTo';
+
 import type { Bezier, Coordinate, CoordinateLike } from '../types.d';
 import { bezierPoint } from './bezierPoint';
 import { findPercent } from './findPercent';
-import { isBetween } from './isBetween';
 import { pointsToAngles } from './pointsToAngles';
-import { roundTo } from './roundTo';
 import { toCoordinate } from './toCoordinate';
 
 /**

@@ -1,7 +1,8 @@
 import type { Coordinate } from '../types.d';
 
+import { preciseTo } from '../math/preciseTo';
+
 import { bezierPoint } from './bezierPoint';
-import { preciseTo } from './preciseTo';
 
 export function bezierToPoints(
 	begin: Coordinate,

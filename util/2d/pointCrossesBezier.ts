@@ -1,9 +1,10 @@
+import { roundTo } from '../math/roundTo';
+
 import type { Bezier, CoordinateLike } from '../types.d';
 import { bezierPoint } from './bezierPoint';
 import { findPercent } from './findPercent';
 import { pointsRotate } from './pointsRotate';
 import { pointsToAngles } from './pointsToAngles';
-import { roundTo } from './roundTo';
 import { toCoordinate } from './toCoordinate';
 
 /**

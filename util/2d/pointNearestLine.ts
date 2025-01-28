@@ -1,5 +1,6 @@
+import { constrain } from '../math/constrain';
+
 import type { Coordinate, CoordinateLike, LineLike } from '../types.d';
-import { constrain } from './constrain';
 import { toCoordinate } from './toCoordinate';
 import { toLine } from './toLine';
 

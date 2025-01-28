@@ -1,7 +1,7 @@
 import type { Segment } from '../types.d';
 
-import { pointsAreDifferent } from '../math/pointsAreDifferent';
-import { pointToString } from '../math/pointToString';
+import { pointsAreDifferent } from './pointsAreDifferent';
+import { pointToString } from './pointToString';
 
 const pointsByCommand = {
 	c: 6,
@@ -14,6 +14,7 @@ const pointsByCommand = {
 
 /**
  * Translate SVGPathElement `d` attribute data to coordinates
+ * TODO1: Move to util/svg
  * {@link https://www.w3.org/TR/SVG2/paths.html#PathDataMovetoCommands}
  */
 export class PathNavigator {
