@@ -1,7 +1,9 @@
 /**
  * Serialize an object as a native JS value, e.g. so that it can be included in `[on*]` attributes. TODO3: Use JSON5 or something robust
+ * @param {unknown} input
+ * @returns {string}
  */
-export function serialize(input: unknown): string {
+export function serialize(input) {
 	let skipCount = 0;
 	const result = iterate(input);
 	if (skipCount > 0) {
@@ -9,7 +11,11 @@ export function serialize(input: unknown): string {
 	}
 	return result;
 
-	function iterate(input: unknown): string {
+	/**
+	 * @param {unknown} input
+	 * @returns {string}
+	 */
+	function iterate(input) {
 		if (input === undefined) {
 			return ``;
 		}
@@ -27,7 +33,7 @@ export function serialize(input: unknown): string {
 			const toString = input.toString();
 			if (toString === `[object Object]`) {
 				let out = ``;
-				const inputObject = input as Record<string, unknown>;
+				const inputObject = /** @type {Record<string, unknown>} */(input);
 				const propertyNames = Object.keys(inputObject);
 				const lastPropertyName = propertyNames[propertyNames.length - 1]; // Properties in JS dicts don't _have_ to be ordered, but always are
 				for (const key of propertyNames) {
