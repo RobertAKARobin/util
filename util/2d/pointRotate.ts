@@ -1,7 +1,7 @@
 import { preciseTo } from '../math/preciseTo';
-import { radiansFrom } from '../math/radians';
 
 import type { Coordinate, CoordinateLike } from '../types.d';
+import { radiansFrom } from './radians';
 import { toCoordinate } from './toCoordinate';
 
 export function pointRotate(

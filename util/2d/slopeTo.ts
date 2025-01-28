@@ -1,7 +1,7 @@
-import { radiansTo } from '../math/radians';
 
 import { getSlope } from './slope';
 import type { LineLike } from '../types.d';
+import { radiansTo } from './radians';
 
 export function slopeTo(
 	lineLike: LineLike,
