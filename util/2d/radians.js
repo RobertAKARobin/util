@@ -1,4 +1,4 @@
-import { constrainDegrees } from './constrainDegrees';
+import { constrainCircular } from '../math/constrain';
 
 /**
  * Degrees to radians
@@ -6,7 +6,7 @@ import { constrainDegrees } from './constrainDegrees';
  * @returns {number}
  */
 export function radiansFrom(degrees) {
-	const angle = constrainDegrees(degrees);
+	const angle = constrainCircular(degrees, 360);
 	return (angle * Math.PI) / 180;
 }
 
@@ -17,5 +17,5 @@ export function radiansFrom(degrees) {
  */
 export function radiansTo(radians) {
 	const degrees = (180 * radians) / Math.PI;
-	return constrainDegrees(degrees);
+	return constrainCircular(degrees, 360);
 }
