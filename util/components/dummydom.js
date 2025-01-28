@@ -67,6 +67,7 @@ export class Element {
 
 	/**
 	 * @param {string} key
+	 * @returns {string}
 	 */
 	getAttribute(key) {
 		// @ts-expect-error Close enough
@@ -121,6 +122,7 @@ export const customElements = {
 export const document = {
 	/**
 	 * @param {string} tagName
+	 * @returns {HTMLElement}
 	 */
 	createElement(tagName) {
 		const element = new HTMLElement();
@@ -130,6 +132,7 @@ export const document = {
 
 	/**
 	 * @param {string} id
+	 * @returns {Element | null}
 	 */
 	getElementById(id) {
 		return elementsById[id] ?? null;

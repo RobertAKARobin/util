@@ -4,6 +4,8 @@
 
 import { AST_NODE_TYPES, ESLintUtils } from '@typescript-eslint/utils';
 
+export const messageId = /** @type {const} */`noPartialWithLiteral`;
+
 export default ESLintUtils.RuleCreator.withoutDocs({
 	defaultOptions: [],
 	meta: {
@@ -11,7 +13,7 @@ export default ESLintUtils.RuleCreator.withoutDocs({
 			description: `Quick n' dirty. Reports when using Partial<> with an object literal (e.g. Partial<{foo: string}>)`,
 		},
 		messages: {
-			noPartialWithLiteral: `Instead of using Partial<>, consider using optional properties since it's more explicit`,
+			[messageId]: `Instead of using Partial<>, consider using optional properties since it's more explicit`,
 		},
 		schema: [],
 		type: `suggestion`,

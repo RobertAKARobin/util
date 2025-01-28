@@ -2,7 +2,7 @@
  * @typedef {import('eslint').Rule.RuleModule} RuleModule
  */
 
-const messageId = `noBangNegation`;
+export const messageId = /** @type {const} */`noBangNegation`;
 
 /**
  * @type {RuleModule}
