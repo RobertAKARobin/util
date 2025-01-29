@@ -58,6 +58,7 @@ export default [
 				ignoreStrings: false,
 				ignoreTemplateLiterals: true,
 			}],
+			'@stylistic/no-multi-spaces': [`error`],
 			'@stylistic/object-curly-spacing': [`error`, `always`],
 			'@stylistic/object-property-newline': [`error`, {
 				allowAllPropertiesOnSameLine: true,
