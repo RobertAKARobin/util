@@ -4,6 +4,8 @@ import tsEslint from 'typescript-eslint';
 import { default as config, files } from '@robertakarobin/eslint-config';
 import localPlugin from './rules/index.js';
 
+// TODO3: Report on `let foo` implicitly being `any`? https://github.com/microsoft/TypeScript/issues/54414
+
 export default tsEslint.config(
 	config,
 
@@ -91,6 +93,7 @@ export default tsEslint.config(
 			'@typescript-eslint/no-floating-promises': `error`,
 			'@typescript-eslint/no-for-in-array': `error`,
 			'@typescript-eslint/no-implied-eval': `error`,
+			'@typescript-eslint/no-inferrable-types': `error`,
 			'@typescript-eslint/no-loss-of-precision': `error`,
 			'@typescript-eslint/no-misused-new': `error`,
 			'@typescript-eslint/no-misused-promises': [`error`, {

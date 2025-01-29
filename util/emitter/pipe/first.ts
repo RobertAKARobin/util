@@ -4,7 +4,7 @@ import type { PipeFunction, SubscriptionEvent } from '../emitter';
  * Emits the source up to `$limit` times. Default `1`
  */
 export function pipeFirst<State>(
-	limit: number = 1,
+	limit = 1,
 ): PipeFunction<State, State> {
 	let count = 0;
 

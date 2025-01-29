@@ -58,7 +58,7 @@ export class EntityStateEmitter<Type extends Record<EntityId, unknown>>
 		return `l${newUid()}`;
 	}
 
-	fromEnd(offset: number = 0) {
+	fromEnd(offset = 0) {
 		return this.value.ids[this.value.ids.length - offset - 1];
 	}
 

@@ -8,6 +8,7 @@
 		"module": "ESNext",
 		"moduleResolution": "bundler",
 		"noEmit": true,
+		"noImplicitAny": true,
 		"noImplicitOverride": true,
 		"noImplicitReturns": true,
 		"resolveJsonModule": true,

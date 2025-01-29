@@ -22,6 +22,8 @@ export function bezierPoint(
 	end,
 	progress,
 ) {
+	let _foo;
+
 	const out = { x: 0, y: 0 };
 	for (const key of keysOf(out)) {
 		const axis = key;
