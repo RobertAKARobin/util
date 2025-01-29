@@ -1,11 +1,14 @@
-import type { Bezier } from '../types.d';
+/**
+ * @import { Bezier } from '../types.d';
+ */
+
 import { test } from '../spec/index';
 
 import { bezierPoint } from './bezierPoint';
 import segments from '../mock/segments.json' with { type: 'json' };
 
 export const spec = test(import.meta.url, $ => {
-	const curves = segments.filter(segment => segment.length > 2) as Array<Bezier>;
+	const curves = /** @type {Array<Bezier>} */(segments.filter(segment => segment.length > 2));
 
 	$.assert(x => x(bezierPoint(...curves[0], 0).x) === 50);
 	$.assert(x => x(bezierPoint(...curves[0], 0).y) === 5);

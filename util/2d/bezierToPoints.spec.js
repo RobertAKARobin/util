@@ -1,11 +1,14 @@
-import type { Bezier } from '../types.d';
+/**
+ * @import { Bezier } from '../types.d';
+ */
+
 import { test } from '../spec/index';
 
 import { bezierToPoints } from './bezierToPoints';
 import segments from '../mock/segments.json' with { type: 'json' };
 
 export const spec = test(import.meta.url, $ => {
-	const curve = segments[1] as Bezier;
+	const curve = /** @type {Bezier} */(segments[1]);
 	let points = bezierToPoints(...curve, .1);
 
 	$.assert(x => x(points.length) === x(Math.ceil(1 / .1) + 1));
