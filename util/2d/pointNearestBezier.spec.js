@@ -1,15 +1,26 @@
+/**
+ * @import { Bezier, CoordinateLike, Segment } from '../types.d';
+ */
+
 import { test } from '../spec/index';
 
-import type { Bezier, CoordinateLike, Segment } from '../types.d';
 import { pointNearestBezier } from './pointNearestBezier';
 import { pointToString } from './pointToString';
 import segments from '../mock/segments.json' with { type: 'json' };
 
 export const spec = test(import.meta.url, $ => {
-	let segment: Segment;
+	/** @type {Segment} */
+	let segment;
 
-	const pointNearest = (target: CoordinateLike) => {
-		const point = pointNearestBezier(target, segment as Bezier);
+	/**
+	 * @param {CoordinateLike} target
+	 * @ignore
+	 */
+	const pointNearest = target => {
+		const point = pointNearestBezier(
+			target,
+			/** @type {Bezier} */(segment),
+		);
 		return pointToString(point);
 	};
 

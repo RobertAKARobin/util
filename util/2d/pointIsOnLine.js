@@ -1,4 +1,6 @@
-import type { CoordinateLike, LineLike } from '../types.d';
+/**
+ * @import { CoordinateLike, LineLike } from '../types.d';
+ */
 
 import { getSlope } from './slope';
 import { getYOffset } from './yOffset';
@@ -9,8 +11,11 @@ import { toLine } from './toLine';
 /**
  * Returns whether the given coordinate is on the given line.
  * TODO3: Add tolerance
+ * @param {CoordinateLike} coordinateLike
+ * @param {LineLike} lineLike
+ * @returns {boolean}
  */
-export function pointIsOnLine(coordinateLike: CoordinateLike, lineLike: LineLike): boolean {
+export function pointIsOnLine(coordinateLike, lineLike) {
 	const point = toCoordinate(coordinateLike);
 	const line = toLine(lineLike);
 

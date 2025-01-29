@@ -1,12 +1,19 @@
+/**
+ * @import { CoordinateLike } from '../types.d';
+ */
+
 import { test } from '../spec/index';
 
-import type { CoordinateLike } from '../types.d';
 import { pointNearestPoint } from './pointNearestPoint';
 import { pointToString } from './pointToString';
 
 export const spec = test(import.meta.url, $ => {
 	const points = [[0, 0], [3, 0], [3, 4]];
-	const result = (target: CoordinateLike) => {
+	/**
+	 * @param {CoordinateLike} target
+	 * @ignore
+	 */
+	const result = target => {
 		const result = pointNearestPoint(target, ...points);
 		return pointToString(result);
 	};

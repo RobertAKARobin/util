@@ -1,16 +1,19 @@
+/**
+ * @import { Coordinate, CoordinateLike, LineLike } from '../types.d';
+ */
+
 import { constrain } from '../math/constrain';
 
-import type { Coordinate, CoordinateLike, LineLike } from '../types.d';
 import { toCoordinate } from './toCoordinate';
 import { toLine } from './toLine';
 
 /**
  * Given a target coordinate and a line, find the point on the line nearest the coordinate
+ * @param {CoordinateLike} coordinateLike
+ * @param {LineLike} lineLike
+ * @returns {Coordinate}
  */
-export function pointNearestLine(
-	coordinateLike: CoordinateLike,
-	lineLike: LineLike,
-): Coordinate {
+export function pointNearestLine(coordinateLike, lineLike) {
 	const target = toCoordinate(coordinateLike);
 	const { begin, end } = toLine(lineLike);
 	const rise = end.y - begin.y;

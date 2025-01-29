@@ -1,4 +1,7 @@
-import type { CoordinateLike, Segment } from '../types.d';
+/**
+ * @import { CoordinateLike, Segment } from '../types.d';
+ */
+
 import { getDistance } from './distance';
 import { pointsAreDifferent } from './pointsAreDifferent';
 import { pointsToAngles } from './pointsToAngles';
@@ -7,14 +10,17 @@ import { toCoordinate } from './toCoordinate';
 
 /**
  * Given a list of segments and a coordinate, find the index of the segment nearest the coordinate
+ * @param {CoordinateLike} coordinateLike
+ * @param {Array<Segment>} segments
+ * @returns {number}
  */
 export function segmentNearestPoint(
-	coordinateLike: CoordinateLike,
-	...segments: Array<Segment>
+	coordinateLike,
+	...segments
 ) {
 	const target = toCoordinate(coordinateLike);
 
-	const nearestIndexes = new Set<number>();
+	const nearestIndexes = /** @type {Set<number>} */(new Set());
 	let nearestDistance = Infinity;
 	let index = 0;
 	for (const segment of segments) {
@@ -41,7 +47,10 @@ export function segmentNearestPoint(
 	}
 
 	let smallestAngleDifference = Infinity;
-	let nearestIndex!: number;
+
+	/** @type {number | undefined} */
+	let nearestIndex;
+
 	for (const index of nearestIndexes) {
 		const segment = segments[index];
 		const begin = segment[0];
@@ -62,5 +71,5 @@ export function segmentNearestPoint(
 		}
 	}
 
-	return nearestIndex;
+	return /** @type {number} */(nearestIndex);
 }

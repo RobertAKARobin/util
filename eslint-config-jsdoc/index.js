@@ -55,7 +55,7 @@ export default [
 			'jsdoc/require-property-description': `error`,
 			'jsdoc/require-property-name': `error`,
 			'jsdoc/require-property-type': `error`,
-			'jsdoc/require-returns': `error`,
+			'jsdoc/require-returns': `error`, // Can use `@ignore` in place of `@returns` when we don't need to document the return type, e.g. on an internal callback
 			'jsdoc/require-returns-check': `error`,
 			'jsdoc/require-returns-description': `off`,
 			'jsdoc/require-returns-type': `error`,

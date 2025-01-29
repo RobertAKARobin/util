@@ -1,4 +1,7 @@
-import type { Coordinate, LineLike } from '../types.d';
+/**
+ * @import { Coordinate, LineLike } from '../types.d';
+ */
+
 import { roundTo } from '../math/roundTo';
 
 import { getSlope } from './slope';
@@ -8,8 +11,10 @@ import { toLine } from './toLine';
 /**
  * Find the intersection of two straight lines
  * TODO3: Can make more efficient, but like the readability
+ * @param {Array<LineLike>} lines
+ * @returns {Coordinate | undefined}
  */
-export function linesToIntersection(...lines: Array<LineLike>): Coordinate | undefined {
+export function linesToIntersection(...lines) {
 	const lineA = toLine(lines[0]);
 	const lineB = toLine(lines[1]);
 

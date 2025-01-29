@@ -1,15 +1,17 @@
 import { preciseTo } from '../math/preciseTo';
 
 /**
-* Perform a binary search: evaluate the midpoint of a progressively smaller range of percents until the difference between the top and bottom results is 0, or the results stop changing.
-* TODO3: Make the number of "segments" configurable?
+ * Perform a binary search: evaluate the midpoint of a progressively smaller range of percents until the difference between the top and bottom results is 0, or the results stop changing.
+ * TODO3: Make the number of "segments" configurable?
+ * @param {(percent: number) => number} evaluate
+ * @param {object} [options]
+ * @param {number} [options.iterationCap=100]
+ * @param {number} [options.precision=2]
+ * @returns {number}
  */
 export function findPercent(
-	evaluate: (percent: number) => number,
-	options: {
-		iterationCap?: number;
-		precision?: number;
-	} = {},
+	evaluate,
+	options = {},
 ) {
 	const iterationCap = options.iterationCap ?? 100;
 	const precision = options.precision ?? 2;

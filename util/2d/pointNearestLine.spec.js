@@ -1,10 +1,14 @@
+/**
+ * @import { Coordinate } from '../types.d';
+ */
+
 import { test } from '../spec/index';
 
-import type { Coordinate } from '../types.d';
 import { pointNearestLine } from './pointNearestLine';
 
 export const spec = test(import.meta.url, $ => {
-	let foot: Coordinate;
+	/** @type {Coordinate} */
+	let foot;
 
 	foot = pointNearestLine([3, 3], [[0, 2], [2, 0]]);
 	$.assert(x => x(foot.x) === 1);

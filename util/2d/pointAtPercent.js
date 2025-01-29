@@ -1,4 +1,6 @@
-import type { Coordinate } from '../types.d';
+/**
+ * @import { Coordinate } from '../types.d';
+ */
 
 import { pointsSeparated } from './pointsSeparated';
 import { pointsToMidpoints } from './pointsToMidpoints';
@@ -7,11 +9,11 @@ import { pointsToMidpoints } from './pointsToMidpoints';
  * Given points along a line, and n% percent of the line's total length, approximate the coordinates of the point at that length.
  * https://en.wikipedia.org/wiki/De_Casteljau%27s_algorithm
  * https://github.com/tdzienniak/deCasteljau
+ * @param {number} percent
+ * @param {Array<Coordinate>} points
+ * @returns {Coordinate}
  */
-export function pointAtPercent(
-	percent: number,
-	...points: Array<Coordinate>
-): Coordinate {
+export function pointAtPercent(percent, ...points) {
 	let midpoints = pointsSeparated(...points);
 
 	while (midpoints.length > 1) {

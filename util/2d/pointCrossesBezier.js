@@ -1,6 +1,9 @@
+/**
+ * @import { Bezier, Coordinate, CoordinateLike } from '../types.d';
+ */
+
 import { roundTo } from '../math/roundTo';
 
-import type { Bezier, CoordinateLike } from '../types.d';
 import { bezierPoint } from './bezierPoint';
 import { findPercent } from './findPercent';
 import { pointsRotate } from './pointsRotate';
@@ -9,10 +12,14 @@ import { toCoordinate } from './toCoordinate';
 
 /**
  * Given a coordinate and a Bezier, returns the point on the Bezier that would meet the coordinate at a slope perpendicular to the Bezier's overall slope. (`pointPerpendicularToBezier` was a bit wordy.)
+ * @param {CoordinateLike} coordinateLike
+ * @param {Bezier} bezier
+ * @param {number} [tolerance=1]
+ * @returns {Coordinate}
  */
 export function pointCrossesBezier(
-	coordinateLike: CoordinateLike,
-	bezier: Bezier,
+	coordinateLike,
+	bezier,
 	tolerance = 1,
 ) {
 	const target = toCoordinate(coordinateLike);
@@ -23,19 +30,20 @@ export function pointCrossesBezier(
 		y: begin.y,
 	});
 
-	const [rotatedTarget, ...rotatedBezier] = pointsRotate([target, ...bezier], begin, angle, { unit: `radian` });
+	const [rotatedTarget, ...rotatedBezier_] = pointsRotate([target, ...bezier], begin, angle, { unit: `radian` });
+	const rotatedBezier = /** @type {Bezier} */(rotatedBezier_);
 
-	const percent = findPercent(percent => {
-		const point = bezierPoint(...rotatedBezier as Bezier, percent);
-		let offset = Math.abs(point.x - rotatedTarget.x);
+	const intersectionPercent = findPercent(percent => {
+		const intersection = bezierPoint(...rotatedBezier, percent);
+		let offset = Math.abs(intersection.x - rotatedTarget.x);
 		offset = roundTo(offset, tolerance);
 		return offset;
 	});
 
-	const point = bezierPoint(...bezier, percent);
+	const intersection = bezierPoint(...bezier, intersectionPercent);
 
 	return {
-		x: roundTo(point.x, tolerance),
-		y: roundTo(point.y, tolerance),
+		x: roundTo(intersection.x, tolerance),
+		y: roundTo(intersection.y, tolerance),
 	};
 }

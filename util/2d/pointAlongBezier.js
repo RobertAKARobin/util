@@ -1,7 +1,10 @@
+/**
+ * @import { Bezier, Coordinate, CoordinateLike } from '../types.d';
+ */
+
 import { isBetween } from '../math/isBetween';
 import { roundTo } from '../math/roundTo';
 
-import type { Bezier, Coordinate, CoordinateLike } from '../types.d';
 import { bezierPoint } from './bezierPoint';
 import { findPercent } from './findPercent';
 import { pointsToAngles } from './pointsToAngles';
@@ -9,10 +12,14 @@ import { toCoordinate } from './toCoordinate';
 
 /**
  * Given a coordinate and a bezier, return the point on the bezier most vertically- or horizontally-aligned to the coordinate
+ * @param {CoordinateLike} coordinateLike
+ * @param {Bezier} bezier
+ * @param {number} [tolerance=1]
+ * @returns {Coordinate}
  */
 export function pointAlongBezier(
-	coordinateLike: CoordinateLike,
-	bezier: Bezier,
+	coordinateLike,
+	bezier,
 	tolerance = 1,
 ) {
 	const target = toCoordinate(coordinateLike);
@@ -25,7 +32,7 @@ export function pointAlongBezier(
 	angle = angle % Math.PI / 2; // If below X-axis, reflect it above X-axis, for simplicity
 
 	const angle45 = Math.PI / 8;
-	const alongAxis: keyof Coordinate = (
+	const alongAxis = (
 		isBetween(angle45 * 1, angle, angle45 * 3) ? `y` : `x`
 	);
 
