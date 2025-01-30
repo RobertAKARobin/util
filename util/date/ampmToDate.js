@@ -1,14 +1,28 @@
 /**
  * Convert a 12-hour string to a date
+ * @overload
+ * @param {string} input
+ * @param {Date} [date]
+ * @returns {Date}
  */
-export function ampmToDate(input: string, date?: Date): Date;
-export function ampmToDate(input: undefined, date?: Date): undefined;
-export function ampmToDate(input: string | undefined, date?: Date): Date | undefined;
-export function ampmToDate(
-	input: string | undefined,
-	date: Date = new Date(),
-) {
+/**
+ * @overload
+ * @param {undefined} input
+ * @param {Date} [date]
+ * @returns {undefined}
+ */
+/**
+ * @param {string | undefined} input
+ * @param {Date} [date]
+ * @returns {Date | undefined}
+ */
+export function ampmToDate(input, date = new Date()) {
 	if (input === undefined) {
+		return undefined;
+	}
+
+	const match = input.toLowerCase().match(/(\d{1,2}):(\d{1,2})\s*(am|pm)/);
+	if (match === null) {
 		return undefined;
 	}
 
@@ -17,7 +31,7 @@ export function ampmToDate(
 		hoursString,
 		minutesString,
 		ampm,
-	] = input.toLowerCase().match(/(\d{1,2}):(\d{1,2})\s*(am|pm)/)!;
+	] = match;
 
 	let hours = parseInt(hoursString);
 	if (hours === 12) {

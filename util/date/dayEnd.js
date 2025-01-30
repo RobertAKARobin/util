@@ -1,7 +1,9 @@
 /**
  * Get a date representing the last milisecond of the given day
+ * @param {Date} date
+ * @returns {Date}
  */
-export function dayEnd(date: Date) {
+export function dayEnd(date) {
 	return new Date(
 		date.getFullYear(),
 		date.getMonth(),
@@ -15,8 +17,10 @@ export function dayEnd(date: Date) {
 
 /**
  * Get a date representing the first milisecond of the given day
+ * @param {Date} date
+ * @returns {Date}
  */
-export function dayStart(date: Date) {
+export function dayStart(date) {
 	return new Date(
 		date.getFullYear(),
 		date.getMonth(),

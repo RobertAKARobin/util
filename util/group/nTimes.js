@@ -1,8 +1,5 @@
 /**
  * Performs the given operation `n` times and returns the result as an array
- */
-
-/**
  * @template Value
  * @overload
  * @param {number} number

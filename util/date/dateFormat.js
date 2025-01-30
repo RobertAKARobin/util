@@ -1,7 +1,10 @@
-export function dateFormatYYYYMMDD(date: Date) {
-	return [
-		date.getFullYear(),
-		String(date.getMonth() + 1).padStart(2, `0`),
-		String(date.getDate()).padStart(2, `0`),
-	];
+import { dateAlphabetical } from './dateAlphabetical';
+
+/**
+ * Returns the given date in chunks: `[YYYY, MM, DD]`
+ * @param {Date} date
+ * @returns {Array<string>}
+ */
+export function dateFormatYYYYMMDD(date) {
+	return dateAlphabetical(date).slice(0, 3);
 }
