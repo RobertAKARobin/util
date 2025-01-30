@@ -1,8 +1,10 @@
-import { enumy } from '../group/enumy';
+import { enumy } from '../group/enumy';;
 
-export type Direction = keyof typeof directions;
+/**
+ * @typedef {keyof typeof directions} Direction
+ */
 
-export const directionsByIndex = [
+export const directionsByIndex = /** @type {const} */([
 	`N`,
 	`NE`,
 	`E`,
@@ -11,7 +13,7 @@ export const directionsByIndex = [
 	`SW`,
 	`W`,
 	`NW`,
-] as const;
+]);
 
 export const directions = enumy(...directionsByIndex);
 
@@ -20,5 +22,5 @@ export const degreesByDirection = directionsByIndex.reduce(
 		directions[directionName] = index * 45;
 		return directions;
 	},
-	{} as Record<keyof typeof directions, number>,
+	/** @type {Record<keyof typeof directions, number>} */({}),
 );
