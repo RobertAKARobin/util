@@ -1,5 +1,18 @@
 export { css } from '../string/template';
 
+/**
+ * @typedef {Record<string, number>} GenericBreakpoints
+ * @typedef {Record<string, number | string>} GenericConstants
+ * @typedef {Record<string, {
+ * display?: 'auto' | 'block' | 'fallback' | 'optional' | 'swap';
+ * name?: string;
+ * src: string;
+ * style?: 'italic' | 'normal' | 'oblique';
+ * weight?: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
+ * }>} GenericFonts
+ * @typedef {Record<string, string>} GenericTypefaces
+ */
+
 export const reset = `
 background: transparent;
 border: 0;
@@ -16,81 +29,91 @@ padding: 0;
 text-decoration: inherit;
 `;
 
-type GenericBreakpoints = Record<string, number>;
-type GenericConstants = Record<string, number | string>;
-type GenericFonts = Record<string, {
-	display?: `auto` | `block` | `fallback` | `optional` | `swap`;
-	name?: string;
-	src: string;
-	style?: `italic` | `normal` | `oblique`;
-	weight?: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
-}>;
-type GenericTypefaces = Record<string, string>;
-
 /**
  * Produces a bunch of useful CSS helpers, given the constants that underly your application's styling
+ * TODO1: Spec
+ * @template {GenericBreakpoints} Breakpoints
+ * @template {GenericConstants} Constants
+ * @template {GenericFonts} Fonts
+ * @template {GenericTypefaces} Typefaces
  */
-export class CssTheme<
-	Breakpoints extends GenericBreakpoints = GenericBreakpoints,
-	Constants extends GenericConstants = GenericConstants,
-	Fonts extends GenericFonts = GenericFonts,
-	Typefaces extends GenericTypefaces = GenericTypefaces,
-> {
+export class CssTheme {
 	/**
 	 * A map of CSS breakpoints to strings that can be used in `@media` queries, e.g. `bp.lessThan.phone` translates to `(max-width: ${phone}px)`
+	 * @readonly
 	 */
-	readonly bp = {
-		lessThan: {} as Record<keyof Breakpoints, string>,
-		moreThan: {} as Record<keyof Breakpoints, string>,
+	bp = {
+		lessThan: /** @type {Record<keyof Breakpoints, string>} */({}),
+		moreThan: /** @type {Record<keyof Breakpoints, string>} */({}),
 	};
 	/**
 	 * The contents of `this.fonts` as a string of `@font-face` declarations.
+	 * @type {string}
+	 * @readonly
 	 */
-	readonly fontFaces: string;
+	fontFaces;
 	/**
 	 * A map of font names to their font-face configuration properties.
+	 * @type {Fonts}
+	 * @readonly
 	 */
-	readonly fonts: Fonts;
+	fonts;
 	/**
 	 * A CSS snippet that resets most of the browser's default styles
 	 */
-	readonly reset = reset;
+	/**
+	 * @readonly
+	 */
+	reset = reset;
 	/**
 	 * The styles for this themes's typefaces as CSS classes, e.g. `{ subtitle: 'font-size: 3rem;' }` becomes `.type-subtitle { font-size: 3rem; }`
+	 * @type {string}
+	 * @readonly
 	 */
-	readonly typeClasses: string;
+	typeClasses;
 	/**
 	 * The names of this theme's typefaces as CSS class names, e.g. `type-h1`;
+	 * @type {Record<keyof Typefaces, string>}
+	 * @readonly
 	 */
-	readonly typeClassNames: Record<keyof Typefaces, string>;
+	typeClassNames;
 	/**
 	 * A map of the styles for this theme's typefaces. Each includes a `--varName` CSS variable, so that when a typeface is used as a mixin the name of the original type can be found for referencein the compiled code.
+	 * @readonly
 	 */
-	readonly types = {} as Typefaces;
+	types = /** @type {Typefaces} */({});
 	/**
 	 * A map of the constant values passed into this theme
+	 * @type {Constants}
+	 * @readonly
 	 */
-	readonly val: Constants;
+	val;
 	/**
 	 * The keys of `this.val` written as CSS variables, e.g. `var(--foo)`;
+	 * @readonly
 	 */
-	readonly vars = {} as Record<keyof Constants, string>;
+	vars = /** @type {Record<keyof Constants, string>} */({});
 	/**
 	 * The contents of `this.val` as CSS variables, such as can be inserted into the `root:` of a stylesheet
+	 * @type {string}
+	 * @readonly
 	 */
-	readonly varsDeclarations: string;
+	varsDeclarations;
 	/**
 	 * The keys of `this.val` written as CSS variable names, e.g. `--foo`
+	 * @readonly
 	 */
-	readonly vname = {} as Record<keyof Constants, string>;
+	vname = /** @type {Record<keyof Constants, string>} */({});
 
-	constructor(input: {
-		bps?: Breakpoints;
-		fonts?: Fonts;
-		types?: Typefaces;
-		val?: Constants;
-	} = {}) {
-		this.fonts = input.fonts ?? {} as Fonts;
+	/**
+	 * @param {object} [input]
+	 * @param {Breakpoints} [input.bps]
+	 * @param {Fonts} [input.fonts]
+	 * @param {Typefaces} [input.types]
+	 * @param {Constants} [input.val]
+	 */
+	constructor(input = {}) {
+		this.fonts = input.fonts ?? /** @type {Fonts} */({});
 		this.fontFaces = Object.entries(this.fonts).map(([fontName, font]) => /*css*/`
 @font-face {
 	${font.display ? `font-display: ${font.display};` : ``}
@@ -101,9 +124,9 @@ export class CssTheme<
 }
 		`).join(`\n`);
 
-		const breakpoints = input.bps ?? {} as Breakpoints;
+		const breakpoints = input.bps ?? /** @type {Breakpoints} */({});
 		this.val = {
-			...input.val ?? {} as Constants,
+			...input.val ?? /** @type {Constants} */({}),
 			...breakpoints,
 		};
 		for (const constantName in this.val) {
@@ -113,15 +136,15 @@ export class CssTheme<
 		}
 		this.varsDeclarations = this.toCssVariables(this.val);
 
-		const typefaces = input.types ?? {} as Record<string, string>;
+		const typefaces = input.types ?? /** @type {Record<string, string>} */({});
 
-		const typeNames = Object.keys(typefaces);
-		this.typeClassNames = typeNames.reduce((typeNames, typeName: keyof Typefaces) => {
-			typeNames[typeName] = `type-${typeName as string}`;;
-			return typeNames;
-		}, {} as Record<keyof Typefaces, string>);
+		this.typeClassNames = Object.keys(typefaces).reduce((typeClassNames, typeface) => {
+			const typeName = /** @type {keyof Typefaces} */(typeface);
+			typeClassNames[typeName] = `type-${typeface}`;
+			return typeClassNames;
+		}, /** @type {Record<keyof Typefaces, string>} */({}));
 
-		const typeClasses = [] as Array<string>;
+		const typeClasses = [];
 		for (const typeName in typefaces) {
 			const typeStyles = typefaces[typeName];
 			typefaces[typeName] = `
@@ -134,7 +157,7 @@ export class CssTheme<
 				}
 			`);
 		}
-		this.types = typefaces as Typefaces;
+		this.types = /** @type {Typefaces} */(typefaces);
 		this.typeClasses = typeClasses.join(`\n`);
 
 		for (const bpName in breakpoints) {
@@ -146,10 +169,12 @@ export class CssTheme<
 
 	/**
 	 * Outputs a string that declares all vals as CSS variables
-	 * @see {@link val}
-	 * @see {@link vars}
+	 * @param {GenericConstants} vals
+	 * @returns {string}
+	 * @see {@link CssTheme.val}
+	 * @see {@link CssTheme.vars}
 	 */
-	toCssVariables(vals: GenericConstants) {
+	toCssVariables(vals) {
 		return Object.entries(vals).map(([constant, value]) => `
 			--${constant}: ${value};
 		`).join(``);

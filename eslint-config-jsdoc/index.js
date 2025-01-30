@@ -24,7 +24,7 @@ export default [
 			'jsdoc/check-property-names': `error`,
 			'jsdoc/check-syntax': `error`,
 			'jsdoc/check-tag-names': `error`,
-			'jsdoc/check-template-names': `error`,
+			'jsdoc/check-template-names': `off`, // TODO3: Doesn't currently play nice with class declarations in JS files. https://github.com/gajus/eslint-plugin-jsdoc/issues/1354
 			'jsdoc/check-types': `error`,
 			'jsdoc/check-values': `error`,
 			'jsdoc/empty-tags': `error`,
