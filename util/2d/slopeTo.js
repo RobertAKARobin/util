@@ -1,11 +1,21 @@
+/**
+ * @import { LineLike } from '../types.d';
+ */
+
+// Separate from `slope.js` because it probably won't be used as often as `slope.js` and is a (slightly) nontrivial amount of code to import
 
 import { getSlope } from './slope';
-import type { LineLike } from '../types.d';
 import { radiansTo } from './radians';
 
+/**
+ * Returns the slope of a line as degrees or radians
+ * @param {LineLike} lineLike
+ * @param {'degrees' | 'radians'} [unit=degrees]
+ * @returns {number}
+ */
 export function slopeTo(
-	lineLike: LineLike,
-	unit: `degrees` | `radians` = `degrees`,
+	lineLike,
+	unit = `degrees`,
 ) {
 	const slope = getSlope(lineLike);
 	if (unit === `degrees`) {
@@ -14,13 +24,21 @@ export function slopeTo(
 	return slopeToRadians(slope);
 }
 
-export function slopeToDegrees(slope: number) {
+/**
+ * @param {number} slope
+ * @ignore
+ */
+function slopeToDegrees(slope) {
 	return radiansTo(slopeToRadians(slope));
 }
 
 const rightAngle = Math.PI / 2;
 
-export function slopeToRadians(slope: number) {
+/**
+ * @param {number} slope
+ * @ignore
+ */
+function slopeToRadians(slope) {
 	if (Object.is(slope, 0)) {
 		return 0;
 	}

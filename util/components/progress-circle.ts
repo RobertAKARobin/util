@@ -29,7 +29,7 @@ export class ProgressCircle extends Component {
 				return;
 			}
 
-			let percent =  (this.value / this.max) - this.min;
+			let percent = (this.value / this.max) - this.min;
 			percent = Math.min(1, percent);
 			percent = Math.max(0, percent);
 

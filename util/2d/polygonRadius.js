@@ -1,10 +1,14 @@
 /**
  * Given the outer radius of a polygon return its inner radius, and vice-versa
+ * @param {number} inputRadius
+ * @param {number} sides
+ * @param {'inner' | 'outer'} outputType
+ * @returns {number}
  */
 export function polygonRadius(
-	inputRadius: number,
-	sides: number,
-	outputType: `inner` | `outer`,
+	inputRadius,
+	sides,
+	outputType,
 ) {
 	if (sides === Infinity) {
 		return inputRadius;

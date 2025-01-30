@@ -5,7 +5,7 @@ import { router } from '@src/app';
 
 export function link(
 	routeName: keyof typeof router.routes,
-	content: string = ``,
+	content = ``,
 	attributeOverrides: Record<string, string> = {},
 ) {
 	const route = router.routes[routeName];

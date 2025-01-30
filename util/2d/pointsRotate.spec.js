@@ -1,4 +1,7 @@
-import type { Coordinate } from '../types.d';
+/**
+ * @import { Coordinate } from '../types.d';
+ */
+
 import segments from '../mock/segments.json' with { type: 'json' };
 import { test } from '../spec/index';
 
@@ -6,7 +9,8 @@ import { pointsRotate } from './pointsRotate';
 import { pointToString } from './pointToString';
 
 export const spec = test(import.meta.url, $ => {
-	let subject: Array<Coordinate>;
+	/** @type {Array<Coordinate>} */
+	let subject;
 
 	subject = pointsRotate([[0, 1], [1, 0]], [0, 0], 90);
 	$.assert(x => x(pointToString(subject[0])) === `1,0`);

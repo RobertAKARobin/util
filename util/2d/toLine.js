@@ -1,11 +1,15 @@
-import type { Line, LineLike } from '../types.d';
+/**
+ * @import { Line, LineLike } from '../types.d';
+ */
 
 import { toCoordinate } from './toCoordinate';
 
 /**
  * Returns a line made from the first and last of the given points
+ * @param {LineLike} lineLike
+ * @returns {Line}
  */
-export function toLine(lineLike: LineLike): Line {
+export function toLine(lineLike) {
 	if (`begin` in lineLike) {
 		return lineLike;
 	}
@@ -15,6 +19,6 @@ export function toLine(lineLike: LineLike): Line {
 
 	return {
 		begin: toCoordinate(begin),
-		end: toCoordinate(end as [number, number]),
+		end: toCoordinate(end),
 	};
 }

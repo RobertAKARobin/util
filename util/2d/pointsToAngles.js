@@ -1,10 +1,16 @@
-import type { CoordinateLike } from '../types.d';
+/**
+ * @import { CoordinateLike } from '../types.d';
+ */
+
 import { getDistance } from './distance';
 import { toCoordinate } from './toCoordinate';
 
-export function pointsToAngles(
-	...points: [CoordinateLike, CoordinateLike, CoordinateLike]
-) {
+/**
+ * foo
+ * @param {[CoordinateLike, CoordinateLike, CoordinateLike]} points
+ * @returns {Array<number>}
+ */
+export function pointsToAngles(...points) {
 	const [pointA, pointB, pointC] = points.map(toCoordinate);
 	const sideAB = getDistance([pointA, pointB]);
 	const sideAB2 = sideAB ** 2;

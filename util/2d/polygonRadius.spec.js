@@ -4,15 +4,27 @@ import { preciseTo } from '../math/preciseTo';
 
 import { polygonRadius as polygonRadius_ } from './polygonRadius';
 
-function polygonRadius(...args: Parameters<typeof polygonRadius_>) {
+/**
+ * @param {Parameters<typeof polygonRadius_>} args
+ * @ignore
+ */
+function polygonRadius(...args) {
 	return preciseTo(polygonRadius_(...args));
 }
 
-function hypotenuseFromSide(sideLength: number) {
+/**
+ * @param {number} sideLength
+ * @ignore
+ */
+function hypotenuseFromSide(sideLength) {
 	return preciseTo(Math.sqrt(2 * Math.pow(sideLength, 2)));
 }
 
-function sideFromHypotenuse(hypotenuseLength: number) {
+/**
+ * @param {number} hypotenuseLength
+ * @ignore
+ */
+function sideFromHypotenuse(hypotenuseLength) {
 	return preciseTo(
 		Math.sqrt(
 			Math.pow(hypotenuseLength, 2) / 2,

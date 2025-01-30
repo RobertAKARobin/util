@@ -1,12 +1,19 @@
-import type { Coordinate, Segment } from '../types.d';
+/**
+ * @import { Coordinate, Segment } from '../types.d';
+ */
 
 import { pointsAreDifferent } from './pointsAreDifferent';
 
+/**
+ * asdf
+ * @param {Array<Segment>} segments
+ * @param {object} [options]
+ * @param {boolean} [options.overlap=false]
+ * @returns {Array<Coordinate>}
+ */
 export function segmentsToPoints(
-	segments: Array<Segment>,
-	options: {
-		overlap?: boolean;
-	} = {},
+	segments,
+	options = {},
 ) {
 	const hasOverlap = options.overlap ?? false;
 
@@ -15,13 +22,16 @@ export function segmentsToPoints(
 		return points;
 	}
 
-	const out = [] as Array<Coordinate>;
-	let last = {} as Coordinate;
+	const out = [];
+
+	/** @type {Coordinate} */
+	let last = { x: NaN, y: NaN };
 	for (const point of points) {
 		if (pointsAreDifferent(point, last)) {
 			out.push(point);
 		}
 		last = point;
 	}
+
 	return out;
 }

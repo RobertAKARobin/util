@@ -134,7 +134,7 @@ export const spec = suite(`SpecBuilder`, {},
 				},
 
 				test(`resets args`, ({ args, assert }) => {
-					assert(x =>	 x(args.iteration) === 1);
+					assert(x => x(args.iteration) === 1);
 					args.iteration += 1;
 
 					assert(() => args !== state.testArgs_last);

@@ -1,9 +1,14 @@
-import type { Coordinate, CoordinateLike } from '../types.d';
+/**
+ * @import { Coordinate, CoordinateLike } from '../types.d';
+ */
 
 /**
- * Converts a tuple of 2 numbers to a Coordinate. Using `Array<number>` because otherwise keeps requiring we specify `as [number, number]`
+ * Converts a tuple of 2 numbers (or a string in `x,y` notation) to a Coordinate.
+ * Using `Array<number>` because otherwise keeps requiring we specify `as [number, number]`
+ * @param {CoordinateLike | string} coordinateLike
+ * @returns {Coordinate}
  */
-export function toCoordinate(coordinateLike: CoordinateLike | string): Coordinate {
+export function toCoordinate(coordinateLike) {
 	if (typeof coordinateLike === `string`) {
 		const [x, y] = coordinateLike.split(/[, ]+/).map(Number);
 		return { x, y };

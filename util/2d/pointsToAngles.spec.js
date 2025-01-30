@@ -8,7 +8,8 @@ import { pointsToAngles } from './pointsToAngles';
 import { radiansTo } from './radians';
 
 export const spec = test(import.meta.url, $ => {
-	let subject: Array<number>;
+	/** @type {Array<number>} */
+	let subject;
 
 	subject = pointsToAngles([0, 0], [3, 0], [3, 3]);
 	$.assert(x => x(roundTo(subject[0])) === roundTo(Math.PI / 2)); // Dunno why this one needs rounding
