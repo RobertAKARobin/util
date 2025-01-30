@@ -1,11 +1,26 @@
 import { roundTo } from '../math/roundTo';
 
 /**
+ * @template {PropertyKey} AnimationName
+ * @typedef {{
+ * initialState: string;
+ * keyframes: string;
+ * name: AnimationName;
+ * timeDuration: number;
+ * timeEnd: number;
+ * timeStart: number;
+ * }} AnimationData
+ */
+
+/**
  * Returns the contents of a CSS `@keyframes` at-rule, calculating the duration % for each step. For each arg, if it's a number it increases the duration. If it's a string it outputs another step at the duration % so far.
+ * @param {string} initialState
+ * @param {Array<string | number>} states
+ * @returns {string}
  */
 export function keyframes(
-	initialState: string,
-	...states: Array<number | string>
+	initialState,
+	...states
 ) {
 	const formatted = states.map(arg => {
 		if (typeof arg === `number`) {
@@ -23,29 +38,15 @@ export function keyframes(
 	return result.animation.keyframes;
 }
 
-export type AnimationData<AnimationName extends PropertyKey = PropertyKey> = {
-	initialState: string;
-	keyframes: string;
-	name: AnimationName;
-	timeDuration: number;
-	timeEnd: number;
-	timeStart: number;
-};
-
 /**
  * Returns the keyframes and timing information for multiple CSS animations.
- * @see {@link keyframes}.
+ * @template {string} AnimationName
+ * @param {[Record<AnimationName, string | undefined>, ...Array<Partial<Record<AnimationName, string>> | number>,]} args
+ * @returns {Record<AnimationName, AnimationData<AnimationName>>}
+ * @see {@link keyframes}
  */
-export function keyframesMulti<AnimationName extends string>(
-	...args: [
-		Record<AnimationName, string | undefined>,
-		...Array<Partial<Record<AnimationName, string>> | number>,
-	]
-) {
-	const animationsByName = {} as Record<
-		AnimationName,
-		AnimationData<AnimationName>
-	>;
+export function keyframesMulti(...args) {
+	const animationsByName = /** @type {Record<AnimationName, AnimationData<AnimationName>>} */({});
 
 	let timeTotal = 0;
 	for (const arg of args) {
@@ -55,7 +56,7 @@ export function keyframesMulti<AnimationName extends string>(
 		}
 
 		for (const key in arg) {
-			const animationName = key as AnimationName;
+			const animationName = /** @type {AnimationName} */(key);
 			const animation = animationsByName[animationName] ??= {
 				initialState: ``,
 				keyframes: ``,

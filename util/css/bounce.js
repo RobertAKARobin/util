@@ -1,14 +1,24 @@
-import { type keyframesMulti } from './keyframes';
+/**
+ * @import { keyframesMulti } from './keyframes';
+ */
+
+// TODO1: Spec
+
 import { roundTo } from '../math/roundTo';
 
-export function bounce(options: {
-	bounciness?: number;
-	distance?: number;
-	distanceMin?: number;
-	duration?: number;
-	durationMin?: number;
-	setter?: (distance: number) => string;
-} = {}) {
+/**
+ * Returns a series of keyframes that make an object appear to bounce
+ * @param {object} [options]
+ * @param {number} [options.bounciness=.5]
+ * @param {number} [options.distance=100]
+ * @param {number} [options.distanceMin=1]
+ * @param {number} [options.duration=.5]
+ * @param {number} [options.durationMin=.01]
+ * @param {(distance: number) => string} [options.setter]
+ * @returns {Parameters<typeof keyframesMulti<'bounce'>>}
+ * @see {@link keyframesMulti}
+ */
+export function bounce(options = {}) {
 	const bounciness = options.bounciness ?? .5;
 	const distanceMax = options.distance ?? 100;
 	const distanceMin = options.distanceMin ?? 1;
@@ -20,9 +30,9 @@ export function bounce(options: {
 		throw new Error(`Infinite loop in bounce`);
 	}
 
-	const states = [
+	const states = /** @type {Parameters<typeof keyframesMulti<'bounce'>>} */([
 		{ bounce: setter(0) },
-	] as unknown as Parameters<typeof keyframesMulti<`bounce`>>;
+	]);
 
 	let distance = distanceMax;
 	let duration = durationMax;
