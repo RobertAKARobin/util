@@ -38,6 +38,8 @@ export type OneOrMany<Type> = Array<Type> | Type;
 
 export type PromiseMaybe<Type> = Promise<Type> | Type;
 
+export type PropertyOf<Type> = Type[keyof Type]; // Necessary for JSDoc: https://github.com/gajus/eslint-plugin-jsdoc/issues/1357
+
 export type RequireOnly<_Object, _RequiredKeys extends keyof _Object> = Partial<_Object>
 	& Pick<_Object, _RequiredKeys>;
 

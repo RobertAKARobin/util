@@ -1,4 +1,4 @@
-const codesByName = {
+const codesByName = /** @type {const} */{
 	black: 30,
 	blackBg: 40,
 	blue: 34,
@@ -50,9 +50,11 @@ const codesByName = {
 	reset: 0,
 };
 
-export type ColorName = keyof typeof codesByName;
+/**
+ * @typedef {keyof codesByName} ColorName
+ */
 
-const codes = new Set<number>();
+const codes = /** @type {Set<number>} */new Set();
 
 export const colors = Object.entries(codesByName).reduce((colors, [name, code]) => {
 	if (codes.has(code)) { // Checking my work
@@ -61,13 +63,18 @@ export const colors = Object.entries(codesByName).reduce((colors, [name, code]) 
 		codes.add(code);
 	}
 
-	colors[name as ColorName] = `\x1b[${code}m`;
+	const colorName = /** @type {ColorName} */(name);
+	colors[colorName] = `\x1b[${code}m`;
 	return colors;
-}, {} as Record<ColorName, string>);
+}, /** @type {Record<ColorName, string>} */({}));
 
-export const color = (
-	message: string,
-	...args: Array<ColorName>
-) => {
+/**
+ * Wrap the given message in shell strings for the given colors
+ * TODO1: Spec
+ * @param {string} message
+ * @param {Array<ColorName>} args
+ * @returns {string}
+ */
+export function color(message, ...args) {
 	return `\x1b[${args.map(color => codesByName[color]).join(`;`)}m${message}${colors.reset}`;
 };

@@ -1,5 +1,5 @@
 /**
- * @import { Textish } from '../types.d';
+ * @import { PropertyOf, Textish } from '../types.d';
  * @import { ElAttributes } from './types.d';
  */
 
@@ -52,8 +52,7 @@ export function setAttributes(
 		const attributeKey = /** @type {keyof Target} */(attributeName);
 		const value = updates[/** @type {keyof Element} */(attributeName)];
 		if (attributeKey in target && options.attrsOnly !== true) { // Try using a regular setter first, e.g. `target[propertyName]`. Useful if an attribute's corresponding property is spelled differently, e.g. data-foo becomes dataFoo
-			// eslint-disable-next-line jsdoc/valid-types
-			target[attributeKey] = /** @type {Target[keyof Target]} */(value); // TODO3: Make a bug in eslint-plugin-jsdoc for this?
+			target[attributeKey] = /** @type {PropertyOf<Target>} */(value);
 		} else {
 			target.setAttribute(
 				/** @type {string} */(attributeKey),

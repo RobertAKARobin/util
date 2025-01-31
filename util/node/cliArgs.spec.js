@@ -2,14 +2,23 @@ import { test } from '../spec/index';
 
 import { cliArgs } from './cliArgs';
 
-function argsFor(command: string) {
-	return cliArgs<{
-		age: string;
-		name: string;
-	}>(command.split(` `))[0];
+/**
+ * @typedef {{ age: string; name: string }} Args
+ */
+
+/**
+ * @param {string} command
+ * @ignore
+ */
+function argsFor(command) {
+	return /** @type {ReturnType<typeof cliArgs<Args>>} */(cliArgs(command.split(` `)))[0];
 }
 
-function restFor(command: string) {
+/**
+ * @param {string} command
+ * @ignore
+ */
+function restFor(command) {
 	return cliArgs(command.split(` `)).slice(1);
 }
 

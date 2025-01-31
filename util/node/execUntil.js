@@ -5,13 +5,13 @@ import { tryCatch } from '../tryCatch';
 /**
  * Run command until the same stdout is output twice
  * Useful when running commands that require multiple "passes", e.g. some linter auto-fixes
+ * TODO1: Spec
+ * @param {string} command
+ * @param {object} [options]
+ * @param {number} [options.attemptsMax=10]
+ * @returns {Error | string}
  */
-export function execUntil(
-	command: string,
-	options: {
-		attemptsMax?: number;
-	} = {},
-) {
+export function execUntil(command, options = {}) {
 	const attemptsMax = options.attemptsMax ?? 10;
 
 	let attemptCount = 0;
