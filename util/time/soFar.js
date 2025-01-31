@@ -4,9 +4,11 @@ import { preciseTo } from '../math/preciseTo';
 
 /**
  * Time "so far". Just compares performance.now() to its last value.
+ * @returns {() => number}
  */
-export const soFarTimer = () => {
-	let timeMemory: number | undefined;
+export function soFarTimer() {
+	/** @type {number | undefined} */
+	let timeMemory;
 
 	return () => {
 		const timeNow = performance.now();

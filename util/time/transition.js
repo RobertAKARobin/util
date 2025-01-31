@@ -1,14 +1,16 @@
 import { FPSLoop } from './fpsLoop';
 
-export function transition(
-	options: {
-		duration: number;
-		loopsPerSecond?: number;
-		valueEnd?: number;
-		valueStart?: number;
-	},
-	doWhat: (value: number) => void,
-): FPSLoop {
+/**
+ * Execute the given function over the given interval while on each execution incrementing `valueStart` toward `valueEnd`
+ * @param {object} options
+ * @param {number} options.duration
+ * @param {number} [options.loopsPerSecond]
+ * @param {number} [options.valueEnd]
+ * @param {number} [options.valueStart]
+ * @param {(value: number) => void} doWhat
+ * @returns {FPSLoop}
+ */
+export function transition(options, doWhat) {
 	const valueStart = options.valueStart ?? 0;
 	const valueEnd = options.valueEnd ?? 1;
 	const difference = valueStart - valueEnd;

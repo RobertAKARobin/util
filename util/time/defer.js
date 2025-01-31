@@ -1,15 +1,36 @@
 /* eslint-disable @typescript-eslint/no-floating-promises */
-type Resolve<Value> = (value: Value) => void;
-type Reject = (reason?: any) => void; // eslint-disable-line @typescript-eslint/no-explicit-any
+
+/**
+ * @template Value
+ * @typedef {(value: Value) => void} Resolve
+ */
+
+/**
+ * @typedef {(reason?: any) => void} Reject
+ */
+
+/**
+ * @template Value
+ * @typedef {Promise<Value> & {
+ * isResolved: boolean;
+ * reject: Reject;
+ * resolve: Resolve<Value>;
+ * }} PromiseDeferred
+ */
 
 /**
  * Returns a Promise with its resolve/reject methods exposed
+ * @template Value
+ * @returns {PromiseDeferred<Value>}
  */
-export function defer<Value>() {
+export function defer() {
 	let isResolved = false;
-	let resolve!: Resolve<Value>;
-	let reject!: Reject;
-	const promise = new Promise<Value>((resolve_, reject_) => {
+	/** @type {Resolve<Value>} */
+	let resolve = () => {};
+	/** @type {Reject} */
+	let reject = () => {};
+
+	const promise = new Promise((resolve_, reject_) => {
 		resolve = resolve_;
 		reject = reject_;
 	});
@@ -27,9 +48,5 @@ export function defer<Value>() {
 		},
 	});
 
-	return promise as Promise<Value> & {
-		isResolved: boolean;
-		reject: Reject;
-		resolve: Resolve<Value>;
-	};
+	return /** @type {PromiseDeferred<Value>} */(promise);
 }

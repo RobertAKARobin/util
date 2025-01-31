@@ -1,17 +1,29 @@
-import type * as Type from '../types.d';
+/**
+ * @import { Timer } from '../types.d';
+ */
 
-export function debounce<Input>(
-	callback: (input?: Input) => void,
-	delay: number,
-) {
-	let timer: Type.Timer | null = null;
-	return function(input?: Input) {
+/**
+ * Debounce the given callback a single time, up until the given delay period elapses
+ * TODO1: Spec
+ * @template Input
+ * @param {(input: Input) => void} callback
+ * @param {number} milliseconds
+ * @returns {(input: Input) => void}
+ */
+export function debounce(callback, milliseconds) {
+	/** @type {Timer | null} */
+	let timer = null;
+
+	/**
+	 * @param {Input} input
+	 */
+	return function(input) {
 		if (timer) {
 			clearTimeout(timer);
 		}
 		timer = setTimeout(() => {
 			callback(input);
 			timer = null;
-		}, delay);
+		}, milliseconds);
 	};
 }

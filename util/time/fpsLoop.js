@@ -1,17 +1,19 @@
 import { enumy } from '../group/enumy';
 import { setImmediate } from './setImmediate';
 
-export const loopStatuses = [
+export const loopStatuses = /** @type {const} */([
 	`unstarted`,
 	`starting`,
 	`started`,
 	`ending`,
 	`ended`,
-] as const;
+]);
+
+/**
+ * @typedef {typeof loopStatuses[number]} LoopStatus
+ */
 
 export const loopStatus = enumy(...loopStatuses);
-
-export type LoopStatus = typeof loopStatuses[number];
 
 const msPerSecond = 1000;
 
@@ -22,59 +24,99 @@ export class FPSLoop {
 	get currentLoop() {
 		return this.currentLoop_;
 	}
-	private currentLoop_?: Promise<void>;
+	/**
+	 * @type {Promise<void> | undefined}
+	 * @private
+	 */
+	currentLoop_ = undefined;
 
-	doWhat: () => void;
+	/**
+	 * @type {() => void}
+	 */
+	doWhat;
 
-	duration: number;
+	/**
+	 * @type {number}
+	 */
+	duration;
 
 	get isPaused() {
 		return this.isPaused_;
 	}
-	private isPaused_ = false;
+	/**
+	 * @private
+	 */
+	isPaused_ = false;
 
-	loopsPerSecond?: number;
+	/**
+	 * @type {number | undefined}
+	 */
+	loopsPerSecond = undefined;
 
 	get loopsSoFar() {
 		return this.loopsSoFar_;
 	}
-	private loopsSoFar_ = 0;
+	/**
+	 * @private
+	 */
+	loopsSoFar_ = 0;
 
-	private resolve_?: () => void;
+	/**
+	 * @type {(() => void) | undefined}
+	 * @private
+	 */
+	resolve_ = undefined;
 
 	get status() {
 		return this.status_;
 	}
-	private set status(value: LoopStatus) {
+	/**
+	 * @param {LoopStatus} value
+	 * @private
+	 */
+	set status(value) {
 		this.status_ = value;
 	}
-	private status_: LoopStatus = `unstarted`;
+	/**
+	 * @type {LoopStatus}
+	 */
+	status_ = `unstarted`;
 
 	get timeElapsed() {
 		return this.timeElapsed_;
 	}
-	private timeElapsed_ = 0;
+	/**
+	 * @private
+	 */
+	timeElapsed_ = 0;
 
 	get timeStarted() {
 		return this.timeStarted_;
 	}
-	private timeStarted_ = 0;
+	/**
+	 * @private
+	 */
+	timeStarted_ = 0;
 
-	constructor(
-		doWhat: FPSLoop[`doWhat`],
-		options: {
-			duration?: FPSLoop[`duration`];
-			loopsPerSecond?: FPSLoop[`loopsPerSecond`];
-		} = {},
-	) {
+	/**
+	 * asdf
+	 * @param {FPSLoop['doWhat']} doWhat
+	 * @param {object} [options]
+	 * @param {FPSLoop['duration']} [options.duration=Infinity]
+	 * @param {FPSLoop['loopsPerSecond']} [options.loopsPerSecond]
+	 */
+	constructor(doWhat, options = {}) {
 		this.doWhat = doWhat;
 		this.duration = options.duration ?? Infinity;
 		this.loopsPerSecond = options.loopsPerSecond;
 	}
 
 	end() {
-		this.status_ = `ending`;
-		this.resolve_!();
+		if (this.resolve_) {
+			this.status_ = `ending`;
+			this.resolve_();
+		}
+
 		this.status_ = `ended`;
 		return this;
 	}
@@ -84,7 +126,7 @@ export class FPSLoop {
 		return this;
 	}
 
-	start(): Promise<void> {
+	start() {
 		this.currentLoop_ = new Promise(resolve => {
 			this.resolve_ = resolve;
 		});

@@ -13,8 +13,10 @@ const msPerTick = runContext === `browser` ? 15 : 1; // FPSLoop uses `setImmedia
 export const spec = suite(`FPSLoop`,
 	{
 		args: () => {
-			let lastTime = undefined as number | undefined;
-			const times = [] as Array<number>;
+			/** @type {number | undefined} */
+			let lastTime;
+			/** @type {Array<number>} */
+			const times = [];
 			const loopsPerSecond = roundTo((Math.random() * 59) + 1, 1);
 			const msPerLoop = msPerSecond / loopsPerSecond;
 			const maxLoops = roundTo(loopsPerSecond / 1, 1);
