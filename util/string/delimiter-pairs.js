@@ -1,26 +1,30 @@
-type Delimiter = string;
-type DelimiterSet = {
-	closer: Delimiter;
-	opener: Delimiter;
-};
-export type Result = {
-	delimiters: DelimiterSet;
-	indexFrom: number;
-	indexTo: number;
-	inner: Array<Result | string>;
-};
+/**
+ * @typedef {string} Delimiter
+ * @typedef {{ closer: Delimiter; opener: Delimiter }} DelimiterSet
+ * @typedef {{
+ * delimiters: DelimiterSet;
+ * indexFrom: number;
+ * indexTo: number;
+ * inner: Array<Result | string>;
+ * }} Result
+ */
 
-const escape = (input: string) => input.replace(/([-\/^$*+?.()`|[\]{}])/g, `\\$&`);
+function escape(/** @type {string} */input) {
+	return input.replace(/([-\/^$*+?.()`|[\]{}])/g, `\\$&`);
+}
 
-export function delimiterPairs(
-	input: string,
-	delimiterPairs: Array<Array<Delimiter>> = [],
-): Result {
+/**
+ * Uses the given delimiters to split the given string into a tree
+ * @param {string} input
+ * @param {Array<Array<Delimiter>>} [delimiterPairs=[]]
+ * @returns {Result}
+ */
+export function delimiterPairs(input, delimiterPairs = []) {
 	if (typeof input !== `string`) {
 		throw new Error(`delimiterPairs input must be a string; got ${typeof input}`);
 	}
 
-	const rootResult: Result = {
+	const rootResult = /** @type {Result} */({
 		delimiters: {
 			closer: ``,
 			opener: ``,
@@ -28,7 +32,7 @@ export function delimiterPairs(
 		indexFrom: 0,
 		indexTo: input.length,
 		inner: [],
-	};
+	});
 
 	if (input.length === 0) {
 		return rootResult;
@@ -39,9 +43,9 @@ export function delimiterPairs(
 		return rootResult;
 	}
 
-	const delimiterPatterns = [] as Array<string>;
-	const delimitersByOpener = {} as Record<string, DelimiterSet>;
-	const delimitersByCloser = {} as Record<string, DelimiterSet>;
+	const delimiterPatterns = /** @type {Array<string>} */([]);
+	const delimitersByOpener = /** @type {Record<string, DelimiterSet>} */({});
+	const delimitersByCloser = /** @type {Record<string, DelimiterSet>} */({});
 
 	for (const delimiterPair of delimiterPairs) {
 		const [opener, closer] = delimiterPair;
@@ -52,10 +56,10 @@ export function delimiterPairs(
 			throw new Error(`Closer in ${delimiterPair} is already used`);
 		}
 
-		const delimiterSet: DelimiterSet = {
+		const delimiterSet = /** @type {DelimiterSet} */({
 			closer,
 			opener,
-		};
+		});
 		delimitersByOpener[opener] = delimiterSet;
 		delimitersByCloser[closer] = delimiterSet;
 
@@ -70,8 +74,8 @@ export function delimiterPairs(
 		`g`,
 	);
 
-	let match: RegExpExecArray | null;
-	let result: Result = rootResult;
+	let match;
+	let result = rootResult;
 	while (match = matcher.exec(input)) {
 		const delimiter = match[0];
 		const isOpener = delimiter in delimitersByOpener;

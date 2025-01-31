@@ -1,13 +1,16 @@
-import type { Nested, Textish } from '../types.d';
+/**
+ * @import { Nested, Textish } from '../types.d';
+ */
 
 /**
- * A tagged template function that just returns the strings passed into it. Lets us use 'lit-html' syntax. TODO3: Find additional uses
+ * A tagged template function that just returns the strings passed into it. Lets us use 'lit-html' syntax.
+ * TODO3: Find additional uses
  * {@link https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals#tagged_templates See MDN Docs}
+ * @param {ReadonlyArray<string>} strings - Originally had these as <string> but that would reject numbers, URLs, etc
+ * @param {Nested<Textish | { toString: () => string }>} values
+ * @returns {string}
  */
-export function taggedTemplate(
-	strings: ReadonlyArray<string>, // Originally had these as <string> but that would reject numbers, URLs, etc
-	...values: Nested<Textish | { toString(): string; }>
-): string {
+export function taggedTemplate(strings, ...values) {
 	let out = ``;
 	for (let index = 0, length = strings.length; index < length; index += 1) {
 		out += strings[index];
@@ -20,7 +23,7 @@ export function taggedTemplate(
 		} else if (Array.isArray(value)) {
 			out += value.join(``);
 		} else {
-			out += (value as number).toString();
+			out += value.toString();
 		}
 	}
 	return out;

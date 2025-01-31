@@ -1,9 +1,14 @@
+/**
+ * @import { Result } from './delimiter-pairs';
+ */
+
 import { suite, test } from '../spec/index';
 
-import { delimiterPairs, type Result } from './delimiter-pairs';
+import { delimiterPairs } from './delimiter-pairs';
 
-function at<ReturnType extends Result | string = string>(result: Result) {
-	return (...indexes: Array<number>): ReturnType => {
+
+function at(/** @type {Result} */result) {
+	return (/** @type {Array<number>} */...indexes) => {
 		let current = result;
 		let depth = 0;
 		for (const index of indexes) {
@@ -14,12 +19,12 @@ function at<ReturnType extends Result | string = string>(result: Result) {
 				if (depth < indexes.length) {
 					throw new Error(`${indexes.slice(0, depth)} is a string`);
 				}
-				return value as ReturnType;
+				return /** @type {string} */(value);
 			}
 			current = value;
 		}
 
-		return current as ReturnType;
+		return /** @type {Result} */(current);
 	};
 }
 
@@ -29,7 +34,8 @@ export const spec = suite(import.meta.url, {},
 		const tag1 = [`<1>`, `</1>`];
 		const tag2 = [`<2>`, `</2>`];
 
-		let result: ReturnType<typeof delimiterPairs>;
+		/** @type {ReturnType<typeof delimiterPairs>} */
+		let result;
 		$.log(() => result = delimiterPairs(`abcdef`));
 		$.assert(x => x(result.inner.length) === 1);
 		$.assert(x => x(at(result)(0)) === x(`abcdef`));
@@ -40,34 +46,34 @@ export const spec = suite(import.meta.url, {},
 
 		$.log(() => result = delimiterPairs(`abc<a>de`, [tagA]));
 		$.assert(x => x(result.inner.length) === 3);
-		$.assert(x => x(at(result)(0)) === x(`abc`));
-		$.assert(x => x(at<Result>(result)(1).indexTo) === x(-1));
+		$.assert(x => x(at(result)(0)) === x(`abc`));;
+		$.assert(x => x(/** @type {Result} */(at(result)(1)).indexTo) === x(-1));
 
 		$.log(() => result = delimiterPairs(`a<a>bcd</a>e`, [tagA]));
 		$.assert(x => x(at(result)(0)) === `a`);
-		$.assert(x => x(at<Result>(result)(1).delimiters.opener) === x(tagA[0]));
+		$.assert(x => x(/** @type {Result} */(at(result)(1)).delimiters.opener) === x(tagA[0]));
 		$.assert(x => x(at(result)(1, 0)) === `bcd`);
 		$.assert(x => x(at(result)(2)) === `e`);
 
 		$.log(() => result = delimiterPairs(`a<a>b<a>c</a>d</a>e`, [tagA]));
 		$.assert(x => x(result.indexFrom) === 0);
 		$.assert(x => x(result.indexTo) === 19);
-		$.assert(x => x(at<Result>(result)(1).indexFrom) === 4);
-		$.assert(x => x(at<Result>(result)(1).indexTo) === 14);
-		$.assert(x => x(at<Result>(result)(1, 1).indexFrom) === 8);
-		$.assert(x => x(at<Result>(result)(1, 1).indexTo) === 9);
+		$.assert(x => x(/** @type {Result} */(at(result)(1)).indexFrom) === 4);
+		$.assert(x => x(/** @type {Result} */(at(result)(1)).indexTo) === 14);
+		$.assert(x => x(/** @type {Result} */(at(result)(1, 1)).indexFrom) === 8);
+		$.assert(x => x(/** @type {Result} */(at(result)(1, 1)).indexTo) === 9);
 		$.assert(x => x(at(result)(0)) === `a`);
 		$.assert(x => x(at(result)(1, 0)) === `b`);
 		$.assert(x => x(at(result)(1, 1, 0)) === `c`);
 		$.assert(x => x(at(result)(1, 2)) === `d`);
 		$.assert(x => x(at(result)(2)) === `e`);
 
-		$.assert(x => x(at<Result>(result)(1, 1).indexFrom) === 8);
-		$.assert(x => x(at<Result>(result)(1, 1).indexTo) === 9);
+		$.assert(x => x(/** @type {Result} */(at(result)(1, 1)).indexFrom) === 8);
+		$.assert(x => x(/** @type {Result} */(at(result)(1, 1)).indexTo) === 9);
 
 		$.log(() => result = delimiterPairs(`a<a>bc</a>d</a>e`, [tagA]));
 		$.assert(x => x(result.inner[0]) === `a`);
-		$.assert(x => x((result.inner[1] as Result).inner[0]) === `bc`);
+		$.assert(x => x(/** @type {Result} */(result.inner[1]).inner[0]) === `bc`);
 		$.assert(x => x(result.inner[2]) === `d</a>e`);
 
 		$.log(() => result = delimiterPairs(`a<a>bc<a>d</a>e`, [tagA]));
@@ -146,10 +152,9 @@ export const bar = /*css*/\`
 `; // Had this in a `util/mock` file, but that made the test hard to run in the browser
 
 		const result = delimiterPairs(template, tags);
-		const stringAt = at(result);
-		const resultAt = at<Result>(result);
+		const resultAt = at(result);
 
-		const tagLength = (input: string) => input.replace(/\\/g, ``).length;
+		const tagLength = (/** @type {string} */ input) => input.replace(/\\/g, ``).length;
 		const tag0OpenerLength = tagLength(tags[0][0]);
 		const tag0CloserLength = tagLength(tags[0][1]);
 		const tag1OpenerLength = tagLength(tags[1][0]);
@@ -163,7 +168,7 @@ export const bar = /*css*/\`
 		$.assert(x => x(result.indexFrom) === x(indexFrom));
 
 		let inner = `export const foo = `;
-		$.assert(x => x(stringAt(0)) === x(inner));
+		$.assert(x => x(resultAt(0)) === x(inner));
 
 		indexFrom += inner.length + tag0OpenerLength;
 		inner = `
@@ -171,10 +176,10 @@ export const bar = /*css*/\`
 	color: red;
 }
 `;
-		$.assert(x => x(resultAt(1).indexFrom) === x(indexFrom));
-		$.assert(x => x(stringAt(1, 0)) === x(inner));
+		$.assert(x => x(/** @type {Result} */(resultAt(1)).indexFrom) === x(indexFrom));
+		$.assert(x => x(resultAt(1, 0)) === x(inner));
 
-		$.assert(x => x(stringAt(2)) === x(`;
+		$.assert(x => x(resultAt(2)) === x(`;
 
 const color = \`blue\`;
 const colors: Array<string> = [];
@@ -184,33 +189,33 @@ export const bar = `));
 :host {
 	color: `));
 
-		$.assert(x => x(stringAt(3, 1, 0)) === x(`color`));
+		$.assert(x => x(resultAt(3, 1, 0)) === x(`color`));
 
-		$.assert(x => x(stringAt(3, 2)) === x(`;
+		$.assert(x => x(resultAt(3, 2)) === x(`;
 
 	`));
 
-		$.assert(x => x(stringAt(3, 3, 0)) === x(`colors.map(color => `));
+		$.assert(x => x(resultAt(3, 3, 0)) === x(`colors.map(color => `));
 
-		$.assert(x => x(stringAt(3, 3, 1, 0)) === x(`
+		$.assert(x => x(resultAt(3, 3, 1, 0)) === x(`
 		--color-`));
 
-		$.assert(x => x(stringAt(3, 3, 1, 1, 0)) === x(`color`));
+		$.assert(x => x(resultAt(3, 3, 1, 1, 0)) === x(`color`));
 
-		$.assert(x => x(stringAt(3, 3, 1, 2)) === x(`: `));
+		$.assert(x => x(resultAt(3, 3, 1, 2)) === x(`: `));
 
-		$.assert(x => x(stringAt(3, 3, 1, 3, 0)) === x(`color`));
+		$.assert(x => x(resultAt(3, 3, 1, 3, 0)) === x(`color`));
 
-		$.assert(x => x(stringAt(3, 3, 1, 4)) === x(`;
+		$.assert(x => x(resultAt(3, 3, 1, 4)) === x(`;
 	`));
 
-		$.assert(x => x(stringAt(3, 3, 2)) === x(`)`));
+		$.assert(x => x(resultAt(3, 3, 2)) === x(`)`));
 
-		$.assert(x => x(stringAt(3, 4)) === x(`
+		$.assert(x => x(resultAt(3, 4)) === x(`
 }
 `));
 
-		$.assert(x => x(stringAt(4)) === x(`;
+		$.assert(x => x(resultAt(4)) === x(`;
 `));
 	}),
 );

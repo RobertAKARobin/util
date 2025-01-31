@@ -1,7 +1,12 @@
-export function substringBetween(subject: string, options: {
-	begin?: RegExp;
-	end?: RegExp;
-} = {}) {
+/**
+ * Given a two patterns and an input string, return the substring that comes between the patterns' matches
+ * @param {string} subject
+ * @param {object} [options]
+ * @param {RegExp} [options.begin=/^/]
+ * @param {RegExp} [options.end=/$/]
+ * @returns {null | string}
+ */
+export function substringBetween(subject, options = {}) {
 	const matcherBegin = options.begin ?? /^/;
 	const matcherEnd = options.end ?? /$/;
 
@@ -19,5 +24,5 @@ export function substringBetween(subject: string, options: {
 		return null;
 	}
 
-	return subject.substring(begin.index! + begin[0].length, end.index);
+	return subject.substring(/** @type {number} */(begin.index) + begin[0].length, end.index);
 }
