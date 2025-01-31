@@ -1,23 +1,29 @@
-import type { Segment } from '../types.d';
+/**
+ * @import { Segment } from '../types.d';
+ */
 
 import { pointsAreDifferent } from '../2d/pointsAreDifferent';
 import { pointToString } from '../2d/pointToString';
 
-const pointsByCommand = {
+const pointsByCommand = /** @type {Record<string, number>} */({
 	c: 6,
 	h: 1,
 	l: 2,
 	m: 2,
 	s: 4,
 	v: 1,
-} as Record<string, number>;
+});
 
 /**
  * Translate SVGPathElement `d` attribute data to coordinates
  * {@link https://www.w3.org/TR/SVG2/paths.html#PathDataMovetoCommands}
  */
 export class PathNavigator {
-	static fromData(commandString: string) {
+	/**
+	 * @param {string} commandString
+	 * @returns {PathNavigator}
+	 */
+	static fromData(commandString) {
 		const navigator = new PathNavigator();
 		navigator.execute(commandString);
 		return navigator;
@@ -28,15 +34,31 @@ export class PathNavigator {
 		const first = this.segments[0][0];
 		return pointsAreDifferent(first, this.cursor);
 	}
-	segmentCurrent: Segment = [];
-	segmentLast: Segment = [];
-	segments: Array<Segment> = [];
+	/**
+	 * @type {Segment}
+	 */
+	segmentCurrent = [];
+	/**
+	 * @type {Segment}
+	 */
+	segmentLast = [];
+	/**
+	 * @type {Array<Segment>}
+	 */
+	segments = [];
 
 	close() {
 		return this;
 	}
 
-	command(command: string, ...values: Array<number>): PathNavigator {
+	/**
+	 * Issue a command to move the navigator
+	 * {@link https://www.w3.org/TR/SVG2/paths.html#PathDataMovetoCommands}
+	 * @param {string} command
+	 * @param {Array<number>} values
+	 * @returns {this}
+	 */
+	command(command, ...values) {
 		try {
 			switch (command) {
 				case `C`:
@@ -113,18 +135,28 @@ export class PathNavigator {
 					throw new Error(`not a recognized command`);
 			}
 		} catch (error) {
-			const { message } = error as Error;
+			const { message } = /** @type {Error} */(error);
 			throw new Error(`Error at '${command} ${values.join(`,`)}': ${message}`);
 		}
 	}
 
+	/**
+	 * Create a curve from the current position to the given `end`
+	 * @param {number} handle1X
+	 * @param {number} handle1Y
+	 * @param {number} handle2X
+	 * @param {number} handle2Y
+	 * @param {number} endX
+	 * @param {number} endY
+	 * @returns {this}
+	 */
 	curveto(
-		handle1X: number,
-		handle1Y: number,
-		handle2X: number,
-		handle2Y: number,
-		endX: number,
-		endY: number,
+		handle1X,
+		handle1Y,
+		handle2X,
+		handle2Y,
+		endX,
+		endY,
 	) {
 		this.read();
 		this.moveto(handle1X, handle1Y).read();
@@ -134,7 +166,13 @@ export class PathNavigator {
 		return this;
 	}
 
-	execute(commandString: string) {
+	/**
+	 * Execute the steps in the given raw path data string
+	 * {@link https://www.w3.org/TR/SVG2/paths.html#PathDataMovetoCommands}
+	 * @param {string} commandString
+	 * @returns {this}
+	 */
+	execute(commandString) {
 		const commands = commandString.trim().split(/(?=[a-z])/gi);
 		for (const chunk of commands) {
 			const command = chunk.substring(0, 1);
@@ -157,27 +195,49 @@ export class PathNavigator {
 				groupNum += 1;
 			}
 		}
+		return this;
 	}
 
-	lineto(x: number, y: number) {
+	/**
+	 * Draw a line from the current position to the given position
+	 * @param {number} x
+	 * @param {number} y
+	 * @returns {this}
+	 */
+	lineto(x, y) {
 		this.read();
 		this.moveto(x, y).read();
 		this.nextSegment();
 		return this;
 	}
 
-	moveto(x: number, y: number) {
+	/**
+	 * Move to the given position
+	 * @param {number} x
+	 * @param {number} y
+	 * @returns {this}
+	 */
+	moveto(x, y) {
 		this.cursor.x = x;
 		this.cursor.y = y;
 		return this;
 	}
 
+	/**
+	 * Add the curent segment onto the stack of segments, and create a new segment
+	 * @returns {this}
+	 */
 	nextSegment() {
 		this.segments.push(this.segmentCurrent);
 		this.segmentLast = this.segmentCurrent;
 		this.segmentCurrent = [];
+		return this;
 	}
 
+	/**
+	 * Add the current position to the current segment
+	 * @returns {this}
+	 */
 	read() {
 		const { x, y } = this.cursor;
 		if (isNaN(x)) {

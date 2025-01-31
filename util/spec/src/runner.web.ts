@@ -16,7 +16,7 @@ const specRoutes = {
 	report: `/report`,
 	root: `/`,
 };
-const staticDir = `dist`;
+const staticDir = `util`;
 
 export const specRunWeb: Type.SpecRunner = (
 	specFiles,

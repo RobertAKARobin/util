@@ -5,10 +5,11 @@ import { setStyle } from '../dom/attributes';
 import { svgCreate } from './svgCreate';
 
 const testSvg = await (await fetch(`/mock/test.svg`)).text();
+
 export const spec = test(import.meta.url, $ => {
 	document.body.innerHTML = testSvg;
 
-	const svg = document.querySelector(`svg`)!;
+	const svg = /** @type {SVGSVGElement} */(document.querySelector(`svg`));
 	setStyle(svg, {
 		height: `200px`, // Make sure positioning works when the svg is scaled
 	});

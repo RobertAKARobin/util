@@ -4,7 +4,7 @@ import { test } from '../spec/index';
 import { PathNavigator } from './pathNavigator';
 
 export const spec = test(import.meta.url, $ => {
-	const subjects = [
+	const subjects = /** @type {const} */([
 		[
 			PathNavigator.fromData(`M5,5h45s-20,25,0,45,45,0,45,0v20C50,115,5,80,5,80Z`),
 			`
@@ -28,7 +28,7 @@ export const spec = test(import.meta.url, $ => {
 605,235 640,235 660,255 690,255
 690,255 730,255`,
 		],
-	] as const;
+	]);
 
 	for (const [navigator, expectedData] of subjects) {
 		const actual = navigator.toString().split(`\n`);
