@@ -1,16 +1,28 @@
 /**
  * Returns a Promise that resolves once the given event has occurred
+ * @template {keyof HTMLElementEventMap} EventName
+ * @template {HTMLElementEventMap[EventName]} EventType
+ * @overload
+ * @param {HTMLElement} target
+ * @param {EventName} eventName
+ * @returns {Promise<EventType>}
  */
-export function listenOnce<
-	EventName extends keyof HTMLElementEventMap,
-	EventType extends HTMLElementEventMap[EventName],
->(target: HTMLElement, eventName: EventName): Promise<EventType>;
-export function listenOnce(target: EventTarget, eventName: string): Promise<Event>;
-export function listenOnce(target: EventTarget, eventName: string) {
-	return new Promise<Event>(resolve => {
+/**
+ * @overload
+ * @param {EventTarget} target
+ * @param {string} eventName
+ * @returns {Promise<Event>}
+ */
+/**
+ * @param {EventTarget} target
+ * @param {string} eventName
+ * @returns {Promise<Event>}
+ */
+export function listenOnce(target, eventName) {
+	return new Promise(resolve => {
 		target.addEventListener(
 			eventName,
-			resolve as (event: Event) => void,
+			resolve,
 			{ once: true },
 		);
 	});

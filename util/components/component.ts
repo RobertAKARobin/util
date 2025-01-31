@@ -1,10 +1,10 @@
 import {
 	attributeValueIsEmpty,
-	type ElAttributes,
 	setAttributes,
 	setStyle,
 } from '../dom/attributes';
 import { type Emitter, type IGNORE } from '../emitter/emitter';
+import type { ElAttributes } from '../dom/types';
 import { newUid } from '../uid';
 import { runContext } from '../web/context';
 import type { Textish } from '../types.d';
@@ -80,7 +80,7 @@ export class Component extends HTMLElement {
 					} else {
 						this.setAttribute(
 							attributeName,
-							value.toString(),
+							value!.toString(),
 						);
 					}
 				},
@@ -389,7 +389,7 @@ export class Component extends HTMLElement {
 	 * Applies the given CSS rules to the Component's `style` attribute
 	 */
 	css(input: Partial<CSSStyleDeclaration>) {
-		return setStyle(this, input) as this;
+		return setStyle(this, input);
 	}
 
 	/**

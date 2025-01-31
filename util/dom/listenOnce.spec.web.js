@@ -9,7 +9,8 @@ export const spec = test(import.meta.url, async $ => {
 	subject.click();
 	$.assert(x => x(emitCount) === 0);
 
-	const didEmit = listenOnce(subject, `click`).then(() => emitCount += 1);
+	const event = listenOnce(subject, `click`);
+	const didEmit = event.then(() => emitCount += 1);
 
 	subject.click();
 	await didEmit;

@@ -1,4 +1,7 @@
-import type { Coordinate } from '../types.d';
+/**
+ * @import { Coordinate } from '../types.d';
+ */
+
 import { pointToSvg } from '../svg/pointToSvg';
 
 export const customDragEventName = `customdrag`;
@@ -6,27 +9,33 @@ export const customDragEventName = `customdrag`;
 export class CustomDragEvent extends Event {
 	/**
 	 * The current coordinates of the pointer
+	 * @type {Coordinate}
+	 * @readonly
 	 */
-	readonly pointer: Coordinate;
+	pointer;
 	/**
-	 * The current coordinates of the pointer offset by the difference between the {@link targetOrigin} and {@link pointerOrigin}
+	 * The current coordinates of the pointer offset by the difference between the {@link CustomDragEvent.targetOrigin} and {@link CustomDragEvent.pointerOrigin}
+	 * @type {Coordinate}
+	 * @readonly
 	 */
-	readonly pointerOffset: Coordinate;
+	pointerOffset;
 	/**
 	 * The coordinates of the pointer when the mouse was pressed
+	 * @type {Coordinate}
+	 * @readonly
 	 */
-	readonly pointerOrigin: Coordinate;
+	pointerOrigin;
 	/**
 	 * The coordinates of the target when the mouse was pressed, using  `getBoundingClientRect`
+	 * @type {Coordinate}
+	 * @readonly
 	 */
-	readonly targetOrigin: Coordinate;
+	targetOrigin;
 
-	constructor(detail: Pick<CustomDragEvent,
-		| `pointer`
-		| `pointerOffset`
-		| `pointerOrigin`
-		| `targetOrigin`
-	>) {
+	/**
+	 * @param {Pick<CustomDragEvent, 'pointer' | 'pointerOffset' | 'pointerOrigin' | 'targetOrigin'>} detail
+	 */
+	constructor(detail) {
 		super(customDragEventName, { bubbles: false });
 		this.pointer = detail.pointer;
 		this.pointerOffset = detail.pointerOffset;
@@ -35,29 +44,25 @@ export class CustomDragEvent extends Event {
 	}
 };
 
-declare global {
-	interface GlobalEventHandlersEventMap { // eslint-disable-line no-restricted-syntax
-		customdrag: CustomDragEvent;
-	}
-};
-
 /**
  * Makes the given element emit a `customdrag` event on mousemove after it has emitted a mousedown, until mouseup.
+ * TODO1: Spec
+ * @param {Element} target
+ * @param {object} [options]
+ * @param {'center' | 'top left'} [options.offsetOrigin]
+ * @returns {AbortController}
  */
-export function makeDraggable(
-	target: Element,
-	options: {
-		offsetOrigin?: `center` | `top left`;
-	} = {},
-) {
+export function makeDraggable(target, options = {}) {
 	const abort = new AbortController();
 	const signal = abort.signal;
 
 	let isDragging = false;
-	let pointerOrigin: Coordinate;
-	let targetOrigin: Coordinate;
+	/** @type {Coordinate} */
+	let pointerOrigin;
+	/** @type {Coordinate} */
+	let targetOrigin;
 	target.addEventListener(`mousedown`, _event => { // TODO3: With `target: HTMLElement | SVGGeometryElement`, why is this still just `Event`?
-		const event = _event as unknown as MouseEvent;
+		const event = /** @type {MouseEvent} */(_event);
 		event.stopPropagation();
 		const targetBounds = target.getBoundingClientRect();
 		pointerOrigin = {
@@ -100,7 +105,8 @@ export function makeDraggable(
 		}
 
 		if (target instanceof SVGGeometryElement) {
-			const svgCoordinates = pointToSvg(target.ownerSVGElement!, [
+			const svgRoot = /** @type {SVGSVGElement} */(target.ownerSVGElement);
+			const svgCoordinates = pointToSvg(svgRoot, [
 				pointerOffset.x,
 				pointerOffset.y,
 			]);
