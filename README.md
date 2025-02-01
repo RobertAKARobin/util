@@ -51,6 +51,7 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ## TODO
 
+-	TODO1: Replace `@typedef import` with `@import` and add a TODO for requiring `@import`
 -	TODO1: Extract complex types to more `.d.ts`
 -	TODO1: Component: Extract out the build step so that ESBuild isn't required
 	-	rm esbuild

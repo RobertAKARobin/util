@@ -1,12 +1,14 @@
-
-export const runContexts = [
+export const runContexts = /** @type {const} */([
 	`browser`,
 	`server`,
-] as const;
+]);
 
-export type RunContext = typeof runContexts[number];
+/**
+ * @typedef {typeof runContexts[number]} RunContext
+ */
 
-export const runContext: RunContext = typeof window !== `undefined`
+/** @type {RunContext} */
+export const runContext = typeof window !== `undefined`
 	? `browser`
 	: `server`;
 

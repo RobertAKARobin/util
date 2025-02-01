@@ -3,7 +3,7 @@ import { test } from '../spec/index';
 import { updateQuerystring } from './querystring';
 
 export const spec = test(import.meta.url, $ => {
-	let href: string;
+	let href = ``;
 
 	$.log(() => href = `https://example.com`);
 	$.assert(x => x(updateQuerystring(href, {})) === x(`https://example.com/`));

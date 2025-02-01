@@ -1,7 +1,11 @@
 /**
+ * @import { PropertyOf } from '../types.d';
+ */
+
+/**
  * Totally non-comprehensive list of MIME types that I'm using because I don't want to import the big honking list of actual MIME types
  */
-export const mimeMap = { // https://developer.mozilla.org/en-US/docs/Web/HTTP/MIME_types/Common_types
+export const mimeMap = /** @type {const} */({ // https://developer.mozilla.org/en-US/docs/Web/HTTP/MIME_types/Common_types
 	css: `text/css`,
 	csv: `text/csv`,
 	gif: `image/gif`,
@@ -19,14 +23,18 @@ export const mimeMap = { // https://developer.mozilla.org/en-US/docs/Web/HTTP/MI
 	woff: `font/woff`,
 	woff2: `font/woff2`,
 	xml: `application/xml`,
-};
-
-export type MimeMapType = keyof typeof mimeMap;
+});
 
 /**
- * Returns the MIME type for the given filename, or an empty string
+ * @typedef {keyof typeof mimeMap} MimeMapType
  */
-export function mimeFor(filename: string, fallback = ``) {
-	const extension = filename.split(`.`).pop() as MimeMapType;
-	return mimeMap[extension] || fallback;
+
+/**
+ * Returns the MIME type for the given filename
+ * @param {string} filename
+ * @returns {PropertyOf<mimeMap> | undefined}
+ */
+export function mimeFor(filename) {
+	const extension = /** @type {MimeMapType} */(filename.split(`.`).pop());
+	return mimeMap[extension];
 };

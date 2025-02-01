@@ -1,10 +1,10 @@
 /**
  * Sets the given querystring with the given updates, then returns the string
+ * @param {Location | URL | string} input
+ * @param {Record<string, string> | URLSearchParams} updates
+ * @returns {string}
  */
-export function updateQuerystring(
-	input: Location | URL | string,
-	updates: Record<string, string> | URLSearchParams,
-) {
+export function updateQuerystring(input, updates) {
 	const location = input instanceof URL
 		? input
 		: typeof input === `string`
