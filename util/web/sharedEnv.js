@@ -1,15 +1,15 @@
-/**
- * @import fs from 'fs';
- */
-
-import { importAs } from '../importAs';
 import { runContext } from './context';
 
 /**
  * A way of sharing backend variables with the frontend that is (a) type-safe, and (b) lets both environments use the same import.
+ * When called by the server, the values are calculated and written to a JSON file at the given path.
+ * When called by the browser, that JSON file is `fetch`ed.
+ * This means:
+ * - `sharedEnv` has to be called at least once by the server before it can be called by the browser, in order for the JSON file to exist
+ * - The given `fileBase` has to be servable to the front-end, and it's up to the developer to serve it
  * @template Value
  * @param {string} fileBase - The basename of the JSON file where the variables will be stored, e.g. `env`
- * @param {() => Promise<Value> | Value} backendSetter - A function that returns the values that will be calculated on the backend and used on the frontend.
+ * @param {(existing: Value | undefined) => Promise<Value> | Value} backendSetter - A function that returns the values that will be calculated on the backend and used on the frontend.
  * @returns {Promise<Value & { $filename: string }>}
  * @example
  * // env.ts
@@ -37,10 +37,20 @@ export async function sharedEnv(fileBase, backendSetter) {
 		return compiled;
 
 	} else {
-		const { writeFileSync } = /** @type {fs} */(await importAs(`fs`));
+		const {
+			existsSync,
+			readFileSync,
+			writeFileSync,
+		} = await import(`fs`);
+
+		const existing = existsSync(filename)
+			? /** @type {Value} */(JSON.parse(
+				readFileSync(filename, { encoding: `utf8` }))
+			)
+			: undefined;
 
 		const compiled = {
-			...(/** @type {Value} */(await backendSetter())),
+			...(await backendSetter(existing)),
 			$filename: filename,
 		};
 
