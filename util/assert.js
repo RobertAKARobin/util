@@ -1,7 +1,12 @@
 export class AssertionError extends Error {
-	values?: Array<unknown>;
+	/** @type {Array<unknown> | undefined} */
+	values;
 
-	constructor(assertion: string, values?: Array<unknown>) {
+	/**
+	 * @param {string} assertion
+	 * @param {Array<unknown>} [values]
+	 */
+	constructor(assertion, values) {
 		const message = assertion; // TODO2: Better assertion messages
 		super(message);
 		this.name = `AssertionError`;
@@ -9,20 +14,24 @@ export class AssertionError extends Error {
 	}
 }
 
-export function assert(value: boolean): boolean;
-export function assert(
-	condition: (
-		valueWrap: <Value>(value: Value) => Value,
-	) => boolean
-): boolean;
-export function assert(
-	input:
-		| boolean
-		| ((valueWrap: <Value>(value: Value) => Value) => boolean),
-): boolean {
+/**
+ * @template Value
+ * @typedef {(value: Value) => Value} ValueWrap
+ */
+
+/**
+ * @param {boolean | ((condition: ValueWrap<unknown>) => boolean)} input
+ * @returns {boolean}
+ */
+export function assert(input) {
 	if (typeof input === `function`) {
-		const values = [] as Array<unknown>;
-		const valueWrap = <Value>(value: Value) => {
+		const values = /** @type {Array<unknown>} */([]);
+		/**
+		 * @template Value
+		 * @param {Value} value
+		 * @ignore
+		 */
+		const valueWrap = value => {
 			values.push(value);
 			return value;
 		};
@@ -34,9 +43,7 @@ export function assert(
 		}
 	} else {
 		if (input !== true) {
-			throw new AssertionError(
-				(input as unknown as string).toString(),
-			);
+			throw new AssertionError(input.toString());
 		}
 	}
 

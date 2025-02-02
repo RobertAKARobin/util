@@ -1,25 +1,36 @@
-export function mixin<
-	TargetType,
-	TargetConstructor extends { new(...args: any): TargetType; }, // eslint-disable-line @typescript-eslint/no-explicit-any
->(Target: TargetConstructor, ...Sources: Array<Function>) {
-	for (const Source of Sources) {
-		const staticProperties = Object.getOwnPropertyDescriptors(Source);
-		for (const staticPropertyName in staticProperties) { // Note that while this does copy over static properties, Typescript won't recognize them: https://stackoverflow.com/a/70441097/2053389
-			if ([`prototype`, `length`, `name`].includes(staticPropertyName)) {
-				continue;
-			}
-			const staticProperty = staticProperties[staticPropertyName];
-			Object.defineProperty(Target, staticPropertyName, staticProperty);
-		}
+/**
+ * @import { Constructor } from './types.d';
+ */
 
-		const instanceProperties = Object.getOwnPropertyDescriptors(Source.prototype);
-		for (const instancePropertyName in instanceProperties) { // Note that this includes _prototype_ properties, but not _instance_ properties: https://stackoverflow.com/q/77733619/2053389
-			if ([`constructor`].includes(instancePropertyName)) {
-				continue;
-			}
-			const instanceProperty = instanceProperties[instancePropertyName];
-			Object.defineProperty(Target.prototype, instancePropertyName, instanceProperty);
+/**
+ * Copies all static and prototype methods/properties from `Source` to `Target`
+ * Note the difference between `prototype` and `instance` properties when defining classes: https://stackoverflow.com/q/77733619/2053389
+ * @template Target
+ * @template {Constructor<Target>} TargetConstructor
+ * @template Source
+ * @template {Constructor<Source>} SourceConstructor
+ * @param {TargetConstructor} Target
+ * @param {SourceConstructor} Source
+ * @returns {SourceConstructor & TargetConstructor}
+ */
+export function mixin(Target, Source) {
+	const staticProperties = Object.getOwnPropertyDescriptors(Source);
+	for (const staticPropertyName in staticProperties) { // Note that while this does copy over static properties, Typescript won't recognize them: https://stackoverflow.com/a/70441097/2053389
+		if ([`prototype`, `length`, `name`].includes(staticPropertyName)) {
+			continue;
 		}
+		const staticProperty = staticProperties[staticPropertyName];
+		Object.defineProperty(Target, staticPropertyName, staticProperty);
 	}
-	return Target;
+
+	const instanceProperties = Object.getOwnPropertyDescriptors(Source.prototype);
+	for (const instancePropertyName in instanceProperties) {
+		if ([`constructor`].includes(instancePropertyName)) {
+			continue;
+		}
+		const instanceProperty = instanceProperties[instancePropertyName];
+		Object.defineProperty(Target.prototype, instancePropertyName, instanceProperty);
+	}
+
+	return /** @type {TargetConstructor & SourceConstructor} */(Target);
 }

@@ -34,6 +34,10 @@ export type LineLike = Array<Array<number> | Coordinate> | Line;
 
 export type Nested<Type> = Array<Nested<Type> | Type>;
 
+export type IsAsync<Result extends Promise<unknown>> = () => Result;
+
+export type IsAsync_Not<Result> = () => (Result extends Promise<unknown> ? never : Result);
+
 export type OneOrMany<Type> = Array<Type> | Type;
 
 export type PromiseMaybe<Type> = Promise<Type> | Type;

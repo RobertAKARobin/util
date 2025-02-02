@@ -1,14 +1,14 @@
 /**
  * Converts a TSV string into an array of objects, using the given callback on each row
+ * @template Entry
+ * @param {string} input
+ * @param {(input: Array<string>) => Entry} convert
+ * @param {object} [options]
+ * @param {string} [options.columnDelimiter='\t']
+ * @param {string} [options.lineDelimiter='\t']
+ * @returns {Array<Entry>}
  */
-export function tsvParse<Entry>(
-	input: string,
-	convert: (input: Array<string>) => Entry,
-	options: {
-		columnDelimiter?: string;
-		lineDelimiter?: string;
-	} = {},
-) {
+export function tsvParse(input, convert, options = {}) {
 	const lineDelimiter = options.lineDelimiter ?? `\n`;
 	const columnDelimiter = options.columnDelimiter ?? `\t`;
 

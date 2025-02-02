@@ -1,34 +1,58 @@
-export function tryCatch<Result>(
-	callback: () => (Result extends Promise<unknown> ? never : Result),
-): Error | Result;
-export function tryCatch<Result, DefaultIfError>(
-	callback: () => (Result extends Promise<unknown> ? never : Result),
-	defaultIfError: DefaultIfError,
-): DefaultIfError | Result;
-export function tryCatch<Result>(
-	callback: () => Result,
-): Promise<Error> | Result;
-export function tryCatch<Result, DefaultIfError>(
-	callback: () => Result,
-	defaultIfError: DefaultIfError,
-): Promise<DefaultIfError> | Result;
-export function tryCatch<Result, DefaultIfError>(
-	callback: () => Result,
-	defaultIfError?: DefaultIfError,
-) {
+/**
+ * @import { IsAsync, IsAsync_Not } from './types.d';
+ */
+
+/**
+ * Wraps around `try/catch`. Return the expected value, or an Error if it threw an Error
+ * TODO1: Spec
+ * @template Result
+ * @overload
+ * @param {IsAsync_Not<Result>} callback
+ * @returns {Error | Result}
+ */
+/**
+ * @template Result
+ * @overload
+ * @param {IsAsync<Result>} callback
+ * @returns {Promise<Error> | Result}
+ */
+/**
+ * @template Result
+ * @template DefaultIfError
+ * @overload
+ * @param {IsAsync<Result>} callback
+ * @param {DefaultIfError} defaultIfError
+ * @returns {Promise<DefaultIfError> | Result}
+ */
+/**
+ * @template Result
+ * @template DefaultIfError
+ * @overload
+ * @param {IsAsync_Not<Result>} callback
+ * @param {DefaultIfError} defaultIfError
+ * @returns {DefaultIfError | Result}
+ */
+/**
+ * @template Result
+ * @template DefaultIfError
+ * @param {() => Result} callback
+ * @param {DefaultIfError} [defaultIfError]
+ * @ignore
+ */
+export function tryCatch(callback, defaultIfError) {
 	try {
 		const result = callback();
 		if (result instanceof Promise) {
-			if (typeof defaultIfError === `undefined`) {
-				return result.catch((error: Error) => error) as Promise<Error> | Result;
+			if (defaultIfError === undefined) {
+				return result.catch(error => error); // eslint-disable-line @typescript-eslint/no-unsafe-return
 			}
-			return result.catch(() => defaultIfError) as Promise<DefaultIfError> | Result;
+			return result.catch(() => defaultIfError);
 		} else {
 			return result;
 		}
-	} catch (error: unknown) {
+	} catch (error) {
 		if (typeof defaultIfError === `undefined`) {
-			return error as Error;
+			return error;
 		}
 		return defaultIfError;
 	}

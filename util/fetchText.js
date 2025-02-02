@@ -1,18 +1,26 @@
-import type fsType from 'fs';
-import type pathType from 'path';
+/**
+ * @import fsType from 'fs';
+ * @import pathType from 'path';
+ */
 
-import { importAs } from './importAs';
 import { runContext } from './web/context';
 
-export async function fetchText(target: string) {
+/**
+ * Loads and returns the text at the given target path
+ * // TODO1: Spec for web
+ * @param {string} target
+ * @returns {Promise<string>}
+ */
+export async function fetchText(target) {
 	if (runContext === `browser`) {
 		const response = await fetch(target);
 		const text = await response.text();
 		return text;
 
 	} else {
-		const fs = await importAs<typeof fsType>(`fs`);
-		const path = await importAs<typeof pathType>(`path`);
+		const fs = await /** @type {Promise<fsType>} */(import(`${`fs`}`)); // Tricks esbuild out of bundling Node libraries
+		const path = await /** @type {Promise<pathType>} */(import(`${`path`}`));
+
 		const targetPath = path.join(process.cwd(), target);
 		const text = await fs.promises.readFile(targetPath, { encoding: `utf8` });
 		return text;
