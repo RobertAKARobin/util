@@ -55,7 +55,7 @@ export class Emitter {
 
 	/**
 	 * Wrapper around `this.value`
-	 * @returns {State}
+	 * @returns {State | null}
 	 */
 	get $() {
 		return this.value;
@@ -102,7 +102,7 @@ export class Emitter {
 	}
 
 	/**
-	 * @param {State | null | undefined} [initial] - The initial data to set as the Emitter's value
+	 * @param {null | State} [initial] - The initial data to set as the Emitter's value
 	 * @param {Partial<EmitterOptions<State>>} [options]
 	 */
 	constructor(
@@ -286,7 +286,7 @@ export class EmitterCache {
 
 	/**
 	 * Returns a list of all values in the cache
-	 * @ignore
+	 * @returns {Array<State>}
 	 */
 	get list() {
 		return [...this.memory];

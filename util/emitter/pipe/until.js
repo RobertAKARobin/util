@@ -1,34 +1,40 @@
-import type { PipeFunction, SubscriptionEvent } from '../types.d';
+/**
+ * @import { PipeFunction, SubscriptionEvent } from '../types.d';
+ */
 
 import { Emitter, IGNORE } from '../emitter';
 import { pipeFirst } from './first';
 
 /**
  * Waits for the given EventTarget to emit an event with the specified name, then starts emitting the source
+ * @template State
+ * @template {EventTarget} Target
+ * @overload
+ * @param {Target} target
+ * @param {keyof HTMLElementEventMap | keyof Target} eventName
+ * @returns {PipeFunction<State, State>}
  */
-export function pipeUntil<State, Target extends EventTarget>(
-	target: Target,
-	eventName: keyof HTMLElementEventMap | keyof Target,
-): PipeFunction<State, State>;
 /**
  * Waits for another Emitter to emit, then starts emitting the source
+ * @template State
+ * @overload
+ * @param {Emitter<any>} target
+ * @returns {PipeFunction<State, State>}
  */
-export function pipeUntil<State>(
-	target: Emitter<any>, // eslint-disable-line @typescript-eslint/no-explicit-any
-): PipeFunction<State, State>;
 /**
  * Checks source emissions to see if the specified condition is met, and once it is, starts emitting the source
+ * @template State
+ * @overload
+ * @param {((...args: SubscriptionEvent<State>) => boolean)} condition
+ * @returns {PipeFunction<State, State>}
  */
-export function pipeUntil<State>(
-	condition: ((...args: SubscriptionEvent<State>) => boolean)
-): PipeFunction<State, State>;
-export function pipeUntil<State>(
-	condition:
-		| Emitter<unknown>
-		| EventTarget
-		| ((...args: SubscriptionEvent<State>) => boolean),
-	eventName?: unknown,
-): PipeFunction<State, State> {
+/**
+ * @template State
+ * @param {Emitter<unknown> | EventTarget | ((...args: SubscriptionEvent<State>) => boolean)} condition
+ * @param {unknown} eventName
+ * @returns {PipeFunction<State, State>}
+ */
+export function pipeUntil(condition, eventName = undefined) {
 	let shouldCancel = false;
 
 	if (condition instanceof Emitter) {
@@ -37,13 +43,13 @@ export function pipeUntil<State>(
 		});
 	} else if (condition instanceof EventTarget) {
 		condition.addEventListener(
-			eventName as string,
+			/** @type {string} */(eventName),
 			() => shouldCancel = true,
 			{ once: true },
 		);
 	}
 
-	return function(...[value, meta]: SubscriptionEvent<State>) {
+	return function(...[value, meta]) {
 		if (typeof condition === `function`) {
 			if (condition(value, meta)) {
 				shouldCancel = true;

@@ -1,25 +1,27 @@
+/**
+ * @import { EmitEvent, Subscription } from './types.d';
+ */
+
 import { suite, test } from '../spec/index';
 import { sleep } from '../time/sleep';
 
-import type { EmitEvent, Subscription } from './types.d.ts';
 import { Emitter } from './emitter';
 import { pipeFilter } from './pipe/filter';
 import { pipeFirst } from './pipe/first';
 import { pipeOn } from './pipe/on';
 import { pipeUntil } from './pipe/until';
-
-type State = {
-	age: number;
-};
+/**
+ * @typedef {{ age: number }} State
+ */
 
 export const spec = suite(import.meta.url, {},
 	test(`values`, $ => {
-		const emitter1 = new Emitter<State>();
-		const emitter2 = new Emitter<State>();
+		const emitter1 = /** @type {Emitter<State>} */(new Emitter());
+		const emitter2 = /** @type {Emitter<State>} */(new Emitter());
 
-		let emitter1_subscription1_value: number;
-		let emitter1_subscription2_value: number;
-		let emitter2_subscription1_value: number;
+		/** @type {number} */let emitter1_subscription1_value;
+		/** @type {number} */let emitter1_subscription2_value;
+		/** @type {number} */let emitter2_subscription1_value;
 
 		$.assert(x => x(emitter1.handlers.size) === 0);
 		$.assert(x => x(emitter1.cache.list[0]) === void 0);
@@ -48,7 +50,7 @@ export const spec = suite(import.meta.url, {},
 		$.assert(x => x(emitter2.handlers.size) === 1);
 		$.assert(x => x(emitter2.cache.list[0]) === void 0);
 
-		let emitter1_value1: number;
+		/** @type {number} */let emitter1_value1;
 		$.log(() => emitter1_value1 = 42);
 		$.log(() => emitter1.set({ age: emitter1_value1 }));
 		$.assert(x => x(emitter1.cache.count) === 1);
@@ -56,7 +58,7 @@ export const spec = suite(import.meta.url, {},
 		$.assert(x => x(emitter1_subscription1_value) === emitter1_value1);
 		$.assert(x => x(emitter1_subscription2_value) === emitter1_value1);
 
-		let emitter1_value2: number;
+		/** @type {number} */let emitter1_value2;
 		$.log(() => emitter1_value2 = 43);
 		$.log(() => emitter1.set({ age: emitter1_value2 }));
 		$.assert(x => x(emitter1.cache.count) === 2);
@@ -64,7 +66,7 @@ export const spec = suite(import.meta.url, {},
 		$.assert(x => x(emitter1_subscription1_value) === emitter1_value2);
 		$.assert(x => x(emitter1_subscription2_value) === emitter1_value2);
 
-		let emitter2_value1: number;
+		/** @type {number} */let emitter2_value1;
 		$.log(() => emitter2_value1 = 3);
 		$.log(() => emitter2.set({ age: emitter2_value1 }));
 		$.assert(x => x(emitter2.cache.count) === 1);
@@ -74,13 +76,13 @@ export const spec = suite(import.meta.url, {},
 		$.assert(x => x(emitter2_subscription1_value) === emitter2_value1);
 
 
-		let emitterCache0: Emitter<{ age: number; }>;
-		let emitterCache1: Emitter<{ age: number; }>;
-		let emitterCache2: Emitter<{ age: number; }>;
+		/** @type {Emitter<State>} */let emitterCache0;
+		/** @type {Emitter<State>} */let emitterCache1;
+		/** @type {Emitter<State>} */let emitterCache2;
 
-		$.log(() => emitterCache0 = new Emitter<State>(null, { limit: 0 }));
-		$.log(() => emitterCache1 = new Emitter<State>());
-		$.log(() => emitterCache2 = new Emitter<State>(null, { limit: 2 }));
+		$.log(() => emitterCache0 = new Emitter(null, { limit: 0 }));
+		$.log(() => emitterCache1 = new Emitter());
+		$.log(() => emitterCache2 = new Emitter(null, { limit: 2 }));
 		$.assert(x => x(JSON.stringify(emitterCache0.cache.list)) === `[]`);
 		$.assert(x => x(emitterCache0.cache.count) === 0);
 		$.assert(x => x(JSON.stringify(emitterCache1.cache.list)) === `[]`);
