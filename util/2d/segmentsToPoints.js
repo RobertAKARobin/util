@@ -5,7 +5,7 @@
 import { pointsAreDifferent } from './pointsAreDifferent';
 
 /**
- * asdf
+ * Converts an array of segments to an array of points
  * @param {Array<Segment>} segments
  * @param {object} [options]
  * @param {boolean} [options.overlap=false]

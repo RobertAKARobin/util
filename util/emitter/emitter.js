@@ -301,7 +301,6 @@ export class EmitterCache {
 	memory = [];
 
 	/**
-	 * asdf
 	 * @param {EmitterCacheOptions} [options]
 	 */
 	constructor(options = {}) {

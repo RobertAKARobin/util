@@ -99,7 +99,6 @@ export class FPSLoop {
 	timeStarted_ = 0;
 
 	/**
-	 * asdf
 	 * @param {FPSLoop['doWhat']} doWhat
 	 * @param {object} [options]
 	 * @param {FPSLoop['duration']} [options.duration=Infinity]
