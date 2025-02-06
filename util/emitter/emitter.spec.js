@@ -10,14 +10,15 @@ import { pipeFilter } from './pipe/filter';
 import { pipeFirst } from './pipe/first';
 import { pipeOn } from './pipe/on';
 import { pipeUntil } from './pipe/until';
+
 /**
- * @typedef {{ age: number }} State
+ * @typedef {{ age: number }} HasAge
  */
 
 export const spec = suite(import.meta.url, {},
 	test(`values`, $ => {
-		const emitter1 = /** @type {Emitter<State>} */(new Emitter());
-		const emitter2 = /** @type {Emitter<State>} */(new Emitter());
+		const emitter1 = /** @type {Emitter<HasAge>} */(new Emitter());
+		const emitter2 = /** @type {Emitter<HasAge>} */(new Emitter());
 
 		/** @type {number} */let emitter1_subscription1_value;
 		/** @type {number} */let emitter1_subscription2_value;
@@ -76,13 +77,19 @@ export const spec = suite(import.meta.url, {},
 		$.assert(x => x(emitter2_subscription1_value) === emitter2_value1);
 
 
-		/** @type {Emitter<State>} */let emitterCache0;
-		/** @type {Emitter<State>} */let emitterCache1;
-		/** @type {Emitter<State>} */let emitterCache2;
+		/** @type {Emitter<HasAge>} */let emitterCache0;
+		/** @type {Emitter<HasAge>} */let emitterCache1;
+		/** @type {Emitter<HasAge>} */let emitterCache2;
 
-		$.log(() => emitterCache0 = new Emitter(null, { limit: 0 }));
+		$.log(() => emitterCache0 = new Emitter(
+			/** @type {HasAge | undefined} */(undefined),
+			{ limit: 0 }),
+		);
 		$.log(() => emitterCache1 = new Emitter());
-		$.log(() => emitterCache2 = new Emitter(null, { limit: 2 }));
+		$.log(() => emitterCache2 = new Emitter(
+			/** @type {HasAge | undefined} */(undefined),
+			{ limit: 2 }),
+		);
 		$.assert(x => x(JSON.stringify(emitterCache0.cache.list)) === `[]`);
 		$.assert(x => x(emitterCache0.cache.count) === 0);
 		$.assert(x => x(JSON.stringify(emitterCache1.cache.list)) === `[]`);
@@ -150,14 +157,14 @@ export const spec = suite(import.meta.url, {},
 		$.assert(x => x(emitterCache2.cache.list) !== x(emitterCache2.cache.list));
 
 		const initial = { foo: `bar` };
-		let emitterWithInitial: Emitter<typeof initial>;
+		/** @type {Emitter<{ foo: string }>} */let emitterWithInitial;
 		$.log(() => emitterWithInitial = new Emitter(initial));
 		$.assert(x => x(emitterWithInitial.value) === initial);
 	}),
 
 	test(`pipe`, $ => {
-		const emitter1 = new Emitter<State>();
-		let emitter1Pipe: Emitter<{ age: number; }>;
+		const emitter1 = /** @type {Emitter<HasAge>} */(new Emitter());
+		/** @type {Emitter<HasAge>} */let emitter1Pipe;
 		$.log(() => emitter1Pipe = emitter1.pipe(({ age }) => ({ age: age * 100 })));
 		$.log(() => emitter1.set({ age: 3 }));
 		$.assert(x => x(emitter1Pipe.value.age) === 300);
@@ -166,14 +173,13 @@ export const spec = suite(import.meta.url, {},
 	}),
 
 	test(`subscriptions`, $ => {
-		type State = number;
-		let emitter1!: Emitter<State>;
+		/** @type {Emitter<number>} */let emitter1;
 
-		$.log(() => emitter1 = new Emitter<State>());
+		$.log(() => emitter1 = new Emitter());
 		$.assert(x => x(emitter1.handlers.size) === 0);
 
-		let value: State;
-		let subscription: Subscription<State>;
+		/** @type {number} */let value;
+		/** @type {Subscription<number>} */let subscription;
 		$.log(() => subscription = emitter1.subscribe(update => value = update));
 		$.assert(x => x(emitter1.handlers.size) === 1);
 
@@ -190,7 +196,7 @@ export const spec = suite(import.meta.url, {},
 
 	test(`reset`, $ => {
 		const reset = () => ({
-			age: undefined as number | undefined,
+			age: /** @type {number | undefined} */(undefined),
 			name: ``,
 		});
 		const emitter = new Emitter(reset(), { reset });
@@ -203,22 +209,24 @@ export const spec = suite(import.meta.url, {},
 	}),
 
 	test(`actions`, $ => {
-		type State = {
-			age: number;
-			name: string;
-		};
-		class Person extends Emitter<State> {
-			age = (years: number) => this.set({
+		/** @typedef {{ age: number; name: string }} State */
+
+		/**
+		 * @augments {Emitter<State>}
+		 */
+		class Person extends Emitter {
+			age = (/** @type {number} */years) => this.set({
 				...this.value,
 				age: this.value.age + years,
 			});
 
-			rename = (name: string) => this.set({
+			rename = (/** @type {string} */name) => this.set({
 				...this.value,
 				name,
 			});
 		}
-		let person!: Person;
+
+		/** @type {Person} */let person;
 		$.log(() => person = new Person({ age: 10, name: `alice` }));
 		let incrementsOnAge = 0;
 		let incrementsOnRename = 0;
@@ -238,8 +246,12 @@ export const spec = suite(import.meta.url, {},
 		$.assert(x => x(incrementsOnRename) === 1);
 
 		let incrementsWhenOlder = 0;
+		/**
+		 * @param {EmitEvent<State>} updated
+		 * @ignore
+		 */
 		const isOlder = (
-			...[updated, { previous }]: EmitEvent<State>
+			...[updated, { previous }]
 		) => updated.age > previous.age;
 		$.log(() => person.pipe(pipeFilter(isOlder)).subscribe(() => incrementsWhenOlder += 1));
 		$.log(() => person.age(1));
@@ -268,9 +280,9 @@ export const spec = suite(import.meta.url, {},
 	}),
 
 	test(`fromPromise`, async $ => {
-		const promise = new Promise<boolean>(resolve =>
+		const promise = /** @type {Promise<boolean>} */(new Promise(resolve =>
 			setTimeout(() => resolve(true), 100),
-		);
+		));
 
 		const emitter = Emitter.fromPromise(promise, false);
 
@@ -309,10 +321,10 @@ export const spec = suite(import.meta.url, {},
 				age: 3,
 				name: `steve`,
 			};
-			const emitter = new Emitter<typeof initial>();
+			const emitter = /** @type {Emitter<typeof initial>} */(new Emitter());
 
-			let value: typeof emitter.value;
-			let valuePiped: typeof emitter.value;
+			/** @type {typeof emitter.value} */let value;
+			/** @type {typeof emitter.value} */let valuePiped;
 			emitter.subscribe(update => value = update);
 			emitter.pipe(pipeOn(`name`)).subscribe(update => valuePiped = update);
 
@@ -361,7 +373,7 @@ export const spec = suite(import.meta.url, {},
 		suite(`until`, {},
 			test(`emitter`, $ => {
 				const emitter = new Emitter(0);
-				const abort = new Emitter<void>();
+				const abort = /** @type {Emitter<void>} */(new Emitter());
 				const piped = emitter.pipe(pipeUntil(abort));
 
 				$.log(() => emitter.set(1));

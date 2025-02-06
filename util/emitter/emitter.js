@@ -55,7 +55,7 @@ export class Emitter {
 
 	/**
 	 * Wrapper around `this.value`
-	 * @returns {State | null}
+	 * @returns {typeof this.value}
 	 */
 	get $() {
 		return this.value;
@@ -102,15 +102,15 @@ export class Emitter {
 	}
 
 	/**
-	 * @param {null | State} [initial] - The initial data to set as the Emitter's value
+	 * @param {State} [initial] - The initial data to set as the Emitter's value
 	 * @param {Partial<EmitterOptions<State>>} [options]
 	 */
 	constructor(
-		initial = undefined,
+		initial,
 		options = {},
 	) {
 		this.cache = new EmitterCache(options ?? {});
-		if (initial !== undefined && initial !== null) {
+		if (initial !== undefined) {
 			if (options.emitOnInit === true) {
 				this.set(initial);
 			} else {
@@ -123,7 +123,7 @@ export class Emitter {
 
 	/**
 	 * If the Emitter's value is an object, updates the object with the input partial object
-	 * @param {Partial<State> | State} update
+	 * @param {Partial<State>} update
 	 * @returns {this}
 	 */
 	patch(update) {
@@ -131,7 +131,7 @@ export class Emitter {
 			return this.set(/** @type {State} */(update));
 		}
 		return this.set({
-			...this.value,
+			...(/** @type {State} */(this.value ?? {})),
 			...(/** @type {Partial<State>} */(update)),
 		});
 	}
@@ -176,7 +176,7 @@ export class Emitter {
 	 * @returns {this}
 	 */
 	set(update) {
-		const previous = this.value;
+		const previous = /** @type {State} */(this.value);
 
 		if (update === IGNORE) { // Need a way to indicate that an event _shouldn't_ emit. Can't just do `value === undefined` because there are times when `undefined` is a value we do want to emit
 			return this;
@@ -224,7 +224,7 @@ export class Emitter {
 	toPromise(options = {}) {
 		const resolveIfHasValue = options.resolveIfHasValue ?? false;
 		if (resolveIfHasValue && this.cache.count >= 1 && this.cache.limit > 0) {
-			return Promise.resolve(this.value);
+			return Promise.resolve(/** @type {State} */(this.value));
 		}
 
 		return new Promise(resolve => {

@@ -39,7 +39,7 @@ export default [
 			'jsdoc/no-multi-asterisks': `error`,
 			'jsdoc/no-restricted-syntax': `off`,
 			'jsdoc/no-types': `off`,
-			'jsdoc/no-undefined-types': `error`,
+			'jsdoc/no-undefined-types': `off`, // TODO3: Lots of false positives, and seems like this is handled by TS type checking anyway
 			'jsdoc/require-asterisk-prefix': `error`,
 			'jsdoc/require-description': `off`,
 			'jsdoc/require-description-complete-sentence': `off`,
