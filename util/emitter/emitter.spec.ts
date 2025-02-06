@@ -1,7 +1,8 @@
 import { suite, test } from '../spec/index';
 import { sleep } from '../time/sleep';
 
-import { type EmitEvent, Emitter, type Subscription } from './emitter';
+import type { EmitEvent, Subscription } from './types.d.ts';
+import { Emitter } from './emitter';
 import { pipeFilter } from './pipe/filter';
 import { pipeFirst } from './pipe/first';
 import { pipeOn } from './pipe/on';

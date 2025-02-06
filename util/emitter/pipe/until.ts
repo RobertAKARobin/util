@@ -1,4 +1,6 @@
-import { Emitter, IGNORE, type PipeFunction, type SubscriptionEvent } from '../emitter';
+import type { PipeFunction, SubscriptionEvent } from '../types.d';
+
+import { Emitter, IGNORE } from '../emitter';
 import { pipeFirst } from './first';
 
 /**

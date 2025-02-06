@@ -1,4 +1,4 @@
-import type { PipeFunction, SubscriptionEvent } from '../emitter';
+import type { PipeFunction, SubscriptionEvent } from '../types.d';
 
 /**
  * Emits the source up to `$limit` times. Default `1`

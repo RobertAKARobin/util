@@ -1,4 +1,5 @@
-import { IGNORE, type PipeFunction, type SubscriptionEvent } from '../emitter';
+import type { PipeFunction, SubscriptionEvent } from '../types.d';
+import { IGNORE } from '../emitter';
 
 /**
  * Emits the source only when the given condition is met

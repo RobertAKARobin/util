@@ -1,5 +1,6 @@
+import type { PipeFunction } from '../types.d.ts';
+
 import { pipeFilter } from './filter';
-import type { PipeFunction } from '../emitter';
 
 /**
  * Emits the source when the given property changes
