@@ -18,6 +18,17 @@ export type EmitEvent<State> = [
 	},
 ];
 
+export type EntityId = number | string;
+
+export type EntityWithId<Type> = Type & {
+	id: EntityId;
+};
+
+export type EntityState<Type> = {
+	byId: Record<EntityId, Type>;
+	ids: Array<EntityId>;
+};
+
 export type PipeFunction<StateInput, StateOutput> = (
 	...event: SubscriptionEvent<StateInput>
 ) => StateOutput | typeof IGNORE;
