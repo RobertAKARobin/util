@@ -1,5 +1,5 @@
 /**
- * @import { EntityId } from './types.d';
+ * @import { EntityId } from './entities';
  */
 
 import { test } from '../spec/index';

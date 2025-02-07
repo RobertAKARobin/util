@@ -1,10 +1,20 @@
-/**
- * @import { EntityId, EntityState } from './types.d';
- */
-
 import { newUid } from '../uid';
 
 import { Emitter } from './emitter';
+
+/**
+ * @typedef {number | string} EntityId
+ */
+
+/**
+ * @template Type
+ * @typedef {Type & { id: EntityId }} EntityWithId
+ */
+
+/**
+ * @template Type
+ * @typedef {{ byId: Record<EntityId, Type>; ids: Array<EntityId> }} EntityState
+ */
 
 /**
  * A collection of values ordered by both index and by ID

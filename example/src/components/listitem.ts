@@ -1,5 +1,5 @@
 import { Component, html } from '@robertakarobin/util/util/components/component';
-import { type EntityId } from '@robertakarobin/util/util/emitter/types.d';
+import type { EntityId } from '@robertakarobin/util/util/emitter/entities';
 
 import { Textbox } from '@src/components/textbox';
 

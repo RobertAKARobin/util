@@ -1,5 +1,5 @@
 import { Component, css, html, Page } from '@robertakarobin/util/util/components/component';
-import { type EntityId } from '@robertakarobin/util/util/emitter/types.d';
+import { type EntityId } from '@robertakarobin/util/util/emitter/entities';
 import { ModalContainer } from '@robertakarobin/util/util/components/modal-container';
 import { runContext } from '@robertakarobin/util/util/web/context';
 
