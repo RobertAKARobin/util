@@ -8,6 +8,7 @@ import { Emitter } from './emitter';
 
 /**
  * A collection of values ordered by both index and by ID
+ * TODO1: Split of EntityState into own thing, then mixin Emitter?
  * @template {Record<EntityId, unknown>} Type
  * @augments {Emitter<EntityState<Type>>}
  */

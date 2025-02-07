@@ -1,21 +1,26 @@
+/**
+ * @import { EntityId } from './types.d';
+ */
+
 import { test } from '../spec/index';
 
-import { type EntityId, EntityStateEmitter } from './entities';
+import { EntityStateEmitter } from './entities';
 
-type Item = {
-	value: string;
-};
+/**
+ * @typedef {{ value: string }} Item
+ */
 
+// TODO1: More specs
 export const spec = test(import.meta.url, $ => {
-	const state = new EntityStateEmitter<Item>();
+	const state = /** @type {EntityStateEmitter<Item>} */(new EntityStateEmitter());
 
-	let item1Id: EntityId;
+	/** @type {EntityId} */let item1Id;
 	$.log(() => item1Id = state.add({ value: `aaa` }));
 	$.assert(x => x(state.length()) === 1);
 	$.assert(x => x(state.indexOf(item1Id)) === 0);
 	$.assert(x => x(state.get(item1Id).value) === `aaa`);
 
-	let item2Id: EntityId;
+	/** @type {EntityId} */let item2Id;
 	$.log(() => item2Id = state.add({ value: `bbb` }));
 	$.assert(x => x(state.length()) === 2);
 	$.assert(x => x(state.indexOf(item2Id)) === 1);
