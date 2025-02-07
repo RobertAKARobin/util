@@ -310,7 +310,7 @@ export class EmitterCache {
 	/**
 	 * Appends a value to the cache
 	 * @param {State} value
-	 * @ignore
+	 * @returns {this}
 	 */
 	add(value) {
 		return this.addMany([value]);

@@ -37,7 +37,7 @@
  * @template DefaultIfError
  * @param {() => Result} callback
  * @param {DefaultIfError} [defaultIfError]
- * @ignore
+ * @returns {Error | Promise<Error> | DefaultIfError | Promise<DefaultIfError> | Result}
  */
 export function tryCatch(callback, defaultIfError) {
 	try {
@@ -52,7 +52,7 @@ export function tryCatch(callback, defaultIfError) {
 		}
 	} catch (error) {
 		if (typeof defaultIfError === `undefined`) {
-			return error;
+			return /** @type {Error} */(error);
 		}
 		return defaultIfError;
 	}
