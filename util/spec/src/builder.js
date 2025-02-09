@@ -1,38 +1,42 @@
-import type * as $ from '../../types.d';
+/**
+ * @import * as $ from '../../types.d';
+ * @import * as Type from './types.d';
+ */
+
 import { arrayToEnum } from '../../group/arrayToEnum';
+import { isNotNull } from '../../isNotNull';
 import { nTimes } from '../../group/nTimes';
 import { promiseConsecutive } from '../../time/promiseConsecutive';
 
-import type * as Type from './types.d';
-
-const specStepCountDefault: Type.SpecStepCount = {
+/** @type {Type.SpecStepCount} */
+const specStepCountDefault = {
 	deferred: 0,
 	fail: 0,
 	pass: 0,
 	totalAssertions: 0,
 };
 
-export const specStepStatuses = [
+export const specStepStatuses = /** @type {const} */([
 	`deferred`,
 	`pass`,
 	`fail`,
-] as const;
+]);
 
 export const SpecStepStatus = arrayToEnum([ ...specStepStatuses ]);
 
-export const specStepTiming = [
+export const specStepTiming = /** @type {const} */([
 	`concurrent`,
 	`consecutive`,
-] as const;
+]);
 
-export const specStepTypes = [
+export const specStepTypes = /** @type {const} */([
 	`log`,
 	`assertion`,
 	`test`,
 	`testIteration`,
 	`suite`,
 	`suiteIteration`,
-] as const;
+]);
 
 // TODO2: Not really any advantage to this being a class with instance methods, except being able to subclass. Use a different structure?
 export class SpecBuilder {
@@ -43,16 +47,24 @@ export class SpecBuilder {
 		this.test = this.test.bind(this);
 	}
 
-	assert(
-		assertion: (valueWrap: typeof Type.AssertionValueWrap) => boolean
-	): Type.AssertionResult;
-	assert(
-		assertion: (valueWrap: typeof Type.AssertionValueWrap) => Promise<boolean>
-	): Promise<Type.AssertionResult>;
-	assert(
-		assertion: (valueWrap: typeof Type.AssertionValueWrap) => $.PromiseMaybe<boolean>,
-	): $.PromiseMaybe<Type.AssertionResult> {
-		const result: Type.AssertionResult = {
+	/**
+	 * asdf
+	 * @overload
+	 * @param {(valueWrap: typeof Type.AssertionValueWrap) => boolean} assertion
+	 * @returns {Type.AssertionResult}
+	 */
+	/**
+	 * @overload
+	 * @param {(valueWrap: typeof Type.AssertionValueWrap) => Promise<boolean>} assertion
+	 * @returns {Promise<Type.AssertionResult>}
+	 */
+	/**
+	 * @param {(valueWrap: typeof Type.AssertionValueWrap) => $.PromiseMaybe<boolean>} assertion
+	 * @returns {$.PromiseMaybe<Type.AssertionResult>}
+	 */
+	assert(assertion) {
+		/** @type {Type.AssertionResult} */
+		const result = {
 			contents: assertion.toString(),
 			indexAtDefinition: NaN,
 			status: `pass`,
@@ -62,12 +74,13 @@ export class SpecBuilder {
 			values: [],
 		};
 
-		const assertionValueWrap: typeof Type.AssertionValueWrap = <Value>(value: Value) => {
-			result.values.push(`${value as string}`);
+		/** @type {Type.AssertionValueWrap} */
+		const assertionValueWrap = value => {
+			result.values.push(`${value}`);
 			return value;
 		};
 
-		const setResult = (assertionValue: boolean) => {
+		const setResult = (/** @type {boolean} */assertionValue) => {
 			if (assertionValue === false) {
 				result.status = `fail`;
 			} else if (assertionValue === true) {
@@ -90,8 +103,14 @@ export class SpecBuilder {
 		}
 	}
 
-	count(...children: Array<Type.SpecStepResult>) {
-		const result: Type.SpecStepResultCount = {
+	/**
+	 * asdf
+	 * @param {Array<Type.SpecStepResult>} children
+	 * @returns {Type.SpecStepResultCount}
+	 */
+	count(...children) {
+		/** @type {Type.SpecStepResultCount} */
+		const result = {
 			count: { ...specStepCountDefault },
 			status: `pass`,
 			timeBegin: children[0]?.timeBegin ?? NaN,
@@ -104,29 +123,50 @@ export class SpecBuilder {
 			}
 
 			for (const status in result.count) {
-				const count = child.count[status as Type.SpecStepStatusName];
-				result.count[status as Type.SpecStepStatusName] += count;
+				const statusName = /** @type {Type.SpecStepStatusName} */(status);
+				const count = child.count[statusName];
+				result.count[statusName] += count;
 			}
 		}
 
 		return result;
 	}
 
-	getTime(): number {
+	/**
+	 * asdf
+	 * @returns {number}
+	 */
+	getTime() {
 		return performance.now();
 	}
 
-	log(message: () => unknown): Type.SpecLog;
-	log(message: () => Promise<unknown>): Promise<Type.SpecLog>;
-	log(message: string): Type.SpecLog;
-	log(
-		message: string | (() => $.PromiseMaybe<unknown>),
-	): $.PromiseMaybe<Type.SpecLog> {
+	/**
+	 * asdf
+	 * @overload
+	 * @param {() => unknown} message
+	 * @returns {Type.SpecLog}
+	 */
+	/**
+	 * @overload
+	 * @param {() => Promise<unknown>} message
+	 * @returns {Promise<Type.SpecLog>}
+	 */
+	/**
+	 * @overload
+	 * @param {string} message
+	 * @returns {Type.SpecLog}
+	 */
+	/**
+	 * @param {string | (() => $.PromiseMaybe<unknown>)} message
+	 * @returns {$.PromiseMaybe<Type.SpecLog>}
+	 */
+	log(message) {
+		/** @type {() => Type.SpecLog} */
 		const logResult = () => ({
 			message: (typeof message === `string` ? message : message.toString()),
 			time: this.getTime(),
 			type: `log`,
-		} as Type.SpecLog);
+		});
 
 		if (message instanceof Function) {
 			const output = message();
@@ -137,43 +177,46 @@ export class SpecBuilder {
 		return logResult();
 	};
 
-	suite<InheritedArgs, Args>(
-		title: string,
-		options: Partial<Type.SuiteOptions<InheritedArgs, Args>>,
-		...children: Array<
-			(args: Args) => Promise<Type.SuiteResult | Type.TestResult>
-		>
-	): (inheritedArgs: InheritedArgs) => Promise<Type.SuiteResult>;
-
-	suite<InheritedArgs, Args>(
-		title: string,
-		options: Partial<Omit<Type.SuiteOptions<InheritedArgs, Args>, `args`>>,
-		...children: Array<
-			(args: InheritedArgs) => Promise<Type.SuiteResult | Type.TestResult>
-		>
-	): (inheritedArgs: InheritedArgs) => Promise<Type.SuiteResult>;
-
-	suite<InheritedArgs, Args>(
-		title: string,
-		options: Partial<Type.SuiteOptions<InheritedArgs, Args>>,
-		...children: Array<
-			(args: Args | InheritedArgs) => Promise<Type.SuiteResult | Type.TestResult>
-		>
-	): (
-			inheritedArgs: InheritedArgs,
-			index: number,
-		) => Promise<Type.SuiteResult> {
+	/**
+	 * asdf
+	 * @template InheritedArgs
+	 * @template Args
+	 * @overload
+	 * @param {string} title
+	 * @param {Partial<Type.SuiteOptions<InheritedArgs, Args>>} options
+	 * @param {Array<(args: Args) => Promise<Type.SuiteResult | Type.TestResult>>} children
+	 * @returns {(inheritedArgs: InheritedArgs) => Promise<Type.SuiteResult>}
+	 */
+	/**
+	 * @template InheritedArgs
+	 * @template Args
+	 * @overload
+	 * @param {string} title
+	 * @param {Partial<Omit<Type.SuiteOptions<InheritedArgs, Args>, 'args'>>} options
+	 * @param {Array<(args: InheritedArgs) => Promise<Type.SuiteResult | Type.TestResult>>} children
+	 * @returns {(inheritedArgs: InheritedArgs) => Promise<Type.SuiteResult>}
+	 */
+	/**
+	 * @template InheritedArgs
+	 * @template Args
+	 * @param {string} title
+	 * @param {Partial<Type.SuiteOptions<InheritedArgs, Args>>} options
+	 * @param {Array<(args: Args | InheritedArgs) => Promise<Type.SuiteResult | Type.TestResult>>} children
+	 * @returns {(inheritedArgs: InheritedArgs, index: number) => Promise<Type.SuiteResult>}
+	 */
+	suite(title, options, ...children) {
 		return async(inheritedArgs, index) => {
 			const args = typeof options?.args === `function`
-				? () => options.args!(inheritedArgs)
+				? () => isNotNull(options.args)(inheritedArgs)
 				: () => ({ ...inheritedArgs });
 
 			const timing = options.timing || `concurrent`;
 
+			const iterationsInput = /** @type {number} */(options.iterations);
 			const iterations = nTimes(
-				isNaN(options.iterations as number) ? 1 : options.iterations as number,
+				isNaN(iterationsInput) ? 1 : iterationsInput,
 				(_nil, index) => () => this.suiteIteration({
-					args,
+					args: /** @type {() => $.PromiseMaybe<Args>} */(args),
 					children,
 					index,
 					timing,
@@ -187,26 +230,30 @@ export class SpecBuilder {
 
 			const count = this.count(...results);
 
-			return {
+			return /** @type {Type.SuiteResult} */({
 				indexAtDefinition: isNaN(index) ? 0 : index,
 				iterations: results,
 				timing,
 				title,
 				type: `suite`,
 				...count,
-			};
+			});
 		};
 	}
 
-	async suiteIteration<Args>(input: {
-		args: () => $.PromiseMaybe<Args>;
-		children: Array<
-			(args: Args, index: number) => Promise<Type.SuiteResult | Type.TestResult>
-		>;
-		index: number;
-		timing: Type.SpecStepTiming;
-	}): Promise<Type.SuiteIterationResult> {
-		const results: Array<Type.SuiteResult | Type.TestResult> = (input.timing === `consecutive`
+	/**
+	 * asdf
+	 * @template Args
+	 * @param {object} input
+	 * @param {() => $.PromiseMaybe<Args>} input.args
+	 * @param {Array<(args: Args, index: number) => Promise<Type.SuiteResult | Type.TestResult>>} input.children
+	 * @param {number} input.index
+	 * @param {Type.SpecStepTiming} input.timing
+	 * @returns {Promise<Type.SuiteIterationResult>}
+	 */
+	async suiteIteration(input) {
+		/** @type {Array<Type.SuiteResult | Type.TestResult>} */
+		const results = (input.timing === `consecutive`
 			? await promiseConsecutive(
 				input.children.map(child => async(_nil, index) => child(await input.args(), index)),
 			)
@@ -225,17 +272,26 @@ export class SpecBuilder {
 		};
 	}
 
-	test<Args>( // TODO2: Error on suites or tests inside of tests
-		title: string,
-		testDefinition: typeof Type.TestDefinition<Args>,
-		options: Partial<Type.TestOptions> = {},
-	): typeof Type.Test<Args> {
+	/**
+	 * asdf
+	 * @template Args
+	 * @param {string} title
+	 * @param {typeof Type.TestDefinition<Args>} testDefinition
+	 * @param {Partial<Type.TestOptions>} [options]
+	 * @returns {typeof Type.Test<Args>}
+	 */
+	test( // TODO2: Error on suites or tests inside of tests
+		title,
+		testDefinition,
+		options = {},
+	) {
 		return async(args, index) => {
 			const timing = options.timing || `concurrent`;
 
+			const iterationsInput = /** @type {number} */(options.iterations);
 			const iterations = nTimes(
-				isNaN(options.iterations as number) ? 1 : options.iterations as number,
-				(_nil, index) => () => this.testIteration<Args>({
+				isNaN(iterationsInput) ? 1 : iterationsInput,
+				(_nil, index) => () => this.testIteration({
 					args,
 					index,
 					testDefinition,
@@ -249,8 +305,9 @@ export class SpecBuilder {
 
 			const count = this.count(...results);
 
+			const indexAtDefinition = /** @type {number} */(index);
 			return {
-				indexAtDefinition: isNaN(index as number) ? 0 : index as number,
+				indexAtDefinition: isNaN(indexAtDefinition) ? 0 : indexAtDefinition,
 				iterations: results,
 				timing,
 				title,
@@ -260,12 +317,18 @@ export class SpecBuilder {
 		};
 	};
 
-	async testIteration<Args>(input: {
-		args: Args;
-		index: number;
-		testDefinition: typeof Type.TestDefinition<Args>;
-	}): Promise<Type.TestIterationResult> {
-		const result: Type.TestIterationResult = {
+	/**
+	 * asdf
+	 * @template Args
+	 * @param {object} input
+	 * @param {Args} input.args
+	 * @param {number} input.index
+	 * @param {typeof Type.TestDefinition<Args>} input.testDefinition
+	 * @returns {Promise<Type.TestIterationResult>}
+	 */
+	async testIteration(input) {
+		/** @type {Type.TestIterationResult} */
+		const result = {
 			children: [],
 			count: { ...specStepCountDefault },
 			indexAtDefinition: input.index,
@@ -277,7 +340,7 @@ export class SpecBuilder {
 
 		let assertionIndex = 0;
 
-		const setResult = (assertionResult: Type.AssertionResult) => {
+		const setResult = (/** @type {Type.AssertionResult} */assertionResult) => {
 			assertionResult.indexAtDefinition = assertionIndex;
 			assertionIndex += 1;
 
@@ -291,7 +354,7 @@ export class SpecBuilder {
 			result.children.push(assertionResult);
 		};
 
-		const getAssertionResult = (...args: Parameters<typeof this.assert>) => {
+		const getAssertionResult = (/** @type {Parameters<typeof this.assert>} */...args) => {
 			const assertionResult = this.assert(...args);
 
 			if (assertionResult instanceof Promise) {
@@ -301,13 +364,16 @@ export class SpecBuilder {
 			}
 		};
 
-		const log: typeof Type.SpecLogFactory = message => {
-			result.children.push(this.log(message as Parameters<typeof this.log>[0]));
+		/** @type {typeof Type.SpecLogFactory} */
+		const log = message => {
+			result.children.push(
+				this.log(/** @type {Parameters<typeof this.log>[0]} */(message)),
+			);
 		};
 
 		await input.testDefinition({
 			args: input.args,
-			assert: getAssertionResult as typeof Type.AssertionFactory,
+			assert: /** @type {typeof Type.AssertionFactory} */(getAssertionResult),
 			log,
 		});
 
