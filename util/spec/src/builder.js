@@ -38,7 +38,9 @@ export const specStepTypes = /** @type {const} */([
 	`suiteIteration`,
 ]);
 
-// TODO2: Not really any advantage to this being a class with instance methods, except being able to subclass. Use a different structure?
+/**
+ * A utility to write unit tests, organized into suites, tests, and assertions, which bundles the results into a tidy JSON structure.
+ */
 export class SpecBuilder {
 	constructor() {
 		this.count = this.count.bind(this);
@@ -48,7 +50,7 @@ export class SpecBuilder {
 	}
 
 	/**
-	 * asdf
+	 * Makes an assertion within a test. See {@link Type.TestDefinition}
 	 * @overload
 	 * @param {(valueWrap: typeof Type.AssertionValueWrap) => boolean} assertion
 	 * @returns {Type.AssertionResult}
@@ -104,7 +106,7 @@ export class SpecBuilder {
 	}
 
 	/**
-	 * asdf
+	 * How this SpecBuilder tallies up the results of its tests.
 	 * @param {Array<Type.SpecStepResult>} children
 	 * @returns {Type.SpecStepResultCount}
 	 */
@@ -133,7 +135,7 @@ export class SpecBuilder {
 	}
 
 	/**
-	 * asdf
+	 * How this SpecBuilder gets the current time.
 	 * @returns {number}
 	 */
 	getTime() {
@@ -141,7 +143,7 @@ export class SpecBuilder {
 	}
 
 	/**
-	 * asdf
+	 * Includes the given message in the unit test output.
 	 * @overload
 	 * @param {() => unknown} message
 	 * @returns {Type.SpecLog}
@@ -178,11 +180,12 @@ export class SpecBuilder {
 	};
 
 	/**
+	 * Defines a collection of child tests and suites, including any args that will be passed to its children.
 	 * @template InheritedArgs
 	 * @template Args
 	 * @param {string} title
 	 * @param {Type.SuiteOptions<InheritedArgs, Args>} options
-	 * @param {...(args: options['args'] extends undefined ? InheritedArgs : Args) => Promise<Type.SuiteResult | Type.TestResult>} children
+	 * @param {...(args: Args) => Promise<Type.SuiteResult | Type.TestResult>} children
 	 * @returns {(inheritedArgs: InheritedArgs, index?: number) => Promise<Type.SuiteResult>}
 	 */
 	suite(title, options, ...children) {
@@ -223,7 +226,7 @@ export class SpecBuilder {
 	}
 
 	/**
-	 * asdf
+	 * Runs the given suites/tests one time.
 	 * @template Args
 	 * @param {object} input
 	 * @param {() => $.PromiseMaybe<Args>} input.args
@@ -231,6 +234,7 @@ export class SpecBuilder {
 	 * @param {number} input.index
 	 * @param {Type.SpecStepTiming} input.timing
 	 * @returns {Promise<Type.SuiteIterationResult>}
+	 * @private
 	 */
 	async suiteIteration(input) {
 		/** @type {Array<Type.SuiteResult | Type.TestResult>} */
@@ -254,7 +258,7 @@ export class SpecBuilder {
 	}
 
 	/**
-	 * asdf
+	 * Defines a test. See {@link Type.TestDefinition}
 	 * @template Args
 	 * @param {string} title
 	 * @param {typeof Type.TestDefinition<Args>} testDefinition
@@ -299,13 +303,14 @@ export class SpecBuilder {
 	};
 
 	/**
-	 * asdf
+	 * Runs the given test one time.
 	 * @template Args
 	 * @param {object} input
 	 * @param {Args} input.args
 	 * @param {number} input.index
 	 * @param {typeof Type.TestDefinition<Args>} input.testDefinition
 	 * @returns {Promise<Type.TestIterationResult>}
+	 * @private
 	 */
 	async testIteration(input) {
 		/** @type {Type.TestIterationResult} */

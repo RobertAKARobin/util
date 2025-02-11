@@ -8,8 +8,19 @@ export {
 
 export const builder = new SpecBuilder();
 
+/**
+ * See {@link SpecBuilder.count}
+ */
 export const count = builder.count; // eslint-disable-line @typescript-eslint/unbound-method
+
+/**
+ * See {@link SpecBuilder.suite}
+ */
 export const suite = builder.suite; // eslint-disable-line @typescript-eslint/unbound-method
+
+/**
+ * See {@link SpecBuilder.test}
+ */
 export const test = builder.test; // eslint-disable-line @typescript-eslint/unbound-method
 
 export const renderer = new SpecRenderer();
