@@ -3,10 +3,8 @@ import { print } from './util/spec/index';
 import { specRunNative } from './util/spec/src/runner.native';
 import { specRunWeb } from './util/spec/src/runner.web';
 
-const [args, ...targetFiles] = cliArgs<{
-	platform: string;
-	verbose: string;
-}>(process.argv.slice(2));
+/** @typedef {{ platform: string; verbose: string }} args */
+const [args, ...targetFiles] = /** @type {typeof cliArgs<args>} */(cliArgs)(process.argv.slice(2));
 
 const filenames = targetFiles.sort();
 
