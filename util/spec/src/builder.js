@@ -178,31 +178,12 @@ export class SpecBuilder {
 	};
 
 	/**
-	 * asdf
-	 * @template InheritedArgs
-	 * @template Args
-	 * @overload
-	 * @param {string} title
-	 * @param {Partial<Type.SuiteOptions<InheritedArgs, Args>>} options
-	 * @param {Array<(args: Args) => Promise<Type.SuiteResult | Type.TestResult>>} children
-	 * @returns {(inheritedArgs: InheritedArgs) => Promise<Type.SuiteResult>}
-	 */
-	/**
-	 * @template InheritedArgs
-	 * @template Args
-	 * @overload
-	 * @param {string} title
-	 * @param {Partial<Omit<Type.SuiteOptions<InheritedArgs, Args>, 'args'>>} options
-	 * @param {Array<(args: InheritedArgs) => Promise<Type.SuiteResult | Type.TestResult>>} children
-	 * @returns {(inheritedArgs: InheritedArgs) => Promise<Type.SuiteResult>}
-	 */
-	/**
 	 * @template InheritedArgs
 	 * @template Args
 	 * @param {string} title
-	 * @param {Partial<Type.SuiteOptions<InheritedArgs, Args>>} options
-	 * @param {Array<(args: Args | InheritedArgs) => Promise<Type.SuiteResult | Type.TestResult>>} children
-	 * @returns {(inheritedArgs: InheritedArgs, index: number) => Promise<Type.SuiteResult>}
+	 * @param {Type.SuiteOptions<InheritedArgs, Args>} options
+	 * @param {...(args: options['args'] extends undefined ? InheritedArgs : Args) => Promise<Type.SuiteResult | Type.TestResult>} children
+	 * @returns {(inheritedArgs: InheritedArgs, index?: number) => Promise<Type.SuiteResult>}
 	 */
 	suite(title, options, ...children) {
 		return async(inheritedArgs, index) => {
@@ -231,7 +212,7 @@ export class SpecBuilder {
 			const count = this.count(...results);
 
 			return /** @type {Type.SuiteResult} */({
-				indexAtDefinition: isNaN(index) ? 0 : index,
+				indexAtDefinition: isNaN(/** @type {number} */(index)) ? 0 : index,
 				iterations: results,
 				timing,
 				title,
