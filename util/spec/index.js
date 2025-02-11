@@ -25,7 +25,12 @@ export const test = builder.test; // eslint-disable-line @typescript-eslint/unbo
 
 export const renderer = new SpecRenderer();
 
-export const print = renderer.print;
-export const render = renderer.render;
+/**
+ * See {@link SpecRenderer.print}
+ */
+export const print = renderer.print; // eslint-disable-line @typescript-eslint/unbound-method
 
-export type * as Type from './src/types.d';
+/**
+ * See {@link SpecRenderer.render}
+ */
+export const render = renderer.render; // eslint-disable-line @typescript-eslint/unbound-method

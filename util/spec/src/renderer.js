@@ -63,6 +63,9 @@ export class SpecRenderer {
 			...this.renderOptions,
 			...inputOptions,
 		};
+
+		this.print = this.print.bind(this);
+		this.render = this.render.bind(this);
 	}
 
 	/**
