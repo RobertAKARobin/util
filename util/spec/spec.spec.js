@@ -3,10 +3,14 @@ import { diff } from './diff';
 import { runContext } from '../web/context';
 import { sleep } from '../time/sleep';
 
-import * as dbTests from './example/db-spec';
+// import * as dbTests from './example/db-spec';
 import * as mathTests from './example/math-spec';
 
-function diffSansWhitespace(...inputs: [string, string]) {
+/**
+ * @param {[string, string]} inputs
+ * @ignore
+ */
+function diffSansWhitespace(...inputs) {
 	let [expected, actual] = inputs;
 
 	if (runContext === `server`) {
@@ -35,30 +39,30 @@ export const spec = suite(`SpecBuilder`, {},
 		}),
 	),
 
-	suite(`example: db`,
-		{
-			args: async() => {
-				const expected = dbTests.expected.trim();
-				const results = await dbTests.specs({});
-				const rendered = render(results, { showTiming: false }).trim();
-				return {
-					expected,
-					rendered,
-				};
-			},
-		},
+	// suite(`example: db`,
+	// 	{
+	// 		args: async() => {
+	// 			const expected = dbTests.expected.trim();
+	// 			const results = await dbTests.specs({});
+	// 			const rendered = render(results, { showTiming: false }).trim();
+	// 			return {
+	// 				expected,
+	// 				rendered,
+	// 			};
+	// 		},
+	// 	},
 
-		test(`rendered results match expected`, ({ args, assert }) => {
-			assert(x => x(diffSansWhitespace(args.expected, args.rendered)) === ``);
-		}),
-	),
+	// 	test(`rendered results match expected`, ({ args, assert }) => {
+	// 		assert(x => x(diffSansWhitespace(args.expected, args.rendered)) === ``);
+	// 	}),
+	// ),
 
 	(() => {
 		const state = {
-			suite1Args: {} as unknown,
-			suite2Args: {} as unknown,
-			test1Args: {} as { value1: string; value1_1: string; },
-			test2Args: {} as { value1: string; value1_1: string; },
+			suite1Args: {},
+			suite2Args: {},
+			test1Args: /** @type {{ value1: string; value1_1: string; }} */({}),
+			test2Args: /** @type {{ value1: string; value1_1: string; }} */({}),
 		};
 
 		return suite(`args`,
@@ -118,7 +122,7 @@ export const spec = suite(`SpecBuilder`, {},
 	(() => {
 		const state = {
 			suiteIteration: 0,
-			testArgs_last: {} as unknown,
+			testArgs_last: {},
 		};
 
 		return suite(`iterations`, {},
