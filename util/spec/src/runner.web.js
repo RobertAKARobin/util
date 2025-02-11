@@ -1,3 +1,7 @@
+/**
+ * @import * as Type from './types.d';
+ */
+
 import { execSync, spawn } from 'child_process';
 import fs from 'fs';
 import http from 'http';
@@ -6,8 +10,6 @@ import { mimeFor, mimeMap } from '../../web/mime';
 import { tryCatch } from '../../tryCatch';
 
 import { count } from '../index';
-
-import type * as Type from './types.d';
 
 const specHost = `localhost`;
 const specPort = 8001;
@@ -18,11 +20,12 @@ const specRoutes = {
 };
 const staticDir = `util`;
 
-export const specRunWeb: Type.SpecRunner = (
+/** @type {Type.SpecRunner} */
+export const specRunWeb = (
 	specFiles,
 	options, // TODO2: Better way of passing options to the front-end... What if they aren't serializable?
 ) => new Promise(resolve => {
-	const results: Array<Type.SuiteResult> = [];
+	const results = /** @type {Array<Type.SuiteResult>} */([]);
 	let specFileIndex = 0;
 
 	const server = http.createServer((request, response) => {
@@ -85,9 +88,10 @@ export const specRunWeb: Type.SpecRunner = (
 				request.setEncoding(`utf8`);
 
 				let json = ``;
-				request.on(`data`, (data: string) => json += data);
+				request.on(`data`, data => json += data);
 				request.on(`end`, () => {
-					const result = JSON.parse(json) as Type.SuiteResult;
+					// TODO3: https://github.com/typescript-eslint/typescript-eslint/issues/1682
+					const result = /** @type {Type.SuiteResult} */(JSON.parse(json)); // eslint-disable-line @typescript-eslint/no-unsafe-assignment
 					result.title = specFile;
 
 					results.push(result);

@@ -1,16 +1,20 @@
-import type * as Type from './types.d';
+/**
+ * @import * as Type from './types.d';
+ */
+
 import { suite } from '../index';
 
-export const specRunNative: Type.SpecRunner = async function(
+/** @type {Type.SpecRunner} */
+export const specRunNative = async function(
 	specFiles,
 	options,
 ) {
-	const specs = [] as Array<typeof Type.Test>;
+	const specs = /** @type {Array<typeof Type.Test>} */([]);
 
 	for (const specFile of specFiles) {
-		const { spec } = await import(specFile) as {
-			spec: typeof Type.Test;
-		};
+		const { spec } = await /** @type {Promise<{ spec: typeof Type.Test; }>} */(
+			import(specFile)
+		);
 
 		if (typeof spec !== `function`) {
 			throw new Error(specFile);
