@@ -2,10 +2,13 @@ import * as Diff from 'diff';
 
 import { color } from '../node/colors';
 
-export const diff = (
-	expected: string,
-	actual: string,
-): string => {
+/**
+ * TODO1
+ * @param {string} expected
+ * @param {string} actual
+ * @returns {string}
+ */
+export function diff(expected, actual) {
 	const diff = Diff.diffLines(expected, actual);
 	if (diff.length === 1) {
 		return ``;
