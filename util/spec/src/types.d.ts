@@ -18,6 +18,11 @@ export type SpecLogMessage =
 export function SpecLogFactory(message: SpecLogMessage): void;
 
 export type SpecRenderOptions = {
+	/**
+	 * Controls how the different specs should be stringified. By default just returns the `defaultText`
+	 * @param input - The spec to be stringified
+	 * @param defaultText - The default stringification provided by SpecRenderer
+	 */
 	format: (
 		input:
 			| AssertionResult
@@ -28,6 +33,9 @@ export type SpecRenderOptions = {
 			| TestResult,
 		defaultText: $.Nested<string>,
 	) => $.Nested<string>;
+	/**
+	 * Whether to include time calculations in the string output
+	 */
 	showTiming: boolean;
 };
 
@@ -58,6 +66,9 @@ export type SpecStepResultCount = {
 };
 
 export type SpecStepResult = SpecResult & SpecStepResultCount & {
+	/**
+	 * The index of this step among its siblings when it was defined in the code, which may be different from the index among its siblings when it is actually run, since siblings may be shuffled, async, etc.
+	 */
 	indexAtDefinition: number;
 };
 
@@ -81,8 +92,14 @@ export function AssertionFactory(
 export function AssertionValueWrap <Value>(value: Value): Value;
 
 export type AssertionResult = Omit<SpecStepResult, `count`> & {
+	/**
+	 * The assertion function, stringified via `.toString()`
+	 */
 	contents: string;
 	type: Extract<SpecStepTypeName, `assertion`>;
+	/**
+	 * The values captured by the assertion's valueWrap callback
+	 */
 	values: Array<string>;
 };
 //#endregion
@@ -101,8 +118,18 @@ export type SuiteOptions<
 	InheritedArgs,
 	Args,
 > = {
+	/**
+	 * Returns arguments passed to each of the suite's children
+	 * @param inheritedArgs - Args passed into this suite from its parent suite
+	 */
 	args?: (inheritedArgs: InheritedArgs) => $.PromiseMaybe<Args>;
+	/**
+	 * How many times this suite should be run
+	 */
 	iterations?: number;
+	/**
+	 * Whether this suite's iterations and children should be run consecutively or concrrently
+	 */
 	timing?: SpecStepTiming;
 };
 
@@ -138,7 +165,13 @@ export type TestIterationResult = SpecStepIterationResult<AssertionResult | Spec
 };
 
 export type TestOptions = {
+	/**
+	 * How many times this test should be run
+	 */
 	iterations: number;
+	/**
+	 * Whether this test's iterations should be run consecutively or concurrently
+	 */
 	timing: SpecStepTiming;
 };
 

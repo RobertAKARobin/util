@@ -1,7 +1,11 @@
-import type * as $ from '../../types.d';
+/**
+ * @import * as $ from '../../types.d';
+ * @import * as Type from './types.d';
+ * @import {SpecBuilder} from './builder';
+ */
+
 import { roundTo } from '../../math/roundTo';
 
-import type * as Type from './types.d';
 import { specStepStatuses } from './builder';
 
 const match = {
@@ -10,19 +14,37 @@ const match = {
 	valueWrapper: /\s*\((.*?)\)(?=[^)]*(?:\(|$))/.toString().slice(1, -1), // TODO3: Why did I use toString here? Something having to do escaping special characters, I think... Some tests break without it. Shame on me for not documenting. >:(
 };
 
-export class SpecRenderer<RenderOptions extends Type.SpecRenderOptions> {
-	readonly renderOptions = <RenderOptions>{
+/**
+ * Controls how to convert the output of SpecBuilder, which is basically a big JSON blob, into a nice string (or whatever)
+ * @template {Type.SpecRenderOptions} RenderOptions
+ */
+export class SpecRenderer {
+	/**
+	 * See {@link Type.SpecRenderOptions}
+	 * @readonly
+	 */
+	renderOptions = /** @type {RenderOptions} */({
 		format: (_result, text) => text,
 		showTiming: true,
-	};
+	});
 
-	readonly statusIndicators: Record<Type.SpecStepStatusName, string> = {
+	/**
+	 * Which character should be printed for each spec result status
+	 * @type {Record<Type.SpecStepStatusName, string>}
+	 * @readonly
+	 */
+	statusIndicators = {
 		deferred: ` `,
 		fail: `X`,
 		pass: `•`,
 	};
 
-	readonly typeIndicators: Record<Type.SpecStepTypeName, string> = {
+	/**
+	 * Which character should be printed for each spec type
+	 * @type {Record<Type.SpecStepTypeName, string>}
+	 * @readonly
+	 */
+	typeIndicators = {
 		assertion: `a`,
 		log: `#`,
 		suite: `s`,
@@ -31,8 +53,11 @@ export class SpecRenderer<RenderOptions extends Type.SpecRenderOptions> {
 		testIteration: `x`,
 	};
 
+	/**
+	 * @param {Partial<RenderOptions>} [inputOptions]
+	 */
 	constructor(
-		inputOptions: Partial<RenderOptions> = {},
+		inputOptions = {},
 	) {
 		this.renderOptions = {
 			...this.renderOptions,
@@ -40,15 +65,27 @@ export class SpecRenderer<RenderOptions extends Type.SpecRenderOptions> {
 		};
 	}
 
-	print = (
-		rootSuiteResult: Type.SuiteResult,
-		inputOptions: Partial<RenderOptions> & {
-			exit?: boolean;
-			verbose?: boolean;
-		} = {},
-	) => {
+	/**
+	 * Just console-logs the output of {@link render}, if any.
+	 * @param {Type.SuiteResult} rootSuiteResult
+	 * @param {object} [inputOptions]
+	 * @param {RenderOptions['format']} [inputOptions.format] - See {@link Type.SpecRenderOptions}
+	 * @param {RenderOptions['showTiming']} [inputOptions.showTiming] - See {@link Type.SpecRenderOptions}
+	 * @param {boolean} [inputOptions.verbose=false] - If true, logs the whole stringified suite. Otherwise just logs failures/errors.
+	 * @param {boolean} [inputOptions.exit=false] - If true,s exits 1 if the overall result was a fail, 0 if it was a pass.
+	 * @returns {void}
+	 */
+	print(
+		rootSuiteResult,
+		inputOptions = {},
+	) {
 		if (inputOptions.verbose === true) {
-			console.log(this.render(rootSuiteResult, inputOptions));
+			console.log(
+				this.render(
+					rootSuiteResult,
+					/** @type {RenderOptions} */(inputOptions),
+				),
+			);
 		}
 
 		if (inputOptions.exit === true) {
@@ -60,10 +97,16 @@ export class SpecRenderer<RenderOptions extends Type.SpecRenderOptions> {
 		}
 	};
 
-	render = (
-		rootSuiteResult: Type.SuiteResult,
-		inputOptions: Partial<RenderOptions> = {},
-	): string => {
+	/**
+	 * How to render the root suite
+	 * @param {Type.SuiteResult} rootSuiteResult
+	 * @param {Partial<RenderOptions>} [inputOptions]
+	 * @returns {string}
+	 */
+	render(
+		rootSuiteResult,
+		inputOptions = {},
+	) {
 		const maxCount = Math.max(...Object.values(rootSuiteResult.count));
 		const maxCountPlaces = maxCount.toString().length;
 		const options = {
@@ -73,7 +116,9 @@ export class SpecRenderer<RenderOptions extends Type.SpecRenderOptions> {
 
 		const text = [
 			`———`,
-			...this.renderSuiteOrTest(rootSuiteResult, ``, options).flat(Infinity as 1), // https://github.com/microsoft/TypeScript/issues/49280
+			...this.renderSuiteOrTest(rootSuiteResult, ``, options).flat(
+				/** @type {1} */(Infinity), // https://github.com/microsoft/TypeScript/issues/49280
+			),
 			`Total completed assertions: ${rootSuiteResult.count.totalAssertions}`,
 			...specStepStatuses.map(statusName => {
 				const count = rootSuiteResult.count[statusName];
@@ -83,16 +128,23 @@ export class SpecRenderer<RenderOptions extends Type.SpecRenderOptions> {
 			`RESULT: ${rootSuiteResult.status.toUpperCase()}`,
 			`———`,
 		]
-			.filter(line => (line as string).trim() !== ``)
+			.filter(line => /** @type {string} */(line).trim() !== ``)
 			.join(`\n`);
 		return options.format(rootSuiteResult, [text]).join(``);
 	};
 
+	/**
+	 * How to render an assertion
+	 * @param {Type.AssertionResult} result
+	 * @param {string} parentPrefix
+	 * @param {Partial<RenderOptions>} [inputOptions]
+	 * @returns {$.Nested<string>}
+	 */
 	renderAssertion(
-		result: Type.AssertionResult,
-		parentPrefix: string,
-		inputOptions: Partial<RenderOptions> = {},
-	): $.Nested<string> {
+		result,
+		parentPrefix,
+		inputOptions = {},
+	) {
 		const options = {
 			...this.renderOptions,
 			...inputOptions,
@@ -107,15 +159,20 @@ export class SpecRenderer<RenderOptions extends Type.SpecRenderOptions> {
 			body = body.substring(`async`.length).trim();
 		}
 
-		let valueWrapperName: string | undefined;
+		/** @type {string | undefined} */
+		let valueWrapperName;
 
 		if (body.startsWith(`function`)) {
-			body = body.replace(match.functionParam, (_, param: string) => {
+			body = body.replace(match.functionParam, (_, /** @type {string} */param) => {
 				valueWrapperName = param?.trim();
 				return ` `;
 			});
 		} else {
-			body = body.replace(match.fatArrowParam, (_, braces: string, noBraces: string) => {
+			body = body.replace(match.fatArrowParam, (
+				_,
+				/** @type {string} */braces,
+				/** @type {string} */noBraces,
+			) => {
 				valueWrapperName = (braces || noBraces)?.trim();
 				return ` `;
 			});
@@ -125,7 +182,8 @@ export class SpecRenderer<RenderOptions extends Type.SpecRenderOptions> {
 			body = body.slice(1, -1); // Assume begins and ends with curlies
 		}
 
-		let valueWrapperMatcher: RegExp | undefined;
+		/** @type {RegExp | undefined} */
+		let valueWrapperMatcher;
 		let explanation = body;
 
 		if (valueWrapperName !== undefined) {
@@ -143,9 +201,9 @@ export class SpecRenderer<RenderOptions extends Type.SpecRenderOptions> {
 			title = `${lines[0]}...`;
 		}
 
-		const out: $.Nested<string> = [
+		const out = /** @type {$.Nested<string>} */([
 			`${prefix}${title}`,
-		];
+		]);
 
 		if (result.status !== `fail`) {
 			return options.format(result, out);
@@ -160,7 +218,7 @@ export class SpecRenderer<RenderOptions extends Type.SpecRenderOptions> {
 		const values = [...result.values];
 
 		explanation = explanation.replace(valueWrapperMatcher, () => {
-			const value = values.shift() as string;
+			const value = /** @type {string} */(values.shift());
 
 			const lines = value.split(`\n`);
 			if (lines.length === 1 && value.length < 20) {
@@ -182,11 +240,18 @@ export class SpecRenderer<RenderOptions extends Type.SpecRenderOptions> {
 		return options.format(result, out);
 	}
 
+	/**
+	 * How to render a suite or test
+	 * @param {Type.SuiteResult | Type.TestResult} result
+	 * @param {string} parentPrefix
+	 * @param {Partial<RenderOptions>} [inputOptions]
+	 * @returns {$.Nested<string>}
+	 */
 	renderSuiteOrTest(
-		result: Type.SuiteResult | Type.TestResult,
-		parentPrefix: string,
-		inputOptions: Partial<RenderOptions> = {},
-	): $.Nested<string> {
+		result,
+		parentPrefix,
+		inputOptions = {},
+	) {
 		const prefix = `${parentPrefix}${this.typeIndicators[result.type]}${result.indexAtDefinition + 1}`;
 		const options = {
 			...this.renderOptions,
@@ -205,11 +270,18 @@ export class SpecRenderer<RenderOptions extends Type.SpecRenderOptions> {
 		]);
 	}
 
+	/**
+	 * How to render an iteration of a suite or test
+	 * @param {Type.SuiteIterationResult | Type.TestIterationResult} result
+	 * @param {string} parentPrefix
+	 * @param {Partial<RenderOptions>} [inputOptions]
+	 * @returns {$.Nested<string>}
+	 */
 	renderSuiteOrTestIteration(
-		result: Type.SuiteIterationResult | Type.TestIterationResult,
-		parentPrefix: string,
-		inputOptions: Partial<RenderOptions> = {},
-	): $.Nested<string> {
+		result,
+		parentPrefix,
+		inputOptions = {},
+	) {
 		const prefix = `${parentPrefix}${this.typeIndicators[result.type]}${result.indexAtDefinition + 1}`;
 		const options = {
 			...this.renderOptions,
@@ -225,14 +297,17 @@ export class SpecRenderer<RenderOptions extends Type.SpecRenderOptions> {
 		]);
 	}
 
+	/**
+	 * How to render a child of an iteration of a suite or test
+	 * @param {Type.AssertionResult | Type.SpecLog | Type.SuiteResult | Type.TestResult} result
+	 * @param {string} parentPrefix
+	 * @param {Partial<RenderOptions>} [inputOptions]
+	 * @returns {$.Nested<string>}
+	 */
 	renderSuiteOrTestIterationChild(
-		result:
-			| Type.AssertionResult
-			| Type.SpecLog
-			| Type.SuiteResult
-			| Type.TestResult,
-		parentPrefix: string,
-		inputOptions: Partial<RenderOptions> = {},
+		result,
+		parentPrefix,
+		inputOptions = {},
 	) {
 		const options = {
 			...this.renderOptions,
@@ -250,11 +325,18 @@ export class SpecRenderer<RenderOptions extends Type.SpecRenderOptions> {
 		}
 	}
 
+	/**
+	 * How to render a {@link SpecBuilder.log}
+	 * @param {Type.SpecLog} result
+	 * @param {string} parentPrefix
+	 * @param {Partial<RenderOptions>} [inputOptions]
+	 * @returns {$.Nested<string>}
+	 */
 	renderSuiteOrTestLog(
-		result: Type.SpecLog,
-		parentPrefix: string,
-		inputOptions: Partial<RenderOptions> = {},
-	): $.Nested<string> {
+		result,
+		parentPrefix,
+		inputOptions = {},
+	) {
 		const options = {
 			...this.renderOptions,
 			...inputOptions,
