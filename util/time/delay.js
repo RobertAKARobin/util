@@ -1,13 +1,20 @@
 /**
- * Execute the given callback after the given delay
+ * Execute the given callback or emit the given value after the given delay
  * TODO1: Spec
  * @template Value
- * @param {() => Value} callback
+ * @param {Value | (() => Value)} callback
  * @param {number} milliseconds
  * @returns {Promise<Value>}
  */
 export function delay(callback, milliseconds) {
 	return new Promise(resolve => {
-		setTimeout(() => resolve(callback()), milliseconds);
+		setTimeout(
+			() => resolve(
+				typeof callback === `function`
+					? /** @type {() => Value} */(callback)()
+					: callback,
+			),
+			milliseconds,
+		);
 	});
 }
