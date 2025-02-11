@@ -1,27 +1,16 @@
+import { delay } from '../../time/delay';
 import { tryCatch } from '../../tryCatch';
 
 import { suite, test } from '../index';
 
-/**
- * Stub out async functions, with less boilerplate
- */
-function delayed<Type>(value: Type, timeMs = 10): Promise<Type> {
-	return new Promise(resolve => {
-		setTimeout(() => resolve(value), timeMs);
-	});
-}
-
-function doThrow(error: unknown) {
+function doThrow(/** @type {unknown} */error) {
 	throw error;
 	return true;
 }
 
 export const specs = suite(`Math`,
 	{
-		args: async() => delayed({
-			x: 3,
-			y: 4,
-		}),
+		args: async() => delay({ x: 3, y: 4 }, 10),
 	},
 
 	suite(`types`,
@@ -44,8 +33,8 @@ export const specs = suite(`Math`,
 
 	test(`subtraction`, async({ args, assert, log }) => {
 		log(`Delayed by 13 - 27 ms`);
-		args.x = await delayed(14);
-		args.y = await delayed(13);
+		args.x = await delay(14, 10);
+		args.y = await delay(13, 10);
 		assert(x => x(args.x - 1) === x(args.y));
 	}, {
 		iterations: 2,
