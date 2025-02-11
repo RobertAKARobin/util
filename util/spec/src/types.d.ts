@@ -14,7 +14,10 @@ export type SpecLogMessage =
 	| (() => Promise<unknown>)
 	| (() => unknown);
 
-
+/**
+ * Includes the given message in the unit test output.
+ * @param {string} message
+ */
 export function SpecLogFactory(message: SpecLogMessage): void;
 
 export type SpecRenderOptions = {
@@ -151,12 +154,18 @@ export function Test<Args>(
  * A test is a function in which assertions are made.
  */
 export function TestDefinition<Args>(input: {
+	/**
+	 * Args passed into this test from its parent suite
+	 */
 	args: Args;
 	/**
 	 * Returns whether the given assertion passed.
 	 * An assertion is a callback that returns a boolean. The callback is passed a little utility function that, when passed a value, helps display that value in the unit tests' output, which is great for debugging.
 	 */
 	assert: typeof AssertionFactory;
+	/**
+	 * See {@link SpecLogFactory}
+	 */
 	log: typeof SpecLogFactory;
 }): Promise<void> | void;
 

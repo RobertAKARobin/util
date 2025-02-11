@@ -143,7 +143,7 @@ export class SpecBuilder {
 	}
 
 	/**
-	 * Includes the given message in the unit test output.
+	 * See {@link Type.SpecLogFactory}
 	 * @overload
 	 * @param {() => unknown} message
 	 * @returns {Type.SpecLog}
