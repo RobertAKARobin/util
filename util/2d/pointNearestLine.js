@@ -1,5 +1,5 @@
 /**
- * @import { Coordinate, CoordinateLike, LineLike } from '../types.d';
+ * @import { Coordinate, CoordinateLike, LineLike } from './types.d';
  */
 
 import { constrain } from '../math/constrain';

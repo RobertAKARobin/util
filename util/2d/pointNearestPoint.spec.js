@@ -1,5 +1,5 @@
 /**
- * @import { CoordinateLike } from '../types.d';
+ * @import { CoordinateLike } from './types.d';
  */
 
 import { test } from '../spec/index';

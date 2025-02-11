@@ -1,5 +1,5 @@
 /**
- * @import { Coordinate } from '../types.d';
+ * @import { Coordinate } from './types.d';
  */
 
 import { keysOf } from '../group/keysOf';

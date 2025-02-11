@@ -1,5 +1,5 @@
 /**
- * @import { LineLike } from '../types.d';
+ * @import { LineLike } from './types.d';
  */
 
 import { toLine } from './toLine';

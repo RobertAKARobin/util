@@ -1,5 +1,5 @@
 /**
- * @import { Bezier } from '../types.d';
+ * @import { Bezier } from './types.d';
  */
 
 import segments from '../mock/segments.json' with { type: 'json' };

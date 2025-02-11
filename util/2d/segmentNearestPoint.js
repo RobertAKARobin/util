@@ -1,5 +1,5 @@
 /**
- * @import { CoordinateLike, Segment } from '../types.d';
+ * @import { CoordinateLike, Segment } from './types.d';
  */
 
 import { getDistance } from './distance';

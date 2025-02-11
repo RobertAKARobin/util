@@ -1,5 +1,5 @@
 /**
- * @import { Bezier, Coordinate, CoordinateLike } from '../types.d';
+ * @import { Bezier, Coordinate, CoordinateLike } from './types.d';
  */
 
 import { roundTo } from '../math/roundTo';

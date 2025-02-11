@@ -1,5 +1,5 @@
 /**
- * @import { Coordinate, Line } from '../types.d';
+ * @import { Coordinate, Line } from './types.d';
  */
 
 /**

@@ -1,5 +1,5 @@
 /**
- * @import { Bezier, CoordinateLike, Segment } from '../types.d';
+ * @import { Bezier, CoordinateLike, Segment } from './types.d';
  */
 
 import { test } from '../spec/index';

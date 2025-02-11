@@ -1,5 +1,5 @@
 /**
- * @import { Coordinate, CoordinateLike } from '../types.d';
+ * @import { Coordinate, CoordinateLike } from '../2d/types.d';
  */
 
 import { toCoordinate } from '../2d/toCoordinate';

@@ -1,5 +1,5 @@
 /**
- * @import { Coordinate } from '../types.d';
+ * @import { Coordinate } from '../2d/types.d';
  */
 
 import { pointToSvg } from '../svg/pointToSvg';

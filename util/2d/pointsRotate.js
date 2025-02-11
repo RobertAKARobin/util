@@ -1,5 +1,5 @@
 /**
- * @import { Coordinate, CoordinateLike } from '../types.d';
+ * @import { Coordinate, CoordinateLike } from './types.d';
  */
 
 import { pointRotate } from './pointRotate';

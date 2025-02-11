@@ -1,5 +1,5 @@
 /**
- * @import { Bezier, Coordinate, CoordinateLike, LineLike, Segment } from '../types.d';
+ * @import { Bezier, Coordinate, CoordinateLike, LineLike, Segment } from './types.d';
  */
 
 import { pointAlongBezier } from './pointAlongBezier';

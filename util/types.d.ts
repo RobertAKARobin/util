@@ -1,15 +1,6 @@
-export type Bezier = [Coordinate, Coordinate, Coordinate, Coordinate];
-
 export type Constructor<Type> = {
 	new(...args: Array<unknown>): Type;
 };
-
-export type Coordinate = {
-	x: number;
-	y: number;
-};
-
-export type CoordinateLike = Array<number> | Coordinate;
 
 export type KeysMatching<Type, Value> = { // https://stackoverflow.com/q/77571882/2053389
 	[Key in keyof Type]: Type[Key] extends Value ? Key : never
@@ -25,13 +16,6 @@ export type Index1Forward<Input> =
 		? Rest
 		: never;
 
-export type Line = {
-	begin: Coordinate;
-	end: Coordinate;
-};
-
-export type LineLike = Array<Array<number> | Coordinate> | Line;
-
 export type Nested<Type> = Array<Nested<Type> | Type>;
 
 export type IsAsync<Result extends Promise<unknown>> = () => Result;
@@ -46,8 +30,6 @@ export type PropertyOf<Type> = Type[keyof Type]; // Necessary for JSDoc: https:/
 
 export type RequireOnly<_Object, _RequiredKeys extends keyof _Object> = Partial<_Object>
 	& Pick<_Object, _RequiredKeys>;
-
-export type Segment = Array<Coordinate>;
 
 export type Textish = URL | boolean | number | string | symbol | null | undefined;
 

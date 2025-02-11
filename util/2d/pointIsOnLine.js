@@ -1,5 +1,5 @@
 /**
- * @import { CoordinateLike, LineLike } from '../types.d';
+ * @import { CoordinateLike, LineLike } from './types.d';
  */
 
 import { getSlope } from './slope';

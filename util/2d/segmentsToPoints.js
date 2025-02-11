@@ -1,5 +1,5 @@
 /**
- * @import { Coordinate, Segment } from '../types.d';
+ * @import { Coordinate, Segment } from './types.d';
  */
 
 import { pointsAreDifferent } from './pointsAreDifferent';

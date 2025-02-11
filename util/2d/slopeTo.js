@@ -1,5 +1,5 @@
 /**
- * @import { LineLike } from '../types.d';
+ * @import { LineLike } from './types.d';
  */
 
 // Separate from `slope.js` because it probably won't be used as often as `slope.js` and is a (slightly) nontrivial amount of code to import

@@ -1,5 +1,5 @@
 /**
- * @import { Segment } from '../types.d';
+ * @import { Segment } from '../2d/types.d';
  */
 
 import { pointsAreDifferent } from '../2d/pointsAreDifferent';
