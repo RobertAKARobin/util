@@ -1,5 +1,5 @@
-import { SpecBuilder } from './src/builder';
-import { SpecRenderer } from './src/renderer';
+import { SpecBuilder } from './src/builder.js';
+import { SpecRenderer } from './src/renderer.js';
 
 export {
 	SpecBuilder,

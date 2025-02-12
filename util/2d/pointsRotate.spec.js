@@ -3,10 +3,10 @@
  */
 
 import segments from '../mock/segments.json' with { type: 'json' };
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { pointsRotate } from './pointsRotate';
-import { pointToString } from './pointToString';
+import { pointsRotate } from './pointsRotate.js';
+import { pointToString } from './pointToString.js';
 
 export const spec = test(import.meta.url, $ => {
 	/** @type {Array<Coordinate>} */

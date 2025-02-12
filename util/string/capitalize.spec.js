@@ -1,6 +1,6 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { capitalize } from './capitalize';
+import { capitalize } from './capitalize.js';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(capitalize(`foo`)) === `Foo`);

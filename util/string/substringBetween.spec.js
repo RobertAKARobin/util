@@ -1,6 +1,6 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { substringBetween } from './substringBetween';
+import { substringBetween } from './substringBetween.js';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(substringBetween(`foobarbaz`, { begin: /foo/, end: /baz/ })) === `bar`);

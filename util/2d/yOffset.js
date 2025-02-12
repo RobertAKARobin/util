@@ -2,8 +2,8 @@
  * @import { LineLike } from './types.d';
  */
 
-import { getSlope } from './slope';
-import { toLine } from './toLine';
+import { getSlope } from './slope.js';
+import { toLine } from './toLine.js';
 
 /**
  * Get the Y-offset of a given line

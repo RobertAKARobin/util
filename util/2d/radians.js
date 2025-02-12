@@ -1,4 +1,4 @@
-import { constrainCircular } from '../math/constrain';
+import { constrainCircular } from '../math/constrain.js';
 
 /**
  * Degrees to radians

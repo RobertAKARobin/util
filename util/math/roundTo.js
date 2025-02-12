@@ -1,4 +1,4 @@
-import { preciseTo } from './preciseTo';
+import { preciseTo } from './preciseTo.js';
 
 /**
  * Round to the specified multiple

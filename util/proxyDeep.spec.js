@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { test } from './spec/index';
+import { test } from './spec/index.js';
 
-import { proxyDeep } from './proxyDeep';
+import { proxyDeep } from './proxyDeep.js';
 
 export const spec = test(import.meta.url, $ => {
 	const proxy = /** @type {any} */(proxyDeep(`%`));

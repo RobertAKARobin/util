@@ -2,8 +2,8 @@
  * @import { Coordinate, CoordinateLike } from './types.d';
  */
 
-import { pointToString } from './pointToString';
-import { toCoordinate } from './toCoordinate';
+import { pointToString } from './pointToString.js';
+import { toCoordinate } from './toCoordinate.js';
 
 /**
  * Returns whether all the given points are unique.

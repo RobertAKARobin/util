@@ -2,7 +2,7 @@
  * @import { EmitEvent, EmitterCacheOptions, EmitterOptions, PipeFunction, Subscription, SubscriptionHandler } from './types.d';
  */
 
-import { isPrimitive } from '../isPrimitive';
+import { isPrimitive } from '../isPrimitive.js';
 
 export const IGNORE = `_IGNORE_`;
 

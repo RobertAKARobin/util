@@ -2,8 +2,8 @@
  * @import { Coordinate, CoordinateLike } from './types.d';
  */
 
-import { pointsAreDifferent } from './pointsAreDifferent';
-import { toCoordinate } from './toCoordinate';
+import { pointsAreDifferent } from './pointsAreDifferent.js';
+import { toCoordinate } from './toCoordinate.js';
 
 /**
  * Given a list of points, returns a new list with overlapping adjacent points removed

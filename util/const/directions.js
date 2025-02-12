@@ -1,4 +1,4 @@
-import { enumy } from '../group/enumy';;
+import { enumy } from '../group/enumy.js';;
 
 /**
  * @typedef {keyof typeof directions} Direction

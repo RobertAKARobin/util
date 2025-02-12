@@ -2,9 +2,9 @@
  * @import { Coordinate } from './types.d';
  */
 
-import { preciseTo } from '../math/preciseTo';
+import { preciseTo } from '../math/preciseTo.js';
 
-import { bezierPoint } from './bezierPoint';
+import { bezierPoint } from './bezierPoint.js';
 
 /**
  * Given the points of a Bezier curve, reduce it to a series of lines of length `progressPerLine`, and return the endpoints of those lines as a list

@@ -1,4 +1,4 @@
-export { css } from '../string/template';
+export { css } from '../string/template.js';
 
 /**
  * @typedef {Record<string, number>} GenericBreakpoints

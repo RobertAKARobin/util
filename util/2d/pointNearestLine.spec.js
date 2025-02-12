@@ -2,9 +2,9 @@
  * @import { Coordinate } from './types.d';
  */
 
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { pointNearestLine } from './pointNearestLine';
+import { pointNearestLine } from './pointNearestLine.js';
 
 export const spec = test(import.meta.url, $ => {
 	/** @type {Coordinate} */

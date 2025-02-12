@@ -1,6 +1,6 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { slopeTo } from './slopeTo';
+import { slopeTo } from './slopeTo.js';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(slopeTo([[0, 0], [4, 4]])) === 45);

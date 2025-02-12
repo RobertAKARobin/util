@@ -1,6 +1,6 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { omit } from './omit';
+import { omit } from './omit.js';
 
 export const spec = test(import.meta.url, $ => {
 	const subject = { alice: `aaa`, bob: `bbb`, carol: `ccc` };

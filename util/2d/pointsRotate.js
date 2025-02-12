@@ -2,7 +2,7 @@
  * @import { Coordinate, CoordinateLike } from './types.d';
  */
 
-import { pointRotate } from './pointRotate';
+import { pointRotate } from './pointRotate.js';
 
 /**
  * foo

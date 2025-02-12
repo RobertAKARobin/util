@@ -1,6 +1,6 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { arrayToGroups } from './arrayToGroups';
+import { arrayToGroups } from './arrayToGroups.js';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(arrayToGroups(2, []).length) === 0);

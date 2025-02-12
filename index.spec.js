@@ -1,7 +1,7 @@
-import { cliArgs } from './util/node/cliArgs';
-import { print } from './util/spec/index';
-import { specRunNative } from './util/spec/src/runner.native';
-import { specRunWeb } from './util/spec/src/runner.web';
+import { cliArgs } from './util/node/cliArgs.js';
+import { print } from './util/spec/index.js';
+import { specRunNative } from './util/spec/src/runner.native.js';
+import { specRunWeb } from './util/spec/src/runner.web.js';
 
 /** @typedef {{ platform: string; verbose: string }} args */
 const [args, ...targetFiles] = /** @type {typeof cliArgs<args>} */(cliArgs)(process.argv.slice(2));

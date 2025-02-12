@@ -1,7 +1,7 @@
-import { getDifference } from '../math/difference';
-import { test } from '../spec/index';
+import { getDifference } from '../math/difference.js';
+import { test } from '../spec/index.js';
 
-import { transition } from './transition';
+import { transition } from './transition.js';
 
 export const spec = test(import.meta.url, async $ => {
 	const loopsPerSecond = 60;

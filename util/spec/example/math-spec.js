@@ -1,7 +1,7 @@
-import { delay } from '../../time/delay';
-import { tryCatch } from '../../tryCatch';
+import { delay } from '../../time/delay.js';
+import { tryCatch } from '../../tryCatch.js';
 
-import { suite, test } from '../index';
+import { suite, test } from '../index.js';
 
 function doThrow(/** @type {unknown} */error) {
 	throw error;

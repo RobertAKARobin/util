@@ -1,10 +1,10 @@
 /**
- * @import { Result } from './delimiter-pairs';
+ * @import { Result } from './delimiter-pairs.js';
  */
 
-import { suite, test } from '../spec/index';
+import { suite, test } from '../spec/index.js';
 
-import { delimiterPairs } from './delimiter-pairs';
+import { delimiterPairs } from './delimiter-pairs.js';
 
 
 function at(/** @type {Result} */result) {

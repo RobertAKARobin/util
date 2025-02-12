@@ -1,5 +1,5 @@
-import { ampmToDate } from './ampmToDate';
-import { test } from '../spec/index';
+import { ampmToDate } from './ampmToDate.js';
+import { test } from '../spec/index.js';
 
 export const spec = test(import.meta.url, $ => {
 	const now = new Date();

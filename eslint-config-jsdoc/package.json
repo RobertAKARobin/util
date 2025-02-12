@@ -3,7 +3,7 @@
 		"eslint-plugin-jsdoc": "^50.6.3"
 	},
 	"devDependencies": {
-		"@robertakrobin/eslint-config": "file:../eslint-config"
+		"@robertakarobin/eslint-config": "file:../eslint-config"
 	},
 	"main": "index.js",
 	"name": "@robertakarobin/eslint-config-jsdoc",

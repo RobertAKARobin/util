@@ -2,13 +2,13 @@
  * @import { Bezier, Coordinate, CoordinateLike } from './types.d';
  */
 
-import { isBetween } from '../math/isBetween';
-import { roundTo } from '../math/roundTo';
+import { isBetween } from '../math/isBetween.js';
+import { roundTo } from '../math/roundTo.js';
 
-import { bezierPoint } from './bezierPoint';
-import { findPercent } from './findPercent';
-import { pointsToAngles } from './pointsToAngles';
-import { toCoordinate } from './toCoordinate';
+import { bezierPoint } from './bezierPoint.js';
+import { findPercent } from './findPercent.js';
+import { pointsToAngles } from './pointsToAngles.js';
+import { toCoordinate } from './toCoordinate.js';
 
 /**
  * Given a coordinate and a bezier, return the point on the bezier most vertically- or horizontally-aligned to the coordinate

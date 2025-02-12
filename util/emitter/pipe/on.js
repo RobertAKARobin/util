@@ -2,7 +2,7 @@
  * @import { PipeFunction } from '../types.d';
  */
 
-import { pipeFilter } from './filter';
+import { pipeFilter } from './filter.js';
 
 /**
  * Emits the source when the given property changes

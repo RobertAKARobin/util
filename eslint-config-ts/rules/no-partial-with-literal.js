@@ -1,5 +1,5 @@
 /**
- * @typedef {import('@typescript-eslint/types').TSESTree.TypeNode} TypeNode
+ * @import {TSESTree} from '@typescript-eslint/types';
  */
 
 import { AST_NODE_TYPES, ESLintUtils } from '@typescript-eslint/utils';
@@ -21,7 +21,7 @@ export default ESLintUtils.RuleCreator.withoutDocs({
 
 	create(context) {
 		/**
-		 * @param {TypeNode} node
+		 * @param {TSESTree.TypeNode} node
 		 */
 		function ifIsTypeLiteral(node) {
 			if (node.type === AST_NODE_TYPES.TSTypeLiteral) {

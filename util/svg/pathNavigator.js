@@ -2,8 +2,8 @@
  * @import { Segment } from '../2d/types.d';
  */
 
-import { pointsAreDifferent } from '../2d/pointsAreDifferent';
-import { pointToString } from '../2d/pointToString';
+import { pointsAreDifferent } from '../2d/pointsAreDifferent.js';
+import { pointToString } from '../2d/pointToString.js';
 
 const pointsByCommand = /** @type {Record<string, number>} */({
 	c: 6,

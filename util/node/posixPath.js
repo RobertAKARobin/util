@@ -1,6 +1,6 @@
 import path from 'path';
 
-import { escape } from '../string/escape';
+import { escape } from '../string/escape.js';
 
 /**
  * Returns the given path as a Posix-compatible path. Currently useful pretty much just for converting Windows paths

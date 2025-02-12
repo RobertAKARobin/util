@@ -2,7 +2,7 @@
  * @import { Coordinate, CoordinateLike } from '../2d/types.d';
  */
 
-import { toCoordinate } from '../2d/toCoordinate';
+import { toCoordinate } from '../2d/toCoordinate.js';
 
 /**
  * Converts the coordinate at the given viewport x/y to the given SVG's x/y

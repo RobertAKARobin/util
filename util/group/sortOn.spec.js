@@ -1,6 +1,6 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { sortOn } from './sortOn';
+import { sortOn } from './sortOn.js';
 
 const subject = [
 	{

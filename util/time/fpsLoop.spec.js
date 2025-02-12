@@ -1,11 +1,11 @@
-import { suite, test } from '../spec/index';
-import { getDifference } from '../math/difference';
-import { mean } from '../math/average';
-import { roundTo } from '../math/roundTo';
-import { runContext } from '../web/context';
-import { sleep } from './sleep';
+import { suite, test } from '../spec/index.js';
+import { getDifference } from '../math/difference.js';
+import { mean } from '../math/average.js';
+import { roundTo } from '../math/roundTo.js';
+import { runContext } from '../web/context.js';
+import { sleep } from './sleep.js';
 
-import { FPSLoop } from './fpsLoop';
+import { FPSLoop } from './fpsLoop.js';
 
 const msPerSecond = 1000;
 const msPerTick = runContext === `browser` ? 15 : 1; // FPSLoop uses `setImmediate` in Node which has a tick of ~1ms, and `requestAnimationFrame` in browser which has a tick of ~15ms (usually ~10ms, but sometimes a bit more, not sure why)

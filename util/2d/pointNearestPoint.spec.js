@@ -2,10 +2,10 @@
  * @import { CoordinateLike } from './types.d';
  */
 
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { pointNearestPoint } from './pointNearestPoint';
-import { pointToString } from './pointToString';
+import { pointNearestPoint } from './pointNearestPoint.js';
+import { pointToString } from './pointToString.js';
 
 export const spec = test(import.meta.url, $ => {
 	const points = [[0, 0], [3, 0], [3, 4]];

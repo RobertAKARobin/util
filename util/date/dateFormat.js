@@ -1,4 +1,4 @@
-import { dateAlphabetical } from './dateAlphabetical';
+import { dateAlphabetical } from './dateAlphabetical.js';
 
 /**
  * Returns the given date in chunks: `[YYYY, MM, DD]`

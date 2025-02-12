@@ -1,6 +1,6 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { isBetween } from './isBetween';
+import { isBetween } from './isBetween.js';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(isBetween(1, 2, 3)));

@@ -1,9 +1,13 @@
 import tsESLint from 'typescript-eslint';
 
-import { files } from '@robertakarobin/eslint-config';
 import robinsConfig_jsdoc from '@robertakarobin/eslint-config-jsdoc';
 import robinsConfig_json from '@robertakarobin/eslint-config-json';
 import robinsConfig_ts from '@robertakarobin/eslint-config-ts';
+
+const requireRelative = {
+	group: [`util/*`],
+	message: `Paths to util break when this package is imported. Use relative paths instead.`,
+};
 
 export default tsESLint.config(
 	robinsConfig_jsdoc,
@@ -11,14 +15,26 @@ export default tsESLint.config(
 	robinsConfig_ts,
 
 	{
-		files,
+		files: [`**/*.js`, `**/*.cjs`, `**/*.mjs`],
 		rules: {
 			"no-restricted-imports": [`error`, {
 				patterns: [
+					requireRelative,
 					{
-						group: [`util/*`],
-						message: `Paths to util break when this package is imported. Use relative paths instead.`,
+						message: `Specify a file extension for relative imports.`,
+						regex: `^\\..*(?<!\\.js|\\.json)$`,
 					},
+				],
+			}],
+		},
+	},
+
+	{
+		files: [`**/.*ts`],
+		rules: {
+			"no-restricted-imports": [`error`, {
+				patterns: [
+					requireRelative,
 				],
 			}],
 		},

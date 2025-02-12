@@ -1,8 +1,8 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { pointToSvg } from './pointToSvg';
-import { setStyle } from '../dom/attributes';
-import { svgCreate } from './svgCreate';
+import { pointToSvg } from './pointToSvg.js';
+import { setStyle } from '../dom/attributes.js';
+import { svgCreate } from './svgCreate.js';
 
 const testSvg = await (await fetch(`/mock/test.svg`)).text();
 

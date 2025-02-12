@@ -1,6 +1,6 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { pointAtPercent } from './pointAtPercent';
+import { pointAtPercent } from './pointAtPercent.js';
 import segments from '../mock/segments.json' with { type: 'json' };
 
 export const spec = test(import.meta.url, $ => {

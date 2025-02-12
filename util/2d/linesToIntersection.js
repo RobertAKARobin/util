@@ -2,11 +2,11 @@
  * @import { Coordinate, LineLike } from './types.d';
  */
 
-import { roundTo } from '../math/roundTo';
+import { roundTo } from '../math/roundTo.js';
 
-import { getSlope } from './slope';
-import { getYOffset } from './yOffset';
-import { toLine } from './toLine';
+import { getSlope } from './slope.js';
+import { getYOffset } from './yOffset.js';
+import { toLine } from './toLine.js';
 
 /**
  * Find the intersection of two straight lines

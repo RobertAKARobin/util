@@ -1,6 +1,6 @@
 import { execSync } from 'child_process';
 
-import { tryCatch } from '../tryCatch';
+import { tryCatch } from '../tryCatch.js';
 
 /**
  * Run command until the same stdout is output twice

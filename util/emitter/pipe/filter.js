@@ -2,7 +2,7 @@
  * @import { PipeFunction, SubscriptionEvent } from '../types.d';
  */
 
-import { IGNORE } from '../emitter';
+import { IGNORE } from '../emitter.js';
 
 /**
  * Emits the source only when the given condition is met

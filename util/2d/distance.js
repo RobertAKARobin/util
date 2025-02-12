@@ -2,7 +2,7 @@
  * @import { Coordinate, LineLike } from './types.d';
  */
 
-import { toCoordinate } from './toCoordinate';
+import { toCoordinate } from './toCoordinate.js';
 
 /**
  * Returns a positive number representing the total distance between points

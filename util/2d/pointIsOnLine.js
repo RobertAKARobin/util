@@ -2,11 +2,11 @@
  * @import { CoordinateLike, LineLike } from './types.d';
  */
 
-import { getSlope } from './slope';
-import { getYOffset } from './yOffset';
-import { pointsAreDifferent } from './pointsAreDifferent';
-import { toCoordinate } from './toCoordinate';
-import { toLine } from './toLine';
+import { getSlope } from './slope.js';
+import { getYOffset } from './yOffset.js';
+import { pointsAreDifferent } from './pointsAreDifferent.js';
+import { toCoordinate } from './toCoordinate.js';
+import { toLine } from './toLine.js';
 
 /**
  * Returns whether the given coordinate is on the given line.

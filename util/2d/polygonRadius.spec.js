@@ -1,8 +1,8 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { preciseTo } from '../math/preciseTo';
+import { preciseTo } from '../math/preciseTo.js';
 
-import { polygonRadius as polygonRadius_ } from './polygonRadius';
+import { polygonRadius as polygonRadius_ } from './polygonRadius.js';
 
 /**
  * @param {Parameters<typeof polygonRadius_>} args

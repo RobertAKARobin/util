@@ -2,10 +2,10 @@
  * @import { Bezier, Coordinate, CoordinateLike, LineLike, Segment } from './types.d';
  */
 
-import { pointAlongBezier } from './pointAlongBezier';
-import { pointNearestLine } from './pointNearestLine';
-import { segmentNearestPoint } from './segmentNearestPoint';
-import { toCoordinate } from './toCoordinate';
+import { pointAlongBezier } from './pointAlongBezier.js';
+import { pointNearestLine } from './pointNearestLine.js';
+import { segmentNearestPoint } from './segmentNearestPoint.js';
+import { toCoordinate } from './toCoordinate.js';
 
 /**
  * Given a target coordinate and a path (which is an array of segments), approximate the point on the path most vertically- or horizontally-aligned to the coordinate

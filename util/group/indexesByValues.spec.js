@@ -1,6 +1,6 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { indexesByValues } from './indexesByValues';
+import { indexesByValues } from './indexesByValues.js';
 
 export const spec = test(import.meta.url, $ => {
 	const subject = indexesByValues(`alice`, `bob`, `carol`);

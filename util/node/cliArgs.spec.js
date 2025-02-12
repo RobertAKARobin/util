@@ -1,6 +1,6 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { cliArgs } from './cliArgs';
+import { cliArgs } from './cliArgs.js';
 
 /**
  * @typedef {{ age: string; name: string }} Args

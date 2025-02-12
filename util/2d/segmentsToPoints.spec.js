@@ -1,8 +1,8 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { pointToString } from './pointToString';
+import { pointToString } from './pointToString.js';
 import segments from '../mock/segments.json' with { type: 'json' };
-import { segmentsToPoints } from './segmentsToPoints';
+import { segmentsToPoints } from './segmentsToPoints.js';
 
 export const spec = test(import.meta.url, $ => {
 	const points = segmentsToPoints(segments).map(pointToString).join(` `);

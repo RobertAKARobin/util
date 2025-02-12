@@ -1,7 +1,7 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { pointNearestPath } from './pointNearestPath';
-import { pointToString } from './pointToString';
+import { pointNearestPath } from './pointNearestPath.js';
+import { pointToString } from './pointToString.js';
 import segments from '../mock/segments.json' with { type: 'json' };
 
 export const spec = test(import.meta.url, $ => {

@@ -3,10 +3,10 @@
  * @import * as Type from './types.d';
  */
 
-import { arrayToEnum } from '../../group/arrayToEnum';
-import { isNotNull } from '../../isNotNull';
-import { nTimes } from '../../group/nTimes';
-import { promiseConsecutive } from '../../time/promiseConsecutive';
+import { arrayToEnum } from '../../group/arrayToEnum.js';
+import { isNotNull } from '../../isNotNull.js';
+import { nTimes } from '../../group/nTimes.js';
+import { promiseConsecutive } from '../../time/promiseConsecutive.js';
 
 /** @type {Type.SpecStepCount} */
 const specStepCountDefault = {

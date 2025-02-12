@@ -1,6 +1,6 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { listenOnce } from './listenOnce';
+import { listenOnce } from './listenOnce.js';
 
 class Subject extends EventTarget {
 	click() {

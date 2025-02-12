@@ -2,8 +2,8 @@
  * @import { Coordinate, CoordinateLike } from './types.d';
  */
 
-import { getDistance } from './distance';
-import { toCoordinate } from './toCoordinate';
+import { getDistance } from './distance.js';
+import { toCoordinate } from './toCoordinate.js';
 
 /**
  * Given a target coordinate and an array of points, return the point closest to the target

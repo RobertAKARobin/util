@@ -1,6 +1,6 @@
-import { test } from './spec/index';
+import { test } from './spec/index.js';
 
-import { tsvParse } from './tsvParse';
+import { tsvParse } from './tsvParse.js';
 
 const tsv = `
 E120	953	1042	2

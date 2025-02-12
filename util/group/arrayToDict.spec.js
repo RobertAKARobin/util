@@ -1,6 +1,6 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { arrayToDict } from './arrayToDict';
+import { arrayToDict } from './arrayToDict.js';
 
 export const spec = test(import.meta.url, $ => {
 	const subject = arrayToDict([`foo`, `bar`], `baz`);

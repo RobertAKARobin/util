@@ -1,5 +1,5 @@
 /**
- * @import { AnimationData } from '../css/keyframes';
+ * @import { AnimationData } from '../css/keyframes.js';
  */
 
 /**

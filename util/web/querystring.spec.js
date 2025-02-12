@@ -1,6 +1,6 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { updateQuerystring } from './querystring';
+import { updateQuerystring } from './querystring.js';
 
 export const spec = test(import.meta.url, $ => {
 	let href = ``;

@@ -2,9 +2,9 @@
  * @import { Coordinate } from './types.d';
  */
 
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { linesToIntersection } from './linesToIntersection';
+import { linesToIntersection } from './linesToIntersection.js';
 
 /**
  * Force non-null

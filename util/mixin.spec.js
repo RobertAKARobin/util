@@ -1,6 +1,6 @@
-import { test } from './spec/index';
+import { test } from './spec/index.js';
 
-import { mixin } from './mixin';
+import { mixin } from './mixin.js';
 
 class Grandparent {
 	static staticProperty

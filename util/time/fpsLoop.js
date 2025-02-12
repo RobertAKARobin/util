@@ -1,5 +1,5 @@
-import { enumy } from '../group/enumy';
-import { setImmediate } from './setImmediate';
+import { enumy } from '../group/enumy.js';
+import { setImmediate } from './setImmediate.js';
 
 export const loopStatuses = /** @type {const} */([
 	`unstarted`,

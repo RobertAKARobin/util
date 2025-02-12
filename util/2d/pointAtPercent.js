@@ -2,8 +2,8 @@
  * @import { Coordinate } from './types.d';
  */
 
-import { pointsSeparated } from './pointsSeparated';
-import { pointsToMidpoints } from './pointsToMidpoints';
+import { pointsSeparated } from './pointsSeparated.js';
+import { pointsToMidpoints } from './pointsToMidpoints.js';
 
 /**
  * Given points along a line, and n% percent of the line's total length, approximate the coordinates of the point at that length.

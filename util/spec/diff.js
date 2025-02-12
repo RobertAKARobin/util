@@ -1,6 +1,6 @@
 import * as Diff from 'diff';
 
-import { color } from '../node/colors';
+import { color } from '../node/colors.js';
 
 /**
  * TODO1

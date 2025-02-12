@@ -2,12 +2,12 @@
  * @import { Bezier, Coordinate, CoordinateLike } from './types.d';
  */
 
-import { roundTo } from '../math/roundTo';
+import { roundTo } from '../math/roundTo.js';
 
-import { bezierPoint } from './bezierPoint';
-import { findPercent } from './findPercent';
-import { getDistance } from './distance';
-import { toCoordinate } from './toCoordinate';
+import { bezierPoint } from './bezierPoint.js';
+import { findPercent } from './findPercent.js';
+import { getDistance } from './distance.js';
+import { toCoordinate } from './toCoordinate.js';
 
 /**
  * Given a target coordinate and a Bezier curve, approximate the point on the curve nearest the coordinate.

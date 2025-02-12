@@ -2,10 +2,10 @@
  * @import { Coordinate, CoordinateLike, LineLike } from './types.d';
  */
 
-import { constrain } from '../math/constrain';
+import { constrain } from '../math/constrain.js';
 
-import { toCoordinate } from './toCoordinate';
-import { toLine } from './toLine';
+import { toCoordinate } from './toCoordinate.js';
+import { toLine } from './toLine.js';
 
 /**
  * Given a target coordinate and a line, find the point on the line nearest the coordinate

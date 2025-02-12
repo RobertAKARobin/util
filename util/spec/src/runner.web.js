@@ -6,10 +6,10 @@ import { execSync, spawn } from 'child_process';
 import fs from 'fs';
 import http from 'http';
 
-import { mimeFor, mimeMap } from '../../web/mime';
-import { tryCatch } from '../../tryCatch';
+import { mimeFor, mimeMap } from '../../web/mime.js';
+import { tryCatch } from '../../tryCatch.js';
 
-import { count } from '../index';
+import { count } from '../index.js';
 
 const specHost = `localhost`;
 const specPort = 8001;

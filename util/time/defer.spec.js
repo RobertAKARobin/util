@@ -1,5 +1,5 @@
-import { defer } from './defer';
-import { test } from '../spec/index';
+import { defer } from './defer.js';
+import { test } from '../spec/index.js';
 
 export const spec = test(import.meta.url, async $ => {
 	const deferred = /** @type {ReturnType<typeof defer<number>>} */(defer());

@@ -2,10 +2,10 @@
  * @import { Bezier } from './types.d';
  */
 
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { pointAlongBezier } from './pointAlongBezier';
-import { pointToString } from './pointToString';
+import { pointAlongBezier } from './pointAlongBezier.js';
+import { pointToString } from './pointToString.js';
 import segments from '../mock/segments.json' with { type: 'json' };
 
 export const spec = test(import.meta.url, $ => {

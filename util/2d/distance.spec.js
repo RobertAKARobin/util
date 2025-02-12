@@ -1,6 +1,6 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { getDistance } from './distance';
+import { getDistance } from './distance.js';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(getDistance([{ x: 0, y: 0 }, { x: 3, y: 4 }])) === 5);

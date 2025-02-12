@@ -1,8 +1,8 @@
-// import { runContext } from './web/context';
-import { test } from './spec/index';
-import { tryCatch } from './tryCatch';
+// import { runContext } from './web/context.js';
+import { test } from './spec/index.js';
+import { tryCatch } from './tryCatch.js';
 
-import { assert, AssertionError } from './assert';
+import { assert, AssertionError } from './assert.js';
 
 export const spec = test(import.meta.url, $ => {
 	/** @type {Error} */

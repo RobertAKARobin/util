@@ -1,6 +1,6 @@
-import { newUid } from '../uid';
+import { newUid } from '../uid.js';
 
-import { Emitter } from './emitter';
+import { Emitter } from './emitter.js';
 
 /**
  * @typedef {number | string} EntityId

@@ -1,7 +1,7 @@
 /* eslint-disable @stylistic/quote-props */
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { serialize } from './serialize';
+import { serialize } from './serialize.js';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(serialize({ foo: `bar` })) === `{foo:'bar'}`);

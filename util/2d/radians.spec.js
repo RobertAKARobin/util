@@ -1,6 +1,6 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { radiansFrom, radiansTo } from './radians';
+import { radiansFrom, radiansTo } from './radians.js';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(radiansTo(Math.PI)) === 180);

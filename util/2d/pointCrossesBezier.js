@@ -2,13 +2,13 @@
  * @import { Bezier, Coordinate, CoordinateLike } from './types.d';
  */
 
-import { roundTo } from '../math/roundTo';
+import { roundTo } from '../math/roundTo.js';
 
-import { bezierPoint } from './bezierPoint';
-import { findPercent } from './findPercent';
-import { pointsRotate } from './pointsRotate';
-import { pointsToAngles } from './pointsToAngles';
-import { toCoordinate } from './toCoordinate';
+import { bezierPoint } from './bezierPoint.js';
+import { findPercent } from './findPercent.js';
+import { pointsRotate } from './pointsRotate.js';
+import { pointsToAngles } from './pointsToAngles.js';
+import { toCoordinate } from './toCoordinate.js';
 
 /**
  * Given a coordinate and a Bezier, returns the point on the Bezier that would meet the coordinate at a slope perpendicular to the Bezier's overall slope. (`pointPerpendicularToBezier` was a bit wordy.)

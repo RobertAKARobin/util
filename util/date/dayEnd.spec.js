@@ -1,5 +1,5 @@
-import { dayEnd, dayStart } from './dayEnd';
-import { test } from '../spec/index';
+import { dayEnd, dayStart } from './dayEnd.js';
+import { test } from '../spec/index.js';
 
 export const spec = test(import.meta.url, $ => {
 	const now = new Date();

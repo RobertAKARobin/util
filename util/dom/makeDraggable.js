@@ -2,7 +2,7 @@
  * @import { Coordinate } from '../2d/types.d';
  */
 
-import { pointToSvg } from '../svg/pointToSvg';
+import { pointToSvg } from '../svg/pointToSvg.js';
 
 export const customDragEventName = `customdrag`;
 

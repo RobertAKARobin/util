@@ -3,7 +3,7 @@
  * @import pathType from 'path';
  */
 
-import { runContext } from './web/context';
+import { runContext } from './web/context.js';
 
 /**
  * Loads and returns the text at the given target path

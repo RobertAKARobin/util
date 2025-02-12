@@ -2,7 +2,7 @@
  * @import { LineLike } from './types.d';
  */
 
-import { toLine } from './toLine';
+import { toLine } from './toLine.js';
 
 /**
  * Returns the slope of a line

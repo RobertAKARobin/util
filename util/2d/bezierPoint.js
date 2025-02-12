@@ -2,8 +2,8 @@
  * @import { Coordinate } from './types.d';
  */
 
-import { keysOf } from '../group/keysOf';
-import { preciseTo } from '../math/preciseTo';
+import { keysOf } from '../group/keysOf.js';
+import { preciseTo } from '../math/preciseTo.js';
 
 /**
  * Given the points of a Bezier curve, and n% progress along the curve, calculate the coordinates of the point at that progress.

@@ -1,6 +1,6 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { pointIsOnLine } from './pointIsOnLine';
+import { pointIsOnLine } from './pointIsOnLine.js';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(pointIsOnLine([3, 9], [[3, 9], [6, 13]])));

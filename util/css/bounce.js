@@ -1,10 +1,10 @@
 /**
- * @import { keyframesMulti } from './keyframes';
+ * @import { keyframesMulti } from './keyframes.js';
  */
 
 // TODO1: Spec
 
-import { roundTo } from '../math/roundTo';
+import { roundTo } from '../math/roundTo.js';
 
 /**
  * Returns a series of keyframes that make an object appear to bounce

@@ -1,8 +1,8 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { preciseTo } from './preciseTo';
+import { preciseTo } from './preciseTo.js';
 
-import { constrain, constrainCircular } from './constrain';
+import { constrain, constrainCircular } from './constrain.js';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(constrain(3, 2, 5)) === 3);

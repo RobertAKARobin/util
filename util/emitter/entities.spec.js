@@ -1,10 +1,10 @@
 /**
- * @import { EntityId } from './entities';
+ * @import { EntityId } from './entities.js';
  */
 
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { EntityStateEmitter } from './entities';
+import { EntityStateEmitter } from './entities.js';
 
 /**
  * @typedef {{ value: string }} Item

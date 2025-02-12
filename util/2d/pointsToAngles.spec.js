@@ -1,11 +1,11 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { getSum } from '../math/sum';
-import { preciseTo } from '../math/preciseTo';
-import { roundTo } from '../math/roundTo';
+import { getSum } from '../math/sum.js';
+import { preciseTo } from '../math/preciseTo.js';
+import { roundTo } from '../math/roundTo.js';
 
-import { pointsToAngles } from './pointsToAngles';
-import { radiansTo } from './radians';
+import { pointsToAngles } from './pointsToAngles.js';
+import { radiansTo } from './radians.js';
 
 export const spec = test(import.meta.url, $ => {
 	/** @type {Array<number>} */

@@ -1,4 +1,4 @@
-import { preciseTo } from './preciseTo';
+import { preciseTo } from './preciseTo.js';
 
 /**
  * Returns whether the given input is a power of the given number

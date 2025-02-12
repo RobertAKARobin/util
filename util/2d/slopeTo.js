@@ -4,8 +4,8 @@
 
 // Separate from `slope.js` because it probably won't be used as often as `slope.js` and is a (slightly) nontrivial amount of code to import
 
-import { getSlope } from './slope';
-import { radiansTo } from './radians';
+import { getSlope } from './slope.js';
+import { radiansTo } from './radians.js';
 
 /**
  * Returns the slope of a line as degrees or radians

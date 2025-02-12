@@ -1,4 +1,4 @@
-import { sortNumbers } from '../group/sortNumbers';
+import { sortNumbers } from '../group/sortNumbers.js';
 
 /**
  * Given a number and a min and max value, returns the min if the number is smaller than the min, the max if larger than the max, the number otherwise.

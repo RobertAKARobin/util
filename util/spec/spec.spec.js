@@ -1,10 +1,10 @@
-import { render, suite, test } from './index';
-import { diff } from './diff';
-import { runContext } from '../web/context';
-import { sleep } from '../time/sleep';
+import { render, suite, test } from './index.js';
+import { diff } from './diff.js';
+import { runContext } from '../web/context.js';
+import { sleep } from '../time/sleep.js';
 
-// import * as dbTests from './example/db-spec';
-import * as mathTests from './example/math-spec';
+// import * as dbTests from './example/db-spec.js';
+import * as mathTests from './example/math-spec.js';
 
 /**
  * @param {[string, string]} inputs

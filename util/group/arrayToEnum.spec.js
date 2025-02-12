@@ -1,6 +1,6 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { arrayToEnum } from './arrayToEnum';
+import { arrayToEnum } from './arrayToEnum.js';
 
 export const spec = test(import.meta.url, $ => {
 	const subject = arrayToEnum([`alice`, `bob`, `carol`]);

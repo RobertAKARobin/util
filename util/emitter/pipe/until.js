@@ -2,8 +2,8 @@
  * @import { PipeFunction, SubscriptionEvent } from '../types.d';
  */
 
-import { Emitter, IGNORE } from '../emitter';
-import { pipeFirst } from './first';
+import { Emitter, IGNORE } from '../emitter.js';
+import { pipeFirst } from './first.js';
 
 /**
  * Waits for the given EventTarget to emit an event with the specified name, then starts emitting the source

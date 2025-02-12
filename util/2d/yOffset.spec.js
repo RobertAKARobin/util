@@ -1,6 +1,6 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { getYOffset } from './yOffset';
+import { getYOffset } from './yOffset.js';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(getYOffset([[0, 0], [1, 1]])) === 0);

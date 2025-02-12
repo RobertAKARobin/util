@@ -1,6 +1,6 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { sortNumbers } from './sortNumbers';
+import { sortNumbers } from './sortNumbers.js';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(sortNumbers(3, 20, 100).join(` `)) === `3 20 100`);

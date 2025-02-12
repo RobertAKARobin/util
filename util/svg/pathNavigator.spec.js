@@ -1,7 +1,7 @@
-import { nTimes } from '../group/nTimes';
-import { test } from '../spec/index';
+import { nTimes } from '../group/nTimes.js';
+import { test } from '../spec/index.js';
 
-import { PathNavigator } from './pathNavigator';
+import { PathNavigator } from './pathNavigator.js';
 
 export const spec = test(import.meta.url, $ => {
 	const subjects = /** @type {const} */([

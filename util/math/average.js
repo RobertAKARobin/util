@@ -1,4 +1,4 @@
-import { getSum } from './sum';
+import { getSum } from './sum.js';
 
 /**
  * Returns the mean of the given numbers

@@ -2,7 +2,7 @@
  * @import { Coordinate, Segment } from './types.d';
  */
 
-import { pointsAreDifferent } from './pointsAreDifferent';
+import { pointsAreDifferent } from './pointsAreDifferent.js';
 
 /**
  * Converts an array of segments to an array of points

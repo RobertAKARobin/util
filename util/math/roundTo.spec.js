@@ -1,6 +1,6 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { roundTo } from './roundTo';
+import { roundTo } from './roundTo.js';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(isNaN(roundTo(Math.PI, 0))));

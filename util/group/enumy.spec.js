@@ -1,6 +1,6 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { enumy } from './enumy';
+import { enumy } from './enumy.js';
 
 export const spec = test(import.meta.url, $ => {
 	const subject = enumy(`alice`, `bob`, `carol`);

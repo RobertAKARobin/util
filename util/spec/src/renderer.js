@@ -1,12 +1,12 @@
 /**
  * @import * as $ from '../../types.d';
  * @import * as Type from './types.d';
- * @import {SpecBuilder} from './builder';
+ * @import {SpecBuilder} from './builder.js';
  */
 
-import { roundTo } from '../../math/roundTo';
+import { roundTo } from '../../math/roundTo.js';
 
-import { specStepStatuses } from './builder';
+import { specStepStatuses } from './builder.js';
 
 const match = {
 	fatArrowParam: /^(?:\(([\w$]*).*?\)|([\w$]*))\s*=>\s*/,

@@ -2,10 +2,10 @@
  * @import { Coordinate, CoordinateLike } from './types.d';
  */
 
-import { preciseTo } from '../math/preciseTo';
+import { preciseTo } from '../math/preciseTo.js';
 
-import { radiansFrom } from './radians';
-import { toCoordinate } from './toCoordinate';
+import { radiansFrom } from './radians.js';
+import { toCoordinate } from './toCoordinate.js';
 
 /**
  * @param {CoordinateLike} coordinateLike

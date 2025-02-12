@@ -1,4 +1,4 @@
-import { runContext } from './context';
+import { runContext } from './context.js';
 
 /**
  * A way of sharing backend variables with the frontend that is (a) type-safe, and (b) lets both environments use the same import.

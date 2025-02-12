@@ -2,7 +2,7 @@
  * @import { CoordinateLike } from './types.d';
  */
 
-import { toCoordinate } from './toCoordinate';
+import { toCoordinate } from './toCoordinate.js';
 
 /**
  * Returns a coordinate as a string in `x,y` notation

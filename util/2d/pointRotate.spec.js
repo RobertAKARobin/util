@@ -1,7 +1,7 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { pointRotate } from './pointRotate';
-import { pointToString } from './pointToString';
+import { pointRotate } from './pointRotate.js';
+import { pointToString } from './pointToString.js';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(pointToString(pointRotate([0, 1], [0, 0], 90))) === `1,0`);

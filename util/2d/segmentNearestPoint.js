@@ -2,11 +2,11 @@
  * @import { CoordinateLike, Segment } from './types.d';
  */
 
-import { getDistance } from './distance';
-import { pointsAreDifferent } from './pointsAreDifferent';
-import { pointsToAngles } from './pointsToAngles';
-import { pointsToMidpoints } from './pointsToMidpoints';
-import { toCoordinate } from './toCoordinate';
+import { getDistance } from './distance.js';
+import { pointsAreDifferent } from './pointsAreDifferent.js';
+import { pointsToAngles } from './pointsToAngles.js';
+import { pointsToMidpoints } from './pointsToMidpoints.js';
+import { toCoordinate } from './toCoordinate.js';
 
 /**
  * Given a list of segments and a coordinate, find the index of the segment nearest the coordinate

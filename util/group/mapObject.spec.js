@@ -1,6 +1,6 @@
-import { test } from '../spec/index';
+import { test } from '../spec/index.js';
 
-import { mapObject } from './mapObject';
+import { mapObject } from './mapObject.js';
 
 export const spec = test(import.meta.url, $ => {
 	const source = /** @type {const} */({

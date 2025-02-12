@@ -2,14 +2,14 @@
  * @import { EmitEvent, Subscription } from './types.d';
  */
 
-import { suite, test } from '../spec/index';
-import { sleep } from '../time/sleep';
+import { suite, test } from '../spec/index.js';
+import { sleep } from '../time/sleep.js';
 
-import { Emitter } from './emitter';
-import { pipeFilter } from './pipe/filter';
-import { pipeFirst } from './pipe/first';
-import { pipeOn } from './pipe/on';
-import { pipeUntil } from './pipe/until';
+import { Emitter } from './emitter.js';
+import { pipeFilter } from './pipe/filter.js';
+import { pipeFirst } from './pipe/first.js';
+import { pipeOn } from './pipe/on.js';
+import { pipeUntil } from './pipe/until.js';
 
 /**
  * @typedef {{ age: number }} HasAge
