@@ -1,30 +1,39 @@
-import { baseUrl, defaultBaseUrl } from './context';
-import { Emitter } from '../emitter/emitter';
-import type { EmitterOptions } from '../emitter/types.d';
-import { proxyDeep } from '../proxyDeep';
+/**
+ * @import { EmitterOptions } from '../emitter/types.d';
+ */
 
-export type RoutePathFunction = (...args: Array<any>) => URL | string; // eslint-disable-line @typescript-eslint/no-explicit-any
+import { baseUrl, defaultBaseUrl } from './context.js';
+import { Emitter } from '../emitter/emitter.js';
+import { proxyDeep } from '../proxyDeep.js';
 
-export type RouteDefinition = RoutePathFunction | URL | string;
+/**
+ * @typedef {(...args: Array<any>) => URL | string} RoutePathFunction
+ * @typedef {RoutePathFunction | URL | string} RouteDefinition
+ * @typedef {Record<string, RouteDefinition>} RouteMap
+ * @typedef {Extract<keyof WindowEventHandlersEventMap, 'hashchange' | 'popstate'> | 'navigate'} RouterEventType
+ */
 
-export type RouteMap = Record<string, RouteDefinition>;
-
-export type RouterEventType = Extract<keyof WindowEventHandlersEventMap, `hashchange` | `popstate`> | `navigate`;
-
-export type RouterEvent<Routes extends RouteMap> = {
-	routeName: keyof Routes | undefined;
-	type: RouterEventType;
-	url: URL;
-};
+/**
+ * @template {RouteMap} Routes
+ * @typedef {{routeName: keyof Routes; type: RouterEventType; url: URL}} RouterEvent
+ */
 
 /**
  * Given a dictionary of routes, e.g. { contactPage: `/contact` }, listens to window location changes and emits the new location
+ * @template {RouteMap} Routes
+ * @augments {Emitter<RouterEvent<Routes>>}
  */
-export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>> {
+export class Router extends Emitter {
 	static hasExtension = /\.\w+(\?.*|$)/;
 	static paramDelimeter = `[()]`;
 
-	static findRouteName(route: RouteDefinition, routes: RouteMap) {
+	/**
+	 * Given a route and a map of routes, find the route name that matches the given route
+	 * @param {RouteDefinition} route
+	 * @param {RouteMap} routes
+	 * @returns {string | undefined}
+	 */
+	static findRouteName(route, routes) {
 		for (const routeName in routes) {
 			const subject = routes[routeName];
 			if (Router.match(route, subject) !== null) {
@@ -35,14 +44,23 @@ export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>
 		return undefined;
 	}
 
-	static isMatch(...args: Parameters<typeof Router.match>) {
-		return (Router.match(...args) !== null);
+	/**
+	 * Returns whether a possible route path matches a known route
+	 * @param {RoutePathFunction | URL | string} subject
+	 * @param {RouteDefinition} control
+	 * @returns {boolean}
+	 */
+	static isMatch(subject, control) {
+		return (Router.match(subject, control) !== null);
 	}
 
-	static match(
-		subject: RoutePathFunction | URL | string,
-		control: RouteDefinition,
-	) {
+	/**
+	 * Returns the portions of a path that match the variables in a known route path
+	 * @param {RoutePathFunction | URL | string} subject
+	 * @param {RouteDefinition} control
+	 * @returns {Array<string> | null}
+	 */
+	static match(subject, control) {
 		if (subject === control) {
 			return [];
 		}
@@ -75,7 +93,12 @@ export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>
 		return [];
 	}
 
-	static toPath(input: RouteDefinition) {
+	/**
+	 * Converts a route to a file path
+	 * @param {RouteDefinition} input
+	 * @returns {string}
+	 */
+	static toPath(input) {
 		const url = Router.toUrl(input);
 		let path = `${url.origin}${url.pathname}`;
 
@@ -86,7 +109,12 @@ export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>
 		return path;
 	}
 
-	static toUrl(input: RouteDefinition) {
+	/**
+	 * Converts a route to a URL
+	 * @param {RouteDefinition} input
+	 * @returns {URL}
+	 */
+	static toUrl(input) {
 		if (input instanceof URL) {
 			return input;
 		}
@@ -98,20 +126,36 @@ export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>
 		return new URL(input(proxyDeep(Router.paramDelimeter)), baseUrl);
 	}
 
-	readonly routeNames: Set<keyof Routes>;
-	readonly routes: Routes;
+	/**
+	 * @type {Set<keyof Routes>}
+	 * @readonly
+	 */
+	routeNames;
 
-	constructor(routes: Routes, options: EmitterOptions<RouterEvent<Routes>> = {}) {
+	/**
+	 * @type {Routes}
+	 * @readonly
+	 */
+	routes;
+
+	/**
+	 * @param {Routes} routes
+	 * @param {EmitterOptions<RouterEvent<Routes>>} options
+	 */
+	constructor(
+		routes,
+		options = {},
+	) {
 		const landingUrl = globalThis.location !== undefined
 			? new URL(globalThis.location.href)
 			: undefined;
 
 		super(
-			landingUrl === undefined ? undefined : {
+			landingUrl === undefined ? undefined : /** @type {RouterEvent<Routes>} */({
 				routeName: Router.findRouteName(landingUrl, routes),
 				type: `navigate`,
 				url: landingUrl,
-			},
+			}),
 			options,
 		);
 
@@ -119,7 +163,13 @@ export class Router<Routes extends RouteMap> extends Emitter<RouterEvent<Routes>
 		this.routeNames = new Set(Object.keys(routes));
 	}
 
-	findRouteName(route: RouteDefinition): keyof Routes | undefined {
+	/**
+	 * Given a route definition, find its name in this Router's route map.
+	 * See {@link Router.findRouteName}
+	 * @param {RouteDefinition} route
+	 * @returns {keyof Routes | undefined}
+	 */
+	findRouteName(route) {
 		return Router.findRouteName(route, this.routes);
 	}
 

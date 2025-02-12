@@ -5,6 +5,7 @@
 import jsdoc from 'eslint-plugin-jsdoc';
 
 /**
+ * TODO1: Prefer `@extends` over `@augments`
  * TODO3: Report on spacing inside type declarations/curlies: https://github.com/gajus/eslint-plugin-jsdoc/issues/1143
  * TODO3: @ignore only on internal functions
  * @type {Array<Config>}
