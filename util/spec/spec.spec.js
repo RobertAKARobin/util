@@ -39,23 +39,23 @@ export const spec = suite(`SpecBuilder`, {},
 		}),
 	),
 
-	// suite(`example: db`,
-	// 	{
-	// 		args: async() => {
-	// 			const expected = dbTests.expected.trim();
-	// 			const results = await dbTests.specs({});
-	// 			const rendered = render(results, { showTiming: false }).trim();
-	// 			return {
-	// 				expected,
-	// 				rendered,
-	// 			};
-	// 		},
-	// 	},
+	suite(`example: db`,
+		{
+			args: async() => {
+				const expected = dbTests.expected.trim();
+				const results = await dbTests.specs({});
+				const rendered = render(results, { showTiming: false }).trim();
+				return {
+					expected,
+					rendered,
+				};
+			},
+		},
 
-	// 	test(`rendered results match expected`, ({ args, assert }) => {
-	// 		assert(x => x(diffSansWhitespace(args.expected, args.rendered)) === ``);
-	// 	}),
-	// ),
+		test(`rendered results match expected`, ({ args, assert }) => {
+			assert(x => x(diffSansWhitespace(args.expected, args.rendered)) === ``);
+		}),
+	),
 
 	(() => {
 		const state = {
