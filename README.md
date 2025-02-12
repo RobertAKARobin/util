@@ -59,6 +59,7 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 	-	rm diff
 	-	rm glob
 -	TODO1: Validate it all works with regular JS, not TS
+-	TODO1: Eslint: Use `#` private fields
 
 -	TODO1: Component: Add `<host>` back in
 -	TODO1: Component: Add TS preprocessing back in
@@ -66,7 +67,6 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 -	TODO1: Component: Import SVGs/arbitrary files
 -	TODO1: Add mini markdown converter
 -	TODO2: Component: Don't refer to functions by string -- keeps names from being minified
--	TODO2: Component: Use `#` private fields
 -	TODO3: Eslint: Lint HTML in JS template literals (https://github.com/yeonjuan/html-eslint/issues/196)
 -	TODO3: JSDOC Eslint: spacing between JSDOC curlies
 

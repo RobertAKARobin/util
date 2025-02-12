@@ -3,7 +3,7 @@ import { diff } from './diff.js';
 import { runContext } from '../web/context.js';
 import { sleep } from '../time/sleep.js';
 
-// import * as dbTests from './example/db-spec.js';
+import * as dbTests from './example/db-spec.js';
 import * as mathTests from './example/math-spec.js';
 
 /**

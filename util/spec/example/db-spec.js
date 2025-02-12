@@ -1,7 +1,7 @@
-import { tryCatch } from '../../tryCatch';
+import { tryCatch } from '../../tryCatch.js';
 
-import { suite, test } from '../index';
-import { DB } from './db';
+import { suite, test } from '../index.js';
+import { DB } from './db.js';
 
 export const specs = suite(`DB`, {},
 	test(`#constructor`, ({ assert }) => {
@@ -31,7 +31,7 @@ export const specs = suite(`DB`, {},
 
 			log(`can only delete once`);
 			const doDelete = () => tryCatch(() => args.db.delete(record.id));
-			await assert(async x => typeof (x(await doDelete())) === `undefined`);
+			await assert(async x => x(await doDelete()) === void 0); // Browser changes `undefined` to `void 0` here, so just using `void 0`
 			await assert(async x => x(await doDelete()) instanceof Error);
 
 			const hasRecord2 = () => tryCatch(() => args.db.has(record.id));
@@ -79,7 +79,7 @@ export const expected = `
 • s1s2t2a2 • (await (args.db.getIds())).includes((record.id))
 • s1s2t2a3 • args.db.has(record.id)
   s1s2t2#  can only delete once
-• s1s2t2a4 • typeof (await doDelete()) === \`undefined\`
+• s1s2t2a4 • (await doDelete()) === void 0
 • s1s2t2a5 • (await doDelete()) instanceof Error
 • s1s2t2a6 • (await hasRecord2()) === false
 • s1s2t2a7 • (await (args.db.getIds())).includes(record.id) === false
