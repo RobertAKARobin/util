@@ -50,13 +50,16 @@ export const specs = suite(`Math`,
 
 		test(`by int`, ({ args, assert }) => {
 			assert(x => x(args.x) === x(args.a));
-			assert(x => (x(args.x) / x(args.y)) === (x(args.a) / x(args.y)));
+			const xOverY = args.x / args.y; // In Function.toString Node wraps these in parens while the browser doesn't, so just putting them in a variable
+			const aOverY = args.a / args.y;
+			assert(x => x(xOverY) === x(aOverY));
 			const throwMe = () => doThrow(new Error(`This error will be caught.`));
 			assert(x => x(tryCatch(throwMe)) instanceof x(Error));
 		}),
 
 		test(`by zero`, ({ args, assert }) => {
-			assert(x => (x(args.a) / 0) === x(Infinity));
+			const aOver0 = args.a / 0; // See above comment
+			assert(x => x(aOver0) === x(Infinity));
 		}),
 	),
 
@@ -90,10 +93,10 @@ export const expected = `
   s1s4 • division
   s1s4t1 • by int
 • s1s4t1a1 • (args.x) === (args.a)
-• s1s4t1a2 • (args.x) / (args.y) === (args.a) / (args.y)
+• s1s4t1a2 • (xOverY) === (aOverY)
 • s1s4t1a3 • (tryCatch(throwMe)) instanceof (Error)
   s1s4t2 • by zero
-• s1s4t2a1 • (args.a) / 0 === (Infinity)
+• s1s4t2a1 • (aOver0) === (Infinity)
   s1t5 X multiplication
 • s1t5a1 • (args.x * 4) !== (args.y)
 X s1t5a2 X (args.x * -1) === (args.y)

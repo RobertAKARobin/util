@@ -2,6 +2,8 @@
  * @import * as Type from './types.d';
  */
 
+import path from 'path';
+
 import { suite } from '../index.js';
 
 /** @type {Type.SpecRunner} */
@@ -13,7 +15,7 @@ export const specRunNative = async function(
 
 	for (const specFile of specFiles) {
 		const { spec } = await /** @type {Promise<{ spec: typeof Type.Test; }>} */(
-			import(specFile)
+			import(path.join(/** @type {string} */(process.env.PWD), specFile))
 		);
 
 		if (typeof spec !== `function`) {
