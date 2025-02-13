@@ -1,15 +1,16 @@
 /**
  * @import { EmitterOptions } from '../emitter/types.d';
+ * @import { Params } from '../types.d';
  */
 
-import { baseUrl, defaultBaseUrl } from './context.js';
+import { baseUrl } from './context.js';
 import { Emitter } from '../emitter/emitter.js';
 import { proxyDeep } from '../proxyDeep.js';
 
 /**
  * @typedef {(...args: Array<any>) => URL | string} RoutePathFunction
- * @typedef {RoutePathFunction | URL | string} RouteDefinition
- * @typedef {Record<string, RouteDefinition>} RouteMap
+ * @typedef {RoutePathFunction | URL | string} RouteMaybe
+ * @typedef {Record<string, RoutePathFunction>} RouteMap
  * @typedef {Extract<keyof WindowEventHandlersEventMap, 'hashchange' | 'popstate'> | 'navigate'} RouterEventType
  */
 
@@ -29,11 +30,15 @@ export class Router extends Emitter {
 
 	/**
 	 * Given a route and a map of routes, find the route name that matches the given route
-	 * @param {RouteDefinition} route
+	 * @param {RouteMaybe} route
 	 * @param {RouteMap} routes
 	 * @returns {string | undefined}
 	 */
 	static findRouteName(route, routes) {
+		if (typeof route === `string` && route in routes) {
+			return route;
+		}
+
 		for (const routeName in routes) {
 			const subject = routes[routeName];
 			if (Router.match(route, subject) !== null) {
@@ -46,8 +51,8 @@ export class Router extends Emitter {
 
 	/**
 	 * Returns whether a possible route path matches a known route
-	 * @param {RoutePathFunction | URL | string} subject
-	 * @param {RouteDefinition} control
+	 * @param {RouteMaybe} subject
+	 * @param {RouteMaybe} control
 	 * @returns {boolean}
 	 */
 	static isMatch(subject, control) {
@@ -55,9 +60,9 @@ export class Router extends Emitter {
 	}
 
 	/**
-	 * Returns the portions of a path that match the variables in a known route path
-	 * @param {RoutePathFunction | URL | string} subject
-	 * @param {RouteDefinition} control
+	 * See {@link Router.prototype.match}
+	 * @param {RouteMaybe} subject
+	 * @param {RouteMaybe} control
 	 * @returns {Array<string> | null}
 	 */
 	static match(subject, control) {
@@ -95,7 +100,7 @@ export class Router extends Emitter {
 
 	/**
 	 * Converts a route to a file path
-	 * @param {RouteDefinition} input
+	 * @param {RouteMaybe} input
 	 * @returns {string}
 	 */
 	static toPath(input) {
@@ -111,7 +116,7 @@ export class Router extends Emitter {
 
 	/**
 	 * Converts a route to a URL
-	 * @param {RouteDefinition} input
+	 * @param {RouteMaybe} input
 	 * @returns {URL}
 	 */
 	static toUrl(input) {
@@ -164,9 +169,9 @@ export class Router extends Emitter {
 	}
 
 	/**
-	 * Given a route definition, find its name in this Router's route map.
+	 * Given a route, find its name in this Router's route map.
 	 * See {@link Router.findRouteName}
-	 * @param {RouteDefinition} route
+	 * @param {RouteMaybe} route
 	 * @returns {keyof Routes | undefined}
 	 */
 	findRouteName(route) {
@@ -174,28 +179,23 @@ export class Router extends Emitter {
 	}
 
 	/**
-	 * Updates the window's location to the url of the specified route name
+	 * Sets the router's state to the url of the specified route name
+	 * @template {keyof Routes} RouteName
+	 * @template {Routes[RouteName]} Route
+	 * @param {RouteName} target
+	 * @param {Params<Route>} args
+	 * @returns {this}
 	 */
-	go(
-		update: RouteDefinition | keyof Routes,
-		...args: typeof update extends keyof Routes
-			? (
-				Routes[typeof update] extends RoutePathFunction
-					? Parameters<Routes[typeof update]>
-					: []
-			) : []
-	) {
-		const routeName: keyof Routes | undefined = (update as keyof Routes) in this.routes
-			? update as keyof Routes
-			: this.findRouteName(update as RouteDefinition);
+	go(target, ...args) {
+		const routeName = this.findRouteName(String(target));
 
-		const route = routeName === undefined
-			? update as RouteDefinition
-			: this.routes[routeName];
+		if (routeName === undefined) {
+			throw new Error(`Route with name '${routeName}' is not defined`);
+		}
 
-		const path: URL | string = route instanceof Function
-			?	route(...args)
-			: route;
+		const route = this.routes[routeName];
+
+		const path = route.apply(null, args);
 
 		const url = path instanceof URL
 			? path
@@ -209,20 +209,22 @@ export class Router extends Emitter {
 	}
 
 	/**
+	 * TODO1 Move this out so Router can be platform independent?
 	 * Sets up the router to listen for location changes and intercept click events that cause navigation
+	 * @returns {void}
 	 */
 	init() {
 		globalThis.onhashchange = globalThis.onpopstate = () => { // Popstate is fired only by performing a browser action on the current document, e.g. back, forward, or hashchange. Hashchange is fired _after_ popstate
 			const url = new URL(globalThis.location.href);
 			this.set({
-				routeName: this.findRouteName(url),
+				routeName: /** @type {keyof Routes} */(this.findRouteName(url)),
 				type: `popstate`,
 				url,
 			});
 		};
 
 		document.addEventListener(`click`, event => {
-			const $target = event.target as HTMLElement;
+			const $target = /** @type {HTMLElement} */(event.target);
 			const $link = $target.closest(`a`);
 
 			if ($link === null) {
@@ -252,14 +254,19 @@ export class Router extends Emitter {
 			event.preventDefault();
 
 			this.set({
-				routeName: this.findRouteName(url),
+				routeName: /** @type {keyof Routes} */(this.findRouteName(url)),
 				type: `navigate`,
 				url,
 			});
 		});
 	}
 
-	match(subject: RouteDefinition) {
+	/**
+	 * Returns the portions of a path that match the variables in a known route path
+	 * @param {RouteMaybe} subject
+	 * @returns {Array<string> | null}
+	 */
+	match(subject) {
 		const routeName = this.findRouteName(subject); // TODO3: This runs Router.match twice under the hood
 		if (routeName === undefined) {
 			return null;

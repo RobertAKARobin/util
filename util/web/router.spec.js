@@ -1,15 +1,19 @@
-import { test } from '../spec/index';
+/**
+ * @import { RoutePathFunction } from './router';
+ */
 
-import { type RouteMap, type RoutePathFunction, Router } from './router';
-import { baseUrl } from './context';
+import { test } from '../spec/index.js';
+
+import { baseUrl } from './context.js';
+import { Router } from './router.js';
 
 const routes = {
-	builder: (param: string) => `/foo/${param}`,
-	dotHtml: `/foo/bar.html`,
-	external: `https://robertakarobin.com`,
-	home: `/`,
-	internal: `/login`,
-} as const satisfies RouteMap;
+	builder: (/** @type {string} */param) => `/foo/${param}`,
+	dotHtml: () => `/foo/bar.html`,
+	external: () => `https://robertakarobin.com`,
+	home: () => `/`,
+	internal: () => `/login`,
+};
 const router = new Router(routes);
 
 const defaultUrl = baseUrl.toString();
@@ -25,8 +29,8 @@ export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(Router.toUrl(`./foo`)).href === `${defaultUrl}foo`);
 	$.assert(x => x(Router.toUrl(`./foo/index.html`)).href === `${defaultUrl}foo/index.html`);
 	$.assert(x => x(Router.toUrl(() => `/foo`)).href === `${defaultUrl}foo`);
-	$.assert(x => x(Router.toUrl((p: string) => `/aaa/${p}`)).href === `${defaultUrl}aaa/${delim}`);
-	$.assert(x => x(Router.toUrl((p: string) => `/aaa/${p}/bbb/${p}`)).href === `${defaultUrl}aaa/${delim}/bbb/${delim}`);
+	$.assert(x => x(Router.toUrl((/** @type {string} */p) => `/aaa/${p}`)).href === `${defaultUrl}aaa/${delim}`);
+	$.assert(x => x(Router.toUrl((/** @type {string} */p) => `/aaa/${p}/bbb/${p}`)).href === `${defaultUrl}aaa/${delim}/bbb/${delim}`);
 
 	$.assert(x => x(Router.isMatch(`/`, routes.home)));
 	$.assert(x => x(Router.isMatch(routes.home, routes.home)));
@@ -53,20 +57,21 @@ export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(Router.isMatch(`/foo/bar/baz`, routes.builder) === false));
 	$.assert(x => x(Router.isMatch(`/foo/bar.html`, routes.builder) === false));
 
-	let route: RoutePathFunction;
+	/** @type {RoutePathFunction} */
+	let route;
 
-	$.log(() => route = ({ param }: { param: string; }) => `/foo/${param}/bar/${param}`);
+	$.log(() => route = (/** @type {{ param: string; }} */{ param }) => `/foo/${param}/bar/${param}`);
 	$.assert(x => x(Router.toPath(route)) === `${defaultUrl}foo/${delim}/bar/${delim}`);
 	$.assert(x => x(Router.isMatch(`/foo/aaa/bar/bbb`, route)));
 	$.assert(x => x(Router.match(`/foo/aaa/bar/bbb`, route))?.join(`,`) === `aaa,bbb`);
 	$.assert(x => x(Router.match(`/foo/a a a/bar/bbb`, route))?.join(`,`) === `a a a,bbb`);
 
-	$.log(() => route = ([ a, [b], [[c]] ]: Array<string>) => `/foo/${a}/bar/${b}/baz/${c}`);
+	$.log(() => route = (/** @type {Array<string>} */[ a, [b], [[c]] ]) => `/foo/${a}/bar/${b}/baz/${c}`);
 	$.assert(x => x(Router.toPath(route)) === `${defaultUrl}foo/${delim}/bar/${delim}/baz/${delim}`);
 	$.assert(x => x(Router.isMatch(`/foo/a/bar/b/baz/c`, route)));
 	$.assert(x => x(Router.match(`/foo/a/bar/b/baz/c`, route))?.join(`,`) === `a,b,c`);
 
-	$.log(() => route = ([{ param }]: Array<{ param: () => string; }>) => `/foo/${param()}`);
+	$.log(() => route = (/** @type {Array<{ param: () => string; }>} */[{ param }]) => `/foo/${param()}`);
 	$.assert(x => x(Router.toPath(route)) === `${defaultUrl}foo/${delim}`);
 
 	$.assert(x => x(router.findRouteName(`/foo/bar`)) === `builder`);
