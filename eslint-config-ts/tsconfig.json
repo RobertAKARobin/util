@@ -4,6 +4,7 @@
 		"allowJs": true,
 		"checkJs": true,
 		"experimentalDecorators": true,
+		"keyofStringsOnly": false,
 		"lib": ["ESNext", "DOM", "DOM.Iterable"],
 		"module": "ESNext",
 		"moduleResolution": "bundler",
@@ -15,6 +16,7 @@
 		"skipLibCheck": true,
 		"strict": true,
 		"target": "ESNext",
-		"useDefineForClassFields": false
+		"useDefineForClassFields": false,
+		"useUnknownInCatchVariables": true
 	}
 }
