@@ -3,7 +3,7 @@
  * @import { Params } from '../types.d';
  */
 
-import { baseUrl } from './context.js';
+import { baseUrl, defaultBaseUrl } from './context.js';
 import { Emitter } from '../emitter/emitter.js';
 import { proxyDeep } from '../proxyDeep.js';
 
@@ -277,26 +277,45 @@ export class Router extends Emitter {
 }
 
 /**
- * Given a route, returns the corresponding View
+ * An emitter that subscribes to a router, and when the route changes, emits the new View
+ * @template View
+ * @template {RouteMap} [Routes = any]
+ * @template {Router<Routes>} [AppRouter = Router<Routes>]
+ * @augments {Emitter<View>}
  */
-export class Resolver<
-	View,
-	Routes extends RouteMap = any, // eslint-disable-line @typescript-eslint/no-explicit-any
-	AppRouter extends Router<Routes> = Router<Routes>,
-> extends Emitter<View> {
-	constructor(
-		readonly router: AppRouter,
-		readonly resolve: (to: URL, from?: URL) => Promise<View> | View,
-	) {
+export class Resolver extends Emitter {
+	/**
+	 * @type {(to: URL, from?: URL) => Promise<View> | View}
+	 * @readonly
+	 */
+	resolve;
+
+	/**
+	 * @type {AppRouter}
+	 * @readonly
+	 */
+	router;
+
+	/**
+	 * @param {AppRouter} router
+	 * @param {typeof this.resolve} resolve
+	 */
+	constructor(router, resolve) {
 		super();
+
+		this.router = router;
+		this.resolve = resolve;
 
 		router.subscribe((...args) => void this.onPage(...args));
 	}
 
-	async onPage<PageEvent extends RouterEvent<Routes>>(
-		event: PageEvent,
-		{ previous }: { previous: PageEvent; },
-	) {
+	/**
+	 * @template {RouterEvent<Routes>} PageEvent
+	 * @param {PageEvent} event
+	 * @param {{ previous: PageEvent }} previous
+	 * @returns {Promise<void>}
+	 */
+	async onPage(event, { previous }) {
 		const to = event.url;
 		const from = previous?.url;
 

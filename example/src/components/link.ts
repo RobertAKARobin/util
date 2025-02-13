@@ -9,7 +9,7 @@ export function link(
 	attributeOverrides: Record<string, string> = {},
 ) {
 	const route = router.routes[routeName];
-	const url = new URL(route, baseUrl);
+	const url = new URL(route(), baseUrl);
 	const isExternal = url.origin !== baseUrl.origin;
 	const attributes = isExternal
 		? {
@@ -19,7 +19,7 @@ export function link(
 			...attributeOverrides,
 		}
 		: {
-			href: route,
+			href: route(),
 			...attributeOverrides,
 		};
 	return `<a ${toAttributes(attributes)}>${content}</a>`;

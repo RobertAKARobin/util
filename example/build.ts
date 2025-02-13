@@ -14,9 +14,9 @@ class CustomBuilder extends Builder {
 	}
 }
 
-const ssgRoutesByName: Record<string, string> = { ...routes };
+const ssgRoutesByName: Record<string, () => string> = { ...routes };
 delete ssgRoutesByName[`ssgNo`];
-const ssgRoutes = Object.values(ssgRoutesByName);
+const ssgRoutes = Object.values(ssgRoutesByName).map(route => route());
 
 const builder = new CustomBuilder({
 	esbuild: {
