@@ -1,36 +1,55 @@
+/**
+ * @import { Emitter, IGNORE } from '../emitter/emitter'
+ * @import { ElAttributes } from '../dom/types.d';
+ * @import { ConstructorOf, Textish } from '../types.d';
+ */
+
 import {
 	attributeValueIsEmpty,
 	setAttributes,
 	setStyle,
-} from '../dom/attributes';
-import { type Emitter, type IGNORE } from '../emitter/emitter';
-import type { ElAttributes } from '../dom/types';
-import { newUid } from '../uid';
-import { runContext } from '../web/context';
-import type { Textish } from '../types.d';
+} from '../dom/attributes.js';
+import { newUid } from '../uid.js';
+import { runContext } from '../web/context.js';
 
-export { css, html } from '../string/template';
+export { css, html } from '../string/template.js';
 
-type Constructor<Classtype> = new (...args: any) => Classtype; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-export type ComponentWithoutDecorators = Omit<typeof Component,
-	| `attribute`
-	| `cache`
-	| `cacheBust`
-	| `const`
-	| `custom`
-	| `define`
-	| `event`
-	| `normalize`
-	| `registry`
-	| `style`
-	| `stylePath`
-	| `uid`
->;
+/* eslint-disable jsdoc/valid-types */
+/**
+ * @typedef {Omit<typeof Component,
+ * | `attribute`
+ * | `cache`
+ * | `cacheBust`
+ * | `const`
+ * | `custom`
+ * | `define`
+ * | `event`
+ * | `normalize`
+ * | `registry`
+ * | `style`
+ * | `stylePath`
+ * | `uid`
+ * >} ComponentWithoutDecorators
+ */
+/* eslint-enable jsdoc/valid-types */
 
+/**
+ * TODO1
+ */
 export class Component extends HTMLElement {
-	static readonly cache = new Map<string, WeakRef<Component>>();
-	static readonly const = {
+	/**
+	 * TODO1
+	 * @type {Map<string, WeakRef<Component>>}
+	 * @readonly
+	 */
+	static cache = new Map();
+
+	/**
+	 * TODO1
+	 * @readonly
+	 */
+	static const = /** @type {const} */({
 		attrEl: `is`,
 		attrEmit: `data-emit-`,
 		attrEmitDelimiter: `|`,
@@ -38,49 +57,99 @@ export class Component extends HTMLElement {
 		globalRef: `C`,
 		styleAttr: `data-style`,
 		styleUrlAttrPrefix: `data-`,
-	} as const;
-	static readonly elName: string;
-	static readonly observedAttributes = [] as Array<string>;
-	static readonly propertyNamesByAttribute: Record<string, string> = {};
-	static readonly registry = new Map<typeof Component[`elName`], typeof Component>();
-	static readonly selector: string;
-	static readonly style: string | undefined;
-	static readonly stylePath: string | undefined;
-	static readonly tagName?: keyof HTMLElementTagNameMap;
+	});
+
+	/**
+	 * TODO1
+	 * @type {string}
+	 * @readonly
+	 */
+	static elName;
+
+	/**
+	 * TODO1
+	 * @type {Array<string>}
+	 * @readonly
+	 */
+	static observedAttributes = [];
+
+	/**
+	 * TODO1
+	 * @type {Record<string, string>}
+	 * @readonly
+	 */
+	static propertyNamesByAttribute = {};
+
+	/**
+	 * TODO1
+	 * @type {Map<typeof Component['elName'], typeof Component>}
+	 * @readonly
+	 */
+	static registry = new Map();
+
+	/**
+	 * TODO1
+	 * @type {string}
+	 * @readonly
+	 */
+	static selector;
+
+	/**
+	 * TODO1
+	 * @type {string | undefined}
+	 * @readonly
+	 */
+	static style;
+
+	/**
+	 * TODO1
+	 * @type {string | undefined}
+	 * @readonly
+	 */
+	static stylePath;
+
+	/**
+	 * TODO1
+	 * @type {keyof HTMLElementTagNameMap | undefined}
+	 * @readonly
+	 */
+	static tagName;
 
 	static {
-		(globalThis as unknown as {
-			[Component.const.globalRef]: typeof Component;
-		})[Component.const.globalRef] = Component; // For debugging
+		/* eslint-disable jsdoc/valid-types */
+		/** @type {{ [Component.const.globalRef]: typeof Component }} */(
+			/** @type {unknown} */(globalThis)
+		)[Component.const.globalRef] = Component; // Makes Component available as `window.C`, for debugging
+		/* eslint-enable jsdoc/valid-types */
 	}
 
 	/**
-	 * Defines a property that will be exposed as an HTML element in the DOM
-	 * @param options.name The name that will be used for the attribute. If not specified, the property name will be used, downcased and prefixed with `l-`
+	 * Decorator that defines a property that will be exposed as an HTML element in the DOM
+	 * @param {object} [options]
+	 * @param {string} [options.name] - The name that will be used for the attribute. If not specified, the property name will be used, downcased and prefixed with `l-`
+	 * @returns {(target: Component, propertyName: string) => void}
 	 */
-	static attribute(options: {
-		name?: string;
-	} = {}) {
-		return function(
-			target: Component,
-			propertyName: string,
-		) {
+	static attribute(options = {}) {
+		return function(target, propertyName) {
 			const attributeName = options?.name ?? propertyName;
-			const Constructor = target.constructor as typeof Component;
+			const Constructor = /** @type {typeof Component} */(target.constructor);
 			Constructor.observedAttributes.push(attributeName);
 			Constructor.propertyNamesByAttribute[attributeName] = propertyName;
 
 			Object.defineProperty(Constructor.prototype, propertyName, {
-				get(this: Component) {
+				get(/** @type {Component} */this) {
 					return this.getAttribute(attributeName);
 				},
-				set(this: Component, value: Textish) {
+				set(
+					/** @type {Component} */this,
+					/** @type {Textish} */value,
+				) {
 					if (attributeValueIsEmpty(value)) {
 						this.removeAttribute(attributeName);
 					} else {
 						this.setAttribute(
 							attributeName,
-							value!.toString(),
+							/** @type {string} */(value).toString(),
 						);
 					}
 				},
@@ -88,32 +157,42 @@ export class Component extends HTMLElement {
 		};
 	}
 
+	/**
+	 * TODO1
+	 * @returns {string}
+	 */
 	static cacheBust() {
 		return `?cache=${Date.now().toString()}`;
 	}
 
 	/**
 	 * Adds common component methods/helpers to the specified HTML element constructor
+	 * @template {keyof HTMLElementTagNameMap} TagName
+	 * @template {HTMLElementTagNameMap[TagName]} Tag
+	 * @param {TagName} tagName
+	 * @returns {ConstructorOf<HTMLElementTagNameMap[TagName] & Component>}
 	 */
-	static custom<
-		TagName extends keyof HTMLElementTagNameMap,
-	>(tagName: TagName) {
+	static custom(tagName) {
 		const dummy = document.createElement(tagName);
-		const BaseElement = dummy.constructor as Constructor<HTMLElementTagNameMap[TagName]>;
+		const BaseElement = /** @type {ConstructorOf<Component>} */(
+			/** @type {unknown} */(dummy.constructor)
+		);
 
-		interface ComponentBase extends Component {} // eslint-disable-line no-restricted-syntax, @typescript-eslint/no-unsafe-declaration-merging
-		class ComponentBase extends (BaseElement as unknown as new() => object) { // eslint-disable-line @typescript-eslint/no-unsafe-declaration-merging
-			static readonly elName = Component.elName;
-			static readonly find = Component.find;
-			static readonly findAll = Component.findAll;
-			static readonly formatCss = Component.formatCss;
-			static readonly id = Component.id;
-			static readonly observedAttributes = Component.observedAttributes;
-			static readonly propertyNamesByAttribute = Component.propertyNamesByAttribute;
-			static readonly selector = Component.selector;
-			static readonly style = Component.style;
-			static readonly stylePath = Component.stylePath;
-			static readonly tagName = tagName;
+		/**
+		 * @implements {Component}
+		 */
+		class ComponentBase extends BaseElement {
+			// static readonly elName = Component.elName;
+			// static readonly find = Component.find;
+			// static readonly findAll = Component.findAll;
+			// static readonly formatCss = Component.formatCss;
+			// static readonly id = Component.id;
+			// static readonly observedAttributes = Component.observedAttributes;
+			// static readonly propertyNamesByAttribute = Component.propertyNamesByAttribute;
+			// static readonly selector = Component.selector;
+			// static readonly style = Component.style;
+			// static readonly stylePath = Component.stylePath;
+			// static readonly tagName = tagName;
 
 			constructor() {
 				super();
@@ -128,26 +207,21 @@ export class Component extends HTMLElement {
 			Object.defineProperty(ComponentBase.prototype, instancePropertyName, instanceProperty);
 		}
 
-		return ComponentBase as typeof BaseElement & typeof ComponentBase;
+		return /** @type {ConstructorOf<Tag & Component>} */(ComponentBase);
 	}
 
 	/**
-	 * Defines a custom web component
-	 * @param options.elName The name that will be used for the component, e.g. `app-foo`
-	 * @param options.style The stylesheet that will be attached to the document the first time the component is used. `:host` will be replaced with the component's selector.
-	 * @param options.stylePath The path to an external stylesheet for this component. If it ends with `.ts`, the Builder will change the path to `.css.ts`. This means you can always set the stylepath to `import.meta.url` if the files will all follow the convention of `{component}.css.ts`.
-	 * @param options.styleSrc
+	 * Decorator that defines a custom web component
+	 * @template {typeof Component} Constructor
+	 * @param {object} [options]
+	 * @param {string} [options.elName] - The name that will be used for the component, e.g. `app-foo`
+	 * @param {string} [options.style] - The stylesheet that will be attached to the document the first time the component is used. `:host` will be replaced with the component's selector.
+	 * @param {string} [options.stylePath] - The path to an external stylesheet for this component. If it ends with `.ts`, the Builder will change the path to `.css.ts`. This means you can always set the stylepath to `import.meta.url` if the files will all follow the convention of `{component}.css.ts`.
+	 * @param {string} [options.styleSrc] - TODO1
+	 * @returns {(Constructor: Constructor) => void}
 	 */
-	static define<Subclass extends ComponentWithoutDecorators>(
-		options: {
-			elName?: string;
-			style?: string;
-			stylePath?: string;
-			styleSrc?: string;
-		} = {},
-	) {
-		return function(Subclass: Subclass) {
-			const Constructor = Subclass as unknown as typeof Component;
+	static define(options = {}) {
+		return function(Constructor) {
 			const elName = options.elName ?? `l-${Constructor.name.toLowerCase()}`;
 
 			const selector = Constructor.tagName === undefined
@@ -178,7 +252,7 @@ export class Component extends HTMLElement {
 			globalThis.customElements.define( // This should come last because when a custom element is defined its constructor runs for all instances on the page
 				elName,
 				Constructor,
-				Subclass.tagName === undefined ? undefined : { extends: Subclass.tagName },
+				Constructor.tagName === undefined ? undefined : { extends: Constructor.tagName },
 			);
 
 			const style = options.style ?? Constructor.style;
@@ -200,21 +274,18 @@ export class Component extends HTMLElement {
 
 	/**
 	 * Decorates a method so that when the method is called it emits a DOM CustomEvent with the method's name, the `detail` of which is the method's return value
+	 * @template Value
+	 * @param {CustomEventInit<Value>} [options]
+	 * @returns {(target: Component, propertyName: string, descriptor: PropertyDescriptor) => void}
 	 */
-	static event<Value>(
-		options = {} as CustomEventInit<Value>,
-	) {
+	static event(options = {}) {
 		const bubbles = options.bubbles ?? true;
 
-		return function(
-			target: Component,
-			propertyName: string,
-			descriptor: PropertyDescriptor,
-		) {
-			const transformer = descriptor.value as ((...args: any) => Value); // eslint-disable-line @typescript-eslint/no-explicit-any
+		return function(target, propertyName, descriptor) {
+			const transformer = /** @type {(...args: any) => Value} */(descriptor.value); // eslint-disable-line @typescript-eslint/no-unsafe-assignment
 			descriptor.value = function(
-				this: Component,
-				...args: Parameters<typeof transformer>
+				/** @type {Component} */this,
+				/** @type {Parameters<typeof transformer>} */...args
 			) {
 				const detail = transformer.call(this, ...args); // eslint-disable-line @typescript-eslint/no-unsafe-argument
 				const event = new CustomEvent(propertyName, {
@@ -230,55 +301,71 @@ export class Component extends HTMLElement {
 
 	/**
 	 * Returns the first element in the document that matches this constructor type
+	 * @template {Component} Instance
+	 * @param {Element} [root=document.documentElement]
+	 * @returns {Instance}
 	 */
-	static find<Subclass extends Component>(
-		this: Constructor<Subclass>,
-		root: Element = document.documentElement,
+	static find(
+		root = document.documentElement,
 	) {
-		const selector = (this as unknown as typeof Component).selector;
-		return root.querySelector(selector) as Subclass;
+		const selector = this.selector;
+		return /** @type {Instance} */(root.querySelector(selector));
 	}
 
 	/**
 	 * Returns all elements in the document that match this constructor type
+	 * @template {Component} Instance
+	 * @param {Element} [root=document.documentElement]
+	 * @returns {Array<Instance>}
 	 */
-	static findAll<Subclass extends Component>(
-		this: Constructor<Subclass>,
-		root: Element = document.documentElement,
+	static findAll(
+		root = document.documentElement,
 	) {
-		const selector = (this as unknown as typeof Component).selector;
-		return [...root.querySelectorAll(selector)] as Array<Subclass>;
+		const selector = this.selector;
+		return /** @type {Array<Instance>} */([...root.querySelectorAll(selector)]);
 	}
 
-	static formatCss(input: string) {
+	/**
+	 * TODO1
+	 * @param {string} input
+	 * @returns {string}
+	 */
+	static formatCss(input) {
 		return input.replace(/::?host/g, this.selector);
 	}
 
 	/**
 	 * Finds or creates a Component with this ID, and returns it.
+	 * @template {Component} Instance
+	 * @template {ConstructorOf<Instance>} Constructor
+	 * @param {HTMLElement['id']} id
+	 * @param {ConstructorParameters<Constructor>} args
+	 * @returns {Instance}
+	 * @this {Constructor}
 	 */
-	static id<Subclass extends Component, Ctor extends Constructor<Subclass>>(
-		this: Ctor,
-		id: HTMLElement[`id`],
-		...args: ConstructorParameters<Ctor>
-	) {
-		let instance = document.getElementById(id) as Subclass;
+	static id(id, ...args) {
+		let instance = /** @type {Instance} */(document.getElementById(id));
 		if (instance === null) {
-			instance = new this(...args);
+			instance = /** @type {Instance} */(new this(...args));
 			instance.id = id;
 		}
-		return instance as InstanceType<Ctor>;
+		return instance;
 	}
 
-	static normalize(input: string) {
+	/**
+	 * TODO1
+	 * @param {string} input
+	 * @returns {string}
+	 */
+	static normalize(input) {
 		return input
 			.toLowerCase()
 			.replaceAll(/[^\w]/g, ``);
 	}
 
 	/**
-	 * Returns a pseudo (very-pseudo) random HTMLElement ID
-	 * @see {@link newUid}
+	 * Returns a pseudo (very-pseudo) random HTMLElement ID. See {@link newUid}
+	 * @returns {string}
 	 */
 	static uid() {
 		return `l${newUid()}`;

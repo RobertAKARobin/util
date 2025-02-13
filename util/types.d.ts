@@ -1,5 +1,5 @@
 // TODO1: Alphabetize
-export type Constructor<Type> = {
+export type ConstructorOf<Type> = {
 	new(...args: Array<unknown>): Type;
 };
 

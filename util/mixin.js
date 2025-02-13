@@ -1,14 +1,14 @@
 /**
- * @import { Constructor } from './types.d';
+ * @import { ConstructorOf } from './types.d';
  */
 
 /**
  * Copies all static and prototype methods/properties from `Source` to `Target`
  * Note the difference between `prototype` and `instance` properties when defining classes: https://stackoverflow.com/q/77733619/2053389
  * @template Target
- * @template {Constructor<Target>} TargetConstructor
+ * @template {ConstructorOf<Target>} TargetConstructor
  * @template Source
- * @template {Constructor<Source>} SourceConstructor
+ * @template {ConstructorOf<Source>} SourceConstructor
  * @param {TargetConstructor} Target
  * @param {SourceConstructor} Source
  * @returns {SourceConstructor & TargetConstructor}
