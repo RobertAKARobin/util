@@ -1,5 +1,5 @@
 /**
- * @import { Emitter, IGNORE } from '../emitter/emitter'
+ * @import { Emitter, IGNORE as EmitterIgnore } from '../emitter/emitter'
  * @import { ElAttributes } from '../dom/types.d';
  * @import { ConstructorOf, Textish } from '../types.d';
  */
@@ -36,6 +36,7 @@ export { css, html } from '../string/template.js';
 
 /**
  * TODO1
+ * TODO1 Add interfaces for WebComponent and `handleEvent`, which this implements, in order to show where those come from?
  */
 export class Component extends HTMLElement {
 	/**
@@ -373,29 +374,44 @@ export class Component extends HTMLElement {
 
 	/**
 	 * See https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal
+	 * @type {AbortController}
 	 */
-	abortController!: AbortController;
+	// @ts-expect-error Defined on connectedCallback
+	abortController;
 
 	/**
 	 * Stores the component's textual content, if any, which can be inserted into the component's template
+	 * @type {string | undefined}
 	 */
-	content: string | undefined = ``;
+	content = ``;
 
 	/**
-	 * @returns The instance's constructor
+	 * The instance's constructor
+	 * @returns {ConstructorOf<this>}
 	 */
 	get Ctor() {
-		return this.constructor as typeof Component;
+		return /** @type {ConstructorOf<this>} */(this.constructor);
 	}
 
 	/**
-	 * Dispatches on disconnectedCallback. https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal
-	 * @see {@link disconnectedCallback}
+	 * Dispatches on disconnectedCallback. https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal. See {@link disconnectedCallback}
+	 * @type {AbortSignal}
+	 * @readonly
 	 */
-	readonly disconnectedSignal!: AbortSignal;
+	// @ts-expect-error Defined on connectedCallback
+	disconnectedSignal;
 
-	readonly findDownCache!: Map<string, Array<HTMLElement>>;
-	readonly findUpCache!: Map<string, HTMLElement>;
+	/**
+	 * @type {Map<string, Array<HTMLElement>>}
+	 * @readonly
+	 */
+	findDownCache = new Map();
+
+	/**
+	 * @type {Map<string, HTMLElement>}
+	 * @readonly
+	 */
+	findUpCache = new Map();
 
 	constructor() {
 		super();
@@ -405,25 +421,32 @@ export class Component extends HTMLElement {
 	/**
 	 * Called when the component is attached to a new document
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks
+	 * @returns {void}
 	 */
 	adoptedCallback() {}
 
 	/**
 	 * Dispatched when `attributeChangedCallback` is called. @see {@link attributeChangedCallback}
+	 * @param {string} name
+	 * @returns {string}
 	 */
-	@Component.event()
-	attributeChanged(name: string) {
+	@Component.event() // TODO1
+	attributeChanged(name) {
 		return name;
 	}
 
 	/**
 	 * Called when one of the properties decorated with `@Component.attribute` is modified
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks
+	 * @param {string} name
+	 * @param {unknown} previous
+	 * @param {unknown} value
+	 * @returns {void}
 	 */
 	attributeChangedCallback(
-		name: string, // Not strongly typing this because that makes it annoying to subclass
-		previous: unknown,
-		value: unknown,
+		name, // Not strongly typing this because that makes it annoying to subclass
+		previous,
+		value,
 	) {
 		this.attributeChanged(name);
 
@@ -444,6 +467,7 @@ export class Component extends HTMLElement {
 	/**
 	 * Called when the component is attached to the DOM
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks
+	 * @returns {void}
 	 */
 	connectedCallback() {
 		const abortController = new AbortController();
@@ -462,7 +486,8 @@ export class Component extends HTMLElement {
 
 	/**
 	 * Called by the constructor. Needed because customized and autonomous components have different constructors.
-	 * Would prefer this to be private, but TS won't emit the declaration if it is https://github.com/microsoft/TypeScript/issues/30355
+	 * TODO2: Would prefer this to be private, but TS won't emit the declaration if it is https://github.com/microsoft/TypeScript/issues/30355
+	 * @returns {void}
 	 */
 	constructed() {
 		Object.assign(this, {
@@ -474,20 +499,24 @@ export class Component extends HTMLElement {
 
 	/**
 	 * Applies the given CSS rules to the Component's `style` attribute
+	 * @param {Partial<CSSStyleDeclaration>} input
+	 * @returns {this}
 	 */
-	css(input: Partial<CSSStyleDeclaration>) {
+	css(input) {
 		return setStyle(this, input);
 	}
 
 	/**
 	 * Dispatched when `disconnectedCallback` is called. @see {@link disconnectedCallback}
+	 * @returns {void}
 	 */
-	@Component.event()
+	@Component.event() // TODO1
 	disconnected() {}
 
 	/**
 	 * Called when the component is detached from the DOM
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks
+	 * @returns {void}
 	 */
 	disconnectedCallback() {
 		this.abortController.abort();
@@ -496,74 +525,88 @@ export class Component extends HTMLElement {
 
 	/**
 	 * Looks for and returns the first instance of the specified constructor or selector within the current component's template
-	 * @param options.all Returns all instances
+	 * @template {ConstructorOf<Component>} Constructor
+	 * @template {InstanceType<Constructor>} Descendant
+	 * @overload
+	 * @param {Constructor} target
+	 * @returns {Array<Descendant>}
 	 */
-	findDown<
-		Select extends Constructor<Component>,
-		Descendant extends InstanceType<Select>,
-	>(select: Select): () => Descendant;
-	findDown<
-		Select extends Constructor<Component>,
-		Descendant extends InstanceType<Select>,
-	>(select: Select, options: { all: true; }): () => Array<Descendant>;
-	findDown<
-		Select extends keyof HTMLElementTagNameMap,
-		Descendant extends HTMLElementTagNameMap[Select],
-	>(select: Select): () => Descendant;
-	findDown<
-		Select extends keyof HTMLElementTagNameMap,
-		Descendant extends HTMLElementTagNameMap[Select],
-	>(selector: Select, options: { all: true; }): () => Array<Descendant>;
-	findDown(select: string): () => HTMLElement;
-	findDown(select: string, options: { all: true; }): () => Array<HTMLElement>;
-	findDown(select: Function | string, options: {
-		all?: boolean;
-	} = {}) {
-		const selector = (select as Function) === Page
+	/**
+	 * @template {keyof HTMLElementTagNameMap} TagName
+	 * @template {HTMLElementTagNameMap[TagName]} Descendant
+	 * @overload
+	 * @param {TagName} target
+	 * @returns {Array<Descendant>}
+	 */
+	/**
+	 * @overload
+	 * @param {string} target
+	 * @returns {Array<HTMLElement>}
+	 */
+	/**
+	 * @param {Function | string} target
+	 * @returns {Array<unknown>}
+	 */
+	findDown(target) {
+		const selector = target === Page
 			? `[${Page.pageAttr}]`
-			: typeof select === `string`
-				? select
-				: (select as unknown as typeof Component).selector;
+			: typeof target === `string`
+				? target
+				: /** @type {typeof Component} */(target).selector;
 
-		const isAll = options.all ?? false;
-
-		return () => { // TODO3: What arguments would be helpful?
-			const results = this.findDownCache.get(selector)
-				?? [...this.querySelectorAll(selector)];
-			this.findDownCache.set(selector, results as Array<HTMLElement>);
-			return isAll ? results : results[0];
-		};
+		const results = this.findDownCache.get(selector)
+			?? [...this.querySelectorAll(selector)];
+		this.findDownCache.set(
+			selector,
+			/** @type {Array<HTMLElement>} */(results),
+		);
+		return results;
 	}
 
 	/**
 	 * Looks for and returns the nearest instance of the specified constructor among the current component's ancestors
+	 * @template {keyof HTMLElementTagNameMap} TagName
+	 * @overload
+	 * @param {TagName} target
+	 * @returns {HTMLElementTagNameMap[TagName]}
 	 */
-	findUp<
-		Select extends keyof HTMLElementTagNameMap,
-	>(select: Select): () => HTMLElementTagNameMap[Select];
-	findUp<
-		Select extends Component,
-	>(select: Constructor<Select>): () => Select;
-	findUp(select: string): () => HTMLElement;
-	findUp(select: Function | string) {
-		const selector = (select as Function) === Page
+	/**
+	 * @template {ConstructorOf<Component>} Constructor
+	 * @overload
+	 * @param {Constructor} target
+	 * @returns {Constructor}
+	 */
+	/**
+	 * @overload
+	 * @param {string} target
+	 * @returns {HTMLElement}
+	 */
+	/**
+	 * @param {Function | string} target
+	 * @returns {unknown}
+	 */
+	findUp(target) {
+		const selector = target === Page
 			? `[${Page.pageAttr}]`
-			: typeof select === `string`
-				? select
-				: (select as unknown as typeof Component).selector;
+			: typeof target === `string`
+				? target
+				: /** @type {typeof Component} */(target).selector;
 
-		return () => { // TODO3: What arguments would be helpful?
-			const result = this.findUpCache.get(selector) ?? this.closest(selector);
-			this.findUpCache.set(selector, result as HTMLElement);
-			return result;
-		};
+		const result = this.findUpCache.get(selector) ?? this.closest(selector);
+		this.findUpCache.set(
+			selector,
+			/** @type {HTMLElement} */(result),
+		);
+		return result;
 	}
 
 	/**
-	 * Used internally to respond to events on child elements. https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#listener
+	 * Inherited from HTMLElement. Used internally to respond to events on child elements. https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener#listener
+	 * @param {Event} event
+	 * @returns {void}
 	 */
-	handleEvent(event: Event) {
-		const trigger = event.target as Element;
+	handleEvent(event) {
+		const trigger = /** @type {Element} */(event.target);
 		const paramsAttr = `${Component.const.attrEmit}${Component.normalize(event.type)}-`;
 		const attrEmitDelimiter = Component.const.attrEmitDelimiter;
 		const normalizedId = Component.normalize(this.id);
@@ -578,9 +621,8 @@ export class Component extends HTMLElement {
 			}
 
 			const [handlerKey, ...args] = attribute.value.split(attrEmitDelimiter);
-			(this as unknown as {
-				[key: typeof handlerKey]: (event: Event, ...params: typeof args) => void;
-			})[handlerKey](event, ...args);
+			// @ts-expect-error handlerKey should correspond to an event listener function
+			this[handlerKey](event, ...args); // eslint-disable-line @typescript-eslint/no-unsafe-call
 		}
 	}
 
@@ -722,8 +764,10 @@ export class Component extends HTMLElement {
 
 	/**
 	 * Makes the component matching the rootSelector update its attributes replace its contents with newly-rendered contents. If no rootSelector is provided, the root is `this`.
+	 * @param {string} [rootSelector]
+	 * @returns {this}
 	 */
-	render(rootSelector?: string) {
+	render(rootSelector) {
 		this.findDownCache.clear();
 
 		const template = document.createElement(`div`); // Was using `<template>`, but the fact that its children are inside a documentFragment was annoying. Oddly enough according to JSBench using `<div>` is actually 2x faster
@@ -812,29 +856,35 @@ export class Component extends HTMLElement {
 	}
 
 	/**
- * Called when the component finishes rendering
- */
+	 * Called when the component finishes rendering
+	 * @returns {void}
+	 */
 	rendered() {}
 
 	/**
 	 * Sets multiple attributes or properties
+	 * @param {Partial<ElAttributes<this>>} attributes
+	 * @returns {this}
 	 */
-	set(attributes: Partial<ElAttributes<this>>) {
+	set(attributes) {
 		setAttributes(this, attributes);
 		return this;
 	}
 
 	/**
 	 * Defines what is written into the document when this instance is rendered
+	 * @param {string} [subclassTemplate]
+	 * @returns {string}
 	 */
-	template(subclassTemplate?: string) {
+	template(subclassTemplate) {
 		return subclassTemplate ?? this.content ?? ``;
 	}
 
 	/**
 	 * Returns a placeholder element that will be hydrated into the full component during rendering.
+	 * @override
 	 */
-	override toString() {
+	toString() {
 		const tempId = this.id === `` ? Component.uid() : this.id;
 		Component.cache.set(tempId, new WeakRef(this));
 		return `<placeholder id="${tempId}"></placeholder>`;
@@ -842,9 +892,14 @@ export class Component extends HTMLElement {
 
 	/**
 	 * Unsubscribes from the given emitter when this Component is disconnected. Important for preventing memory leaks
+	 * @template State
+	 * @param {Emitter<State>} emitter
+	 * @returns {Emitter<State>}
 	 */
-	watch<State>(emitter: Emitter<State>) {
-		const ignore: typeof IGNORE = `_IGNORE_`; // Just using type so we don't accidentally import the entire Emitter library
+	watch(emitter) {
+		/** @type {EmitterIgnore} */
+		const ignore = `_IGNORE_`;
+
 		return emitter.pipe((value, meta) => {
 			if (this.isConnected === false) {
 				meta.emitter.unsubscribe(meta.handler);
@@ -856,8 +911,10 @@ export class Component extends HTMLElement {
 
 	/**
 	 * A shortcut for setting the component's `content` property.
+	 * @param {string} input
+	 * @returns {this}
 	 */
-	write(input: string) {
+	write(input) {
 		this.content = input;
 		return this;
 	}
@@ -865,11 +922,16 @@ export class Component extends HTMLElement {
 
 export class Page extends Component.custom(`main`) {
 	static pageAttr = `data-page-title`;
-	@Component.attribute({ name: Page.pageAttr }) pageTitle!: string;
 
-	constructor(input: {
-		title?: Page[`pageTitle`];
-	} = {}) {
+	/**
+	 * @type {string}
+	 */
+	@Component.attribute({ name: Page.pageAttr }) pageTitle = `pageTitle`;
+
+	/**
+	 * @param {{ title?: Page['pageTitle'] }} [input]
+	 */
+	constructor(input = {}) {
 		super();
 		if (input.title !== undefined) {
 			this.pageTitle = input.title;

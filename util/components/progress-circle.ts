@@ -10,7 +10,6 @@ const style = /*css*/`
 export class ProgressCircle extends Component {
 	static override style = style;
 	@Component.attribute() borderWidth = 10;
-	readonly circle = this.findDown(`circle`);
 	@Component.attribute() diameter = 100;
 	@Component.attribute() max = 100;
 	@Component.attribute() min = 0;
@@ -20,6 +19,8 @@ export class ProgressCircle extends Component {
 	}
 
 	@Component.attribute() value = 50;
+
+	readonly circle = () => this.findDown(`circle`)[0];
 
 	override connectedCallback() {
 		super.connectedCallback();

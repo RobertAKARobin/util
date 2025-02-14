@@ -9,6 +9,7 @@ import localPlugin from './rules/index.js';
 
 export const files = [`**/*.js`, `**/*.cjs`, `**/*.mjs`, `**/*.ts`];
 
+// TODO1: Add ordering rule for static prop > static method > instance prop (including arrow functions) > instance method
 // TODO2: Can't get ESlint to check dotfolders, e.g. `.vscode/settings.json`
 // TODO3: Add eslint/js recommended config?
 /**
