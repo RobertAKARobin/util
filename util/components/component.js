@@ -15,26 +15,6 @@ import { runContext } from '../web/context.js';
 
 export { css, html } from '../string/template.js';
 
-
-/* eslint-disable jsdoc/valid-types */
-/**
- * @typedef {Omit<typeof Component,
- * | `attribute`
- * | `cache`
- * | `cacheBust`
- * | `const`
- * | `custom`
- * | `define`
- * | `event`
- * | `normalize`
- * | `registry`
- * | `style`
- * | `stylePath`
- * | `uid`
- * >} ComponentWithoutDecorators
- */
-/* eslint-enable jsdoc/valid-types */
-
 /**
  * TODO1
  * TODO1 Add interfaces for WebComponent and `handleEvent`, which this implements, in order to show where those come from?
@@ -126,7 +106,7 @@ export class Component extends HTMLElement {
 	}
 
 	/**
-	 * Decorator that defines a property that will be exposed as an HTML element in the DOM
+	 * Decorator that defines a property that will be exposed as an HTML attribute in the DOM
 	 * @param {object} [options]
 	 * @param {string} [options.name] - The name that will be used for the attribute. If not specified, the property name will be used, downcased and prefixed with `l-`
 	 * @returns {(target: Component, propertyName: string) => void}
@@ -173,33 +153,29 @@ export class Component extends HTMLElement {
 	 * @template {keyof HTMLElementTagNameMap} TagName
 	 * @template {HTMLElementTagNameMap[TagName]} Tag
 	 * @param {TagName} tagName
-	 * @returns {Tag & typeof Component}
+	 * @returns {ConstructorOf<Tag & Component>}
 	 */
 	static custom(tagName) {
 		const dummy = document.createElement(tagName);
 		const BaseElement = /** @type {ConstructorOf<Component>} */(dummy.constructor);
 
-		/**
-		 * @implements {Component}
-		 */
 		class ComponentBase extends BaseElement {
-			// static readonly elName = Component.elName;
-			// static readonly find = Component.find;
-			// static readonly findAll = Component.findAll;
-			// static readonly formatCss = Component.formatCss;
-			// static readonly id = Component.id;
-			// static readonly observedAttributes = Component.observedAttributes;
-			// static readonly propertyNamesByAttribute = Component.propertyNamesByAttribute;
-			// static readonly selector = Component.selector;
-			// static readonly style = Component.style;
-			// static readonly stylePath = Component.stylePath;
-			// static readonly tagName = tagName;
-
 			constructor() {
 				super();
 				this.setAttribute(Component.const.attrEl, this.Ctor.elName);
 				this.constructed();
 			}
+		}
+
+		const staticProperties = Object.getOwnPropertyDescriptors(Component);
+		const staticPropertiesToNotCopy = new Set([`const`, `length`, `prototype`]);
+		for (const staticPropertyName in staticProperties) {
+			if (staticPropertiesToNotCopy.has(staticPropertyName)) {
+				continue;
+			}
+
+			const staticProperty = staticProperties[staticPropertyName];
+			Object.defineProperty(this, staticPropertyName, staticProperty);
 		}
 
 		const instanceProperties = Object.getOwnPropertyDescriptors(Component.prototype);
@@ -208,7 +184,7 @@ export class Component extends HTMLElement {
 			Object.defineProperty(ComponentBase.prototype, instancePropertyName, instanceProperty);
 		}
 
-		return /** @type {Tag & typeof Component} */(ComponentBase);
+		return /** @type {ConstructorOf<Tag & Component>} */(ComponentBase);
 	}
 
 	/**
