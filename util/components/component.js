@@ -68,7 +68,7 @@ export class Component extends HTMLElement {
 	static elName;
 
 	/**
-	 * TODO1
+	 * TODO1: https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#responding_to_attribute_changes
 	 * @type {Array<string>}
 	 * @readonly
 	 */
@@ -137,6 +137,7 @@ export class Component extends HTMLElement {
 			Constructor.observedAttributes.push(attributeName);
 			Constructor.propertyNamesByAttribute[attributeName] = propertyName;
 
+			// TODO1: Why is this get/set necessary?
 			Object.defineProperty(Constructor.prototype, propertyName, {
 				get(/** @type {Component} */this) {
 					return this.getAttribute(attributeName);
@@ -301,6 +302,41 @@ export class Component extends HTMLElement {
 	}
 
 	/**
+	 * TODO1
+	 * @param {string} eventName
+	 * @param {string} listenerId
+	 * @param {string} handlerKey
+	 * @param {Array<string | number>} handlerArgs
+	 * @private
+	 * @ignore
+	 */
+	static eventAttrs(eventName, listenerId, handlerKey, ...handlerArgs) {
+		const eventNameNormalized = Component.normalize(eventName);
+
+		const listenerAttrKey = `${Component.const.attrOn}${eventNameNormalized}`;
+		const listenerAttrValue = eventName;
+
+		const listenerIdNormalized = Component.normalize(listenerId);
+		const emitterAttrKey = `${Component.const.attrEmit}${eventNameNormalized}-${listenerIdNormalized}`;
+		const emitterAttrValue = [
+			handlerKey,
+			...handlerArgs,
+		].join(Component.const.attrEmitDelimiter);
+
+		return {
+			emitter: {
+				key: emitterAttrKey,
+				value: emitterAttrValue,
+			},
+			listener: {
+				id: listenerIdNormalized,
+				key: listenerAttrKey,
+				value: listenerAttrValue,
+			},
+		};
+	}
+
+	/**
 	 * Returns the first element in the document that matches this constructor type
 	 * @template {Component} Instance
 	 * @param {Element} [root=document.documentElement]
@@ -387,10 +423,11 @@ export class Component extends HTMLElement {
 
 	/**
 	 * The instance's constructor
-	 * @returns {ConstructorOf<this>}
+	 * TODO2: Since Component is meant to be extended, make it return the Subclass
+	 * @returns {typeof Component}
 	 */
 	get Ctor() {
-		return /** @type {ConstructorOf<this>} */(this.constructor);
+		return /** @type {typeof Component} */(this.constructor);
 	}
 
 	/**
@@ -430,7 +467,7 @@ export class Component extends HTMLElement {
 	 * @param {string} name
 	 * @returns {string}
 	 */
-	@Component.event() // TODO1
+	// @Component.event()
 	attributeChanged(name) {
 		return name;
 	}
@@ -627,138 +664,52 @@ export class Component extends HTMLElement {
 	}
 
 	/**
-	 * When `this` emits the given event, call `this`'s specified handler. Safe for SSG.
-	 * Assumes event names are all camelCase. TODO2: Support event names with special characters, i.e. spaces and hyphens
+	 * Returns a string so it can be used in place of an HTML element's `on{event}` attribute.
+	 * When `this` observes the element has dispatched the event, call the given handler. *Not* safe for SSR.
+	 * @template {keyof HTMLElementEventMap} EventName
+	 * @template {HTMLElementEventMap[EventName]} EventType
+	 * @template {string} HandlerKey
+	 * @template {Array<number | string>} HandlerArgs
+	 * @template {Component & Record<HandlerKey, (event: EventType, ...args: HandlerArgs) => any>} Listener
+	 * @param {EventName} eventName
+	 * @param {HandlerKey} handlerKey
+	 * @param {HandlerArgs} handlerArgs
+	 * @returns {string}
+	 * @this {Listener}
 	 */
-	on<
-		EventName extends keyof HTMLElementEventMap,
-		EventType extends HTMLElementEventMap[EventName],
-		Listener extends Record<HandlerKey, (event: EventType, ...args: Args) => void>,
-		HandlerKey extends PropertyKey,
-		Args extends Array<number | string>,
-	>(
-		this: Listener,
-		eventName: EventName,
-		handlerKey: HandlerKey,
-		...args: Args
-	): string;
+	on(eventName, handlerKey, ...handlerArgs) {
+		const attrs = Component.eventAttrs(eventName, this.id, handlerKey, ...handlerArgs);
+
+		this.setAttribute(attrs.listener.key, attrs.listener.value);
+		this.addEventListener(eventName, this);
+		return `${attrs.emitter.key}="${attrs.emitter.value}"`;
+	}
 
 	/**
-	 * When `this` emits the given event, call the specified listener's specified handler. Safe for SSG.
+	 * When `this` emits the given event, call the named handler function on the given target with the given args.
+	 * @template {string} EventName
+	 * @template {this & Record<EventName, (...args: any) => any>} Origin
+	 * @template {ReturnType<Origin[EventName]>} EventDetail - Using `ReturnType` becaused declaring `EventDetail` and then doing `=> EventDetail` doesn't seem to work
+	 * @template {CustomEvent<EventDetail>} EventType
+	 * @template {string} HandlerKey
+	 * @template {Array<string | number>} HandlerArgs
+	 * @template {Component & Record<HandlerKey, (event: EventType, ...args: HandlerArgs) => any>} Listener
+	 * @param {EventName} eventName
+	 * @param {Listener} listener
+	 * @param {HandlerKey} handlerKey
+	 * @param {HandlerArgs} handlerArgs
+	 * @returns {this}
+	 * @this {Origin}
 	 */
-	on<
-		Self extends Record<EventName, (...args: any) => void>, // eslint-disable-line @typescript-eslint/no-explicit-any
-		EventName extends PropertyKey,
-		EventDetail extends ReturnType<Self[EventName]>,
-		EventType extends CustomEvent<EventDetail>,
-		Listener extends Record<HandlerKey, (event: EventType, ...args: Args) => void>,
-		HandlerKey extends PropertyKey,
-		Args extends Array<number | string>,
-	>(
-		this: Self,
-		eventName: EventName,
-		listener: Listener,
-		handlerKey: HandlerKey,
-		...args: Args
-	): Self;
-	/**
-	 * When `this` emits the `attributeChanged` event for the given attribute, call the specified listener's specified handler. Safe for SSG.
-	 */
-	on<
-		AttributeName extends keyof this,
-		EventType extends CustomEvent<this[AttributeName]>,
-		Listener extends Record<HandlerKey, (event: EventType, ...args: Args) => void>,
-		HandlerKey extends PropertyKey,
-		Args extends Array<number | string>,
-	>(
-		attributeName: AttributeName,
-		listener: Listener,
-		handlerKey: HandlerKey,
-		...args: Args
-	): this;
-
-	/**
-	 * When `this` emits the given event, call the given handler. *NOT* safe for SSG.
-	 */
-	on<
-		EventName extends keyof HTMLElementEventMap,
-		EventType extends HTMLElementEventMap[EventName],
-		Handler extends (event: EventType) => void,
-	>(
-		eventName: EventName,
-		handler: Handler,
-	): this;
-	/**
-	 * When `this` emits the given event, call the given handler. *NOT* safe for SSG.
-	 */
-	on<
-		Self extends Record<EventName, (...args: any) => void>, // eslint-disable-line @typescript-eslint/no-explicit-any
-		EventName extends PropertyKey,
-		EventDetail extends ReturnType<Self[EventName]>,
-		EventType extends CustomEvent<EventDetail>,
-		Handler extends (event: EventType) => void,
-	>(
-		this: Self,
-		eventName: EventName,
-		handler: Handler,
-	): Self;
-	/**
-	 * When `this` emits the `attributeChanged` event for the given attribute, call the given handler. *NOT* safe for SSG.
-	 */
-	on<
-		AttributeName extends keyof this,
-		EventType extends CustomEvent<this[AttributeName]>,
-		Handler extends (event: EventType) => void,
-	>(
-		attributeName: AttributeName,
-		handler: Handler,
-	): this;
-
-	on(
-		this: Component,
-		eventName: string,
-		handlerKeyOrListener: Component | Function | string,
-		...args: Array<number | string>
-	): Component | string {
-		let handlerKey: string;
-		let handlerArgs: Array<unknown>;
-		let listener: Component;
-		if (typeof handlerKeyOrListener === `function`) {
-			this.addEventListener(
-				eventName as keyof HTMLElementEventMap,
-				handlerKeyOrListener as (event: Event) => void,
-				eventName === `disconnected`
-					? { once: true }
-					: { signal: this.disconnectedSignal },
-			);
-			return this;
-		} else if (typeof handlerKeyOrListener === `string`) {
-			listener = this;
-			handlerKey = handlerKeyOrListener;
-			handlerArgs = args;
-		} else {
-			listener = handlerKeyOrListener!;
-			handlerKey = args[0] as string;
-			handlerArgs = args.slice(1);
-		}
-
-		const eventNameNormalized = Component.normalize(eventName);
+	onEmit(eventName, listener, handlerKey, ...handlerArgs) {
 		listener.id = listener.id === `` ? Component.uid() : listener.id;
-		listener.setAttribute(`${Component.const.attrOn}${eventNameNormalized}`, eventName); // TODO3: Do this only on build?
+
+		const attrs = Component.eventAttrs(eventName, listener.id, handlerKey, ...handlerArgs);
+
+		listener.setAttribute(attrs.listener.key, attrs.listener.value);
 		listener.addEventListener(eventName, listener);
+		this.setAttribute(attrs.emitter.key, attrs.emitter.value); // TODO3: Do this only on build, since in browser we just use addEventListener?
 
-		const listenerIdNormalized = Component.normalize(listener.id);
-		const params = [
-			handlerKey,
-			...handlerArgs,
-		].join(Component.const.attrEmitDelimiter);
-		const paramsAttr = `${Component.const.attrEmit}${eventNameNormalized}-${listenerIdNormalized}`;
-
-		if (typeof handlerKeyOrListener === `string`) { // It's a standard DOM element, not a Component
-			return `${paramsAttr}="${params}"`;
-		}
-
-		this.setAttribute(paramsAttr, params);
 		return this;
 	}
 

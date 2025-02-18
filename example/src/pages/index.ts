@@ -78,7 +78,7 @@ export class IndexPage extends Page {
 ${new TransitionTest()}
 
 <button
-	${this.on(`click`, `openModal`)}
+	${this.handle(`click`, `onAdd`)}
 	type="button"
 >Modal</button>
 
