@@ -9,6 +9,7 @@ import {
 	setAttributes,
 	setStyle,
 } from '../dom/attributes.js';
+import { isNotNull } from '../isNotNull.js';
 import { newUid } from '../uid.js';
 import { runContext } from '../web/context.js';
 
@@ -172,13 +173,11 @@ export class Component extends HTMLElement {
 	 * @template {keyof HTMLElementTagNameMap} TagName
 	 * @template {HTMLElementTagNameMap[TagName]} Tag
 	 * @param {TagName} tagName
-	 * @returns {ConstructorOf<HTMLElementTagNameMap[TagName] & Component>}
+	 * @returns {Tag & typeof Component}
 	 */
 	static custom(tagName) {
 		const dummy = document.createElement(tagName);
-		const BaseElement = /** @type {ConstructorOf<Component>} */(
-			/** @type {unknown} */(dummy.constructor)
-		);
+		const BaseElement = /** @type {ConstructorOf<Component>} */(dummy.constructor);
 
 		/**
 		 * @implements {Component}
@@ -209,7 +208,7 @@ export class Component extends HTMLElement {
 			Object.defineProperty(ComponentBase.prototype, instancePropertyName, instanceProperty);
 		}
 
-		return /** @type {ConstructorOf<Tag & Component>} */(ComponentBase);
+		return /** @type {Tag & typeof Component} */(ComponentBase);
 	}
 
 	/**
@@ -450,7 +449,10 @@ export class Component extends HTMLElement {
 	 */
 	findUpCache = new Map();
 
-	constructor() {
+	/**
+	 * @param {Array<unknown>} _args
+	 */
+	constructor(..._args) {
 		super();
 		this.constructed();
 	}
@@ -716,7 +718,7 @@ export class Component extends HTMLElement {
 	/**
 	 * Makes the component matching the rootSelector update its attributes replace its contents with newly-rendered contents. If no rootSelector is provided, the root is `this`.
 	 * @param {string} [rootSelector]
-	 * @returns {this}
+	 * @returns {Component} - TODO2: returns {this} doesn't work?
 	 */
 	render(rootSelector) {
 		this.findDownCache.clear();
@@ -725,7 +727,7 @@ export class Component extends HTMLElement {
 		template.innerHTML = this.template();
 
 		let sourceRoot = rootSelector === undefined
-			? (template as Node)
+			? /** @type {Node} */(template)
 			: undefined;
 
 		const restartIterator = () => document.createTreeWalker(
@@ -766,13 +768,15 @@ export class Component extends HTMLElement {
 			const tagName = target.tagName.toUpperCase();
 
 			if (tagName === `PLACEHOLDER`) {
-				const placeholder = target as HTMLUnknownElement;
+				const placeholder = /** @type {HTMLUnknownElement} */(target);
 				const id = placeholder.id;
-				let cached = Component.cache.get(id)!.deref()!;
+				let cached = isNotNull(
+					isNotNull(Component.cache.get(id)).deref(),
+				);
 				Component.cache.delete(id);
 
 				if (cached.isConnected && targetIsInSourceRoot === false) {
-					cached = cached.cloneNode() as Component; // Note that cloneNode calls the constructor!
+					cached = /** @type {Component} */(cached.cloneNode()); // Note that cloneNode calls the constructor!
 				}
 
 				cached.innerHTML = cached.template();
@@ -785,7 +789,7 @@ export class Component extends HTMLElement {
 				continue;
 
 			} else if (tagName === `HOST`) {
-				const parent = target.parentElement! ?? template;
+				const parent = isNotNull(target.parentElement) ?? template;
 				setAttributes(parent, target);
 				iterator.previousNode();
 				target.replaceWith(...target.childNodes);
@@ -798,10 +802,10 @@ export class Component extends HTMLElement {
 
 		const destinationRoot = rootSelector === undefined
 			? this
-			: this.querySelector(rootSelector) as HTMLElement;
+			: /** @type {HTMLElement} */(this.querySelector(rootSelector));
 
-		setAttributes(destinationRoot, sourceRoot as Element);
-		destinationRoot.replaceChildren(...sourceRoot!.childNodes);
+		setAttributes(destinationRoot, /** @type {Element} */(sourceRoot));
+		destinationRoot.replaceChildren(...isNotNull(sourceRoot).childNodes);
 		this.rendered();
 		return this;
 	}

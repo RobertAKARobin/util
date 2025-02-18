@@ -15,7 +15,7 @@ export class ListItem extends Component.custom(`li`) {
 	}
 
 	@Component.event()
-	onListItemDelete(name: string) {}
+	onListItemDelete() {}
 
 	@Component.event()
 	onListItemInput(event: CustomEvent<string>) {
