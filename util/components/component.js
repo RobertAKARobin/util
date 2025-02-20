@@ -118,7 +118,6 @@ export class Component extends HTMLElement {
 			Constructor.observedAttributes.push(attributeName);
 			Constructor.propertyNamesByAttribute[attributeName] = propertyName;
 
-			// TODO1: Why is this get/set necessary?
 			Object.defineProperty(Constructor.prototype, propertyName, {
 				get(/** @type {Component} */this) {
 					return this.getAttribute(attributeName);
@@ -160,6 +159,12 @@ export class Component extends HTMLElement {
 		const BaseElement = /** @type {ConstructorOf<Component>} */(dummy.constructor);
 
 		class ComponentBase extends BaseElement {
+			/**
+			 * @readonly
+			 * @override
+			 */
+			tagName = tagName;
+
 			constructor() {
 				super();
 				this.setAttribute(Component.const.attrEl, this.Ctor.elName);
@@ -184,7 +189,9 @@ export class Component extends HTMLElement {
 			Object.defineProperty(ComponentBase.prototype, instancePropertyName, instanceProperty);
 		}
 
-		return /** @type {ConstructorOf<Tag & Component>} */(ComponentBase);
+		return /** @type {ConstructorOf<Tag & Component>} */(
+			/** @type {unknown} */(ComponentBase)
+		);
 	}
 
 	/**
