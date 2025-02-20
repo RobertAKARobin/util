@@ -196,16 +196,20 @@ export class Component extends HTMLElement {
 
 	/**
 	 * Decorator that defines a custom web component
-	 * @template {typeof Component} Constructor
+	 * @template {ConstructorOf<Component>} Subclass
 	 * @param {object} [options]
 	 * @param {string} [options.elName] - The name that will be used for the component, e.g. `app-foo`
 	 * @param {string} [options.style] - The stylesheet that will be attached to the document the first time the component is used. `:host` will be replaced with the component's selector.
 	 * @param {string} [options.stylePath] - The path to an external stylesheet for this component. If it ends with `.ts`, the Builder will change the path to `.css.ts`. This means you can always set the stylepath to `import.meta.url` if the files will all follow the convention of `{component}.css.ts`.
 	 * @param {string} [options.styleSrc] - TODO1
-	 * @returns {(Constructor: Constructor) => void}
+	 * @returns {(Subclass: Subclass) => void}
 	 */
 	static define(options = {}) {
-		return function(Constructor) {
+		return function(Subclass) {
+			const Constructor = /** @type {typeof Component} */(
+				/** @type {unknown} */(Subclass)
+			);
+
 			const elName = options.elName ?? `l-${Constructor.name.toLowerCase()}`;
 
 			const selector = Constructor.tagName === undefined
@@ -432,10 +436,7 @@ export class Component extends HTMLElement {
 	 */
 	findUpCache = new Map();
 
-	/**
-	 * @param {Array<unknown>} _args
-	 */
-	constructor(..._args) {
+	constructor() {
 		super();
 		this.constructed();
 	}
@@ -452,7 +453,7 @@ export class Component extends HTMLElement {
 	 * @param {string} name
 	 * @returns {string}
 	 */
-	// @Component.event()
+	@Component.event()
 	attributeChanged(name) {
 		return name;
 	}

@@ -1,6 +1,6 @@
 // TODO1: Alphabetize
 export type ConstructorOf<Type> = {
-	new(...args: Array<unknown>): Type;
+	new(...args: any): Type; // eslint-disable-line @typescript-eslint/no-explicit-any
 };
 
 /**
