@@ -4,17 +4,18 @@ import { suite, test } from '../spec/index';
 import { Component } from './component';
 import { Emitter } from '../emitter/emitter';
 
-@Component.define()
 class Widget extends Component.custom(`h1`) {
-	@Component.attribute() attr = `attrDefault`;
-	@Component.attribute({ name: `data-attr` }) dataAttr = `dataAttrDefault`;
+	attr = Component.attribute(`attrDefault`);
+	dataAttr = Component.attribute(`dataAttrDefault`, {
+		name: `data-attr`,
+	});
 
 	override template = () => `content:${this.content ?? ``}`;
 }
+Component.define(Widget);
 
-@Component.define()
 class Parent extends Component.custom(`div`) {
-	@Component.attribute() widgetClass = undefined as string | undefined;
+	widgetClass = Component.attribute(undefined as string | undefined);
 
 	override template = () => new Widget().set({
 		attr: undefined,
@@ -24,15 +25,14 @@ class Parent extends Component.custom(`div`) {
 
 	widget = () => this.findDown(Widget)[0];
 }
+Component.define(Parent);
 
-@Component.define()
 class EventListener extends Component {
+	capUp = Component.event((input: string) => {
+		return input.toUpperCase();
+	});
 	capValue = ``;
 	listenerValue = 3;
-
-	@Component.event() capUp(input: string) {
-		return input.toUpperCase();
-	}
 
 	onDispatch(event: CustomEvent<number>) {
 		this.listenerValue += event.detail;
@@ -47,13 +47,14 @@ ${EventSource.id(`source`)
 }
 	`;
 }
+Component.define(EventListener);
 
-@Component.define()
 class EventSource extends Component {
 	static count = 0;
+	doDispatch = Component.event(() => this.sourceValue);
 	index: number;
 	sourceValue = 0;
-	@Component.attribute() time!: number;
+	time = Component.attribute(NaN);
 
 	constructor() {
 		super();
@@ -65,10 +66,6 @@ class EventSource extends Component {
 
 	button = () => this.findDown(`button`)[0];
 
-	@Component.event() doDispatch() {
-		return this.sourceValue;
-	}
-
 	setTime() {
 		const time = performance.now();
 		this.time = time;
@@ -79,6 +76,7 @@ class EventSource extends Component {
 <button ${this.on(`click`, `doDispatch`)}></button>
 	`;
 }
+Component.define(EventSource);
 
 export const spec = suite(import.meta.url, {},
 	test(`contents`, $ => {

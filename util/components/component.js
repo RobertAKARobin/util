@@ -106,37 +106,40 @@ export class Component extends HTMLElement {
 	}
 
 	/**
-	 * Decorator that defines a property that will be exposed as an HTML attribute in the DOM
+	 * Defines a property that will be exposed as an HTML attribute in the DOM
+	 * @template Initial
+	 * @param {Initial} initial
 	 * @param {object} [options]
 	 * @param {string} [options.name] - The name that will be used for the attribute. If not specified, the property name will be used, downcased and prefixed with `l-`
-	 * @returns {(target: Component, propertyName: string) => void}
+	 * @returns {Initial}
 	 */
-	static attribute(options = {}) {
-		return function(target, propertyName) {
-			const attributeName = options?.name ?? propertyName;
-			const Constructor = /** @type {typeof Component} */(target.constructor);
-			Constructor.observedAttributes.push(attributeName);
-			Constructor.propertyNamesByAttribute[attributeName] = propertyName;
+	static attribute(initial, options = {}) {
+		return initial;
+		// return function(target, propertyName) {
+		// 	const attributeName = options?.name ?? propertyName;
+		// 	const Constructor = /** @type {typeof Component} */(target.constructor);
+		// 	Constructor.observedAttributes.push(attributeName);
+		// 	Constructor.propertyNamesByAttribute[attributeName] = propertyName;
 
-			Object.defineProperty(Constructor.prototype, propertyName, {
-				get(/** @type {Component} */this) {
-					return this.getAttribute(attributeName);
-				},
-				set(
-					/** @type {Component} */this,
-					/** @type {Textish} */value,
-				) {
-					if (attributeValueIsEmpty(value)) {
-						this.removeAttribute(attributeName);
-					} else {
-						this.setAttribute(
-							attributeName,
-							/** @type {string} */(value).toString(),
-						);
-					}
-				},
-			});
-		};
+		// 	Object.defineProperty(Constructor.prototype, propertyName, {
+		// 		get(/** @type {Component} */this) {
+		// 			return this.getAttribute(attributeName);
+		// 		},
+		// 		set(
+		// 			/** @type {Component} */this,
+		// 			/** @type {Textish} */value,
+		// 		) {
+		// 			if (attributeValueIsEmpty(value)) {
+		// 				this.removeAttribute(attributeName);
+		// 			} else {
+		// 				this.setAttribute(
+		// 					attributeName,
+		// 					/** @type {string} */(value).toString(),
+		// 				);
+		// 			}
+		// 		},
+		// 	});
+		// };
 	}
 
 	/**
@@ -195,95 +198,96 @@ export class Component extends HTMLElement {
 
 	/**
 	 * Decorator that defines a custom web component
-	 * @template {ConstructorOf<Component>} Subclass
+	 * @param {ConstructorOf<Component>} Subclass
 	 * @param {object} [options]
 	 * @param {string} [options.elName] - The name that will be used for the component, e.g. `app-foo`
 	 * @param {string} [options.style] - The stylesheet that will be attached to the document the first time the component is used. `:host` will be replaced with the component's selector.
 	 * @param {string} [options.stylePath] - The path to an external stylesheet for this component. If it ends with `.ts`, the Builder will change the path to `.css.ts`. This means you can always set the stylepath to `import.meta.url` if the files will all follow the convention of `{component}.css.ts`.
 	 * @param {string} [options.styleSrc] - TODO1
-	 * @returns {(Subclass: Subclass) => void}
+	 * @returns {void}
 	 */
-	static define(options = {}) {
-		return function(Subclass) {
-			const Constructor = /** @type {typeof Component} */(
-				/** @type {unknown} */(Subclass)
-			);
+	static define(Subclass, options = {}) {
+		const Constructor = /** @type {typeof Component} */(
+			/** @type {unknown} */(Subclass)
+		);
 
-			const elName = options.elName ?? `l-${Constructor.name.toLowerCase()}`;
+		const elName = options.elName ?? `l-${Constructor.name.toLowerCase()}`;
 
-			const selector = Constructor.tagName === undefined
-				? elName
-				: `[${Component.const.attrEl}='${elName}']`;
+		const selector = Constructor.tagName === undefined
+			? elName
+			: `[${Component.const.attrEl}='${elName}']`;
 
-			const stylePath = options.stylePath ?? Constructor.stylePath;
-			if (typeof stylePath === `string`) {
-				const styleUrl = `/${elName}.css${Component.cacheBust()}`;
-				const styleUrlAttr = `${Component.const.styleUrlAttrPrefix}${elName}`;
-				if (document.head.querySelector(`link[${styleUrlAttr}]`) === null) {
-					const styleUrlEl = document.createElement(`link`);
-					setAttributes(styleUrlEl, {
-						href: styleUrl,
-						rel: `stylesheet`,
-					});
-					styleUrlEl.setAttribute(styleUrlAttr, ``);
-					document.head.appendChild(styleUrlEl);
-					Object.assign(Constructor, { stylePath });
-				}
+		const stylePath = options.stylePath ?? Constructor.stylePath;
+		if (typeof stylePath === `string`) {
+			const styleUrl = `/${elName}.css${Component.cacheBust()}`;
+			const styleUrlAttr = `${Component.const.styleUrlAttrPrefix}${elName}`;
+			if (document.head.querySelector(`link[${styleUrlAttr}]`) === null) {
+				const styleUrlEl = document.createElement(`link`);
+				setAttributes(styleUrlEl, {
+					href: styleUrl,
+					rel: `stylesheet`,
+				});
+				styleUrlEl.setAttribute(styleUrlAttr, ``);
+				document.head.appendChild(styleUrlEl);
+				Object.assign(Constructor, { stylePath });
 			}
+		}
 
-			Object.assign(Constructor, {
-				elName,
-				selector,
-			});
+		Object.assign(Constructor, {
+			elName,
+			selector,
+		});
 
-			globalThis.customElements.define( // This should come last because when a custom element is defined its constructor runs for all instances on the page
-				elName,
-				Constructor,
-				Constructor.tagName === undefined ? undefined : { extends: Constructor.tagName },
-			);
+		globalThis.customElements.define( // This should come last because when a custom element is defined its constructor runs for all instances on the page
+			elName,
+			Constructor,
+			Constructor.tagName === undefined ? undefined : { extends: Constructor.tagName },
+		);
 
-			const style = options.style ?? Constructor.style;
-			if ( // Has to come after elName has been assigned
-				typeof style === `string`
-				&& document.head.querySelector(`[${Component.const.styleAttr}='${elName}']`) === null
-			) {
-				const styleOverride = Constructor.formatCss(style);
-				const styleEl = document.createElement(`style`);
-				styleEl.textContent = styleOverride;
-				styleEl.setAttribute(Component.const.styleAttr, elName);
-				document.head.appendChild(styleEl);
-				Object.assign(Constructor, { style });
-			}
+		const style = options.style ?? Constructor.style;
+		if ( // Has to come after elName has been assigned
+			typeof style === `string`
+			&& document.head.querySelector(`[${Component.const.styleAttr}='${elName}']`) === null
+		) {
+			const styleOverride = Constructor.formatCss(style);
+			const styleEl = document.createElement(`style`);
+			styleEl.textContent = styleOverride;
+			styleEl.setAttribute(Component.const.styleAttr, elName);
+			document.head.appendChild(styleEl);
+			Object.assign(Constructor, { style });
+		}
 
-			Component.registry.set(elName, Constructor);
-		};
+		Component.registry.set(elName, Constructor);
 	}
 
 	/**
 	 * Decorates a method so that when the method is called it emits a DOM CustomEvent with the method's name, the `detail` of which is the method's return value
-	 * @template Value
-	 * @param {CustomEventInit<Value>} [options]
-	 * @returns {(target: Component, propertyName: string, descriptor: PropertyDescriptor) => void}
+	 * @template EventDetail
+	 * @template {(...args: any) => EventDetail} DoWhat
+	 * @param {DoWhat} doWhat
+	 * @param {CustomEventInit<EventDetail>} [options]
+	 * @returns {DoWhat}
 	 */
-	static event(options = {}) {
-		const bubbles = options.bubbles ?? true;
+	static event(doWhat, options = {}) {
+		return doWhat;
+		// const bubbles = options.bubbles ?? true;
 
-		return function(target, propertyName, descriptor) {
-			const transformer = /** @type {(...args: any) => Value} */(descriptor.value); // eslint-disable-line @typescript-eslint/no-unsafe-assignment
-			descriptor.value = function(
-				/** @type {Component} */this,
-				/** @type {Parameters<typeof transformer>} */...args
-			) {
-				const detail = transformer.call(this, ...args); // eslint-disable-line @typescript-eslint/no-unsafe-argument
-				const event = new CustomEvent(propertyName, {
-					...options,
-					bubbles,
-					detail,
-				});
-				this.dispatchEvent(event);
-				return detail;
-			};
-		};
+		// return function(target, propertyName, descriptor) {
+		// 	const transformer = /** @type {(...args: any) => Value} */(descriptor.value); // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+		// 	descriptor.value = function(
+		// 		/** @type {Component} */this,
+		// 		/** @type {Parameters<typeof transformer>} */...args
+		// 	) {
+		// 		const detail = transformer.call(this, ...args); // eslint-disable-line @typescript-eslint/no-unsafe-argument
+		// 		const event = new CustomEvent(propertyName, {
+		// 			...options,
+		// 			bubbles,
+		// 			detail,
+		// 		});
+		// 		this.dispatchEvent(event);
+		// 		return detail;
+		// 	};
+		// };
 	}
 
 	/**
@@ -403,6 +407,12 @@ export class Component extends HTMLElement {
 	abortController;
 
 	/**
+	 * Dispatched when `attributeChangedCallback` is called. @see {@link attributeChangedCallback}
+	 * @type {(name: string) => string}
+	 */
+	attributeChanged = Component.event(name => name);
+
+	/**
 	 * Stores the component's textual content, if any, which can be inserted into the component's template
 	 * @type {string | undefined}
 	 */
@@ -417,6 +427,12 @@ export class Component extends HTMLElement {
 		// @ts-expect-error Warns that static fields are missing, but we know they exist
 		return this.constructor;
 	}
+
+	/**
+	 * Dispatched when `disconnectedCallback` is called. @see {@link disconnectedCallback}
+	 * @returns {void}
+	 */
+	disconnected = Component.event(() => {});
 
 	/**
 	 * Dispatches on disconnectedCallback. https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal. See {@link disconnectedCallback}
@@ -449,16 +465,6 @@ export class Component extends HTMLElement {
 	 * @returns {void}
 	 */
 	adoptedCallback() {}
-
-	/**
-	 * Dispatched when `attributeChangedCallback` is called. @see {@link attributeChangedCallback}
-	 * @param {string} name
-	 * @returns {string}
-	 */
-	@Component.event()
-	attributeChanged(name) {
-		return name;
-	}
 
 	/**
 	 * Called when one of the properties decorated with `@Component.attribute` is modified
@@ -530,13 +536,6 @@ export class Component extends HTMLElement {
 	css(input) {
 		return setStyle(this, input);
 	}
-
-	/**
-	 * Dispatched when `disconnectedCallback` is called. @see {@link disconnectedCallback}
-	 * @returns {void}
-	 */
-	@Component.event() // TODO1
-	disconnected() {}
 
 	/**
 	 * Called when the component is detached from the DOM
@@ -868,7 +867,9 @@ export class Page extends Component.custom(`main`) {
 	/**
 	 * @type {string}
 	 */
-	@Component.attribute({ name: Page.pageAttr }) pageTitle = `pageTitle`;
+	pageTitle = Component.attribute(`pageTitle`, {
+		name: Page.pageAttr,
+	}) ;
 
 	/**
 	 * @param {{ title?: Page['pageTitle'] }} [input]
