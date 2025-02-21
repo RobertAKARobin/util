@@ -675,21 +675,22 @@ export class Component extends HTMLElement {
 
 	/**
 	 * When `this` emits the given event, call the named handler function on the given target with the given args.
-	 * @template {string} EventName
-	 * @template {this & Record<EventName, (...args: any) => any>} Origin
-	 * @template {ReturnType<Origin[EventName]>} EventDetail - Using `ReturnType` becaused declaring `EventDetail` and then doing `=> EventDetail` doesn't seem to work
+	 * @template {keyof this} EventKey
+	 * @template {this & Record<EventKey, (...args: any) => any>} Origin
+	 * @template {ReturnType<Origin[EventKey]>} EventDetail - Using `ReturnType` becaused declaring `EventDetail` and then doing `=> EventDetail` doesn't seem to work
 	 * @template {CustomEvent<EventDetail>} EventType
 	 * @template {string} HandlerKey
 	 * @template {Array<string | number>} HandlerArgs
 	 * @template {Component & Record<HandlerKey, (event: EventType, ...args: HandlerArgs) => any>} Listener
-	 * @param {EventName} eventName
+	 * @param {EventKey} eventKey
 	 * @param {Listener} listener
 	 * @param {HandlerKey} handlerKey
 	 * @param {HandlerArgs} handlerArgs
 	 * @returns {this}
 	 * @this {Origin}
 	 */
-	onEmit(eventName, listener, handlerKey, ...handlerArgs) {
+	onEmit(eventKey, listener, handlerKey, ...handlerArgs) {
+		const eventName = /** @type {string} */(eventKey);
 		listener.id = listener.id === `` ? Component.uid() : listener.id;
 
 		const attrs = Component.eventAttrs(eventName, listener.id, handlerKey, ...handlerArgs);
