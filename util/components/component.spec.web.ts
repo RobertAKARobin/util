@@ -14,7 +14,6 @@ class Widget extends Component.custom(`h1`) {
 
 @Component.define()
 class Parent extends Component.custom(`div`) {
-	widget = this.findDown(Widget);
 	@Component.attribute() widgetClass = undefined as string | undefined;
 
 	override template = () => new Widget().set({
@@ -22,13 +21,14 @@ class Parent extends Component.custom(`div`) {
 		class: this.widgetClass,
 		dataAttr: undefined,
 	}).toString();
+
+	widget = () => this.findDown(Widget)[0];
 }
 
 @Component.define()
 class EventListener extends Component {
 	capValue = ``;
 	listenerValue = 3;
-	source = this.findDown(EventSource);
 
 	@Component.event() capUp(input: string) {
 		return input.toUpperCase();
@@ -38,10 +38,12 @@ class EventListener extends Component {
 		this.listenerValue += event.detail;
 	}
 
+	source = () => this.findDown(EventSource)[0];
+
 	override template = () => /*html*/`
 ${EventSource.id(`source`)
 	.setTime()
-	.on(`doDispatch`, this, `onDispatch`)
+	.onEmit(`doDispatch`, this, `onDispatch`)
 }
 	`;
 }
@@ -49,7 +51,6 @@ ${EventSource.id(`source`)
 @Component.define()
 class EventSource extends Component {
 	static count = 0;
-	button = this.findDown(`button`);
 	index: number;
 	sourceValue = 0;
 	@Component.attribute() time!: number;
@@ -61,6 +62,8 @@ class EventSource extends Component {
 		this.index = EventSource.count;
 		this.setTime();
 	}
+
+	button = () => this.findDown(`button`)[0];
 
 	@Component.event() doDispatch() {
 		return this.sourceValue;
@@ -176,7 +179,7 @@ export const spec = suite(import.meta.url, {},
 		$.log(() => widget.template = () => `<b><host attr="bbb">${widget.content ?? ``}</host></b>`);
 		widget.render();
 		$.assert(x => x(widget.getAttribute(`attr`)) === `attrDefault`);
-		$.assert(x => x(widget.findDown(`b`)().getAttribute(`attr`)) === `bbb`);
+		$.assert(x => x(widget.findDown(`b`)[0].getAttribute(`attr`)) === `bbb`);
 	}),
 
 	test(`nested`, $ => {
@@ -252,7 +255,7 @@ export const spec = suite(import.meta.url, {},
 		$.assert(x => x(lastTime) <= x(listener.source().time));
 
 		let disconnectedCount = 0;
-		listener.source().on(`disconnected`, () => {
+		listener.source().onEmit(`disconnected`, () => {
 			disconnectedCount += 1;
 		});
 

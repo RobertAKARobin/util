@@ -152,7 +152,7 @@ export class Component extends HTMLElement {
 	 * @template {keyof HTMLElementTagNameMap} TagName
 	 * @template {HTMLElementTagNameMap[TagName]} Tag
 	 * @param {TagName} tagName
-	 * @returns {ConstructorOf<Tag & Component>}
+	 * @returns {ConstructorOf<Tag> & typeof Component}
 	 */
 	static custom(tagName) {
 		const dummy = document.createElement(tagName);
@@ -189,9 +189,8 @@ export class Component extends HTMLElement {
 			Object.defineProperty(ComponentBase.prototype, instancePropertyName, instanceProperty);
 		}
 
-		return /** @type {ConstructorOf<Tag & Component>} */(
-			/** @type {unknown} */(ComponentBase)
-		);
+		// @ts-expect-error Mixing classes gets messy; requires casting to unknown
+		return ComponentBase;
 	}
 
 	/**
@@ -359,8 +358,9 @@ export class Component extends HTMLElement {
 
 	/**
 	 * Finds or creates a Component with this ID, and returns it.
-	 * @template {Component} Instance
-	 * @template {ConstructorOf<Instance>} Constructor
+	 * @template {Component} Subclass
+	 * @template {ConstructorOf<Subclass>} Constructor
+	 * @template {InstanceType<Constructor>} Instance
 	 * @param {HTMLElement['id']} id
 	 * @param {ConstructorParameters<Constructor>} args
 	 * @returns {Instance}
@@ -369,7 +369,8 @@ export class Component extends HTMLElement {
 	static id(id, ...args) {
 		let instance = /** @type {Instance} */(document.getElementById(id));
 		if (instance === null) {
-			instance = /** @type {Instance} */(new this(...args));
+			// @ts-expect-error Warns of mismatch between Subclass and Instance
+			instance = new this(...args);
 			instance.id = id;
 		}
 		return instance;
@@ -413,7 +414,8 @@ export class Component extends HTMLElement {
 	 * @returns {typeof Component}
 	 */
 	get Ctor() {
-		return /** @type {typeof Component} */(this.constructor);
+		// @ts-expect-error Warns that static fields are missing, but we know they exist
+		return this.constructor;
 	}
 
 	/**
@@ -578,10 +580,12 @@ export class Component extends HTMLElement {
 				: /** @type {typeof Component} */(target).selector;
 
 		const results = this.findDownCache.get(selector)
-			?? [...this.querySelectorAll(selector)];
+			?? /** @type {Array<HTMLElement>} */(
+				[...this.querySelectorAll(selector)]
+			);
 		this.findDownCache.set(
 			selector,
-			/** @type {Array<HTMLElement>} */(results),
+			results,
 		);
 		return results;
 	}
@@ -615,11 +619,9 @@ export class Component extends HTMLElement {
 				? target
 				: /** @type {typeof Component} */(target).selector;
 
-		const result = this.findUpCache.get(selector) ?? this.closest(selector);
-		this.findUpCache.set(
-			selector,
-			/** @type {HTMLElement} */(result),
-		);
+		const result = this.findUpCache.get(selector)
+			?? /** @type {HTMLElement} */(this.closest(selector));
+		this.findUpCache.set(selector, result);
 		return result;
 	}
 
@@ -650,8 +652,8 @@ export class Component extends HTMLElement {
 	}
 
 	/**
+	 * When `this` observes the element has dispatched the event, call the given handler.
 	 * Returns a string so it can be used in place of an HTML element's `on{event}` attribute.
-	 * When `this` observes the element has dispatched the event, call the given handler. *Not* safe for SSR.
 	 * @template {keyof HTMLElementEventMap} EventName
 	 * @template {HTMLElementEventMap[EventName]} EventType
 	 * @template {string} HandlerKey

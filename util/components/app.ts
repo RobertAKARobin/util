@@ -37,7 +37,7 @@ export abstract class BaseApp<
 		});
 
 		if (runContext === `browser`) {
-			const landingPage = this.findDown(Page)();
+			const landingPage = this.findDown(Page)[0];
 			this.resolver.set(landingPage);
 
 			const expectedPage = await this.resolver.resolve(new URL(location.href)); // For when landing page is not SSG
