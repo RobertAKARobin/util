@@ -34,6 +34,10 @@ class EventListener extends Component {
 	capValue = ``;
 	listenerValue = 3;
 
+	onClick(event: MouseEvent) {
+		console.log(event.movementX);
+	}
+
 	onDispatch(event: CustomEvent<number>) {
 		this.listenerValue += event.detail;
 	}
@@ -73,7 +77,7 @@ class EventSource extends Component {
 	}
 
 	override template = () => /*html*/`
-<button ${this.on(`click`, `doDispatch`)}></button>
+<button ${this.onDom(`click`, `doDispatch`)}></button>
 	`;
 }
 Component.define(EventSource);
@@ -253,7 +257,7 @@ export const spec = suite(import.meta.url, {},
 		$.assert(x => x(lastTime) <= x(listener.source().time));
 
 		let disconnectedCount = 0;
-		listener.source().onEmit(`disconnected`, () => {
+		listener.source().onEmitCallback(`disconnected`, () => {
 			disconnectedCount += 1;
 		});
 
@@ -281,13 +285,13 @@ export const spec = suite(import.meta.url, {},
 
 
 		let clickValue = 0;
-		listener.on(`click`, () => clickValue += 1);
-		listener.on(`click`, () => clickValue += 1);
+		listener.onDomCallback(`click`, () => clickValue += 1);
+		listener.onDomCallback(`click`, () => clickValue += 1);
 		$.assert(x => x(clickValue) === 0);
 
 
 		let capValue = ``;
-		listener.on(`capUp`, event => capValue = event.detail);
+		listener.onEmitCallback(`capUp`, event => capValue = event.detail);
 		$.assert(x => x(capValue) === ``);
 
 		$.log(() => listener.click());
@@ -298,7 +302,7 @@ export const spec = suite(import.meta.url, {},
 
 
 		let timeEmissions = 0;
-		listener.source().on(`time`, () => timeEmissions += 1);
+		listener.source().onAttrCallback(`time`, () => timeEmissions += 1);
 		$.assert(x => x(timeEmissions) === 0);
 
 		$.log(() => listener.source().setTime());
@@ -337,5 +341,15 @@ export const spec = suite(import.meta.url, {},
 		listener.remove();
 		emitter.set(3);
 		$.assert(x => x(listener.listenerValue) === 10);
+	}),
+
+	test(`foo`, () => {
+		const source = new EventSource();
+		const listener = new EventListener();
+		const onAttrCallback = source.onAttrCallback(`time`, time => time.toFixed());
+		const onDom = listener.onDom(`click`, `onClick`);
+		const onDomCallback = listener.onDomCallback(`keydown`, event => event.repeat);
+		const onEmit = source.onEmit(`doDispatch`, listener, `onDispatch`);
+		const onEmitCallback = source.onEmitCallback(`doDispatch`, event => event.detail.toFixed(0));
 	}),
 );

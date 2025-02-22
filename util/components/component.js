@@ -650,6 +650,28 @@ export class Component extends HTMLElement {
 		}
 	}
 
+	// onAttr
+
+	/**
+	 * TODO1 Combine w...?
+	 * TODO1 Really isn't a way to type-check that AttrName is valid if we want to be able to treat it as a primitive; couldn't do e.g. `{String & { isAttr: yes }}`. So add validation on build?
+	 * @template {keyof this} AttrName
+	 * @param {AttrName} attrName
+	 * @param {(value: this[AttrName]) => any} handler
+	 * @returns {this}
+	 */
+	onAttrCallback(attrName, handler) {
+		// return this.onEmitCallback(`attributeChanged`, event => {
+		// 	const emittedName = /** @type {keyof this} */(event.detail);
+		// 	if (emittedName !== attrName) {
+		// 		return;
+		// 	}
+		// 	const value = /** @type {this[AttrName]} */(this[emittedName]);
+		// 	handler(value);
+		// });
+		return this;
+	}
+
 	/**
 	 * When `this` observes the element has dispatched the event, call the given handler.
 	 * Returns a string so it can be used in place of an HTML element's `on{event}` attribute.
@@ -664,12 +686,25 @@ export class Component extends HTMLElement {
 	 * @returns {string}
 	 * @this {Listener}
 	 */
-	on(eventName, handlerKey, ...handlerArgs) {
+	onDom(eventName, handlerKey, ...handlerArgs) {
 		const attrs = Component.eventAttrs(eventName, this.id, handlerKey, ...handlerArgs);
 
 		this.setAttribute(attrs.listener.key, attrs.listener.value);
-		this.addEventListener(eventName, this);
+		this.addEventListener(eventName, this, {
+			signal: this.disconnectedSignal,
+		});
 		return `${attrs.emitter.key}="${attrs.emitter.value}"`;
+	}
+
+	/**
+	 * @template {keyof HTMLElementEventMap} EventName
+	 * @template {HTMLElementEventMap[EventName]} EventType
+	 * @param {EventName} eventName
+	 * @param {(event: EventType) => any} handler
+	 * @returns {this}
+	 */
+	onDomCallback(eventName, handler) {
+		return this;
 	}
 
 	/**
@@ -695,9 +730,32 @@ export class Component extends HTMLElement {
 		const attrs = Component.eventAttrs(eventName, listener.id, handlerKey, ...handlerArgs);
 
 		listener.setAttribute(attrs.listener.key, attrs.listener.value);
-		listener.addEventListener(eventName, listener);
+		listener.addEventListener(
+			eventName,
+			listener,
+			eventName === `disconnected`
+				? { once: true }
+				: { signal: this.disconnectedSignal },
+		);
+
 		this.setAttribute(attrs.emitter.key, attrs.emitter.value); // TODO3: Do this only on build, since in browser we just use addEventListener?
 
+		return this;
+	}
+
+	/**
+	 * TODO1 combine w onEmit
+	 * @template {keyof this} EventKey
+	 * @template {this & Record<EventKey, (...args: any) => any>} Origin
+	 * @template {ReturnType<Origin[EventKey]>} EventDetail
+	 * @template {CustomEvent<EventDetail>} EventType
+	 * @template {(event: EventType) => any} Handler
+	 * @param {EventKey} eventKey
+	 * @param {Handler} handler
+	 * @returns {this}
+	 * @this {Origin}
+	 */
+	onEmitCallback(eventKey, handler) {
 		return this;
 	}
 
