@@ -42,10 +42,10 @@ class EventListener extends Component {
 		this.listenerValue += event.detail;
 	}
 
-	source = () => this.findDown(EventSource)[0];
+	source = () => this.findDown(EventDispatcher)[0];
 
 	override template = () => /*html*/`
-${EventSource.id(`source`)
+${EventDispatcher.id(`source`)
 	.setTime()
 	.onEmit(`doDispatch`, this, `onDispatch`)
 }
@@ -53,7 +53,7 @@ ${EventSource.id(`source`)
 }
 Component.define(EventListener);
 
-class EventSource extends Component {
+class EventDispatcher extends Component {
 	static count = 0;
 	doDispatch = Component.event(() => this.sourceValue);
 	index: number;
@@ -63,8 +63,8 @@ class EventSource extends Component {
 	constructor() {
 		super();
 
-		EventSource.count += 1;
-		this.index = EventSource.count;
+		EventDispatcher.count += 1;
+		this.index = EventDispatcher.count;
 		this.setTime();
 	}
 
@@ -80,12 +80,12 @@ class EventSource extends Component {
 <button ${this.onDom(`click`, `doDispatch`)}></button>
 	`;
 }
-Component.define(EventSource);
+Component.define(EventDispatcher);
 
 export const spec = suite(import.meta.url, {},
 	test(`contents`, $ => {
-		EventSource.count = 0;
-		EventSource.prototype.sourceValue = 0;
+		EventDispatcher.count = 0;
+		EventDispatcher.prototype.sourceValue = 0;
 
 		let widget: Widget;
 
@@ -229,31 +229,31 @@ export const spec = suite(import.meta.url, {},
 		$.assert(() => listener.source().isConnected);
 		$.assert(() => listener.source() === existing);
 		$.assert(x => x(listener.source().index) === 1);
-		$.assert(x => x(EventSource.count) === 1);
+		$.assert(x => x(EventDispatcher.count) === 1);
 		$.assert(x => x(lastTime) <= x(lastTime = listener.source().time));
 
 		$.log(() => listener.source().cloneNode()); // Causes constructor to run
 		$.assert(x => x(listener.source().index) === 1);
-		$.assert(x => x(EventSource.count) === 2);
+		$.assert(x => x(EventDispatcher.count) === 2);
 
 		$.log(() => listener.render());
 		$.assert(() => listener.isConnected);
 		$.assert(() => listener.source().isConnected);
 		$.assert(() => listener.source() === existing);
 		$.assert(x => x(listener.source().index) === 1);
-		$.assert(x => x(EventSource.count) === 2);
+		$.assert(x => x(EventDispatcher.count) === 2);
 		$.assert(x => x(lastTime) <= x(lastTime = listener.source().time));
 
 		$.log(() => listener.source().render());
 		$.assert(() => listener.source() === existing);
 		$.assert(x => x(listener.source().index) === 1);
-		$.assert(x => x(EventSource.count) === 2);
+		$.assert(x => x(EventDispatcher.count) === 2);
 		$.assert(x => x(lastTime) === x(listener.source().time));
 
-		$.log(() => listener.render(EventSource.selector));
+		$.log(() => listener.render(EventDispatcher.selector));
 		$.assert(() => listener.source() === existing);
 		$.assert(x => x(listener.source().index) === 1);
-		$.assert(x => x(EventSource.count) === 3);
+		$.assert(x => x(EventDispatcher.count) === 3);
 		$.assert(x => x(lastTime) <= x(listener.source().time));
 
 		let disconnectedCount = 0;
@@ -344,7 +344,7 @@ export const spec = suite(import.meta.url, {},
 	}),
 
 	test(`foo`, () => {
-		const source = new EventSource();
+		const source = new EventDispatcher();
 		const listener = new EventListener();
 		const onAttrCallback = source.onAttrCallback(`time`, time => time.toFixed());
 		const onDom = listener.onDom(`click`, `onClick`);
