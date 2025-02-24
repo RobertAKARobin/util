@@ -186,10 +186,14 @@ export class Component extends HTMLElement {
 			Object.defineProperty(this, staticPropertyName, staticProperty);
 		}
 
-		const instanceProperties = Object.getOwnPropertyDescriptors(Component.prototype);
-		for (const instancePropertyName in instanceProperties) { // Note that this includes _prototype_ properties, but not _instance_ properties: https://stackoverflow.com/q/77733619/2053389
-			const instanceProperty = instanceProperties[instancePropertyName];
-			Object.defineProperty(ComponentBase.prototype, instancePropertyName, instanceProperty);
+		const prototypeProperties = Object.getOwnPropertyDescriptors(Component.prototype);
+		for (const prototypePropertyName in prototypeProperties) { // Note that this includes _prototype_ properties, but not _instance_ properties: https://stackoverflow.com/q/77733619/2053389
+			const prototypeProperty = prototypeProperties[prototypePropertyName];
+			Object.defineProperty(
+				ComponentBase.prototype,
+				prototypePropertyName,
+				prototypeProperty,
+			);
 		}
 
 		// @ts-expect-error Mixing classes gets messy; requires casting to unknown
