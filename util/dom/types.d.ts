@@ -11,4 +11,4 @@ declare global {
 	interface GlobalEventHandlersEventMap { // eslint-disable-line no-restricted-syntax
 		customdrag: CustomDragEvent;
 	}
-};
+}
