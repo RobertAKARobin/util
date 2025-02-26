@@ -2,6 +2,7 @@
  * @import { Emitter, IGNORE as EmitterIgnore } from '../emitter/emitter'
  * @import { ElAttributes } from '../dom/types.d';
  * @import { ConstructorOf, Textish } from '../types.d';
+ * @import { IsEvent, IsAttribute, AttributeNames, EventNames } from './types.d';
  */
 
 import {
@@ -221,22 +222,6 @@ export class Component extends HTMLElement {
 			? elName
 			: `[${Component.const.attrEl}='${elName}']`;
 
-		const stylePath = options.stylePath ?? Constructor.stylePath;
-		if (typeof stylePath === `string`) {
-			const styleUrl = `/${elName}.css${Component.cacheBust()}`;
-			const styleUrlAttr = `${Component.const.styleUrlAttrPrefix}${elName}`;
-			if (document.head.querySelector(`link[${styleUrlAttr}]`) === null) {
-				const styleUrlEl = document.createElement(`link`);
-				setAttributes(styleUrlEl, {
-					href: styleUrl,
-					rel: `stylesheet`,
-				});
-				styleUrlEl.setAttribute(styleUrlAttr, ``);
-				document.head.appendChild(styleUrlEl);
-				Object.assign(Constructor, { stylePath });
-			}
-		}
-
 		Object.assign(Constructor, {
 			elName,
 			selector,
@@ -247,19 +232,6 @@ export class Component extends HTMLElement {
 			Constructor,
 			Constructor.tagName === undefined ? undefined : { extends: Constructor.tagName },
 		);
-
-		const style = options.style ?? Constructor.style;
-		if ( // Has to come after elName has been assigned
-			typeof style === `string`
-			&& document.head.querySelector(`[${Component.const.styleAttr}='${elName}']`) === null
-		) {
-			const styleOverride = Constructor.formatCss(style);
-			const styleEl = document.createElement(`style`);
-			styleEl.textContent = styleOverride;
-			styleEl.setAttribute(Component.const.styleAttr, elName);
-			document.head.appendChild(styleEl);
-			Object.assign(Constructor, { style });
-		}
 
 		Component.registry.set(elName, Constructor);
 	}
@@ -393,6 +365,60 @@ export class Component extends HTMLElement {
 		return input
 			.toLowerCase()
 			.replaceAll(/[^\w]/g, ``);
+	}
+
+	/**
+	 * TODO1
+	 * @param {string} [stylePath]
+	 * @ignore
+	 */
+	static setStylesheet_external(stylePath) {
+		if (typeof stylePath !== `string`) {
+			return this;
+		}
+
+		const styleUrl = `/${this.elName}.css${Component.cacheBust()}`;
+		const styleUrlAttr = `${Component.const.styleUrlAttrPrefix}${this.elName}`;
+		const externalStylesheetEl = document.head.querySelector(`link[${styleUrlAttr}]`);
+		if (externalStylesheetEl !== null) {
+			return this;
+		}
+
+		const styleUrlEl = document.createElement(`link`);
+		setAttributes(styleUrlEl, {
+			href: styleUrl,
+			rel: `stylesheet`,
+		});
+		styleUrlEl.setAttribute(styleUrlAttr, ``);
+		document.head.appendChild(styleUrlEl);
+		Object.assign(this, { stylePath });
+
+		return this;
+	}
+
+	/**
+	 * TODO1
+	 * @param {string} [style]
+	 * @ignore
+	 */
+	static setStylesheet_inline(style) {
+		if (typeof style !== `string`) {
+			return this;
+		}
+
+		const internalStylesheetEl = document.head.querySelector(`[${Component.const.styleAttr}='${this.elName}']`);
+		if (internalStylesheetEl !== null) {
+			return this;
+		}
+
+		const styleOverride = this.formatCss(style);
+		const styleEl = document.createElement(`style`);
+		styleEl.textContent = styleOverride;
+		styleEl.setAttribute(Component.const.styleAttr, this.elName);
+		document.head.appendChild(styleEl);
+		Object.assign(this, { style });
+
+		return this;
 	}
 
 	/**
