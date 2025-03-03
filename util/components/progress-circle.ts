@@ -6,26 +6,25 @@ const style = /*css*/`
 }
 `;
 
-@Component.define()
-export class ProgressCircle extends Component {
+export const ProgressCircle = Component.define(class extends Component {
 	static override style = style;
-	@Component.attribute() borderWidth = 10;
-	@Component.attribute() diameter = 100;
-	@Component.attribute() max = 100;
-	@Component.attribute() min = 0;
+	borderWidth = 10;
+	diameter = 100;
+	max = 100;
+	min = 0;
 
 	get radius() {
 		return (this.diameter - this.borderWidth) / 2;
 	}
 
-	@Component.attribute() value = 50;
+	value = 50;
 
 	readonly circle = () => this.findDown(`circle`)[0];
 
 	override connectedCallback() {
 		super.connectedCallback();
 
-		this.on(`attributeChanged`, () => {
+		this.onEvent(`attributeChanged`, () => {
 			if (this.isConnected === false) {
 				return;
 			}
@@ -63,4 +62,13 @@ export class ProgressCircle extends Component {
 	/>
 </svg>
 	`;
-}
+},
+{
+	attributes: [
+		`borderWidth`,
+		`diameter`,
+		`max`,
+		`min`,
+		`value`,
+	],
+});

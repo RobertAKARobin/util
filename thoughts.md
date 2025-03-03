@@ -1,5 +1,26 @@
 # Thinking through things
 
+-	How to decorate components?
+	-	`click = Component.event(() => {}); foo = this.attribute()`
+		-	Instance methods are inefficient vs prototype methods
+		-	Can't iterate over instance methods without creating an instance, so can't find event name
+	-	`static events = []`
+		-	Static properties don't know about `this` so can't enforce correct typing
+	-	`class Subclass { foo() {} }; Component.define(Subclass, { events: [] })`
+		-	Can't enforce typing because would need methods to return an event but want them to return a value
+	-	`const Class = define(class {}, { events: [] })`
+		-	Can decorate events/attributes
+		-	`this.event` doesn't know about event keys inside instance methods
+	-	`class Subclass extends Base({ events: [] })`
+		-	Would have to add an extra prototype between Subclass and Base, which isn't really optimal
+	-	`get attr() { return this.getAttribute('foo') }; set attr(x) { this.setAttribute('foo', x) }`
+		-	Need to write the attribute name in 2 - 5 different places
+	-	`attr = Component.attribute({ initial: 3 })`
+		-	Need return type to be e.g. `number | { isAttribute: true }` for narrowest typing, but then can't do `attr = 3`
+	-	Want
+		-	When method is called, dispatches an event
+		-	Method returns original value, not an event
+
 -	JSON linting
 	-	Old way: use TS
 		-	- Dependent on TS extension which is odd

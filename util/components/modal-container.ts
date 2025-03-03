@@ -20,7 +20,7 @@ export type ModalStatus = keyof typeof modalStatus;
 export abstract class BaseModalContainer extends Component.custom(`dialog`) {
 	duration = defaultDuration;
 
-	@Component.attribute({ name: modalStatusAttr }) status: ModalStatus = `inactive`;
+	status: ModalStatus = `inactive`;
 
 	constructor() {
 		super();
@@ -71,7 +71,15 @@ export abstract class BaseModalContainer extends Component.custom(`dialog`) {
 /**
  * @see {@link BaseModalContainer}
  */
-@Component.define({
-	stylePath: import.meta.url,
-})
-export class ModalContainer extends BaseModalContainer {}
+export const ModalContainer = Component.define(
+	class extends BaseModalContainer {},
+	{
+		attributes: [
+			{
+				key: `status`,
+				name: modalStatusAttr,
+			},
+		],
+		stylePath: import.meta.url,
+	},
+);

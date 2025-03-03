@@ -2,7 +2,7 @@
  * @import { Emitter, IGNORE as EmitterIgnore } from '../emitter/emitter'
  * @import { ElAttributes } from '../dom/types.d';
  * @import { ConstructorOf, Textish } from '../types.d';
- * @import { IsEvent, IsAttribute, AttributeNames, EventNames } from './types.d';
+ * @import { AttributeFlag, AttributeNameConfig, AttributeNameTest, DecoratedComponent, EventFlag, EventHandlerTest, EventNameConfig } from './types.d';
  */
 
 import {
@@ -107,43 +107,6 @@ export class Component extends HTMLElement {
 	}
 
 	/**
-	 * Defines a property that will be exposed as an HTML attribute in the DOM
-	 * @template Initial
-	 * @param {Initial} initial
-	 * @param {object} [options]
-	 * @param {string} [options.name] - The name that will be used for the attribute. If not specified, the property name will be used, downcased and prefixed with `l-`
-	 * @returns {Initial}
-	 */
-	static attribute(initial, options = {}) {
-		return initial;
-		// return function(target, propertyName) {
-		// 	const attributeName = options?.name ?? propertyName;
-		// 	const Constructor = /** @type {typeof Component} */(target.constructor);
-		// 	Constructor.observedAttributes.push(attributeName);
-		// 	Constructor.propertyNamesByAttribute[attributeName] = propertyName;
-
-		// 	Object.defineProperty(Constructor.prototype, propertyName, {
-		// 		get(/** @type {Component} */this) {
-		// 			return this.getAttribute(attributeName);
-		// 		},
-		// 		set(
-		// 			/** @type {Component} */this,
-		// 			/** @type {Textish} */value,
-		// 		) {
-		// 			if (attributeValueIsEmpty(value)) {
-		// 				this.removeAttribute(attributeName);
-		// 			} else {
-		// 				this.setAttribute(
-		// 					attributeName,
-		// 					/** @type {string} */(value).toString(),
-		// 				);
-		// 			}
-		// 		},
-		// 	});
-		// };
-	}
-
-	/**
 	 * TODO1
 	 * @returns {string}
 	 */
@@ -203,13 +166,19 @@ export class Component extends HTMLElement {
 
 	/**
 	 * Decorator that defines a custom web component
-	 * @param {ConstructorOf<Component>} Subclass
+	 * @template {typeof Component & ConstructorOf<Component>} Subclass
+	 * @template {InstanceType<Subclass>} Instance
+	 * @template {keyof Instance} EventKey
+	 * @template {keyof Instance} AttributeKey
+	 * @param {Subclass} Subclass
 	 * @param {object} [options]
+	 * @param {Array<AttributeNameConfig<Instance, AttributeKey>>} [options.attributes] - TODO1
 	 * @param {string} [options.elName] - The name that will be used for the component, e.g. `app-foo`
+	 * @param {Array<EventNameConfig<Instance, EventKey>>} [options.events] - TODO1
 	 * @param {string} [options.style] - The stylesheet that will be attached to the document the first time the component is used. `:host` will be replaced with the component's selector.
-	 * @param {string} [options.stylePath] - The path to an external stylesheet for this component. If it ends with `.ts`, the Builder will change the path to `.css.ts`. This means you can always set the stylepath to `import.meta.url` if the files will all follow the convention of `{component}.css.ts`.
+	 * @param {string} [options.stylePath] - The path to an external stylesheet for this component. If it ends with `.ts/js`, the Builder will change the path to `.css.ts/js`. This means you can always set the stylepath to `import.meta.url` if the files will all follow the convention of `{component}.css.ts/js`.
 	 * @param {string} [options.styleSrc] - TODO1
-	 * @returns {void}
+	 * @returns {Subclass & DecoratedComponent<Instance, AttributeKey, EventKey>}
 	 */
 	static define(Subclass, options = {}) {
 		const Constructor = /** @type {typeof Component} */(
@@ -234,36 +203,13 @@ export class Component extends HTMLElement {
 		);
 
 		Component.registry.set(elName, Constructor);
-	}
 
-	/**
-	 * Decorates a method so that when the method is called it emits a DOM CustomEvent with the method's name, the `detail` of which is the method's return value
-	 * @template EventDetail
-	 * @template {(...args: any) => EventDetail} DoWhat
-	 * @param {DoWhat} doWhat
-	 * @param {CustomEventInit<EventDetail>} [options]
-	 * @returns {DoWhat}
-	 */
-	static event(doWhat, options = {}) {
-		return doWhat;
-		// const bubbles = options.bubbles ?? true;
+		Subclass
+			.setStylesheet_external(options.stylePath ?? Constructor.stylePath)
+			.setStylesheet_inline(options.style ?? Constructor.style);
 
-		// return function(target, propertyName, descriptor) {
-		// 	const transformer = /** @type {(...args: any) => Value} */(descriptor.value); // eslint-disable-line @typescript-eslint/no-unsafe-assignment
-		// 	descriptor.value = function(
-		// 		/** @type {Component} */this,
-		// 		/** @type {Parameters<typeof transformer>} */...args
-		// 	) {
-		// 		const detail = transformer.call(this, ...args); // eslint-disable-line @typescript-eslint/no-unsafe-argument
-		// 		const event = new CustomEvent(propertyName, {
-		// 			...options,
-		// 			bubbles,
-		// 			detail,
-		// 		});
-		// 		this.dispatchEvent(event);
-		// 		return detail;
-		// 	};
-		// };
+		// @ts-expect-error Reports that Subclass doesn't match DecoratedComponent
+		return Subclass;
 	}
 
 	/**
@@ -437,12 +383,6 @@ export class Component extends HTMLElement {
 	abortController;
 
 	/**
-	 * Dispatched when `attributeChangedCallback` is called. @see {@link attributeChangedCallback}
-	 * @type {(name: string) => string}
-	 */
-	attributeChanged = Component.event(name => name);
-
-	/**
 	 * Stores the component's textual content, if any, which can be inserted into the component's template
 	 * @type {string | undefined}
 	 */
@@ -457,12 +397,6 @@ export class Component extends HTMLElement {
 		// @ts-expect-error Warns that static fields are missing, but we know they exist
 		return this.constructor;
 	}
-
-	/**
-	 * Dispatched when `disconnectedCallback` is called. @see {@link disconnectedCallback}
-	 * @returns {void}
-	 */
-	disconnected = Component.event(() => {});
 
 	/**
 	 * Dispatches on disconnectedCallback. https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal. See {@link disconnectedCallback}
@@ -495,6 +429,15 @@ export class Component extends HTMLElement {
 	 * @returns {void}
 	 */
 	adoptedCallback() {}
+
+	/**
+	 * TODO1
+	 * Dispatched when `attributeChangedCallback` is called. @see {@link attributeChangedCallback}
+	 * @type {(name: string) => string}
+	 */
+	attributeChanged(name) {
+		return name;
+	}
 
 	/**
 	 * Called when one of the properties decorated with `@Component.attribute` is modified
@@ -568,6 +511,15 @@ export class Component extends HTMLElement {
 	}
 
 	/**
+	 * TODO1
+	 * Dispatched when `disconnectedCallback` is called. @see {@link disconnectedCallback}
+	 * @returns {CustomEvent}
+	 */
+	disconnected() {
+		return this.emit(`disconnected`);
+	}
+
+	/**
 	 * Called when the component is detached from the DOM
 	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#custom_element_lifecycle_callbacks
 	 * @returns {void}
@@ -575,6 +527,18 @@ export class Component extends HTMLElement {
 	disconnectedCallback() {
 		this.abortController.abort();
 		this.disconnected();
+	}
+
+	/**
+	 * @template [EventDetail=undefined]
+	 * @param {string} eventName
+	 * @param {EventDetail} [detail]
+	 * @returns {CustomEvent<EventDetail>}
+	 */
+	emit(eventName, detail) {
+		const event = new CustomEvent(eventName, { detail });
+		this.dispatchEvent(event);
+		return event;
 	}
 
 	/**
@@ -680,17 +644,17 @@ export class Component extends HTMLElement {
 		}
 	}
 
-	// onAttr
-
 	/**
-	 * TODO1 Combine w...?
-	 * TODO1 Really isn't a way to type-check that AttrName is valid if we want to be able to treat it as a primitive; couldn't do e.g. `{String & { isAttr: yes }}`. So add validation on build?
-	 * @template {keyof this} AttrName
-	 * @param {AttrName} attrName
-	 * @param {(value: this[AttrName]) => any} handler
+	 * @template {keyof this} AttributeKey
+	 * @template {this[AttributeKey]} EventDetail
+	 * @template Listener
+	 * @template {keyof Listener} HandlerKey
+	 * @param {AttributeNameTest<this, AttributeKey>} attributeKey
+	 * @param {Listener} listener
+	 * @param {EventHandlerTest<Listener, HandlerKey, EventDetail>} handlerKey
 	 * @returns {this}
 	 */
-	onAttrCallback(attrName, handler) {
+	onChange(attributeKey, listener, handlerKey) {
 		// return this.onEmitCallback(`attributeChanged`, event => {
 		// 	const emittedName = /** @type {keyof this} */(event.detail);
 		// 	if (emittedName !== attrName) {
@@ -727,17 +691,6 @@ export class Component extends HTMLElement {
 	}
 
 	/**
-	 * @template {keyof HTMLElementEventMap} EventName
-	 * @template {HTMLElementEventMap[EventName]} EventType
-	 * @param {EventName} eventName
-	 * @param {(event: EventType) => any} handler
-	 * @returns {this}
-	 */
-	onDomCallback(eventName, handler) {
-		return this;
-	}
-
-	/**
 	 * When `this` emits the given event, call the named handler function on the given target with the given args.
 	 * @template {keyof this} EventKey
 	 * @template {this & Record<EventKey, (...args: any) => any>} Origin
@@ -753,7 +706,7 @@ export class Component extends HTMLElement {
 	 * @returns {this}
 	 * @this {Origin}
 	 */
-	onEmit(eventKey, listener, handlerKey, ...handlerArgs) {
+	onEvent(eventKey, listener, handlerKey, ...handlerArgs) {
 		const eventName = /** @type {string} */(eventKey);
 		listener.id = listener.id === `` ? Component.uid() : listener.id;
 
@@ -785,9 +738,6 @@ export class Component extends HTMLElement {
 	 * @returns {this}
 	 * @this {Origin}
 	 */
-	onEmitCallback(eventKey, handler) {
-		return this;
-	}
 
 	/**
 	 * Makes the component matching the rootSelector update its attributes replace its contents with newly-rendered contents. If no rootSelector is provided, the root is `this`.
@@ -949,15 +899,13 @@ export class Component extends HTMLElement {
 	}
 }
 
-export class Page extends Component.custom(`main`) {
+const Page = Component.define(class Page extends Component.custom(`main`) {
 	static pageAttr = `data-page-title`;
 
 	/**
 	 * @type {string}
 	 */
-	pageTitle = Component.attribute(`pageTitle`, {
-		name: Page.pageAttr,
-	}) ;
+	pageTitle = ``;
 
 	/**
 	 * @param {{ title?: Page['pageTitle'] }} [input]
@@ -968,7 +916,11 @@ export class Page extends Component.custom(`main`) {
 			this.pageTitle = input.title;
 		}
 	}
-}
+}, {
+	attributes: [
+		`pageTitle`,
+	],
+});
 
 if (runContext !== `browser`) {
 	// Override DOM-dependent methods since these may not be availble during SSR. Doing it here instead of in Component because these methods are run a lot, and we don't have to do an unnecessary `runContext` check each time.
