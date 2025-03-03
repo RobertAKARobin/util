@@ -16,6 +16,166 @@ import { runContext } from '../web/context.js';
 
 export { css, html } from '../string/template.js';
 
+const constants = /** @type {const} */({
+	attrEl: `is`,
+	attrEmit: `data-emit-`,
+	attrEmitDelimiter: `|`,
+	attrOn: `data-on-`,
+	styleAttr: `data-style`,
+	styleUrlAttrPrefix: `data-`,
+});
+
+/**
+ * TODO1
+ * @type {Map<typeof Component['elName'], typeof Component>}
+ * @readonly
+ */
+const registry = new Map();
+
+/**
+ * Adds common component methods/helpers to the specified HTML element constructor
+ * @template {keyof HTMLElementTagNameMap} TagName
+ * @template {HTMLElementTagNameMap[TagName]} Tag
+ * @param {TagName} tagName
+ * @returns {ConstructorOf<Tag> & typeof Component}
+ */
+export function custom(tagName) {
+	const dummy = document.createElement(tagName);
+	const BaseElement = /** @type {ConstructorOf<Component>} */(dummy.constructor);
+
+	class ComponentBase extends BaseElement {
+		/**
+		 * @readonly
+		 * @override
+		 */
+		tagName = tagName;
+
+		constructor() {
+			super();
+			this.setAttribute(constants.attrEl, this.Ctor.elName);
+			this.constructed();
+		}
+	}
+
+	const staticProperties = Object.getOwnPropertyDescriptors(Component);
+	const staticPropertiesToNotCopy = new Set([`const`, `length`, `prototype`]);
+	for (const staticPropertyName in staticProperties) {
+		if (staticPropertiesToNotCopy.has(staticPropertyName)) {
+			continue;
+		}
+
+		const staticProperty = staticProperties[staticPropertyName];
+		Object.defineProperty(ComponentBase, staticPropertyName, staticProperty);
+	}
+
+	const prototypeProperties = Object.getOwnPropertyDescriptors(Component.prototype);
+	for (const prototypePropertyName in prototypeProperties) { // Note that this includes _prototype_ properties, but not _instance_ properties: https://stackoverflow.com/q/77733619/2053389
+		const prototypeProperty = prototypeProperties[prototypePropertyName];
+		Object.defineProperty(
+			ComponentBase.prototype,
+			prototypePropertyName,
+			prototypeProperty,
+		);
+	}
+
+	// @ts-expect-error Mixing classes gets messy; requires casting to unknown
+	return ComponentBase;
+}
+
+/**
+ * Decorator that defines a custom web component
+ * @template {typeof Component & ConstructorOf<Component>} Subclass
+ * @template {InstanceType<Subclass>} Instance
+ * @template {keyof Instance} EventKey
+ * @template {keyof Instance} AttributeKey
+ * @param {Subclass} Subclass
+ * @param {object} [options]
+ * @param {Array<AttributeNameConfig<Instance, AttributeKey>>} [options.attributes] - TODO1
+ * @param {string} [options.elName] - The name that will be used for the component, e.g. `app-foo`
+ * @param {Array<EventNameConfig<Instance, EventKey>>} [options.events] - TODO1
+ * @param {string} [options.style] - The stylesheet that will be attached to the document the first time the component is used. `:host` will be replaced with the component's selector.
+ * @param {string} [options.stylePath] - The path to an external stylesheet for this component. If it ends with `.ts/js`, the Builder will change the path to `.css.ts/js`. This means you can always set the stylepath to `import.meta.url` if the files will all follow the convention of `{component}.css.ts/js`.
+ * @param {string} [options.styleSrc] - TODO1
+ * @returns {Subclass & DecoratedComponent<Instance, AttributeKey, EventKey>}
+ */
+export function define(Subclass, options = {}) {
+	const Constructor = /** @type {typeof Component} */(
+		/** @type {unknown} */(Subclass)
+	);
+
+	const elName = options.elName ?? `l-${Constructor.name.toLowerCase()}`;
+
+	const selector = Constructor.tagName === undefined
+		? elName
+		: `[${constants.attrEl}='${elName}']`;
+
+	Object.assign(Constructor, {
+		elName,
+		selector,
+	});
+
+	globalThis.customElements.define( // This should come last because when a custom element is defined its constructor runs for all instances on the page
+		elName,
+		Constructor,
+		Constructor.tagName === undefined ? undefined : { extends: Constructor.tagName },
+	);
+
+	registry.set(elName, Constructor);
+
+	Subclass
+		.setStylesheet_external(options.stylePath ?? Constructor.stylePath)
+		.setStylesheet_inline(options.style ?? Constructor.style);
+
+	// @ts-expect-error Reports that Subclass doesn't match DecoratedComponent
+	return Subclass;
+}
+
+/**
+ * TODO1
+ * @param {string} eventName
+ * @param {string} listenerId
+ * @param {string} handlerKey
+ * @param {Array<string | number>} handlerArgs
+ * @private
+ * @ignore
+ */
+function eventAttrs(eventName, listenerId, handlerKey, ...handlerArgs) {
+	const eventNameNormalized = normalize(eventName);
+
+	const listenerAttrKey = `${constants.attrOn}${eventNameNormalized}`;
+	const listenerAttrValue = eventName;
+
+	const listenerIdNormalized = normalize(listenerId);
+	const emitterAttrKey = `${constants.attrEmit}${eventNameNormalized}-${listenerIdNormalized}`;
+	const emitterAttrValue = [
+		handlerKey,
+		...handlerArgs,
+	].join(constants.attrEmitDelimiter);
+
+	return {
+		emitter: {
+			key: emitterAttrKey,
+			value: emitterAttrValue,
+		},
+		listener: {
+			id: listenerIdNormalized,
+			key: listenerAttrKey,
+			value: listenerAttrValue,
+		},
+	};
+}
+
+/**
+ * TODO1
+ * @param {string} input
+ * @returns {string}
+ */
+function normalize(input) {
+	return input
+		.toLowerCase()
+		.replaceAll(/[^\w]/g, ``);
+}
+
 /**
  * TODO1
  * TODO1 Add interfaces for WebComponent and `handleEvent`, which this implements, in order to show where those come from?
@@ -27,20 +187,6 @@ export class Component extends HTMLElement {
 	 * @readonly
 	 */
 	static cache = new Map();
-
-	/**
-	 * TODO1
-	 * @readonly
-	 */
-	static const = /** @type {const} */({
-		attrEl: `is`,
-		attrEmit: `data-emit-`,
-		attrEmitDelimiter: `|`,
-		attrOn: `data-on-`,
-		globalRef: `C`,
-		styleAttr: `data-style`,
-		styleUrlAttrPrefix: `data-`,
-	});
 
 	/**
 	 * TODO1
@@ -62,13 +208,6 @@ export class Component extends HTMLElement {
 	 * @readonly
 	 */
 	static propertyNamesByAttribute = {};
-
-	/**
-	 * TODO1
-	 * @type {Map<typeof Component['elName'], typeof Component>}
-	 * @readonly
-	 */
-	static registry = new Map();
 
 	/**
 	 * TODO1
@@ -98,153 +237,12 @@ export class Component extends HTMLElement {
 	 */
 	static tagName;
 
-	static {
-		/* eslint-disable jsdoc/valid-types */
-		/** @type {{ [Component.const.globalRef]: typeof Component }} */(
-			/** @type {unknown} */(globalThis)
-		)[Component.const.globalRef] = Component; // Makes Component available as `window.C`, for debugging
-		/* eslint-enable jsdoc/valid-types */
-	}
-
 	/**
 	 * TODO1
 	 * @returns {string}
 	 */
 	static cacheBust() {
 		return `?cache=${Date.now().toString()}`;
-	}
-
-	/**
-	 * Adds common component methods/helpers to the specified HTML element constructor
-	 * @template {keyof HTMLElementTagNameMap} TagName
-	 * @template {HTMLElementTagNameMap[TagName]} Tag
-	 * @param {TagName} tagName
-	 * @returns {ConstructorOf<Tag> & typeof Component}
-	 */
-	static custom(tagName) {
-		const dummy = document.createElement(tagName);
-		const BaseElement = /** @type {ConstructorOf<Component>} */(dummy.constructor);
-
-		class ComponentBase extends BaseElement {
-			/**
-			 * @readonly
-			 * @override
-			 */
-			tagName = tagName;
-
-			constructor() {
-				super();
-				this.setAttribute(Component.const.attrEl, this.Ctor.elName);
-				this.constructed();
-			}
-		}
-
-		const staticProperties = Object.getOwnPropertyDescriptors(Component);
-		const staticPropertiesToNotCopy = new Set([`const`, `length`, `prototype`]);
-		for (const staticPropertyName in staticProperties) {
-			if (staticPropertiesToNotCopy.has(staticPropertyName)) {
-				continue;
-			}
-
-			const staticProperty = staticProperties[staticPropertyName];
-			Object.defineProperty(this, staticPropertyName, staticProperty);
-		}
-
-		const prototypeProperties = Object.getOwnPropertyDescriptors(Component.prototype);
-		for (const prototypePropertyName in prototypeProperties) { // Note that this includes _prototype_ properties, but not _instance_ properties: https://stackoverflow.com/q/77733619/2053389
-			const prototypeProperty = prototypeProperties[prototypePropertyName];
-			Object.defineProperty(
-				ComponentBase.prototype,
-				prototypePropertyName,
-				prototypeProperty,
-			);
-		}
-
-		// @ts-expect-error Mixing classes gets messy; requires casting to unknown
-		return ComponentBase;
-	}
-
-	/**
-	 * Decorator that defines a custom web component
-	 * @template {typeof Component & ConstructorOf<Component>} Subclass
-	 * @template {InstanceType<Subclass>} Instance
-	 * @template {keyof Instance} EventKey
-	 * @template {keyof Instance} AttributeKey
-	 * @param {Subclass} Subclass
-	 * @param {object} [options]
-	 * @param {Array<AttributeNameConfig<Instance, AttributeKey>>} [options.attributes] - TODO1
-	 * @param {string} [options.elName] - The name that will be used for the component, e.g. `app-foo`
-	 * @param {Array<EventNameConfig<Instance, EventKey>>} [options.events] - TODO1
-	 * @param {string} [options.style] - The stylesheet that will be attached to the document the first time the component is used. `:host` will be replaced with the component's selector.
-	 * @param {string} [options.stylePath] - The path to an external stylesheet for this component. If it ends with `.ts/js`, the Builder will change the path to `.css.ts/js`. This means you can always set the stylepath to `import.meta.url` if the files will all follow the convention of `{component}.css.ts/js`.
-	 * @param {string} [options.styleSrc] - TODO1
-	 * @returns {Subclass & DecoratedComponent<Instance, AttributeKey, EventKey>}
-	 */
-	static define(Subclass, options = {}) {
-		const Constructor = /** @type {typeof Component} */(
-			/** @type {unknown} */(Subclass)
-		);
-
-		const elName = options.elName ?? `l-${Constructor.name.toLowerCase()}`;
-
-		const selector = Constructor.tagName === undefined
-			? elName
-			: `[${Component.const.attrEl}='${elName}']`;
-
-		Object.assign(Constructor, {
-			elName,
-			selector,
-		});
-
-		globalThis.customElements.define( // This should come last because when a custom element is defined its constructor runs for all instances on the page
-			elName,
-			Constructor,
-			Constructor.tagName === undefined ? undefined : { extends: Constructor.tagName },
-		);
-
-		Component.registry.set(elName, Constructor);
-
-		Subclass
-			.setStylesheet_external(options.stylePath ?? Constructor.stylePath)
-			.setStylesheet_inline(options.style ?? Constructor.style);
-
-		// @ts-expect-error Reports that Subclass doesn't match DecoratedComponent
-		return Subclass;
-	}
-
-	/**
-	 * TODO1
-	 * @param {string} eventName
-	 * @param {string} listenerId
-	 * @param {string} handlerKey
-	 * @param {Array<string | number>} handlerArgs
-	 * @private
-	 * @ignore
-	 */
-	static eventAttrs(eventName, listenerId, handlerKey, ...handlerArgs) {
-		const eventNameNormalized = Component.normalize(eventName);
-
-		const listenerAttrKey = `${Component.const.attrOn}${eventNameNormalized}`;
-		const listenerAttrValue = eventName;
-
-		const listenerIdNormalized = Component.normalize(listenerId);
-		const emitterAttrKey = `${Component.const.attrEmit}${eventNameNormalized}-${listenerIdNormalized}`;
-		const emitterAttrValue = [
-			handlerKey,
-			...handlerArgs,
-		].join(Component.const.attrEmitDelimiter);
-
-		return {
-			emitter: {
-				key: emitterAttrKey,
-				value: emitterAttrValue,
-			},
-			listener: {
-				id: listenerIdNormalized,
-				key: listenerAttrKey,
-				value: listenerAttrValue,
-			},
-		};
 	}
 
 	/**
@@ -304,17 +302,6 @@ export class Component extends HTMLElement {
 
 	/**
 	 * TODO1
-	 * @param {string} input
-	 * @returns {string}
-	 */
-	static normalize(input) {
-		return input
-			.toLowerCase()
-			.replaceAll(/[^\w]/g, ``);
-	}
-
-	/**
-	 * TODO1
 	 * @param {string} [stylePath]
 	 * @ignore
 	 */
@@ -324,7 +311,7 @@ export class Component extends HTMLElement {
 		}
 
 		const styleUrl = `/${this.elName}.css${Component.cacheBust()}`;
-		const styleUrlAttr = `${Component.const.styleUrlAttrPrefix}${this.elName}`;
+		const styleUrlAttr = `${constants.styleUrlAttrPrefix}${this.elName}`;
 		const externalStylesheetEl = document.head.querySelector(`link[${styleUrlAttr}]`);
 		if (externalStylesheetEl !== null) {
 			return this;
@@ -352,7 +339,7 @@ export class Component extends HTMLElement {
 			return this;
 		}
 
-		const internalStylesheetEl = document.head.querySelector(`[${Component.const.styleAttr}='${this.elName}']`);
+		const internalStylesheetEl = document.head.querySelector(`[${constants.styleAttr}='${this.elName}']`);
 		if (internalStylesheetEl !== null) {
 			return this;
 		}
@@ -360,7 +347,7 @@ export class Component extends HTMLElement {
 		const styleOverride = this.formatCss(style);
 		const styleEl = document.createElement(`style`);
 		styleEl.textContent = styleOverride;
-		styleEl.setAttribute(Component.const.styleAttr, this.elName);
+		styleEl.setAttribute(constants.styleAttr, this.elName);
 		document.head.appendChild(styleEl);
 		Object.assign(this, { style });
 
@@ -481,7 +468,7 @@ export class Component extends HTMLElement {
 		});
 
 		for (const attribute of this.attributes) {
-			if (attribute.name.startsWith(Component.const.attrOn)) {
+			if (attribute.name.startsWith(constants.attrOn)) {
 				const eventName = attribute.value;
 				this.addEventListener(eventName, this);
 			}
@@ -625,9 +612,9 @@ export class Component extends HTMLElement {
 	 */
 	handleEvent(event) {
 		const trigger = /** @type {Element} */(event.target);
-		const paramsAttr = `${Component.const.attrEmit}${Component.normalize(event.type)}-`;
-		const attrEmitDelimiter = Component.const.attrEmitDelimiter;
-		const normalizedId = Component.normalize(this.id);
+		const paramsAttr = `${constants.attrEmit}${normalize(event.type)}-`;
+		const attrEmitDelimiter = constants.attrEmitDelimiter;
+		const normalizedId = normalize(this.id);
 		for (const attribute of trigger.attributes) {
 			if (attribute.name.startsWith(paramsAttr) === false) {
 				continue;
@@ -681,7 +668,7 @@ export class Component extends HTMLElement {
 	 * @this {Listener}
 	 */
 	onDom(eventName, handlerKey, ...handlerArgs) {
-		const attrs = Component.eventAttrs(eventName, this.id, handlerKey, ...handlerArgs);
+		const attrs = eventAttrs(eventName, this.id, handlerKey, ...handlerArgs);
 
 		this.setAttribute(attrs.listener.key, attrs.listener.value);
 		this.addEventListener(eventName, this, {
@@ -710,7 +697,7 @@ export class Component extends HTMLElement {
 		const eventName = /** @type {string} */(eventKey);
 		listener.id = listener.id === `` ? Component.uid() : listener.id;
 
-		const attrs = Component.eventAttrs(eventName, listener.id, handlerKey, ...handlerArgs);
+		const attrs = eventAttrs(eventName, listener.id, handlerKey, ...handlerArgs);
 
 		listener.setAttribute(attrs.listener.key, attrs.listener.value);
 		listener.addEventListener(
@@ -899,7 +886,7 @@ export class Component extends HTMLElement {
 	}
 }
 
-const Page = Component.define(class Page extends Component.custom(`main`) {
+class Page extends custom(`main`) {
 	static pageAttr = `data-page-title`;
 
 	/**
@@ -916,11 +903,7 @@ const Page = Component.define(class Page extends Component.custom(`main`) {
 			this.pageTitle = input.title;
 		}
 	}
-}, {
-	attributes: [
-		`pageTitle`,
-	],
-});
+}
 
 if (runContext !== `browser`) {
 	// Override DOM-dependent methods since these may not be availble during SSR. Doing it here instead of in Component because these methods are run a lot, and we don't have to do an unnecessary `runContext` check each time.
