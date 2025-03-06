@@ -5,7 +5,7 @@ export type ConstructorOf<Type> = {
 };
 
 /**
- * Replacement for `Parameters`, which doesn't seem to work in `.js` files unless a `@param` has been explicitly documented
+ * Replacement for `Parameters`, which doesn't seem to work in `.js` files unless a `@param` has been explicitly documented (https://github.com/microsoft/TypeScript/issues/61172)
  * TODO3: Add more args, if we really need it
  */
 export type Params<Fun extends (...args: any) => any> = // eslint-disable-line @typescript-eslint/no-explicit-any

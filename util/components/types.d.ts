@@ -1,32 +1,8 @@
-export type AttributeFlag = { isAttribute: true; };
-
-export type AttributeNameTest<Instance, AttributeKey extends keyof Instance> =
-	Instance[AttributeKey] extends AttributeFlag
-	? AttributeKey
-	: never;
-
-export type AttributeNameConfig<Instance, AttributeKey extends keyof Instance> =
-	Instance[AttributeKey] extends AttributeValue
-	? (AttributeKey | {
-		key: AttributeKey;
-		name?: string;
-	})
-	: never;
-
-export type AttributeValue =
-	| boolean
-	| number
-	| string;
-
-export type DecoratedComponent<
-	Instance,
-	AttributeKey extends keyof Instance,
-	EventKey extends keyof Instance,
-> = {
-	new():
-		& Instance
-		& { [Key in AttributeKey]: AttributeFlag & Instance[Key] }
-		& { [Key in EventKey]: EventFlag & Instance[Key] };
+export type AttributeConfig<Value=string> = {
+	fromAttribute?: (value: string | null) => Value;
+	name?: string;
+	observed?: boolean;
+	toAttribute?: (value: Value) => string;
 };
 
 export type EventFlag = { isEvent: true; };

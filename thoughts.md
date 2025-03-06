@@ -15,8 +15,10 @@
 		-	Would have to add an extra prototype between Subclass and Base, which isn't really optimal
 	-	`get attr() { return this.getAttribute('foo') }; set attr(x) { this.setAttribute('foo', x) }`
 		-	Need to write the attribute name in 2 - 5 different places
+		-	Can do some funky prototype manipulation to intercept the attribute name but feels too magical
 	-	`attr = Component.attribute({ initial: 3 })`
 		-	Need return type to be e.g. `number | { isAttribute: true }` for narrowest typing, but then can't do `attr = 3`
+		-	Would be an instance property, not a prototype property, so not a good way to add to `observedAttributes`. Could create an instance at runtime and then crawl its properties, but that's really brittle
 	-	Want
 		-	When method is called, dispatches an event
 		-	Method returns original value, not an event

@@ -1,8 +1,8 @@
 /**
  * @import { Emitter, IGNORE as EmitterIgnore } from '../emitter/emitter'
  * @import { ElAttributes } from '../dom/types.d';
- * @import { ConstructorOf, Textish } from '../types.d';
- * @import { AttributeFlag, AttributeNameConfig, AttributeNameTest, DecoratedComponent, EventFlag, EventHandlerTest, EventNameConfig } from './types.d';
+ * @import { ConstructorOf, KeysMatching, Textish } from '../types.d';
+ * @import { AttributeConfig, AttributeNameTest, EventFlag, EventHandlerTest, EventNameConfig } from './types.d';
  */
 
 import {
@@ -31,6 +31,17 @@ const constants = /** @type {const} */({
  * @readonly
  */
 const registry = new Map();
+
+/**
+ * Provides stronger typing for an {@link AttributeConfig}.
+ * Note that the param for each `fromAttribute` *must* be explicitly cast as `string` for the typing to work. See https://stackoverflow.com/q/79485447
+ * @template Value
+ * @param {AttributeConfig<Value>} input
+ * @returns {input}
+ */
+export function attribute(input) {
+	return input;
+}
 
 /**
  * Adds common component methods/helpers to the specified HTML element constructor
@@ -83,54 +94,6 @@ export function custom(tagName) {
 }
 
 /**
- * Decorator that defines a custom web component
- * @template {typeof Component & ConstructorOf<Component>} Subclass
- * @template {InstanceType<Subclass>} Instance
- * @template {keyof Instance} EventKey
- * @template {keyof Instance} AttributeKey
- * @param {Subclass} Subclass
- * @param {object} [options]
- * @param {Array<AttributeNameConfig<Instance, AttributeKey>>} [options.attributes] - TODO1
- * @param {string} [options.elName] - The name that will be used for the component, e.g. `app-foo`
- * @param {Array<EventNameConfig<Instance, EventKey>>} [options.events] - TODO1
- * @param {string} [options.style] - The stylesheet that will be attached to the document the first time the component is used. `:host` will be replaced with the component's selector.
- * @param {string} [options.stylePath] - The path to an external stylesheet for this component. If it ends with `.ts/js`, the Builder will change the path to `.css.ts/js`. This means you can always set the stylepath to `import.meta.url` if the files will all follow the convention of `{component}.css.ts/js`.
- * @param {string} [options.styleSrc] - TODO1
- * @returns {Subclass & DecoratedComponent<Instance, AttributeKey, EventKey>}
- */
-export function define(Subclass, options = {}) {
-	const Constructor = /** @type {typeof Component} */(
-		/** @type {unknown} */(Subclass)
-	);
-
-	const elName = options.elName ?? `l-${Constructor.name.toLowerCase()}`;
-
-	const selector = Constructor.tagName === undefined
-		? elName
-		: `[${constants.attrEl}='${elName}']`;
-
-	Object.assign(Constructor, {
-		elName,
-		selector,
-	});
-
-	globalThis.customElements.define( // This should come last because when a custom element is defined its constructor runs for all instances on the page
-		elName,
-		Constructor,
-		Constructor.tagName === undefined ? undefined : { extends: Constructor.tagName },
-	);
-
-	registry.set(elName, Constructor);
-
-	Subclass
-		.setStylesheet_external(options.stylePath ?? Constructor.stylePath)
-		.setStylesheet_inline(options.style ?? Constructor.style);
-
-	// @ts-expect-error Reports that Subclass doesn't match DecoratedComponent
-	return Subclass;
-}
-
-/**
  * TODO1
  * @param {string} eventName
  * @param {string} listenerId
@@ -177,10 +140,155 @@ function normalize(input) {
 }
 
 /**
+ * Decorator that definess and registers a custom web component
+ * @template {typeof Component & ConstructorOf<Component>} Subclass
+ * @param {Subclass} Subclass
+ * @param {object} [options]
+ * @param {string} [options.elName] - The name that will be used for the component, e.g. `app-foo`
+ * @param {string} [options.style] - The stylesheet that will be attached to the document the first time the component is used. `:host` will be replaced with the component's selector.
+ * @param {string} [options.stylePath] - The path to an external stylesheet for this component. If it ends with `.ts/js`, the Builder will change the path to `.css.ts/js`. This means you can always set the stylepath to `import.meta.url` if the files will all follow the convention of `{component}.css.ts/js`.
+ * @param {string} [options.styleSrc] - TODO1
+ * @returns {Subclass}
+ */
+export function register(Subclass, options = {}) {
+	const elName = options.elName ?? `l-${Subclass.name.toLowerCase()}`;
+
+	const selector = Subclass.tagName === undefined
+		? elName
+		: `[${constants.attrEl}='${elName}']`;
+
+	Object.assign(Subclass, {
+		elName,
+		selector,
+	});
+
+	globalThis.customElements.define( // This should come last because when a custom element is defined its constructor runs for all instances on the page
+		elName,
+		Subclass,
+		Subclass.tagName === undefined ? undefined : { extends: Subclass.tagName },
+	);
+
+	registerAttributes(Subclass);
+	registerStylesheet_external(Subclass, options.stylePath ?? Subclass.stylePath);
+	registerStylesheet_inline(Subclass, options.style ?? Subclass.style);
+
+	registry.set(elName, Subclass);
+
+	return Subclass;
+}
+
+/**
+ * @param {typeof Component} Constructor
+ */
+function registerAttributes(Constructor) {
+	const prototypeProperties = Object.getOwnPropertyDescriptors(Constructor.prototype);
+	for (const propertyName in Constructor.attributes) {
+		const attributeConfig = Constructor.attributes[propertyName];
+		const attributeName = attributeConfig.name ?? propertyName;
+		const fromAttribute = attributeConfig.fromAttribute;
+		const toAttribute = attributeConfig.toAttribute;
+
+		if (attributeConfig.observed === true) {
+			Constructor.observedAttributes.push(attributeName);
+		}
+
+		Constructor.propertyNamesByAttribute[attributeName] = propertyName;
+
+		const descriptor = prototypeProperties[propertyName] ?? {};
+		Object.defineProperty(Constructor.prototype, propertyName, {
+			...descriptor,
+			/**
+			 * @this {Component}
+			 * @ignore
+			 */
+			get() {
+				const rawValue = this.getAttribute(attributeName);
+				if (fromAttribute) {
+					return fromAttribute(rawValue);
+				}
+				return rawValue;
+			},
+			/**
+			 * @param {unknown} input
+			 * @this {Component}
+			 */
+			set(input) {
+				const value = toAttribute === undefined ? input : toAttribute(input);
+				if (attributeValueIsEmpty(value)) {
+					this.removeAttribute(attributeName);
+				} else {
+					this.setAttribute(attributeName, `${value}`);
+				}
+			},
+		});
+	}
+}
+
+/**
+ * TODO1
+ * @param {typeof Component} Subclass
+ * @param {string} [stylePath]
+ * @ignore
+ */
+function registerStylesheet_external(Subclass, stylePath) {
+	if (typeof stylePath !== `string`) {
+		return;
+	}
+
+	const styleUrl = `/${Subclass.elName}.css${Component.cacheBust()}`;
+	const styleUrlAttr = `${constants.styleUrlAttrPrefix}${Subclass.elName}`;
+	const externalStylesheetEl = document.head.querySelector(`link[${styleUrlAttr}]`);
+	if (externalStylesheetEl !== null) {
+		return;
+	}
+
+	const styleUrlEl = document.createElement(`link`);
+	setAttributes(styleUrlEl, {
+		href: styleUrl,
+		rel: `stylesheet`,
+	});
+	styleUrlEl.setAttribute(styleUrlAttr, ``);
+	document.head.appendChild(styleUrlEl);
+	Object.assign(Subclass, { stylePath });
+}
+
+/**
+ * TODO1
+ * @param {typeof Component} Subclass
+ * @param {string} [style]
+ * @ignore
+ */
+function registerStylesheet_inline(Subclass, style) {
+	if (typeof style !== `string`) {
+		return;
+	}
+
+	const internalStylesheetEl = document.head.querySelector(`[${constants.styleAttr}='${Subclass.elName}']`);
+	if (internalStylesheetEl !== null) {
+		return;
+	}
+
+	const styleOverride = Subclass.formatCss(style);
+	const styleEl = document.createElement(`style`);
+	styleEl.textContent = styleOverride;
+	styleEl.setAttribute(constants.styleAttr, Subclass.elName);
+	document.head.appendChild(styleEl);
+	Object.assign(Subclass, { style });
+}
+
+/**
  * TODO1
  * TODO1 Add interfaces for WebComponent and `handleEvent`, which this implements, in order to show where those come from?
+ * @template {typeof Component} [Self=typeof Component]
  */
 export class Component extends HTMLElement {
+	/**
+	 * TODO1
+	 * @type {Record<string, AttributeConfig<unknown>>}
+	 * @readonly
+	 */
+	static attributes = {};
+
 	/**
 	 * TODO1
 	 * @type {Map<string, WeakRef<Component>>}
@@ -298,60 +406,6 @@ export class Component extends HTMLElement {
 			instance.id = id;
 		}
 		return instance;
-	}
-
-	/**
-	 * TODO1
-	 * @param {string} [stylePath]
-	 * @ignore
-	 */
-	static setStylesheet_external(stylePath) {
-		if (typeof stylePath !== `string`) {
-			return this;
-		}
-
-		const styleUrl = `/${this.elName}.css${Component.cacheBust()}`;
-		const styleUrlAttr = `${constants.styleUrlAttrPrefix}${this.elName}`;
-		const externalStylesheetEl = document.head.querySelector(`link[${styleUrlAttr}]`);
-		if (externalStylesheetEl !== null) {
-			return this;
-		}
-
-		const styleUrlEl = document.createElement(`link`);
-		setAttributes(styleUrlEl, {
-			href: styleUrl,
-			rel: `stylesheet`,
-		});
-		styleUrlEl.setAttribute(styleUrlAttr, ``);
-		document.head.appendChild(styleUrlEl);
-		Object.assign(this, { stylePath });
-
-		return this;
-	}
-
-	/**
-	 * TODO1
-	 * @param {string} [style]
-	 * @ignore
-	 */
-	static setStylesheet_inline(style) {
-		if (typeof style !== `string`) {
-			return this;
-		}
-
-		const internalStylesheetEl = document.head.querySelector(`[${constants.styleAttr}='${this.elName}']`);
-		if (internalStylesheetEl !== null) {
-			return this;
-		}
-
-		const styleOverride = this.formatCss(style);
-		const styleEl = document.createElement(`style`);
-		styleEl.textContent = styleOverride;
-		styleEl.setAttribute(constants.styleAttr, this.elName);
-		document.head.appendChild(styleEl);
-		Object.assign(this, { style });
-
-		return this;
 	}
 
 	/**
@@ -554,7 +608,7 @@ export class Component extends HTMLElement {
 	 */
 	findDown(target) {
 		const selector = target === Page
-			? `[${Page.pageAttr}]`
+			? `[${Page.attributes.pageTitle.name}]`
 			: typeof target === `string`
 				? target
 				: /** @type {typeof Component} */(target).selector;
@@ -594,7 +648,7 @@ export class Component extends HTMLElement {
 	 */
 	findUp(target) {
 		const selector = target === Page
-			? `[${Page.pageAttr}]`
+			? `[${Page.attributes.pageTitle.name}]`
 			: typeof target === `string`
 				? target
 				: /** @type {typeof Component} */(target).selector;
@@ -632,13 +686,15 @@ export class Component extends HTMLElement {
 	}
 
 	/**
-	 * @template {keyof this} AttributeKey
-	 * @template {this[AttributeKey]} EventDetail
-	 * @template Listener
+	 * TODO1
+	 * Note that if you use `this` for `listener` you may need to specify a specific type for `this`
+	 * @template {keyof Self['attributes']} AttributeKey
+	 * @template {ReturnType<NonNullable<Self['attributes'][AttributeKey]['fromAttribute']>>} AttributeType
+	 * @template {{ [key in keyof object]: (arg: CustomEvent<AttributeType>) => void }} Listener
 	 * @template {keyof Listener} HandlerKey
-	 * @param {AttributeNameTest<this, AttributeKey>} attributeKey
+	 * @param {AttributeKey} attributeKey
 	 * @param {Listener} listener
-	 * @param {EventHandlerTest<Listener, HandlerKey, EventDetail>} handlerKey
+	 * @param {EventHandlerTest<Listener, HandlerKey, AttributeType>} handlerKey
 	 * @returns {this}
 	 */
 	onChange(attributeKey, listener, handlerKey) {
@@ -886,8 +942,19 @@ export class Component extends HTMLElement {
 	}
 }
 
+/**
+ * @augments {Component<typeof Page>}
+ */
 class Page extends custom(`main`) {
-	static pageAttr = `data-page-title`;
+	/** @override */
+	static attributes = {
+		pageTitle: {
+			fromAttribute: () => true,
+			name: `data-page-title`,
+			observed: true,
+			toAttribute: String,
+		},
+	};
 
 	/**
 	 * @type {string}

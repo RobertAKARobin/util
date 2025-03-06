@@ -31,7 +31,7 @@ export default [
 			'jsdoc/check-values': `error`,
 			'jsdoc/empty-tags': `error`,
 			'jsdoc/implements-on-classes': `error`,
-			'jsdoc/informative-docs': `error`,
+			'jsdoc/informative-docs': `off`,
 			'jsdoc/match-description': `off`,
 			'jsdoc/multiline-blocks': `error`,
 			'jsdoc/no-bad-blocks': `error`,
