@@ -1,11 +1,14 @@
 {
   "dependencies": {
-    "@html-eslint/eslint-plugin": "^0.32.0",
-    "@html-eslint/parser": "^0.32.0"
+    "@html-eslint/eslint-plugin": "^0.35.2",
+    "@html-eslint/parser": "^0.35.2"
   },
-	"main": "index.js",
-	"name": "@robertakarobin/eslint-config-html",
-	"scripts": {},
-	"type": "module",
-	"version": "0.0.1"
+  "devDependencies": {
+    "@html-eslint/types": "^0.35.1"
+  },
+  "main": "index.js",
+  "name": "@robertakarobin/eslint-config-html",
+  "scripts": {},
+  "type": "module",
+  "version": "0.0.1"
 }

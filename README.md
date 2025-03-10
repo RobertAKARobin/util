@@ -67,7 +67,6 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 -	TODO1: Component: Import SVGs/arbitrary files
 -	TODO1: Add mini markdown converter
 
--	TODO2: html-eslint types have import errors; include in `tsconfig` when https://github.com/yeonjuan/html-eslint/issues/297 is fixed
 -	TODO2: `npm run test` runs `tsc` twice
 -	TODO2: Component: Don't refer to functions by string -- keeps names from being minified
 -	TODO3: Eslint: Lint HTML in JS template literals (https://github.com/yeonjuan/html-eslint/issues/196)
@@ -75,6 +74,7 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ### Done:
 
+-	html-eslint types have import errors; include in `tsconfig` when https://github.com/yeonjuan/html-eslint/issues/297 is fixed
 -	Require `.js` extension
 -	Eslint: JSON (Waiting on https://github.com/eslint/json/pull/76)
 -	sort-keys case-sensitive

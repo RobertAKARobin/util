@@ -7,7 +7,6 @@
 	"exclude": [
 		"example",
 		"tmp",
-		"eslint-config-html",
 		"util/components/app.ts",
 		"util/components/build.ts",
 		"util/components/component.spec.web.ts",
