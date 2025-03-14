@@ -2,7 +2,7 @@
  * @import { Emitter, IGNORE as EmitterIgnore } from '../emitter/emitter'
  * @import { ElAttributes } from '../dom/types.d';
  * @import { ConstructorOf, KeysMatching, Textish } from '../types.d';
- * @import { AttributeConfig, AttributeNameTest, EventFlag, EventHandlerTest, EventNameConfig } from './types.d';
+ * @import { AttributeConfig, EventFlag, EventHandlerTest, EventNameConfig } from './types.d';
  */
 
 import {
@@ -11,6 +11,7 @@ import {
 	setStyle,
 } from '../dom/attributes.js';
 import { isNotNull } from '../isNotNull.js';
+import { mixin } from '../mixin.js';
 import { newUid } from '../uid.js';
 import { runContext } from '../web/context.js';
 
@@ -44,13 +45,14 @@ export function attribute(input) {
 }
 
 /**
- * Adds common component methods/helpers to the specified HTML element constructor
+ * Create a new class that extends the specified built-in HTML element.
+ * TODO1 Does this work in Safari? https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/is
  * @template {keyof HTMLElementTagNameMap} TagName
  * @template {HTMLElementTagNameMap[TagName]} Tag
  * @param {TagName} tagName
  * @returns {ConstructorOf<Tag> & typeof Component}
  */
-export function custom(tagName) {
+export function customized(tagName) {
 	const dummy = document.createElement(tagName);
 	const BaseElement = /** @type {ConstructorOf<Component>} */(dummy.constructor);
 
@@ -68,29 +70,8 @@ export function custom(tagName) {
 		}
 	}
 
-	const staticProperties = Object.getOwnPropertyDescriptors(Component);
-	const staticPropertiesToNotCopy = new Set([`const`, `length`, `prototype`]);
-	for (const staticPropertyName in staticProperties) {
-		if (staticPropertiesToNotCopy.has(staticPropertyName)) {
-			continue;
-		}
-
-		const staticProperty = staticProperties[staticPropertyName];
-		Object.defineProperty(ComponentBase, staticPropertyName, staticProperty);
-	}
-
-	const prototypeProperties = Object.getOwnPropertyDescriptors(Component.prototype);
-	for (const prototypePropertyName in prototypeProperties) { // Note that this includes _prototype_ properties, but not _instance_ properties: https://stackoverflow.com/q/77733619/2053389
-		const prototypeProperty = prototypeProperties[prototypePropertyName];
-		Object.defineProperty(
-			ComponentBase.prototype,
-			prototypePropertyName,
-			prototypeProperty,
-		);
-	}
-
 	// @ts-expect-error Mixing classes gets messy; requires casting to unknown
-	return ComponentBase;
+	return mixin(ComponentBase, Component);
 }
 
 /**
@@ -943,9 +924,15 @@ export class Component extends HTMLElement {
 }
 
 /**
+ * Alias for `Component` so we can `import * as Component` and then `class MyClass extends Component.autonomous`, as opposed to `Component.custom()`.
+ * See https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#types_of_custom_element
+ */
+export const autonomous = Component;
+
+/**
  * @augments {Component<typeof Page>}
  */
-class Page extends custom(`main`) {
+export class Page extends customized(`main`) {
 	/** @override */
 	static attributes = {
 		pageTitle: {
