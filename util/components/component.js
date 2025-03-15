@@ -35,13 +35,17 @@ const registry = new Map();
 
 /**
  * Provides stronger typing for an {@link AttributeConfig}.
- * Note that the param for each `fromAttribute` *must* be explicitly cast as `string` for the typing to work. See https://stackoverflow.com/q/79485447
+ * https://stackoverflow.com/q/79485447
  * @template Value
- * @param {AttributeConfig<Value>} input
- * @returns {input}
+ * @param {object} [input]
+ * @param {AttributeConfig['observed']} [input.observed] - Whether an event with this attribute's name should be dispatched whenever it changes. (Adds the attribute to `static observedAttributes`)
+ * @param {AttributeConfig['name']} [input.name] - The name to be used for the attribute. Defaults to the key used in this `static attributes` entry.
+ * @param {AttributeConfig<Value>['fromAttribute']} [input.fromAttribute] - The function used to convert the attribute's value from an HTML-friendly string.
+ * @param {AttributeConfig<Value>['toAttribute']} [input.toAttribute] - The function used to convert the attribute's value to an HTML-friendly string.
+ * @returns {AttributeConfig<Value>}
  */
 export function attribute(input) {
-	return input;
+	return input ?? {};
 }
 
 /**
@@ -185,7 +189,7 @@ function registerAttributes(Constructor) {
 			get() {
 				const rawValue = this.getAttribute(attributeName);
 				if (fromAttribute) {
-					return fromAttribute(rawValue);
+					return /** @type {unknown} */(fromAttribute(rawValue));
 				}
 				return rawValue;
 			},
@@ -265,7 +269,7 @@ function registerStylesheet_inline(Subclass, style) {
 export class Component extends HTMLElement {
 	/**
 	 * TODO1
-	 * @type {Record<string, AttributeConfig<unknown>>}
+	 * @type {Record<string, AttributeConfig<any>>}
 	 * @readonly
 	 */
 	static attributes = {};

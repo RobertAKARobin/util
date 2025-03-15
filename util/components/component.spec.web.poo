@@ -1,0 +1,36 @@
+import { suite, test } from '../spec/index.js';
+
+import * as Component from './component.js';
+
+class Dice extends Component.customized(`dialog`) {
+	/** @override */
+	static attributes = {
+		face: Component.attribute({
+			fromAttribute: Number,
+		}),
+	};
+
+	face = NaN;
+
+	roll() {
+		const value = 1 + Math.round(Math.random() * 5);
+		this.face = value;
+		return value;
+	}
+}
+
+Component.register(Dice);
+
+export const spec = suite(import.meta.url,
+	{
+		args: () => ({
+			dice: new Dice(),
+		}),
+	},
+
+	test(`TODO1`, $ => {
+		const dice = $.args.dice;
+		$.assert(x => x(Dice.elName) === `l-dice`);
+		$.assert(x => x(dice.constructor) === Dice);
+	}),
+);
