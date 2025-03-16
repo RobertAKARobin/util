@@ -1,5 +1,3 @@
-import * as Diff from 'diff';
-
 import { color } from '../node/colors.js';
 
 /**

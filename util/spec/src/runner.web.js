@@ -2,9 +2,9 @@
  * @import * as Type from './types.d';
  */
 
-import { execSync, spawn } from 'child_process';
 import fs from 'fs';
 import http from 'http';
+import { spawn } from 'child_process';
 
 import { mimeFor, mimeMap } from '../../web/mime.js';
 import { tryCatch } from '../../tryCatch.js';
@@ -14,7 +14,6 @@ import { count } from '../index.js';
 const specHost = `localhost`;
 const specPort = 8001;
 const specRoutes = {
-	next: `/spec`,
 	report: `/report`,
 	root: `/`,
 };
@@ -22,21 +21,25 @@ const staticDir = `util`;
 
 /** @type {Type.SpecRunner} */
 export const specRunWeb = (
-	specFiles,
+	specFilesNames,
 	options, // TODO2: Better way of passing options to the front-end... What if they aren't serializable?
 ) => new Promise(resolve => {
 	const results = /** @type {Array<Type.SuiteResult>} */([]);
 	let specFileIndex = 0;
+	let specFileName = ``;
 
 	const server = http.createServer((request, response) => {
-		if (typeof request.url === `undefined`) {
-			return close();
-		}
-
-		const specFile = specFiles[specFileIndex];
-
 		switch (request.url) {
 			case specRoutes.root: {
+				let specFileName = specFilesNames[specFileIndex];
+				if (specFileName === undefined) {
+					return close();
+				}
+
+				console.log(specFileName);
+
+				specFileName = specFileName.replace(new RegExp(`^${staticDir}`), ``);
+
 				response.writeHead(200, { 'Content-Type': mimeMap.html });
 				response.end(/*html*/`
 <!DOCTYPE html>
@@ -44,10 +47,7 @@ export const specRunWeb = (
 	<head>
 		<title>Spec ${specFileIndex}</title>
 		<script type="module">
-		import { spec } from '${specRoutes.next}';
-		if (typeof spec !== 'function') {
-			close();
-		}
+		import { spec } from './${specFileName}';
 
 		const result = await spec({}, ${JSON.stringify(options)});
 		// console.log(render(result));
@@ -66,20 +66,6 @@ export const specRunWeb = (
 				break;
 			}
 
-			case specRoutes.next: {
-				if (specFile === undefined) {
-					response.writeHead(200, { 'Content-Type': mimeMap.js });
-					response.end(`const spec = undefined; export { spec }`);
-					return close();
-				}
-
-				// TODO1: Extract out build step
-				const spec = execSync(`esbuild ${specFile} --format=esm --bundle=true`); // Using esbuild's CLI because it requires less finagling than the Node import. TODO1: This re-compiles util/spec on each iteration, though it was already compiled above. How to resuse? --external keeps esbuild from translating `.ts` imports to `.js`
-				response.writeHead(200, { 'Content-Type': mimeMap.js });
-				response.end(spec);
-				break;
-			}
-
 			case specRoutes.report: {
 				if (request.method?.toUpperCase() !== `POST`) {
 					return;
@@ -92,7 +78,7 @@ export const specRunWeb = (
 				request.on(`end`, () => {
 					// TODO3: https://github.com/typescript-eslint/typescript-eslint/issues/1682
 					const result = /** @type {Type.SuiteResult} */(JSON.parse(json)); // eslint-disable-line @typescript-eslint/no-unsafe-assignment
-					result.title = specFile;
+					result.title = specFileName;
 
 					results.push(result);
 					specFileIndex += 1;
