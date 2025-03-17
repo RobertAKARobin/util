@@ -33,8 +33,8 @@ export const specs = suite(`Math`,
 
 	test(`subtraction`, async({ args, assert, log }) => {
 		log(`Delayed by 13 - 27 ms`);
-		args.x = await delay(14, 10);
-		args.y = await delay(13, 10);
+		args.x = log(await delay(14, 10)); // Testing to make sure logs work
+		args.y = await log(() => delay(13, 10));
 		assert(x => x(args.x - 1) === x(args.y));
 	}, {
 		iterations: 2,
@@ -86,9 +86,13 @@ export const expected = `
   s1t3 • subtraction
   s1t3x1 •
   s1t3x1#  Delayed by 13 - 27 ms
+  s1t3x1#  14
+  s1t3x1#  13
 • s1t3x1a1 • (args.x - 1) === (args.y)
   s1t3x2 •
   s1t3x2#  Delayed by 13 - 27 ms
+  s1t3x2#  14
+  s1t3x2#  13
 • s1t3x2a1 • (args.x - 1) === (args.y)
   s1s4 • division
   s1s4t1 • by int

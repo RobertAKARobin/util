@@ -9,16 +9,9 @@ export type SpecLog = SpecResult & {
 	type: Extract<SpecStepTypeName, `log`>;
 };
 
-export type SpecLogMessage =
-	| string
-	| (() => Promise<unknown>)
-	| (() => unknown);
-
-/**
- * Includes the given message in the unit test output.
- * @param {string} message
- */
-export function SpecLogFactory(message: SpecLogMessage): void;
+export function SpecLogFactory<Message = string>(message: () => Promise<Message>): Promise<Message>;
+export function SpecLogFactory<Message = string>(message: () => Message): Message;
+export function SpecLogFactory<Message = string>(message: Message): Message;
 
 export type SpecRenderOptions = {
 	/**

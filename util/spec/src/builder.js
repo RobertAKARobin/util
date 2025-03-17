@@ -143,40 +143,16 @@ export class SpecBuilder {
 	}
 
 	/**
-	 * See {@link Type.SpecLogFactory}
-	 * @overload
-	 * @param {() => unknown} message
+	 * Formats the given message to be included in the unit test output.
+	 * @param {unknown} message
 	 * @returns {Type.SpecLog}
-	 */
-	/**
-	 * @overload
-	 * @param {() => Promise<unknown>} message
-	 * @returns {Promise<Type.SpecLog>}
-	 */
-	/**
-	 * @overload
-	 * @param {string} message
-	 * @returns {Type.SpecLog}
-	 */
-	/**
-	 * @param {string | (() => $.PromiseMaybe<unknown>)} message
-	 * @returns {$.PromiseMaybe<Type.SpecLog>}
 	 */
 	log(message) {
-		/** @type {() => Type.SpecLog} */
-		const logResult = () => ({
-			message: (typeof message === `string` ? message : message.toString()),
+		return {
+			message: `${message}`,
 			time: this.getTime(),
 			type: `log`,
-		});
-
-		if (message instanceof Function) {
-			const output = message();
-			if (output instanceof Promise) {
-				return output.then(logResult);
-			}
-		}
-		return logResult();
+		};
 	};
 
 	/**
@@ -350,11 +326,27 @@ export class SpecBuilder {
 			}
 		};
 
-		/** @type {typeof Type.SpecLogFactory} */
+		/**
+		 * @template Value
+		 * @param {Value} message
+		 * @returns {Value}
+		 */
+		const appendLog = message => {
+			const logOutput = this.log(message);
+			result.children.push(logOutput);
+			return message;
+		};
+
+		/** @type {Type.SpecLogFactory} */
 		const log = message => {
-			result.children.push(
-				this.log(/** @type {Parameters<typeof this.log>[0]} */(message)),
-			);
+			const value = message instanceof Function ? message() : message;
+
+			if (value instanceof Promise) {
+				return value.then(appendLog);
+			}
+
+			appendLog(value);
+			return value;
 		};
 
 		await input.testDefinition({
