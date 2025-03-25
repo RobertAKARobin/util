@@ -4,7 +4,7 @@
  * @param {Value} update
  * @returns {boolean}
  */
-function compareDefault(origin, update) {
+export function compareDefault(origin, update) {
 	return (
 		origin !== undefined
 		&& update !== undefined
@@ -13,13 +13,17 @@ function compareDefault(origin, update) {
 }
 
 /**
+ * @typedef {{length: number; originIndex: number; updateIndex: number}} Overlap
+ */
+
+/**
  * Given two arrays, find the portions of those arrays that overlap
  * @template [Value=string]
  * @param {Array<Value>} origin
  * @param {Array<Value>} update
  * @param {object} [options]
- * @param {(origin: Value, update: Value) => boolean} [options.compare]
- * @returns {{length: number; originIndex: number; updateIndex: number;}}
+ * @param {(origin: Value, update: Value) => boolean} [options.compare] - Function that tests whether two items in the arrays are the same
+ * @returns {Overlap}
  */
 export function findOverlap(origin, update, options = {}) {
 	const result = {
@@ -59,7 +63,7 @@ export function findOverlap(origin, update, options = {}) {
 		return result;
 	}
 
-	result.length = (function() {
+	(function() {
 		let length = 0;
 
 		while (true) {
@@ -67,7 +71,8 @@ export function findOverlap(origin, update, options = {}) {
 			const updateItem = update[result.updateIndex + length];
 
 			if (compare(originItem, updateItem) === false) {
-				return length;
+				result.length = length;
+				return;
 			}
 
 			length += 1;
