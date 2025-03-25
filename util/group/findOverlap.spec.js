@@ -27,4 +27,14 @@ export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(overlap.originIndex) === 3);
 	$.assert(x => x(overlap.updateIndex) === 1);
 	$.assert(x => x(overlap.length) === 3);
+
+	overlap = subject(`1234445`, `a4444bcde`);
+	$.assert(x => x(overlap.originIndex) === 3);
+	$.assert(x => x(overlap.updateIndex) === 1);
+	$.assert(x => x(overlap.length) === 3);
+
+	overlap = subject(`12344445`, `a444bcde`);
+	$.assert(x => x(overlap.originIndex) === 3);
+	$.assert(x => x(overlap.updateIndex) === 1);
+	$.assert(x => x(overlap.length) === 3);
 });

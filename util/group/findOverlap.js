@@ -1,14 +1,34 @@
 /**
- * @param {Array<string>} origin
- * @param {Array<string>} update
+ * @template [Value=string]
+ * @param {Value} origin
+ * @param {Value} update
+ * @returns {boolean}
+ */
+function compareDefault(origin, update) {
+	return (
+		origin !== undefined
+		&& update !== undefined
+		&& origin === update
+	);
+}
+
+/**
+ * Given two arrays, find the portions of those arrays that overlap
+ * @template [Value=string]
+ * @param {Array<Value>} origin
+ * @param {Array<Value>} update
+ * @param {object} [options]
+ * @param {(origin: Value, update: Value) => boolean} [options.compare]
  * @returns {{length: number; originIndex: number; updateIndex: number;}}
  */
-export function findOverlap(origin, update) {
+export function findOverlap(origin, update, options = {}) {
 	const result = {
 		length: 0,
 		originIndex: -1,
 		updateIndex: -1,
 	};
+
+	const compare = options.compare ?? compareDefault;
 
 	const originLength = origin.length;
 	const updateLength = update.length;
@@ -16,13 +36,13 @@ export function findOverlap(origin, update) {
 	(function() {
 		let originIndex = 0;
 		while (originIndex < originLength) {
-			const originString = origin[originIndex];
+			const originItem = origin[originIndex];
 
 			let updateIndex = 0;
 			while (updateIndex < updateLength) {
-				const updateString = update[updateIndex];
+				const updateItem = update[updateIndex];
 
-				if (originString === updateString) {
+				if (compare(originItem, updateItem)) {
 					result.originIndex = originIndex;
 					result.updateIndex = updateIndex;
 					return;
@@ -43,14 +63,10 @@ export function findOverlap(origin, update) {
 		let length = 0;
 
 		while (true) {
-			const originString = origin[result.originIndex + length];
-			const updateString = update[result.updateIndex + length];
+			const originItem = origin[result.originIndex + length];
+			const updateItem = update[result.updateIndex + length];
 
-			if (
-				originString === undefined
-				|| updateString === undefined
-				|| originString !== updateString
-			) {
+			if (compare(originItem, updateItem) === false) {
 				return length;
 			}
 
