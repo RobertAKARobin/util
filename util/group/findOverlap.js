@@ -7,7 +7,9 @@
 export function compareDefault(origin, update) {
 	return (
 		origin !== undefined
+		&& origin !== ``
 		&& update !== undefined
+		&& update !== ``
 		&& origin === update
 	);
 }

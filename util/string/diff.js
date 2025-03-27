@@ -44,8 +44,7 @@ export function diff(origin, update, options = {}) {
 		results.push({ action, value });
 	}
 
-	let count = 0;
-	while (count++ <= 100) {
+	while (true) {
 		const match = findOverlap(originSplit, updateSplit);
 
 		if (match.length === 0) {
@@ -57,7 +56,7 @@ export function diff(origin, update, options = {}) {
 				action(`added`, 0);
 			}
 
-			return results;
+			break;
 		}
 
 		action(`removed`, 0, match.originIndex);
@@ -68,6 +67,33 @@ export function diff(origin, update, options = {}) {
 
 		originSplit = originSplit.slice(match.originIndex + match.length);
 		updateSplit = updateSplit.slice(match.updateIndex + match.length);
+	}
+
+	// Handle when a chunk was simply moved from one end of a sequence to the other
+	for (let index = 2; index < results.length; index += 1) {
+		const prev2 = results[index - 2];
+		const prev1 = results[index - 1];
+		const current = results[index];
+
+		if (
+			prev2.value.length > prev1.value.length
+			&& prev2.value === current.value
+			&& prev1.action === ``
+		) {
+			if (prev2.action === `added` && current.action === `removed`) {
+				prev2.value = prev1.value;
+				prev2.action = `removed`;
+				prev1.value = current.value;
+				current.value = prev2.value;
+				current.action = `added`;
+			} else if (prev2.action === `removed` && current.action === `added`) {
+				prev2.value = prev1.value;
+				prev2.action = `added`;
+				prev1.value = current.value;
+				current.value = prev2.value;
+				current.action = `removed`;
+			}
+		}
 	}
 
 	return results;

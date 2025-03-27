@@ -3,8 +3,8 @@ import { isNotNull } from '../isNotNull.js';
 
 import { compareDefault, findOverlap } from './findOverlap.js';
 
-// @ts-expect-error Setting to undefined so it uses defaults
-let compare = /** @type {typeof compareDefault<string>} */(undefined);
+/** @type {typeof compareDefault<string>} */
+let compare;
 
 /** @type {ReturnType<findOverlap>} */
 let overlap;
