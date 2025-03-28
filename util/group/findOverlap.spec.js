@@ -12,8 +12,9 @@ let overlap;
 function subject(
 	/** @type {string} */origin,
 	/** @type {string} */update,
+	/** @type {string} */delimiter = ``,
 ) {
-	const out = findOverlap(origin.split(``), update.split(``), { compare });
+	const out = findOverlap(origin.split(delimiter), update.split(delimiter), { compare });
 	return isNotNull(out);
 }
 export const spec = suite(import.meta.url, {},
@@ -95,6 +96,13 @@ export const spec = suite(import.meta.url, {},
 	test(`case insensitive`, $ => {
 		overlap = subject(`aabbCCddee`, `ccCC`);
 		$.assert(x => x(overlap.originIndex) === 4);
+		$.assert(x => x(overlap.updateIndex) === 2);
+		$.assert(x => x(overlap.length) === 2);
+	}),
+
+	test(`space delimited`, $ => {
+		overlap = subject(`aa xx yy bb`, `ccc ddd xx yy eee`, ` `);
+		$.assert(x => x(overlap.originIndex) === 1);
 		$.assert(x => x(overlap.updateIndex) === 2);
 		$.assert(x => x(overlap.length) === 2);
 	}),

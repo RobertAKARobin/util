@@ -5,18 +5,65 @@ import { diff as diff_ } from './diff.js';
 /** @type {ReturnType<diff_>} */
 let diff;
 
+let origin = ``;
+let update = ``;
+
 function subject(
 	/** @type {string} */origin,
 	/** @type {string} */update,
+	/** @type {string} */delimiter = ` `,
 ) {
-	return diff_(origin, update, { delimiter: ` ` });
+	return diff_(origin, update, { delimiter });
 }
 
 export const spec = suite(import.meta.url, {},
-	test(`no match`, $ => {
+	test(`same`, $ => {
 		diff = subject(``, ``);
 		$.assert(x => x(diff.length) === 0);
 
+		diff = subject(` `, ` `);
+		$.assert(x => x(diff.length) === 1);
+		$.assert(x => x(diff[0].value) === ` `);
+
+		diff = subject(`  `, `  `);
+		$.assert(x => x(diff.length) === 1);
+		$.assert(x => x(diff[0].value) === `  `);
+
+		diff = subject(` a `, ` a `);
+		$.assert(x => x(diff.length) === 1);
+		$.assert(x => x(diff[0].value) === ` a `);
+	}),
+
+	test(`no overlap`, $ => {
+		diff = subject(`aa bb cc`, `a b c`);
+		$.assert(x => x(diff.length) === 2);
+
+		$.assert(x => x(diff[0].value) === `aa bb cc`);
+		$.assert(x => x(diff[0].action) === `removed`);
+
+		$.assert(x => x(diff[1].value) === `a b c`);
+		$.assert(x => x(diff[1].action) === `added`);
+
+		diff = subject(`a b c`, `d e f`);
+		$.assert(x => x(diff.length) === 2);
+
+		$.assert(x => x(diff[0].value) === `a b c`);
+		$.assert(x => x(diff[0].action) === `removed`);
+
+		$.assert(x => x(diff[1].value) === `d e f`);
+		$.assert(x => x(diff[1].action) === `added`);
+
+		diff = subject(`a b c`, ` `);
+		$.assert(x => x(diff.length) === 2);
+
+		$.assert(x => x(diff[0].value) === `a b c`);
+		$.assert(x => x(diff[0].action) === `removed`);
+
+		$.assert(x => x(diff[1].value) === ` `);
+		$.assert(x => x(diff[1].action) === `added`);
+	}),
+
+	test(`zero length`, $ => {
 		diff = subject(`a b c`, ``);
 		$.assert(x => x(diff.length) === 1);
 		$.assert(x => x(diff[0].value) === `a b c`);
@@ -26,18 +73,21 @@ export const spec = suite(import.meta.url, {},
 		$.assert(x => x(diff.length) === 1);
 		$.assert(x => x(diff[0].value) === `a b c`);
 		$.assert(x => x(diff[0].action) === `added`);
-
-		diff = subject(`aa bb cc`, `a b c`);
-		$.assert(x => x(diff.length) === 2);
-
-		$.assert(x => x(diff[0].value) === `aa bb cc`);
-		$.assert(x => x(diff[0].action) === `removed`);
-
-		$.assert(x => x(diff[1].value) === `a b c`);
-		$.assert(x => x(diff[1].action) === `added`);
 	}),
 
-	test(`match`, $ => {
+	test(`zero length vs spaces`, $ => {
+		diff = subject(``, ` `);
+		$.assert(x => x(diff.length) === 1);
+		$.assert(x => x(diff[0].value) === ` `);
+		$.assert(x => x(diff[0].action) === `added`);
+
+		diff = subject(` `, ``);
+		$.assert(x => x(diff.length) === 1);
+		$.assert(x => x(diff[0].value) === ` `);
+		$.assert(x => x(diff[0].action) === `removed`);
+	}),
+
+	test(`overlap in middle`, $ => {
 		diff = subject(`y y a b c d e f`, `a b x x x e f`);
 		$.assert(x => x(diff.length) === 5);
 
@@ -57,7 +107,7 @@ export const spec = suite(import.meta.url, {},
 		$.assert(x => x(diff[4].action) === ``);
 	}),
 
-	test(`match at beginning`, $ => {
+	test(`overlap at beginning`, $ => {
 		diff = subject(`x x a a b b`, `a a b b x x`);
 		$.assert(x => x(diff.length) === 3);
 
@@ -71,7 +121,7 @@ export const spec = suite(import.meta.url, {},
 		$.assert(x => x(diff[2].action) === `added`);
 	}),
 
-	test(`match at end`, $ => {
+	test(`overlap at end`, $ => {
 		diff = subject(`a a b b x x`, `x x a a b b`);
 		$.assert(x => x(diff.length) === 3);
 
@@ -85,28 +135,71 @@ export const spec = suite(import.meta.url, {},
 		$.assert(x => x(diff[2].action) === `removed`);
 	}),
 
-	// from = `a a b b x x`;
-	// to = `x x a a b b`;
-	// result = diff(from, to, { delimiter: ` ` });
+	suite(`multiline`, {},
+		test(`same`, $ => {
+			origin = `
+aaa
+aaa bbb
+`;
+			update = `
+aaa
+aaa bbb
+`;
+			diff = subject(origin, update, `\n`);
+			$.assert(x => x(diff.length) === 1);
+			$.assert(x => x(diff[0].action) === ``);
+			$.assert(x => x(diff[0].value) === x(origin));
+		}),
 
-	// $.log(`${from} => ${to}`);
+		test(`add line at end`, $ => {
+			origin = `
+aaa
+aaa bbb
+`;
+			update = `
+aaa
+aaa bbb
 
-	// $.assert(x => x(result.length) === 3);
+`;
+			diff = subject(origin, update, `\n`);
+			$.assert(x => x(diff.length) === 2);
+			$.assert(x => x(diff[0].action) === ``);
+			$.assert(x => x(diff[0].value) === x(origin));
+			$.assert(x => x(diff[1].action) === `added`);
+			$.assert(x => x(diff[1].value) === `\n`);
+		}),
 
-	// $.assert(x => x(result[0].value) === `x x `);
-	// $.assert(x => x(result[0].action) === `added`);
+		test(`add line at beginning`, $ => {
+			origin = `
+aaa
+aaa bbb
+	`;
+			update = `
 
-	// $.assert(x => x(result[1].value) === `a a b b `);
-	// $.assert(x => x(result[1].action) === ``);
+aaa
+aaa bbb
+	`;
+			diff = subject(origin, update, `\n`);
+			$.assert(x => x(diff.length) === 2);
+		}),
+	),
 
-	// $.assert(x => x(result[2].value) === ` x x`);
-	// $.assert(x => x(result[2].action) === `removed`);
+	// 	test(`add line in middle`, $ => {
+	// 		diff = subject(
+	// 			`
+	// aaa
 
-	// diff = subject(
-	// 	`aa bb cc xx xxx xxxx dd ee ff yy yyy gg hh`,
-	// 	`xx xxx aa bb xxxx cc dd yy ee ff xx xxxx gg hh`,
-	// );
+	// aaa bbb
+	// `,
+	// 			`
+	// aaa
 
-	// $.assert(x => x(diff[0].value) === `aa bb`);
-	// $.assert(x => x(diff[0].action) === `removed`);
+
+	// aaa bbb
+	// `,
+	// 			`\n`,
+	// 		);
+
+	// 		$.assert(x => x(diff.length) === 2);
+	// 	}),
 );

@@ -17,10 +17,6 @@ export function diff(origin, update, options = {}) {
 
 	const results = /** @type {Array<DiffChunk>} */([]);
 
-	if (origin === update) {
-		return results;
-	}
-
 	let originSplit = origin.split(delimiter);
 	let updateSplit = update.split(delimiter);
 
@@ -37,11 +33,21 @@ export function diff(origin, update, options = {}) {
 		const source = action === `added` ? updateSplit : originSplit;
 		const value = source.slice(beginIndex, endIndex).join(delimiter);
 
-		if (value.length === 0) {
+		if (action === `` && value === ``) {
 			return;
 		}
 
 		results.push({ action, value });
+	}
+
+	if (origin.length > 0 && update.length === 0) {
+		action(`removed`);
+		return results;
+	}
+
+	if (origin.length === 0 && update.length > 0) {
+		action(`added`);
+		return results;
 	}
 
 	while (true) {
@@ -49,11 +55,11 @@ export function diff(origin, update, options = {}) {
 
 		if (match.length === 0) {
 			if (originSplit.length > 0) {
-				action(`removed`, 0);
+				action(`removed`);
 			}
 
 			if (updateSplit.length > 0) {
-				action(`added`, 0);
+				action(`added`);
 			}
 
 			break;
