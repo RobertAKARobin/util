@@ -42,6 +42,7 @@ export default [
 			'@stylistic/brace-style': [`error`, `1tbs`],
 			'@stylistic/comma-dangle': [`error`, `always-multiline`],
 			'@stylistic/comma-spacing': [`error`],
+			'@stylistic/function-call-spacing': `error`,
 			'@stylistic/indent': [`error`, `tab`, {
 				SwitchCase: 1,
 				ignoredNodes: [`TemplateLiteral *`],

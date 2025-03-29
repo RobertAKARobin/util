@@ -4,6 +4,8 @@ import robinsConfig_jsdoc from '@robertakarobin/eslint-config-jsdoc';
 import robinsConfig_json from '@robertakarobin/eslint-config-json';
 import robinsConfig_ts from '@robertakarobin/eslint-config-ts';
 
+import tsConfig from './tsconfig.json' with { type: 'json' };
+
 const requireRelative = {
 	group: [`util/*`],
 	message: `Paths to util break when this package is imported. Use relative paths instead.`,
@@ -44,8 +46,7 @@ export default tsESLint.config(
 		ignores: [
 			`**/dist/*`,
 			`**/dist-golden/*`,
-			`**/tmp/*`,
-			`example/`,
+			...tsConfig.exclude,
 		],
 	},
 );
