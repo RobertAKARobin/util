@@ -13,11 +13,23 @@ import { findOverlap } from '../group/findOverlap.js';
  * @returns {Array<DiffChunk>}
  */
 export function diff(origin, update, options = {}) {
-	const delimiter = options.delimiter ?? `\n`;
-
 	const results = /** @type {Array<DiffChunk>} */([]);
 
+	if (origin === update) {
+		if (origin.length > 0) {
+			results.push({
+				action: ``,
+				value: origin,
+			});
+		}
+
+		return results;
+	}
+
+	const delimiter = options.delimiter ?? `\n`;
+
 	let originSplit = origin.split(delimiter);
+
 	let updateSplit = update.split(delimiter);
 
 	/**
@@ -99,6 +111,12 @@ export function diff(origin, update, options = {}) {
 				current.value = prev2.value;
 				current.action = `removed`;
 			}
+		}
+	}
+
+	if (results.length > 2) {
+		for (let index = 0; index < results.length - 1; index += 1) {
+			results[index].value += delimiter;
 		}
 	}
 

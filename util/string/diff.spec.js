@@ -5,8 +5,10 @@ import { diff as diff_ } from './diff.js';
 /** @type {ReturnType<diff_>} */
 let diff;
 
-let origin = ``;
-let update = ``;
+/** @type {string} */
+let origin;
+/** @type {string} */
+let update;
 
 function subject(
 	/** @type {string} */origin,
@@ -91,34 +93,56 @@ export const spec = suite(import.meta.url, {},
 		diff = subject(`y y a b c d e f`, `a b x x x e f`);
 		$.assert(x => x(diff.length) === 5);
 
-		// $.assert(x => x(diff[0].value) === `y y `);
+		$.assert(x => x(diff[0].value) === `y y `);
 		$.assert(x => x(diff[0].action) === `removed`);
 
-		// $.assert(x => x(diff[1].value) === `a b `);
+		$.assert(x => x(diff[1].value) === `a b `);
 		$.assert(x => x(diff[1].action) === ``);
 
-		// $.assert(x => x(diff[2].value) === `c d `);
+		$.assert(x => x(diff[2].value) === `c d `);
 		$.assert(x => x(diff[2].action) === `removed`);
 
-		// $.assert(x => x(diff[3].value) === `x x x `);
+		$.assert(x => x(diff[3].value) === `x x x `);
 		$.assert(x => x(diff[3].action) === `added`);
 
 		$.assert(x => x(diff[4].value) === `e f`);
 		$.assert(x => x(diff[4].action) === ``);
 	}),
 
-	test(`overlap at beginning`, $ => {
+	test(`switch beginning to end`, $ => {
 		diff = subject(`x x a a b b`, `a a b b x x`);
 		$.assert(x => x(diff.length) === 3);
 
-		// $.assert(x => x(diff[0].value) === `x x `);
+		$.assert(x => x(diff[0].value) === `x x `);
 		$.assert(x => x(diff[0].action) === `removed`);
 
 		$.assert(x => x(diff[1].value) === `a a b b`);
 		$.assert(x => x(diff[1].action) === ``);
 
-		// $.assert(x => x(diff[2].value) === ` x x`);
+		$.assert(x => x(diff[2].value) === ` x x`);
 		$.assert(x => x(diff[2].action) === `added`);
+	}),
+
+	test(`switch both ends`, $ => {
+		diff = subject(`x x b b a a`, `a a b b x x`);
+		$.assert(x => x(diff.length) === 5);
+
+		console.log(diff);
+
+		$.assert(x => x(diff[0].value) === `x x `);
+		$.assert(x => x(diff[0].action) === `removed`);
+
+		$.assert(x => x(diff[1].value) === `a a `);
+		$.assert(x => x(diff[1].action) === `added`);
+
+		$.assert(x => x(diff[2].value) === `b b `);
+		$.assert(x => x(diff[2].action) === ``);
+
+		$.assert(x => x(diff[3].value) === ` a a`);
+		$.assert(x => x(diff[3].action) === `removed`);
+
+		$.assert(x => x(diff[4].value) === ` x x`);
+		$.assert(x => x(diff[4].action) === `added`);
 	}),
 
 	test(`overlap at end`, $ => {
