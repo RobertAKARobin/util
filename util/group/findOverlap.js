@@ -64,7 +64,7 @@ export function findOverlap(origin, update, options = {}) {
 	}
 
 	(function() {
-		let length = 0;
+		let length = 1; // Not starting at 0 becuase we know the chunks at that index will be the same
 
 		while (true) {
 			const originItem = origin[result.originIndex + length];
