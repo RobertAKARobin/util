@@ -4,7 +4,7 @@
  * @param {Value} update
  * @returns {boolean}
  */
-export function compareDefault(origin, update) {
+export function findOverlapCompareDefault(origin, update) {
 	return (
 		origin !== undefined
 		&& update !== undefined
@@ -17,7 +17,7 @@ export function compareDefault(origin, update) {
  */
 
 /**
- * Given two arrays, find the portions of those arrays that overlap
+ * Given two arrays, find the first slices of those arrays that overlap
  * @template [Value=string]
  * @param {Array<Value>} origin
  * @param {Array<Value>} update
@@ -32,7 +32,7 @@ export function findOverlap(origin, update, options = {}) {
 		updateIndex: -1,
 	};
 
-	const compare = options.compare ?? compareDefault;
+	const compare = options.compare ?? findOverlapCompareDefault;
 
 	const originLength = origin.length;
 	const updateLength = update.length;
@@ -80,4 +80,34 @@ export function findOverlap(origin, update, options = {}) {
 	})();
 
 	return result;
+}
+
+/**
+ * Given two arrays, find all slices of the two arrays that overlap. @see {@link findOverlap}
+ * @param {Parameters<findOverlap>[0]} origin
+ * @param {Parameters<findOverlap>[1]} update
+ * @param {Parameters<findOverlap>[2]} options
+ * @returns {Array<ReturnType<findOverlap>>}
+ */
+export function findOverlaps(origin, update, options = {}) {
+	let originRemaining = [...origin];
+	const overlaps = /** @type {Array<Overlap>} */([]);
+
+	let originOffset = 0;
+	while (true) {
+		const overlap = findOverlap(originRemaining, update, options);
+
+		if (overlap.length === 0) {
+			break;
+		}
+
+		overlap.originIndex += originOffset;
+		overlaps.push(overlap);
+
+		const sliceFrom = originOffset + overlap.length;
+		originRemaining = originRemaining.slice(sliceFrom);
+		originOffset += sliceFrom;
+	}
+
+	return overlaps;
 }

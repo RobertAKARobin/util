@@ -127,8 +127,6 @@ export const spec = suite(import.meta.url, {},
 		diff = subject(`x x b b a a`, `a a b b x x`);
 		$.assert(x => x(diff.length) === 5);
 
-		console.log(diff);
-
 		$.assert(x => x(diff[0].value) === `x x `);
 		$.assert(x => x(diff[0].action) === `removed`);
 

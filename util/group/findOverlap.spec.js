@@ -1,10 +1,7 @@
 import { suite, test } from '../spec/index.js';
 import { isNotNull } from '../isNotNull.js';
 
-import { compareDefault, findOverlap } from './findOverlap.js';
-
-/** @type {typeof compareDefault<string>} */
-let compare;
+import { findOverlap, findOverlapCompareDefault, findOverlaps } from './findOverlap.js';
 
 /** @type {ReturnType<findOverlap>} */
 let overlap;
@@ -13,10 +10,12 @@ function subject(
 	/** @type {string} */origin,
 	/** @type {string} */update,
 	/** @type {string} */delimiter = ``,
+	/** @type {typeof findOverlapCompareDefault<string>} */compare = findOverlapCompareDefault,
 ) {
 	const out = findOverlap(origin.split(delimiter), update.split(delimiter), { compare });
 	return isNotNull(out);
 }
+
 export const spec = suite(import.meta.url, {},
 	test(`no overlap`, $ => {
 		overlap = subject(`12345`, `abcde`);
@@ -107,23 +106,37 @@ export const spec = suite(import.meta.url, {},
 		$.assert(x => x(overlap.length) === 2);
 	}),
 
-	test (`custom comparer`, $ => {
-		compare = (origin, update) => {
-			return compareDefault(origin.toLowerCase(), update.toLowerCase());
-		};
-
-		overlap = subject(`aabbCCddee`, `ccCC`);
+	test(`custom comparer`, $ => {
+		overlap = subject(`aabbCCddee`, `ccCC`, ``, (origin, update) => {
+			return findOverlapCompareDefault(origin.toLowerCase(), update.toLowerCase());
+		});
 		$.assert(x => x(overlap.originIndex) === 4);
 		$.assert(x => x(overlap.updateIndex) === 0);
 		$.assert(x => x(overlap.length) === 2);
 
-		compare = (origin, update) => {
-			return compareDefault(origin, update) && origin.length >= 2;
-		};
-
-		overlap = findOverlap(`aa 4 bb 44 ccc`.split(` `), `dd 4 ee 4 ff 44 g`.split(` `), { compare });
+		overlap = subject(`aa 4 bb 44 ccc`, `dd 4 ee 4 ff 44 g`, ` `, (origin, update) => {
+			return findOverlapCompareDefault(origin, update) && origin.length >= 2;
+		});
 		$.assert(x => x(overlap.originIndex) === 3);
 		$.assert(x => x(overlap.updateIndex) === 5);
 		$.assert(x => x(overlap.length) === 1);
+	}),
+
+	test(`findOverlaps`, $ => {
+		let overlaps = findOverlaps(`x x 1 a a a 2 b b b b`.split(` `), `b b b b 3 a a a 4 x x`.split(` `));
+
+		$.assert(x => x(overlaps.length) === 3);
+
+		$.assert(x => x(overlaps[0].length) === 2);
+		$.assert(x => x(overlaps[0].originIndex) === 0);
+		$.assert(x => x(overlaps[0].updateIndex) === 9);
+
+		$.assert(x => x(overlaps[1].length) === 3);
+		$.assert(x => x(overlaps[1].originIndex) === 3);
+		$.assert(x => x(overlaps[1].updateIndex) === 5);
+
+		$.assert(x => x(overlaps[2].length) === 4);
+		$.assert(x => x(overlaps[2].originIndex) === 7);
+		$.assert(x => x(overlaps[2].updateIndex) === 0);
 	}),
 );
