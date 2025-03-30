@@ -59,17 +59,19 @@ Assertion | Execution | 1 per test | - | No
 
 ## TODO
 
+-	TODO1: Left-pad numbers in spec output IDs so they all line up nicely
 -	TODO1: Reset args between iterations
 -	TODO1: Deferred tests
--	TODO1: Print logs to stdout when they're generated, as well as appearing in renderer
+-	TODO1: Print logs to stdout when they're generated, as well as appearing in renderer?
+-	TODO1: Catch errors
+
 -	TODO2: Can log from within args
 -	TODO2: Shuffle
--	TODO2: Catch errors?
 -	TODO2: Print results as you go
--	TODO2: Make `suite()` support no options
 -	TODO2: Suppress iteration details; assertions should not count toward total if in suppressed iteration (but failures should still override status)
 -	TODO2: Add examples with more complex assertionhelper names
 -	TODO2: Dollar sign as valueWrapper gets a `2` appended to it?
+-	TODO3: Make `suite()` support no options, i.e. no `{}` argument
 -	TODO3: Add caching, e.g. for valueWrapMatcher
 -	TODO3: Verify results are POJOs
 
