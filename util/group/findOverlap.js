@@ -60,11 +60,11 @@ export function findOverlap(origin, update, options = {}) {
 		const originItem = origin[originIndex];
 		const updateItem = update[updateIndex];
 
-		if (
-			filter(originItem) // TODO1 Skip to next originIndex if filtered out
-			&& filter(updateItem)
-			&& compare(originItem, updateItem)
-		) {
+		if (filter(originItem) === false) {
+			appendAndReset();
+			originIndex += 1;
+
+		} else if (filter(updateItem) && compare(originItem, updateItem)) {
 			if (overlap.length === 0) {
 				overlap.originIndex = originIndex;
 				overlap.updateIndex = updateIndex;
@@ -72,6 +72,7 @@ export function findOverlap(origin, update, options = {}) {
 
 			overlap.length += 1;
 			originIndex += 1;
+
 		} else {
 			appendAndReset();
 		}
