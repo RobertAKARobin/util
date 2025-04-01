@@ -38,61 +38,72 @@ const newOverlap = () => /** @type {Overlap} */({
  * @returns {Overlap}
  */
 export function findOverlap(origin, update, options = {}) {
+	if (origin.length === 0 || update.length === 0) {
+		return newOverlap();
+	}
+
 	const compare = options.compare ?? findOverlapDefaultCompare;
 	const filter = options.filter ?? findOverlapDefaultFilter;
 
-	function appendAndReset() {
+	function overlapEnd() {
 		if (overlap.length > 0) {
 			if (overlap.length > overlapLongest.length) {
 				overlapLongest = overlap;
 			}
 
-			originIndex = overlap.originIndex;
 			overlap = newOverlap();
 		}
 	}
 
-	let originIndex = 0;
-	let updateIndex = 0;
+	let index = 0;
+	let updateOffset = update.length - 1;
 	let overlap = newOverlap();
 	let overlapLongest = newOverlap();
+	let cycles = 0;
 	while (true) {
-		const originItem = origin[originIndex];
+		cycles += 1;
+		const originItem = origin[index];
+		const updateIndex = index + updateOffset;
 		const updateItem = update[updateIndex];
 
-		if (filter(originItem) === false) {
-			appendAndReset();
-			originIndex += 1;
+		// console.log([index, originItem, updateItem, updateIndex, updateOffset, overlapLongest.length]);
 
-		} else if (filter(updateItem) && compare(originItem, updateItem)) {
+		if (filter(originItem) === false) {
+			overlapEnd();
+
+		} else if (filter(updateItem) === false) {
+			overlapEnd();
+
+		} else if (compare(originItem, updateItem)) {
 			if (overlap.length === 0) {
-				overlap.originIndex = originIndex;
+				overlap.originIndex = index;
 				overlap.updateIndex = updateIndex;
 			}
 
 			overlap.length += 1;
-			originIndex += 1;
 
 		} else {
-			appendAndReset();
+			overlapEnd();
 		}
 
-		updateIndex += 1;
+		index += 1;
 
-		if (updateIndex >= update.length) {
-			appendAndReset();
-			originIndex += 1;
-			updateIndex = 0;
-		}
-
-		if (originIndex >= origin.length) {
+		if (updateOffset === 0 - origin.length + 1) {
+			overlapEnd();
 			break;
 		}
+
+		if (
+			updateIndex >= update.length - 1
+			|| index >= origin.length
+		) {
+			// console.log(`->`);
+			updateOffset -= 1;
+			index = Math.max(0, 0 - updateOffset);
+			overlapEnd();
+		}
 	}
 
-	if (overlap.length > overlapLongest.length) {
-		overlapLongest = overlap;
-	}
-
+	// console.log(cycles);
 	return overlapLongest;
 }
