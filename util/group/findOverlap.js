@@ -62,8 +62,8 @@ export function findOverlap(origin, update, options = {}) {
 	let cycles = 0;
 	while (true) {
 		cycles += 1;
-		const originItem = origin[index];
 		const updateIndex = index + updateOffset;
+		const originItem = origin[index];
 		const updateItem = update[updateIndex];
 
 		// console.log([index, originItem, updateItem, updateIndex, updateOffset, overlapLongest.length]);
@@ -88,11 +88,6 @@ export function findOverlap(origin, update, options = {}) {
 
 		index += 1;
 
-		if (updateOffset === 0 - origin.length + 1) {
-			overlapEnd();
-			break;
-		}
-
 		if (
 			updateIndex >= update.length - 1
 			|| index >= origin.length
@@ -102,8 +97,12 @@ export function findOverlap(origin, update, options = {}) {
 			index = Math.max(0, 0 - updateOffset);
 			overlapEnd();
 		}
+
+		if (origin.length === 0 - updateOffset + overlapLongest.length - 1) { // updateOffset ends up negative
+			break;
+		}
 	}
 
-	// console.log(cycles);
+	console.log(cycles);
 	return overlapLongest;
 }
