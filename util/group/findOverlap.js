@@ -1,11 +1,11 @@
 /**
  * @template [Value=string]
- * @param {Value} origin
- * @param {Value} update
+ * @param {Value} inputA
+ * @param {Value} inputB
  * @returns {boolean}
  */
-export function findOverlapDefaultCompare(origin, update) {
-	return origin === update;
+export function findOverlapDefaultCompare(inputA, inputB) {
+	return inputA === inputB;
 }
 
 /**
@@ -17,28 +17,28 @@ export function findOverlapDefaultFilter(input) {
 	return input !== undefined;
 }
 
-const newOverlap = () => /** @type {Overlap} */({
+const newOverlap = () => ({
+	indexA: -1,
+	indexB: -1,
 	length: 0,
-	originIndex: -1,
-	updateIndex: -1,
 });
 
 /**
- * @typedef {{length: number; originIndex: number; updateIndex: number}} Overlap
+ * @typedef {ReturnType<typeof newOverlap>} Overlap
  */
 
 /**
  * Given two arrays, find a segment of those arrays that overlaps
  * @template [Value=string]
- * @param {Array<Value>} origin
- * @param {Array<Value>} update
+ * @param {Array<Value>} inputA
+ * @param {Array<Value>} inputB
  * @param {object} [options]
  * @param {typeof findOverlapDefaultCompare<Value>} [options.compare] - Function that tests whether two items in the arrays are the same
  * @param {typeof findOverlapDefaultFilter<Value>} [options.filter] - Function that tests whether an item can be considered for overlap
  * @returns {Overlap}
  */
-export function findOverlap(origin, update, options = {}) {
-	if (origin.length === 0 || update.length === 0) {
+export function findOverlap(inputA, inputB, options = {}) {
+	if (inputA.length === 0 || inputB.length === 0) {
 		return newOverlap();
 	}
 
@@ -55,29 +55,32 @@ export function findOverlap(origin, update, options = {}) {
 		}
 	}
 
+	const baseIsInputA = inputA.length > inputB.length;
+	const [base, slider] = baseIsInputA ? [inputA, inputB] : [inputB, inputA];
+
 	let index = 0;
-	let updateOffset = update.length - 1;
+	let sliderOffset = slider.length - 1;
 	let overlap = newOverlap();
 	let overlapLongest = newOverlap();
 	let cycles = 0;
 	while (true) {
 		cycles += 1;
-		const updateIndex = index + updateOffset;
-		const originItem = origin[index];
-		const updateItem = update[updateIndex];
+		const sliderIndex = index + sliderOffset;
+		const baseItem = base[index];
+		const sliderItem = slider[sliderIndex];
 
 		// console.log([index, originItem, updateItem, updateIndex, updateOffset, overlapLongest.length]);
 
-		if (filter(originItem) === false) {
+		if (filter(baseItem) === false) {
 			overlapEnd();
 
-		} else if (filter(updateItem) === false) {
+		} else if (filter(sliderItem) === false) {
 			overlapEnd();
 
-		} else if (compare(originItem, updateItem)) {
+		} else if (compare(baseItem, sliderItem)) {
 			if (overlap.length === 0) {
-				overlap.originIndex = index;
-				overlap.updateIndex = updateIndex;
+				overlap.indexA = index;
+				overlap.indexB = sliderIndex;
 			}
 
 			overlap.length += 1;
@@ -88,19 +91,22 @@ export function findOverlap(origin, update, options = {}) {
 
 		index += 1;
 
-		if (
-			updateIndex >= update.length - 1
-			|| index >= origin.length
-		) {
+		if (sliderIndex + 1 >= slider.length) {
 			// console.log(`->`);
-			updateOffset -= 1;
-			index = Math.max(0, 0 - updateOffset);
+			sliderOffset -= 1;
+			index = Math.max(0, 0 - sliderOffset);
 			overlapEnd();
 		}
 
-		if (origin.length === 0 - updateOffset + overlapLongest.length - 1) { // updateOffset ends up negative
+		if (index >= base.length) { // updateOffset ends up negative
 			break;
 		}
+	}
+
+	if (baseIsInputA === false) {
+		const { indexA, indexB } = overlapLongest;
+		overlapLongest.indexA = indexB;
+		overlapLongest.indexB = indexA;
 	}
 
 	console.log(cycles);

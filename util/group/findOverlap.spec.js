@@ -43,66 +43,66 @@ export const spec = suite(import.meta.url, {},
 	test(`single overlap`, $ => {
 		overlap = subject(`123X4`, `aXbcde`);
 		$.assert(x => x(overlap.length) === 1);
-		// $.assert(x => x(overlap.originIndex) === 3);
-		// $.assert(x => x(overlap.updateIndex) === 1);
+		$.assert(x => x(overlap.indexA) === 3);
+		$.assert(x => x(overlap.indexB) === 1);
 
 		overlap = subject(`123XXX4`, `aXXXbcdefgh`);
 		$.assert(x => x(overlap.length) === 3);
-		// $.assert(x => x(overlap.originIndex) === 3);
-		// $.assert(x => x(overlap.updateIndex) === 1);
+		$.assert(x => x(overlap.indexA) === 3);
+		$.assert(x => x(overlap.indexB) === 1);
 	}),
 
 	test(`origin and update are identical`, $ => {
 		overlap = subject(`a`, `a`);
 		$.assert(x => x(overlap.length) === 1);
-		// $.assert(x => x(overlap.originIndex) === 0);
-		// $.assert(x => x(overlap.updateIndex) === 0);
+		$.assert(x => x(overlap.indexA) === 0);
+		$.assert(x => x(overlap.indexB) === 0);
 
 		overlap = subject(`aaa`, `aaa`);
 		$.assert(x => x(overlap.length) === 3);
-		// $.assert(x => x(overlap.originIndex) === 0);
-		// $.assert(x => x(overlap.updateIndex) === 0);
+		$.assert(x => x(overlap.indexA) === 0);
+		$.assert(x => x(overlap.indexB) === 0);
 	}),
 
 	test(`multiple identical overlaps`, $ => {
 		overlap = subject(`aaa`, `aaaaaa`);
 		$.assert(x => x(overlap.length) === 3);
-		// $.assert(x => x(overlap.originIndex) === 0);
-		// $.assert(x => x(overlap.updateIndex) === 0);
+		$.assert(x => x(overlap.indexA) === 0);
+		$.assert(x => x(overlap.indexB) === 0);
 
 		overlap = subject(`aaaaaa`, `aaa`);
 		$.assert(x => x(overlap.length) === 3);
-		// $.assert(x => x(overlap.originIndex) === 0);
-		// $.assert(x => x(overlap.updateIndex) === 0);
+		$.assert(x => x(overlap.indexA) === 0);
+		$.assert(x => x(overlap.indexB) === 0);
 
 		overlap = subject(`123XX5`, `aXXXXbcde`);
 		$.assert(x => x(overlap.length) === 2);
-		// $.assert(x => x(overlap.originIndex) === 3);
-		// $.assert(x => x(overlap.updateIndex) === 1);
+		$.assert(x => x(overlap.indexA) === 3);
+		$.assert(x => x(overlap.indexB) === 1);
 
 		overlap = subject(`123XXXX5`, `aXXbcde`);
 		$.assert(x => x(overlap.length) === 2);
-		// $.assert(x => x(overlap.originIndex) === 3);
-		// $.assert(x => x(overlap.updateIndex) === 1);
+		$.assert(x => x(overlap.indexA) === 3);
+		$.assert(x => x(overlap.indexB) === 1);
 
 		overlap = subject(`123XX5`, `aXXXbcXXXXde`);
 		$.assert(x => x(overlap.length) === 2);
-		// $.assert(x => x(overlap.originIndex) === 3);
-		// $.assert(x => x(overlap.updateIndex) === 1);
+		$.assert(x => x(overlap.indexA) === 3);
+		$.assert(x => x(overlap.indexB) === 1);
 	}),
 
 	test(`finds the longest`, $ => {
 		overlap = subject(`1ab2abc34abcd`, `5abc6abcd`);
 		$.assert(x => x(overlap.length) === 4);
-		// $.assert(x => x(overlap.originIndex) === 9);
-		// $.assert(x => x(overlap.updateIndex) === 5);
+		$.assert(x => x(overlap.indexA) === 9);
+		$.assert(x => x(overlap.indexB) === 5);
 	}),
 
 	test(`case sensitive`, $ => {
 		overlap = subject(`123XX4`, `abxxXXcd`);
 		$.assert(x => x(overlap.length) === 2);
-		// $.assert(x => x(overlap.originIndex) === 3);
-		// $.assert(x => x(overlap.updateIndex) === 4);
+		$.assert(x => x(overlap.indexA) === 3);
+		$.assert(x => x(overlap.indexB) === 4);
 	}),
 
 	suite(`custom comparer`, {},
@@ -112,8 +112,8 @@ export const spec = suite(import.meta.url, {},
 					origin.toLowerCase() === update.toLowerCase(),
 			});
 			$.assert(x => x(overlap.length) === 2);
-			// $.assert(x => x(overlap.originIndex) === 3);
-			// $.assert(x => x(overlap.updateIndex) === 2);
+			$.assert(x => x(overlap.indexA) === 3);
+			$.assert(x => x(overlap.indexB) === 2);
 		}),
 	),
 
@@ -130,8 +130,8 @@ export const spec = suite(import.meta.url, {},
 				},
 			);
 			$.assert(x => x(overlap.length) === 2);
-			// $.assert(x => x(overlap.originIndex) === 4);
-			// $.assert(x => x(overlap.updateIndex) === 4);
+			$.assert(x => x(overlap.indexA) === 4);
+			$.assert(x => x(overlap.indexB) === 4);
 		}),
 	),
 );
