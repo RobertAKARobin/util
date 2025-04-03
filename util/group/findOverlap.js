@@ -91,14 +91,14 @@ export function findOverlap(inputA, inputB, options = {}) {
 
 		index += 1;
 
-		if (sliderIndex + 1 >= slider.length) {
+		if (sliderIndex + 1 === slider.length) {
 			// console.log(`->`);
 			sliderOffset -= 1;
-			index = Math.max(0, 0 - sliderOffset);
+			index = sliderOffset > 0 ? 0 : 0 - sliderOffset;
 			overlapEnd();
 		}
 
-		if (index >= base.length) { // updateOffset ends up negative
+		if (index === base.length) {
 			break;
 		}
 	}
