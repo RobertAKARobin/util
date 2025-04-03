@@ -170,7 +170,7 @@ export class SpecBuilder {
 				? () => isNotNull(options.args)(inheritedArgs)
 				: () => ({ ...inheritedArgs });
 
-			const timing = options.timing || `concurrent`;
+			const timing = options.timing ?? `consecutive`;
 
 			const iterationsInput = /** @type {number} */(options.iterations);
 			const iterations = nTimes(
