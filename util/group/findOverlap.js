@@ -69,7 +69,7 @@ export function findOverlap(inputA, inputB, options = {}) {
 		const baseItem = base[index];
 		const sliderItem = slider[sliderIndex];
 
-		// console.log([index, originItem, updateItem, updateIndex, updateOffset, overlapLongest.length]);
+		// console.log([index, baseItem, sliderItem, sliderIndex, sliderOffset, overlapLongest.length]);
 
 		if (filter(baseItem) === false) {
 			overlapEnd();
@@ -89,17 +89,18 @@ export function findOverlap(inputA, inputB, options = {}) {
 			overlapEnd();
 		}
 
-		index += 1;
+		if (index + 1 === base.length || sliderIndex + 1 === slider.length) {
+			overlapEnd();
 
-		if (sliderIndex + 1 === slider.length) {
+			if (index + 1 === base.length && index + sliderOffset === 0) {
+				break;
+			}
+
 			// console.log(`->`);
 			sliderOffset -= 1;
 			index = sliderOffset > 0 ? 0 : 0 - sliderOffset;
-			overlapEnd();
-		}
-
-		if (index === base.length) {
-			break;
+		} else {
+			index += 1;
 		}
 	}
 

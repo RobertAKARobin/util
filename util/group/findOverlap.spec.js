@@ -134,4 +134,28 @@ export const spec = suite(import.meta.url, {},
 			$.assert(x => x(overlap.indexB) === 4);
 		}),
 	),
+
+	test(`overlap at end`, $ => {
+		overlap = subject(`1234x`, `xABC`);
+		$.assert(x => x(overlap.length) === 1);
+		$.assert(x => x(overlap.indexA) === 4);
+		$.assert(x => x(overlap.indexB) === 0);
+
+		overlap = subject(`xABC`, `1234x`);
+		$.assert(x => x(overlap.length) === 1);
+		$.assert(x => x(overlap.indexA) === 0);
+		$.assert(x => x(overlap.indexB) === 4);
+	}),
+
+	test(`single overlap at end`, $ => {
+		overlap = subject(`1234x`, `x`);
+		$.assert(x => x(overlap.length) === 1);
+		$.assert(x => x(overlap.indexA) === 4);
+		$.assert(x => x(overlap.indexB) === 0);
+
+		overlap = subject(`x1234`, `x`);
+		$.assert(x => x(overlap.length) === 1);
+		$.assert(x => x(overlap.indexA) === 0);
+		$.assert(x => x(overlap.indexB) === 0);
+	}),
 );
