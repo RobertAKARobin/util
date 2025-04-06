@@ -66,8 +66,6 @@ export function findOverlap(inputA, inputB, options = {}) {
 		const baseItem = base[index];
 		const sliderItem = slider[sliderIndex];
 
-		// console.log([cycles, index, baseItem, sliderItem, sliderIndex, sliderOffset]);
-
 		if (filter(baseItem) === false) {
 			overlap = newOverlap();
 
@@ -85,18 +83,23 @@ export function findOverlap(inputA, inputB, options = {}) {
 			if (overlap.length > overlapLongest.length) {
 				overlapLongest = overlap;
 			}
+
 		} else {
 			overlap = newOverlap();
 		}
 
-		if (index + 1 === base.length) { // Is last item in base
+		// console.log([index, baseItem, sliderItem, sliderIndex, sliderOffset, overlapLongest.length]);
+
+		if (index >= base.length - 1 - (overlapLongest.length - overlap.length)) { // Is last item in base
 			if (index + sliderOffset === 0) { // Is first item in slider
 				break;
 			}
 
+			// console.log(`<`);
 			slideForward();
 
-		} else if (sliderIndex + 1 === slider.length) { // Is last item in slider
+		} else if (sliderIndex >= slider.length - 1 - (overlapLongest.length - overlap.length)) { // Is last possible item in slider
+			// console.log(`->`);
 			slideForward();
 
 		} else {
@@ -110,5 +113,6 @@ export function findOverlap(inputA, inputB, options = {}) {
 		overlapLongest.indexB = indexA;
 	}
 
+	console.log(cycles);
 	return overlapLongest;
 }
