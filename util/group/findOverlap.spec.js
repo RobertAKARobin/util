@@ -17,7 +17,6 @@ function subject(
 		update.split(delimiter),
 		options,
 	);
-	// console.log(`\n---\n`);
 	return isNotNull(out);
 }
 

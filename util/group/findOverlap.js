@@ -45,37 +45,34 @@ export function findOverlap(inputA, inputB, options = {}) {
 	const compare = options.compare ?? findOverlapDefaultCompare;
 	const filter = options.filter ?? findOverlapDefaultFilter;
 
-	function overlapEnd() {
-		if (overlap.length > 0) {
-			if (overlap.length > overlapLongest.length) {
-				overlapLongest = overlap;
-			}
-
-			overlap = newOverlap();
-		}
-	}
-
 	const baseIsInputA = inputA.length > inputB.length;
-	const [base, slider] = baseIsInputA ? [inputA, inputB] : [inputB, inputA];
+	const [base, slider] = baseIsInputA ? [inputA, inputB] : [inputB, inputA]; // Sorting should ensure that if overlaps tie for longest, the earliest is returned. More efficient than checking indexes on each overlapEnd
 
 	let index = 0;
 	let sliderOffset = slider.length - 1;
 	let overlap = newOverlap();
 	let overlapLongest = newOverlap();
 	let cycles = 0;
+
+	function slideForward() {
+		overlap = newOverlap();
+		sliderOffset -= 1;
+		index = sliderOffset > 0 ? 0 : 0 - sliderOffset;
+	}
+
 	while (true) {
 		cycles += 1;
 		const sliderIndex = index + sliderOffset;
 		const baseItem = base[index];
 		const sliderItem = slider[sliderIndex];
 
-		// console.log([index, baseItem, sliderItem, sliderIndex, sliderOffset, overlapLongest.length]);
+		// console.log([cycles, index, baseItem, sliderItem, sliderIndex, sliderOffset]);
 
 		if (filter(baseItem) === false) {
-			overlapEnd();
+			overlap = newOverlap();
 
 		} else if (filter(sliderItem) === false) {
-			overlapEnd();
+			overlap = newOverlap();
 
 		} else if (compare(baseItem, sliderItem)) {
 			if (overlap.length === 0) {
@@ -85,20 +82,23 @@ export function findOverlap(inputA, inputB, options = {}) {
 
 			overlap.length += 1;
 
+			if (overlap.length > overlapLongest.length) {
+				overlapLongest = overlap;
+			}
 		} else {
-			overlapEnd();
+			overlap = newOverlap();
 		}
 
-		if (index + 1 === base.length || sliderIndex + 1 === slider.length) {
-			overlapEnd();
-
-			if (index + 1 === base.length && index + sliderOffset === 0) {
+		if (index + 1 === base.length) { // Is last item in base
+			if (index + sliderOffset === 0) { // Is first item in slider
 				break;
 			}
 
-			// console.log(`->`);
-			sliderOffset -= 1;
-			index = sliderOffset > 0 ? 0 : 0 - sliderOffset;
+			slideForward();
+
+		} else if (sliderIndex + 1 === slider.length) { // Is last item in slider
+			slideForward();
+
 		} else {
 			index += 1;
 		}
@@ -110,6 +110,5 @@ export function findOverlap(inputA, inputB, options = {}) {
 		overlapLongest.indexB = indexA;
 	}
 
-	console.log(cycles);
 	return overlapLongest;
 }
