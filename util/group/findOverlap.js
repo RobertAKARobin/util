@@ -49,10 +49,12 @@ export function findOverlap(inputA, inputB, options = {}) {
 	const [base, slider] = baseIsInputA ? [inputA, inputB] : [inputB, inputA]; // Sorting should ensure that if overlaps tie for longest, the earliest is returned. More efficient than checking indexes on each overlapEnd
 
 	let index = 0;
+	let indexMax = base.length - 1;
 	let sliderOffset = slider.length - 1;
+	let sliderIndexMax = slider.length - 1;
 	let overlap = newOverlap();
 	let overlapLongest = newOverlap();
-	let cycles = 0;
+	let overlapLongestLength = 0;
 
 	function slideForward() {
 		overlap = newOverlap();
@@ -61,7 +63,6 @@ export function findOverlap(inputA, inputB, options = {}) {
 	}
 
 	while (true) {
-		cycles += 1;
 		const sliderIndex = index + sliderOffset;
 		const baseItem = base[index];
 		const sliderItem = slider[sliderIndex];
@@ -80,26 +81,26 @@ export function findOverlap(inputA, inputB, options = {}) {
 
 			overlap.length += 1;
 
-			if (overlap.length > overlapLongest.length) {
+			if (overlap.length > overlapLongestLength) { // Can't do `overlap.length > overlapLongest.length` bc overlap and overlapLongest may be same object
 				overlapLongest = overlap;
+				overlapLongestLength = overlap.length;
+
+				indexMax -= 1;
+				sliderIndexMax -= 1;
 			}
 
 		} else {
 			overlap = newOverlap();
 		}
 
-		// console.log([index, baseItem, sliderItem, sliderIndex, sliderOffset, overlapLongest.length]);
-
-		if (index >= base.length - 1 - (overlapLongest.length - overlap.length)) { // Is last item in base
+		if (index >= indexMax + overlap.length) { // Is last possible item in base
 			if (index + sliderOffset === 0) { // Is first item in slider
 				break;
 			}
 
-			// console.log(`<`);
 			slideForward();
 
-		} else if (sliderIndex >= slider.length - 1 - (overlapLongest.length - overlap.length)) { // Is last possible item in slider
-			// console.log(`->`);
+		} else if (sliderIndex >= sliderIndexMax + overlap.length) { // Is last possible item in slider
 			slideForward();
 
 		} else {
@@ -113,6 +114,5 @@ export function findOverlap(inputA, inputB, options = {}) {
 		overlapLongest.indexB = indexA;
 	}
 
-	console.log(cycles);
 	return overlapLongest;
 }
