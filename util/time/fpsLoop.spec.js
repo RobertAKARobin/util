@@ -46,6 +46,7 @@ export const spec = suite(`FPSLoop`,
 			return args;
 		},
 		iterations: 10,
+		timing: `concurrent`,
 	},
 
 	test(`await`, async $ => {

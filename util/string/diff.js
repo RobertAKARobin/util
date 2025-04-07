@@ -77,14 +77,14 @@ export function diff(origin, update, options = {}) {
 			break;
 		}
 
-		action(`removed`, 0, match.originIndex);
+		action(`removed`, 0, match.indexA);
 
-		action(`added`, 0, match.updateIndex);
+		action(`added`, 0, match.indexA);
 
-		action(``, match.originIndex, match.originIndex + match.length);
+		action(``, match.indexA, match.indexA + match.length);
 
-		originSplit = originSplit.slice(match.originIndex + match.length);
-		updateSplit = updateSplit.slice(match.updateIndex + match.length);
+		originSplit = originSplit.slice(match.indexA + match.length);
+		updateSplit = updateSplit.slice(match.indexB + match.length);
 	}
 
 	// Handle when a chunk was simply moved from one end of a sequence to the other
