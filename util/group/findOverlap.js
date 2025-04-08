@@ -49,12 +49,9 @@ export function findOverlap(inputA, inputB, options = {}) {
 	const [base, slider] = baseIsInputA ? [inputA, inputB] : [inputB, inputA]; // Sorting should ensure that if overlaps tie for longest, the earliest is returned. More efficient than checking indexes on each overlapEnd
 
 	let index = 0;
-	let indexMax = base.length - 1;
 	let sliderOffset = slider.length - 1;
-	let sliderIndexMax = slider.length - 1;
 	let overlap = newOverlap();
 	let overlapLongest = newOverlap();
-	let overlapLongestLength = 0;
 
 	function slideForward() {
 		overlap = newOverlap();
@@ -81,26 +78,24 @@ export function findOverlap(inputA, inputB, options = {}) {
 
 			overlap.length += 1;
 
-			if (overlap.length > overlapLongestLength) { // Can't do `overlap.length > overlapLongest.length` bc overlap and overlapLongest may be same object
+			if (overlap.length > overlapLongest.length) {
 				overlapLongest = overlap;
-				overlapLongestLength = overlap.length;
-
-				indexMax -= 1;
-				sliderIndexMax -= 1;
 			}
 
 		} else {
 			overlap = newOverlap();
 		}
 
-		if (index >= indexMax + overlap.length) { // Is last possible item in base
+		const limit = overlapLongest.length - overlap.length + 1;
+
+		if (index >= base.length - limit) { // Is last possible item in base
 			if (index + sliderOffset === 0) { // Is first item in slider
 				break;
 			}
 
 			slideForward();
 
-		} else if (sliderIndex >= sliderIndexMax + overlap.length) { // Is last possible item in slider
+		} else if (sliderIndex >= slider.length - limit) { // Is last possible item in slider
 			slideForward();
 
 		} else {
