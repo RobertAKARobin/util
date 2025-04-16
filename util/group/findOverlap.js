@@ -23,6 +23,9 @@ const newOverlap = () => ({
 	length: 0,
 });
 
+let debug = false;
+debug = true;
+
 /**
  * @typedef {ReturnType<typeof newOverlap>} Overlap
  */
@@ -48,58 +51,61 @@ export function findOverlap(inputA, inputB, options = {}) {
 	const baseIsInputA = inputA.length > inputB.length;
 	const [base, slider] = baseIsInputA ? [inputA, inputB] : [inputB, inputA]; // Sorting should ensure that if overlaps tie for longest, the earliest is returned. More efficient than checking indexes on each overlapEnd
 
-	let index = 0;
+	let baseIndex = 0;
 	let sliderOffset = slider.length - 1;
 	let overlap = newOverlap();
-	let overlapLongest = newOverlap();
-
-	function slideForward() {
-		overlap = newOverlap();
-		sliderOffset -= 1;
-		index = sliderOffset > 0 ? 0 : 0 - sliderOffset;
-	}
+	let overlapLongest = overlap;
+	let cycles = 0;
 
 	while (true) {
-		const sliderIndex = index + sliderOffset;
-		const baseItem = base[index];
+		cycles += 1;
+		const sliderIndex = baseIndex + sliderOffset;
+		const baseItem = base[baseIndex];
 		const sliderItem = slider[sliderIndex];
 
-		if (filter(baseItem) === false) {
-			overlap = newOverlap();
+		const isMatch = (
+			filter(baseItem)
+			&& filter(sliderItem)
+			&& compare(baseItem, sliderItem)
+		);
 
-		} else if (filter(sliderItem) === false) {
-			overlap = newOverlap();
-
-		} else if (compare(baseItem, sliderItem)) {
+		if (isMatch) {
 			if (overlap.length === 0) {
-				overlap.indexA = index;
+				overlap.indexA = baseIndex;
 				overlap.indexB = sliderIndex;
 			}
 
 			overlap.length += 1;
+		}
 
+		const baseRemaining = base.length - 1 - baseIndex;
+		const isBaseEnd = baseRemaining === 0;
+
+		const sliderRemaining = slider.length - 1 - sliderIndex;
+		const isSliderEnd = sliderRemaining === 0;
+
+		if (debug) {
+			console.log([isBaseEnd ? `!` : ` `, baseIndex, baseRemaining, baseItem, sliderItem, sliderIndex, sliderRemaining, isSliderEnd ? `!` : ` `, overlap.length, overlapLongest.length].join(`  `));
+		}
+
+		if (isMatch === false || isSliderEnd || isBaseEnd) {
 			if (overlap.length > overlapLongest.length) {
 				overlapLongest = overlap;
 			}
 
-		} else {
 			overlap = newOverlap();
 		}
 
-		const limit = overlapLongest.length - overlap.length + 1;
-
-		if (index >= base.length - limit) { // Is last possible item in base
-			if (index + sliderOffset === 0) { // Is first item in slider
-				break;
+		if (isBaseEnd && sliderIndex === 0) {
+			break;
+		} else if (isSliderEnd || isBaseEnd) {
+			sliderOffset -= 1;
+			baseIndex = sliderOffset > 0 ? 0 : 0 - sliderOffset;
+			if (debug) {
+				console.log(` `);
 			}
-
-			slideForward();
-
-		} else if (sliderIndex >= slider.length - limit) { // Is last possible item in slider
-			slideForward();
-
 		} else {
-			index += 1;
+			baseIndex += 1;
 		}
 	}
 
@@ -107,6 +113,10 @@ export function findOverlap(inputA, inputB, options = {}) {
 		const { indexA, indexB } = overlapLongest;
 		overlapLongest.indexA = indexB;
 		overlapLongest.indexB = indexA;
+	}
+
+	if (debug) {
+		console.log(cycles);
 	}
 
 	return overlapLongest;

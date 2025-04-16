@@ -146,13 +146,26 @@ export const spec = suite(import.meta.url, {},
 		$.assert(x => x(overlap.indexB) === 4);
 	}),
 
-	test(`single overlap at end`, $ => {
-		overlap = subject(`1234x`, `x`);
+	test(`single overlap at either end`, $ => {
+		let longer = `1234x`;
+		let shorter = `x`;
+		overlap = subject(longer, shorter);
 		$.assert(x => x(overlap.length) === 1);
 		$.assert(x => x(overlap.indexA) === 4);
 		$.assert(x => x(overlap.indexB) === 0);
 
-		overlap = subject(`x1234`, `x`);
+		overlap = subject(shorter, longer);
+		$.assert(x => x(overlap.length) === 1);
+		$.assert(x => x(overlap.indexA) === 0);
+		$.assert(x => x(overlap.indexB) === 4);
+
+		longer = `x1234`;
+		overlap = subject(longer, shorter);
+		$.assert(x => x(overlap.length) === 1);
+		$.assert(x => x(overlap.indexA) === 0);
+		$.assert(x => x(overlap.indexB) === 0);
+
+		overlap = subject(shorter, longer);
 		$.assert(x => x(overlap.length) === 1);
 		$.assert(x => x(overlap.indexA) === 0);
 		$.assert(x => x(overlap.indexB) === 0);
