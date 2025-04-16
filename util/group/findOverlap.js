@@ -24,7 +24,7 @@ const newOverlap = () => ({
 });
 
 let debug = false;
-debug = true;
+// debug = true;
 
 /**
  * @typedef {ReturnType<typeof newOverlap>} Overlap
@@ -55,6 +55,7 @@ export function findOverlap(inputA, inputB, options = {}) {
 	let sliderOffset = slider.length - 1;
 	let overlap = newOverlap();
 	let overlapLongest = overlap;
+	let overlapLongestLength = 0;
 	let cycles = 0;
 
 	while (true) {
@@ -76,27 +77,28 @@ export function findOverlap(inputA, inputB, options = {}) {
 			}
 
 			overlap.length += 1;
+
+			if (overlap.length > overlapLongestLength) {
+				overlapLongest = overlap;
+				overlapLongestLength = overlap.length;
+			}
 		}
 
 		const baseRemaining = base.length - 1 - baseIndex;
-		const isBaseEnd = baseRemaining === 0;
+		const isBaseEnd = overlap.length + baseRemaining <= overlapLongestLength;
 
 		const sliderRemaining = slider.length - 1 - sliderIndex;
-		const isSliderEnd = sliderRemaining === 0;
+		const isSliderEnd = overlap.length + sliderRemaining <= overlapLongestLength;
 
 		if (debug) {
 			console.log([isBaseEnd ? `!` : ` `, baseIndex, baseRemaining, baseItem, sliderItem, sliderIndex, sliderRemaining, isSliderEnd ? `!` : ` `, overlap.length, overlapLongest.length].join(`  `));
 		}
 
 		if (isMatch === false || isSliderEnd || isBaseEnd) {
-			if (overlap.length > overlapLongest.length) {
-				overlapLongest = overlap;
-			}
-
 			overlap = newOverlap();
 		}
 
-		if (isBaseEnd && sliderIndex === 0) {
+		if (isBaseEnd && sliderIndex <= overlapLongestLength) {
 			break;
 		} else if (isSliderEnd || isBaseEnd) {
 			sliderOffset -= 1;
@@ -115,9 +117,7 @@ export function findOverlap(inputA, inputB, options = {}) {
 		overlapLongest.indexB = indexA;
 	}
 
-	if (debug) {
-		console.log(cycles);
-	}
+	console.log(cycles);
 
 	return overlapLongest;
 }
