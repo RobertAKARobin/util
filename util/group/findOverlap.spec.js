@@ -21,16 +21,6 @@ function subject(
 }
 
 export const spec = suite(import.meta.url, {},
-	test(`paper`, $ => {
-		const stringA = `1 2 3 x y 4`;
-		const stringB = `a x y z b c x y z z d e`;
-		overlap = subject(stringA, stringB, ` `);
-		$.assert(x => x(overlap.length) === 2);
-
-		overlap = subject(stringB, stringA, ` `);
-		$.assert(x => x(overlap.length) === 2);
-	}),
-
 	test(`no overlap`, $ => {
 		overlap = subject(`12345`, `abcde`);
 		$.assert(x => x(overlap.length) === 0);
@@ -169,5 +159,15 @@ export const spec = suite(import.meta.url, {},
 		$.assert(x => x(overlap.length) === 1);
 		$.assert(x => x(overlap.indexA) === 0);
 		$.assert(x => x(overlap.indexB) === 0);
+	}),
+
+	test(`multiple occurrences of an overlap`, $ => {
+		const stringA = `1 2 3 x y 4`;
+		const stringB = `a x y z b c x y z z d e`;
+		overlap = subject(stringA, stringB, ` `);
+		$.assert(x => x(overlap.length) === 2);
+
+		overlap = subject(stringB, stringA, ` `);
+		$.assert(x => x(overlap.length) === 2);
 	}),
 );
