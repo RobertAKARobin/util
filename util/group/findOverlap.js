@@ -28,13 +28,14 @@ const newOverlap = () => ({
  */
 
 /**
- * Given two arrays, find a segment of those arrays that overlaps
+ * Given two arrays, find segments of those arrays that overlap
  * @template [Value=string]
  * @param {Array<Value>} inputA
  * @param {Array<Value>} inputB
  * @param {object} [options]
  * @param {typeof findOverlapDefaultCompare<Value>} [options.compare] - Function that tests whether two items in the arrays are the same
  * @param {typeof findOverlapDefaultFilter<Value>} [options.filter] - Function that tests whether an item can be considered for overlap
+ * @param {'exhausted' | 'first' | 'maxLength'} [options.stopCondition='exhausted'] - Condition on which the function stops finding overlaps and returns the results
  * @returns {Overlap}
  */
 export function findOverlap(inputA, inputB, options = {}) {
@@ -44,9 +45,10 @@ export function findOverlap(inputA, inputB, options = {}) {
 
 	const compare = options.compare ?? findOverlapDefaultCompare;
 	const filter = options.filter ?? findOverlapDefaultFilter;
+	const stopCondition = options.stopCondition ?? `exhausted`;
 
 	const baseIsInputA = inputA.length > inputB.length;
-	const [base, slider] = baseIsInputA ? [inputA, inputB] : [inputB, inputA]; // Sorting should ensure that if overlaps tie for longest, the earliest is returned. More efficient than checking indexes on each overlapEnd
+	const [base, slider] = baseIsInputA ? [inputA, inputB] : [inputB, inputA]; // If slider length is always <= base length it simplifies stop conditions
 
 	let baseIndex = 0;
 	let sliderOffset = slider.length - 1;
@@ -79,17 +81,26 @@ export function findOverlap(inputA, inputB, options = {}) {
 			}
 		}
 
-		const baseRemaining = base.length - 1 - baseIndex;
-		const isBaseEnd = overlap.length + baseRemaining <= overlapLongestLength;
+		let baseIndexMax = base.length - 1;
+		let sliderIndexMax = slider.length - 1;
 
-		const sliderRemaining = slider.length - 1 - sliderIndex;
-		const isSliderEnd = overlap.length + sliderRemaining <= overlapLongestLength;
+		if (stopCondition === `maxLength`) {
+			const overlapShortness = (overlapLongestLength - overlap.length);
+			baseIndexMax -= overlapShortness;
+			sliderIndexMax -= overlapShortness;
+		}
+
+		const isBaseEnd = baseIndex >= baseIndexMax;
+		const isSliderEnd = sliderIndex >= sliderIndexMax;
 
 		if (isMatch === false || isSliderEnd || isBaseEnd) {
 			overlap = newOverlap();
 		}
 
-		if (isBaseEnd && sliderIndex <= overlapLongestLength) {
+		if (
+			isBaseEnd
+			&& sliderIndex <= (stopCondition === `maxLength` ? overlapLongestLength : 0)
+		) {
 			break;
 
 		} else if (isSliderEnd || isBaseEnd) {
