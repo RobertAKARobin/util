@@ -49,6 +49,7 @@ export function findOverlaps(inputA, inputB, options = {}) {
 
 	const overlaps = /** @type {Array<Overlap>} */([]);
 
+	// For each input, imagine the items in the array as lines on a piece of paper. Put the two papers next to each other. Slide the right one (the "slider") so its last line is aligned with the first line of the left one (the "base"). Are the lines the same? If so it's an overlap. Then slide the slider down one line. Are any of the aligned lines the same? Then slide down another line, etc etc, until you run out of aligned lines.
 	const baseIsInputA = inputA.length > inputB.length;
 	const [base, slider] = baseIsInputA ? [inputA, inputB] : [inputB, inputA]; // If slider length is always <= base length it simplifies stop conditions
 
@@ -144,7 +145,7 @@ export function findOverlaps(inputA, inputB, options = {}) {
 export function findOverlap(inputA, inputB, options = {}) {
 	const stopCondition = options.stopCondition ?? `maxLength`;
 
-	const overlaps = findOverlaps(inputA, inputB, {
+	let overlaps = findOverlaps(inputA, inputB, {
 		...options,
 		stopCondition,
 	});
@@ -155,21 +156,33 @@ export function findOverlap(inputA, inputB, options = {}) {
 
 	switch (stopCondition) {
 		case `maxLength`: {
-			overlaps.sort((a, b) => {
-				if (a.length > b.length) {
-					return 1;
+			const inputAMiddle = inputA.length / 2;
+			const inputBMiddle = inputB.length / 2;
+
+			let longest = newOverlap();
+			let middleness = Infinity; // 'middleness' means 'distance to middle'
+
+			for (const overlap of overlaps) {
+				if (overlap.length < longest.length) {
+					continue;
 				}
+
+				const overlapInputAMiddle = overlap.indexA + (overlap.length / 2);
+				const overlapInputBMiddle = overlap.indexB + (overlap.length / 2);
+				const overlapInputAMiddleness = Math.abs(inputAMiddle - overlapInputAMiddle);
+				const overlapInputBMiddleness = Math.abs(inputBMiddle - overlapInputBMiddle);
+				const overlapMiddleness = (overlapInputAMiddleness + overlapInputBMiddleness) / 2;
 
 				if (
-					a.length === b.length
-					&& a.indexA + a.indexB < b.indexA + b.indexB
+					overlap.length > longest.length
+					|| middleness > overlapMiddleness
 				) {
-					return 1;
+					middleness = overlapMiddleness;
+					longest = overlap;
 				}
+			}
 
-				return -1;
-			});
-			return overlaps[overlaps.length - 1];
+			return longest;
 		}
 
 		case `last`: {
