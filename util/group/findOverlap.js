@@ -35,7 +35,6 @@ const newOverlap = () => ({
  * @param {object} [options]
  * @param {typeof findOverlapDefaultCompare<Value>} [options.compare] - Function that tests whether two items in the arrays are the same
  * @param {typeof findOverlapDefaultFilter<Value>} [options.filter] - Function that tests whether an item can be considered for overlap
- * @param {'first' | 'last' | 'maxLength'} [options.stopCondition='exhausted'] - Condition on which the function stops finding overlaps and returns the results
  * @returns {Array<Overlap>}
  */
 export function findOverlaps(inputA, inputB, options = {}) {
@@ -45,7 +44,6 @@ export function findOverlaps(inputA, inputB, options = {}) {
 
 	const compare = options.compare ?? findOverlapDefaultCompare;
 	const filter = options.filter ?? findOverlapDefaultFilter;
-	const stopCondition = options.stopCondition ?? `last`;
 
 	const overlaps = /** @type {Array<Overlap>} */([]);
 
@@ -85,11 +83,9 @@ export function findOverlaps(inputA, inputB, options = {}) {
 		let baseIndexMax = base.length - 1;
 		let sliderIndexMax = slider.length - 1;
 
-		if (stopCondition === `maxLength`) {
-			const overlapShortness = (overlapLongestLength - overlap.length);
-			baseIndexMax -= overlapShortness;
-			sliderIndexMax -= overlapShortness;
-		}
+		const overlapShortness = (overlapLongestLength - overlap.length);
+		baseIndexMax -= overlapShortness;
+		sliderIndexMax -= overlapShortness;
 
 		const isBaseEnd = baseIndex >= baseIndexMax;
 		const isSliderEnd = sliderIndex >= sliderIndexMax;
@@ -98,20 +94,11 @@ export function findOverlaps(inputA, inputB, options = {}) {
 			if (overlap.length > 0) {
 				overlaps.push(overlap);
 
-				if (stopCondition === `first`) {
-					break;
-				}
-
 				overlap = newOverlap();
 			}
 		}
 
-		if (
-			isBaseEnd
-			&& sliderIndex <= (
-				stopCondition === `maxLength` ? overlapLongestLength : 0
-			)
-		) {
+		if (isBaseEnd && (sliderIndex <= overlapLongestLength)) {
 			break;
 
 		} else if (isSliderEnd || isBaseEnd) {
@@ -135,7 +122,7 @@ export function findOverlaps(inputA, inputB, options = {}) {
 }
 
 /**
- * Given two arrays, find the segment of those arrays that overlaps and matches the options.stopCondition
+ * Given two arrays, find the segment of those arrays that overlaps
  * @template [Value=string]
  * @param {Array<Value>} inputA
  * @param {Array<Value>} inputB
@@ -143,54 +130,30 @@ export function findOverlaps(inputA, inputB, options = {}) {
  * @returns {Overlap}
  */
 export function findOverlap(inputA, inputB, options = {}) {
-	const stopCondition = options.stopCondition ?? `maxLength`;
-
-	let overlaps = findOverlaps(inputA, inputB, {
-		...options,
-		stopCondition,
-	});
+	let overlaps = findOverlaps(inputA, inputB, options);
 
 	if (overlaps.length === 0) {
 		return newOverlap();
 	}
 
-	switch (stopCondition) {
-		case `maxLength`: {
-			const inputAMiddle = inputA.length / 2;
-			const inputBMiddle = inputB.length / 2;
+	let longest = newOverlap();
+	let earliest = Infinity;
 
-			let longest = newOverlap();
-			let middleness = Infinity; // 'middleness' means 'distance to middle'
-
-			for (const overlap of overlaps) {
-				if (overlap.length < longest.length) {
-					continue;
-				}
-
-				const overlapInputAMiddle = overlap.indexA + (overlap.length / 2);
-				const overlapInputBMiddle = overlap.indexB + (overlap.length / 2);
-				const overlapInputAMiddleness = Math.abs(inputAMiddle - overlapInputAMiddle);
-				const overlapInputBMiddleness = Math.abs(inputBMiddle - overlapInputBMiddle);
-				const overlapMiddleness = (overlapInputAMiddleness + overlapInputBMiddleness) / 2;
-
-				if (
-					overlap.length > longest.length
-					|| middleness > overlapMiddleness
-				) {
-					middleness = overlapMiddleness;
-					longest = overlap;
-				}
-			}
-
-			return longest;
+	for (const overlap of overlaps) {
+		if (overlap.length < longest.length) {
+			continue;
 		}
 
-		case `last`: {
-			return overlaps[overlaps.length - 1];
-		}
+		const earliness = (overlap.indexA + overlap.indexB) / 2;
 
-		default: {
-			return overlaps[0];
+		if (
+			overlap.length > longest.length
+			|| earliness < earliest
+		) {
+			earliest = earliness;
+			longest = overlap;
 		}
 	}
+
+	return longest;
 }

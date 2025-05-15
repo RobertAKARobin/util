@@ -82,7 +82,7 @@ export const spec = suite(import.meta.url, {},
 		overlap = subject(`123XX5`, `aXXXXbcde`);
 		$.assert(x => x(overlap.length) === 2);
 		$.assert(x => x(overlap.indexA) === 3);
-		$.assert(x => x(overlap.indexB) === 3);
+		$.assert(x => x(overlap.indexB) === 1);
 
 		overlap = subject(`123XXXX5`, `aXXbcde`);
 		$.assert(x => x(overlap.length) === 2);
@@ -92,7 +92,7 @@ export const spec = suite(import.meta.url, {},
 		overlap = subject(`123XX5`, `aXXXbcXXXXde`);
 		$.assert(x => x(overlap.length) === 2);
 		$.assert(x => x(overlap.indexA) === 3);
-		$.assert(x => x(overlap.indexB) === 6);
+		$.assert(x => x(overlap.indexB) === 1);
 	}),
 
 	test(`finds the longest`, $ => {
@@ -117,7 +117,7 @@ export const spec = suite(import.meta.url, {},
 			});
 			$.assert(x => x(overlap.length) === 2);
 			$.assert(x => x(overlap.indexA) === 3);
-			$.assert(x => x(overlap.indexB) === 3);
+			$.assert(x => x(overlap.indexB) === 2);
 		}),
 	),
 
@@ -176,10 +176,10 @@ export const spec = suite(import.meta.url, {},
 		$.assert(x => x(overlap.indexB) === 0);
 	}),
 
-	test(`returns middle-iest overlap`, $ => {
+	test(`returns earliest overlap`, $ => {
 		overlap = subject(`x x b b a a`, `a a b b x x`, ` `);
 		$.assert(x => x(overlap.length) === 2);
-		$.assert(x => x(overlap.indexA) === 2);
-		$.assert(x => x(overlap.indexB) === 2);
+		$.assert(x => x(overlap.indexA) === 4);
+		$.assert(x => x(overlap.indexB) === 0);
 	}),
 );
