@@ -7,6 +7,7 @@
 		"@robertakarobin/eslint-config-ts": "file:./eslint-config-ts",
 		"@types/diff": "^6.0.0",
 		"@types/node": "^22.10.2",
+		"diff": "^8.0.2",
 		"glob": "^11.0.0",
 		"husky": "^9.1.7",
 		"npm-check-updates": "^17.1.11",
