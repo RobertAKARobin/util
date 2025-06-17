@@ -31,7 +31,7 @@ text-decoration: inherit;
 
 /**
  * Produces a bunch of useful CSS helpers, given the constants that underly your application's styling
- * TODO1: Spec
+ * TODO2: Spec
  * @template {GenericBreakpoints} Breakpoints
  * @template {GenericConstants} Constants
  * @template {GenericFonts} Fonts

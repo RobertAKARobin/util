@@ -136,7 +136,7 @@ export const specRunWeb = (
 		`--incognito`,
 		`--allow-file-access-from-files`,
 		`--allow-external-pages`,
-		`--user-data-dir=tmp`, // Forces a new/local instance of Chrome with data stored in `./dist`
+		`--user-data-dir=tmp`, // Forces a new/local instance of Chrome with data stored in `./tmp`
 	]);
 
 	function close() {

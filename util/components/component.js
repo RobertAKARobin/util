@@ -27,7 +27,7 @@ const constants = /** @type {const} */({
 });
 
 /**
- * TODO1
+ * TODO2: Doc
  * @type {Map<typeof Component['elName'], typeof Component>}
  * @readonly
  */
@@ -75,7 +75,7 @@ export function customized(tagName) {
 }
 
 /**
- * TODO1
+ * TODO2: Doc
  * @param {string} eventName
  * @param {string} listenerId
  * @param {string} handlerKey
@@ -110,7 +110,7 @@ function eventAttrs(eventName, listenerId, handlerKey, ...handlerArgs) {
 }
 
 /**
- * TODO1
+ * TODO2: Doc
  * @param {string} input
  * @returns {string}
  */
@@ -128,7 +128,7 @@ function normalize(input) {
  * @param {string} [options.elName] - The name that will be used for the component, e.g. `app-foo`
  * @param {string} [options.style] - The stylesheet that will be attached to the document the first time the component is used. `:host` will be replaced with the component's selector.
  * @param {string} [options.stylePath] - The path to an external stylesheet for this component. If it ends with `.ts/js`, the Builder will change the path to `.css.ts/js`. This means you can always set the stylepath to `import.meta.url` if the files will all follow the convention of `{component}.css.ts/js`.
- * @param {string} [options.styleSrc] - TODO1
+ * @param {string} [options.styleSrc] - TODO2: Doc
  * @returns {Subclass}
  */
 export function register(Subclass, options = {}) {
@@ -206,7 +206,7 @@ function registerAttributes(Constructor) {
 }
 
 /**
- * TODO1
+ * TODO2: Doc
  * @param {typeof Component} Subclass
  * @param {string} [stylePath]
  * @ignore
@@ -234,7 +234,7 @@ function registerStylesheet_external(Subclass, stylePath) {
 }
 
 /**
- * TODO1
+ * TODO2: Doc
  * @param {typeof Component} Subclass
  * @param {string} [style]
  * @ignore
@@ -258,76 +258,77 @@ function registerStylesheet_inline(Subclass, style) {
 }
 
 /**
- * TODO1
+ * TODO2: Doc
  * TODO1 Add interfaces for WebComponent and `handleEvent`, which this implements, in order to show where those come from?
  * @template {typeof Component} [Self=typeof Component]
  */
 export class Component extends HTMLElement {
 	/**
-	 * TODO1
+	 * TODO2: Doc
 	 * @type {Record<string, AttributeConfig<unknown>>}
 	 * @readonly
 	 */
 	static attributes = {};
 
 	/**
-	 * TODO1
+	 * TODO2: Doc
 	 * @type {Map<string, WeakRef<Component>>}
 	 * @readonly
 	 */
 	static cache = new Map();
 
 	/**
-	 * TODO1
+	 * TODO2: Doc
 	 * @type {string}
 	 * @readonly
 	 */
 	static elName;
 
 	/**
-	 * TODO1: https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#responding_to_attribute_changes
+	 * TODO2: Doc
+	 * https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#responding_to_attribute_changes
 	 * @type {Array<string>}
 	 * @readonly
 	 */
 	static observedAttributes = [];
 
 	/**
-	 * TODO1
+	 * TODO2: Doc
 	 * @type {Record<string, string>}
 	 * @readonly
 	 */
 	static propertyNamesByAttribute = {};
 
 	/**
-	 * TODO1
+	 * TODO2: Doc
 	 * @type {string}
 	 * @readonly
 	 */
 	static selector;
 
 	/**
-	 * TODO1
+	 * TODO2: Doc
 	 * @type {string | undefined}
 	 * @readonly
 	 */
 	static style;
 
 	/**
-	 * TODO1
+	 * TODO2: Doc
 	 * @type {string | undefined}
 	 * @readonly
 	 */
 	static stylePath;
 
 	/**
-	 * TODO1
+	 * TODO2: Doc
 	 * @type {keyof HTMLElementTagNameMap | undefined}
 	 * @readonly
 	 */
 	static tagName;
 
 	/**
-	 * TODO1
+	 * TODO2: Doc
 	 * @returns {string}
 	 */
 	static cacheBust() {
@@ -361,7 +362,7 @@ export class Component extends HTMLElement {
 	}
 
 	/**
-	 * TODO1
+	 * TODO2: Doc
 	 * @param {string} input
 	 * @returns {string}
 	 */
@@ -453,7 +454,7 @@ export class Component extends HTMLElement {
 	adoptedCallback() {}
 
 	/**
-	 * TODO1
+	 * TODO2: Doc
 	 * Dispatched when `attributeChangedCallback` is called. @see {@link attributeChangedCallback}
 	 * @type {(name: string) => string}
 	 */
@@ -533,7 +534,7 @@ export class Component extends HTMLElement {
 	}
 
 	/**
-	 * TODO1
+	 * TODO2: Doc
 	 * Dispatched when `disconnectedCallback` is called. @see {@link disconnectedCallback}
 	 * @returns {CustomEvent}
 	 */
@@ -667,7 +668,7 @@ export class Component extends HTMLElement {
 	}
 
 	/**
-	 * TODO1
+	 * TODO2: Doc
 	 * Note that if you use `this` for `listener` you may need to specify a specific type for `this`
 	 * @template {keyof Self['attributes']} AttributeKey
 	 * @template {ReturnType<NonNullable<Self['attributes'][AttributeKey]['fromAttribute']>>} AttributeType

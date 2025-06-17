@@ -4,7 +4,7 @@
 
 /**
  * Debounce the given callback a single time, up until the given delay period elapses
- * TODO1: Spec
+ * TODO2: Spec
  * @template Input
  * @param {(input: Input) => void} callback
  * @param {number} milliseconds

@@ -10,7 +10,7 @@ import { EntityStateEmitter } from './entities.js';
  * @typedef {{ value: string }} Item
  */
 
-// TODO1: More specs
+// TODO2: More specs
 export const spec = test(import.meta.url, $ => {
 	const state = /** @type {EntityStateEmitter<Item>} */(new EntityStateEmitter());
 

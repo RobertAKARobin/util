@@ -46,7 +46,7 @@ export class CustomDragEvent extends Event {
 
 /**
  * Makes the given element emit a `customdrag` event on mousemove after it has emitted a mousedown, until mouseup.
- * TODO1: Spec
+ * TODO2: Spec
  * @param {Element} target
  * @param {object} [options]
  * @param {'center' | 'top left'} [options.offsetOrigin]

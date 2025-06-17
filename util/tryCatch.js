@@ -4,7 +4,7 @@
 
 /**
  * Wraps around `try/catch`. Return the expected value, or an Error if it threw an Error
- * TODO1: Spec
+ * TODO2: Spec
  * @template Result
  * @overload
  * @param {IsAsync_Not<Result>} callback

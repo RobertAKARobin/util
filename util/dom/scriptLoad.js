@@ -1,6 +1,6 @@
 /**
  * Asynchronously loads a script by attaching it to the `<head>`
- * TODO1: Spec
+ * TODO2: Spec
  * @param {string} src
  * @returns {Promise<Event>}
  */

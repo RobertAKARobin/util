@@ -1,6 +1,6 @@
 /**
  * Super naive pluralization
- * TODO1: Spec
+ * TODO2: Spec
  * @param {string} input
  * @returns {string}
  */

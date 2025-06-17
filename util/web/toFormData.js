@@ -1,6 +1,6 @@
 /**
  * Converts object to FormData
- * TODO1: Spec
+ * TODO2: Spec
  * @param {Record<string, string>} input
  * @returns {FormData}
  */

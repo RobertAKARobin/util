@@ -3,7 +3,7 @@ import * as Diff from 'diff';
 import { color } from '../node/colors.js';
 
 /**
- * TODO1
+ * TODO2: Doc
  * @param {string} expected
  * @param {string} actual
  * @returns {string}

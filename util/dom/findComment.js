@@ -1,6 +1,6 @@
 /**
  * Iterate through a tree of nodes and return comment nodes that match the goven contents
- * TODO1: Spec
+ * TODO2: Spec
  * TODO3: Add partial matches, RegEx, etc
  * @param {Node} root
  * @param {string} contents

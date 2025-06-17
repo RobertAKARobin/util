@@ -1,6 +1,6 @@
 /**
  * Execute the given callback or emit the given value after the given delay
- * TODO1: Spec
+ * TODO2: Spec
  * @template Value
  * @param {Value | (() => Value)} callback
  * @param {number} milliseconds

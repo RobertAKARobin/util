@@ -1,6 +1,6 @@
 /**
  * Whether the given parameters are exactly the same and also not `undefined`
- * TODO1: Spec
+ * TODO2: Spec
  * @param {unknown} a
  * @param {unknown} b
  * @returns {boolean}

@@ -5,7 +5,7 @@ import { tryCatch } from '../tryCatch.js';
 /**
  * Run command until the same stdout is output twice
  * Useful when running commands that require multiple "passes", e.g. some linter auto-fixes
- * TODO1: Spec
+ * TODO2: Spec
  * @param {string} command
  * @param {object} [options]
  * @param {number} [options.attemptsMax=10]
