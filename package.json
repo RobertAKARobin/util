@@ -5,13 +5,12 @@
 		"@robertakarobin/eslint-config-jsdoc": "file:./eslint-config-jsdoc",
 		"@robertakarobin/eslint-config-json": "file:./eslint-config-json",
 		"@robertakarobin/eslint-config-ts": "file:./eslint-config-ts",
-		"@types/diff": "^6.0.0",
-		"@types/node": "^22.10.2",
+		"@types/node": "^24.0.3",
 		"diff": "^8.0.2",
-		"glob": "^11.0.0",
+		"glob": "^11.0.3",
 		"husky": "^9.1.7",
-		"npm-check-updates": "^17.1.11",
-		"tsx": "^4.19.2"
+		"npm-check-updates": "^18.0.1",
+		"tsx": "^4.20.3"
 	},
 	"engines": {
 		"node": "23.6.0"
