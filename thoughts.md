@@ -1,5 +1,13 @@
 # Thinking through things
 
+-	How to require dependencies for both FE and BE?
+	-	`tsc --explainFiles`
+		-	Slow and would require a bunch of parsing/finagling
+	-	`esbuild` each input
+		-	Not very efficient (though very fast), and would be nice to not require esbuild
+	-	Import already-built scripts for all dependencies
+		-	Annoying bc can't use types without a bunch of finagling
+		-	Probably makes most sense since it ensures FE and BE are using exactly the same thing
 -	How to decorate components?
 	-	`click = Component.event(() => {}); foo = this.attribute()`
 		-	Instance methods are inefficient vs prototype methods
