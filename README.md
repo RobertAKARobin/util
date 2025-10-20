@@ -67,6 +67,7 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 -	TODO1: Component: Import SVGs/arbitrary files
 -	TODO1: Add mini markdown converter
 
+-	TODO1: `package.json` script for running a specific test (replace `npm run spec` with `npm run spec:all` and use `npm run spec`)
 -	TODO2: `npm run test` runs `tsc` twice
 -	TODO2: Component: Don't refer to functions by string -- keeps names from being minified
 -	TODO3: Eslint: Lint HTML in JS template literals (https://github.com/yeonjuan/html-eslint/issues/196)
