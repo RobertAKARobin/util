@@ -819,7 +819,7 @@ export class Component extends HTMLElement {
 			if (tagName === `PLACEHOLDER`) {
 				const placeholder = /** @type {HTMLUnknownElement} */(target);
 				const id = placeholder.id;
-				let cached = isNotNull(
+				let cached = isNotNull( // TODO3: Why nested `isNotNull`?
 					isNotNull(Component.cache.get(id)).deref(),
 				);
 				Component.cache.delete(id);
