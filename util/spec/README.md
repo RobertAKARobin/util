@@ -59,11 +59,13 @@ Assertion | Execution | 1 per test | - | No
 
 ## TODO
 
--	TODO1: Left-pad numbers in spec output IDs so they all line up nicely
--	TODO1: Reset args between iterations
 -	TODO1: Deferred tests
--	TODO1: Print logs to stdout when they're generated, as well as appearing in renderer?
--	TODO1: Catch errors
+-	TODO1: Print logs to stdout when they're generated, as well as appearing in renderer
+-	TODO1: Fix assertions with curlies, nested parens, multi-line functions
+
+-	TODO1?: Catch errors
+-	TODO1?: Left-pad numbers in spec output IDs so they all line up nicely
+-	TODO1?: Reset args between iterations
 
 -	TODO2: Can log from within args
 -	TODO2: Shuffle
