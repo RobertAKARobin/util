@@ -1,3 +1,5 @@
+import { isPositiveInteger } from './isPositiveInteger.js';
+
 /**
  * @typedef {number} BookOrderPage A Page represents a physical page in a book.
  * @typedef {Array<BookOrderPage>} BookOrderFold A Fold is 2 Pages that will appear as leaves on opposite halves of the Signature, represented by their page numbers.
@@ -7,12 +9,6 @@
  * foldsPerSignature?: number;
  * }} BookOrderOptions
  */
-
-function isPositiveInteger(
-	/** @type {number} */ input,
-) {
-	return (Number.isSafeInteger(input) && input > 0);
-}
 
 /**
  * Given a number of pages, returns the indexes of the pages arranged in printable order.
