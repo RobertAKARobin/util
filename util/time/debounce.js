@@ -1,29 +1,25 @@
 /**
- * @import { Timer } from '../types.d';
+ * @import { Timeout } from '../types.d';
  */
 
 /**
- * Debounce the given callback a single time, up until the given delay period elapses
- * TODO2: Spec
- * @template Input
- * @param {(input: Input) => void} callback
+ * Prevent the given callback from being called more than once until the given period has elapsed
+ * @template {(...args: any) => void} Callback
+ * @param {Callback} callback
  * @param {number} milliseconds
- * @returns {(input: Input) => void}
+ * @returns {Callback}
  */
 export function debounce(callback, milliseconds) {
-	/** @type {Timer | null} */
-	let timer = null;
+	/** @type {Timeout | null} */
+	let timeout = null;
 
-	/**
-	 * @param {Input} input
-	 */
-	return function(input) {
-		if (timer) {
-			clearTimeout(timer);
+	return /** @type {Callback} */((...args) => {
+		if (timeout) {
+			clearTimeout(timeout);
+		} else {
+			callback(...args); // eslint-disable-line @typescript-eslint/no-unsafe-argument
 		}
-		timer = setTimeout(() => {
-			callback(input);
-			timer = null;
-		}, milliseconds);
-	};
+
+		timeout = setTimeout(() => timeout = null, milliseconds);
+	});
 }
