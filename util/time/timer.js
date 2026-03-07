@@ -1,25 +1,30 @@
 import { preciseTo } from '../math/preciseTo.js';
 
 export class Timer {
-	/**
-	 * @type {number}
-	 */
-	#last = NaN;
-
-	get last() {
-		return this.#last;
-	}
-
 	#paused = false;
 
 	get paused() {
 		return this.#paused;
 	}
 
+	get pauseDuration() {
+		if (this.#paused) {
+			return performance.now() - this.pauseStart;
+		}
+
+		return 0;
+	}
+
+	#pauseDurationCumulative = NaN;
+
 	/**
-	 * The total amount of time the timer has been paused since its last `.restart`. Not public because it's incremented only when `.check` and `.pause` are called, so its value may not be what the user would expect.
+	 * The total amount of time the timer has been paused since its last `.restart`.
+	 * NOTE: Updates only when changing from paused to unpaused. If timer is currently paused, calculate this with `now - .pauseStart`
+	 * @returns {number}
 	 */
-	#pauseDuration = NaN;
+	get pauseDurationCumulative() {
+		return this.#pauseDurationCumulative;
+	}
 
 	#pauseStart = NaN;
 
@@ -31,22 +36,31 @@ export class Timer {
 		return this.#pauseStart;
 	}
 
+	/**
+	 * @type {number}
+	 */
+	#start = NaN;
+
+	get start() {
+		return this.#start;
+	}
+
 	constructor() {
 		this.restart();
 	}
 
 	check() {
-		if (isNaN(this.#last)) {
+		if (isNaN(this.#start)) {
 			return NaN;
 		}
 
 		const now = performance.now();
 
-		if (this.#paused) {
-			this.#pauseDuration += now - this.#pauseStart;
-		}
+		let difference = now - this.#start + this.#pauseDurationCumulative;
 
-		const difference = now - this.#last + this.#pauseDuration;
+		if (this.#paused) {
+			difference -= now - this.#pauseStart;
+		}
 
 		if (difference === 0) {
 			return Number.MIN_VALUE; // Node's performance.now is higher-res than Chrome, which sometimes returns the same value multiple times. TODO3: Are there reasons to NOT always want performance.now() to increment?
@@ -71,16 +85,17 @@ export class Timer {
 		if (this.#paused) {
 			this.#pauseStart = now;
 		} else {
-			this.#pauseDuration += now - this.#pauseStart;
+			this.#pauseDurationCumulative += now - this.#pauseStart;
 		}
 
 		return this;
 	}
 
 	restart() {
-		this.#last = performance.now();
-		this.#pauseDuration = 0;
+		this.#start = performance.now();
+		this.#pauseDurationCumulative = 0;
 		this.#pauseStart = NaN;
+		this.#paused = false;
 
 		return this;
 	}
