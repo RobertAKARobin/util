@@ -10,6 +10,10 @@ export const spec = suite(import.meta.url, {},
 	test(`.check increments and .restart brings back to 0`, $ => {
 		const timer = new Timer();
 
+		$.assert(x => isNaN(x(timer.check())));
+
+		timer.restart();
+
 		$.assert(x => x(timer.check()) > 0);
 
 		let last = timer.check();
@@ -28,7 +32,7 @@ export const spec = suite(import.meta.url, {},
 
 	suite(`.pause`, {},
 		test(`causes time to stay unchanged until unpaused`, $ => {
-			const timer = new Timer();
+			const timer = new Timer().restart();
 			let lastStart = timer.start;
 
 			$.assert(x => x(timer.paused) === false);
@@ -57,7 +61,7 @@ export const spec = suite(import.meta.url, {},
 		}),
 
 		test(`if doesn't change state, then doesn't do anything`, $ => {
-			const timer = new Timer();
+			const timer = new Timer().restart();
 
 			timer.pause();
 
@@ -78,7 +82,7 @@ export const spec = suite(import.meta.url, {},
 		}),
 
 		test(`repausing and restarting`, $ => {
-			const timer = new Timer();
+			const timer = new Timer().restart();
 
 			timer.pause();
 			timer.pause(false);

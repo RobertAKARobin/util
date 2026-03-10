@@ -1,5 +1,6 @@
 import { enumy } from '../group/enumy.js';
 import { setImmediate } from './setImmediate.js';
+import { Timer } from './timer.js';
 
 export const loopStatuses = /** @type {const} */([
 	`unstarted`,
@@ -20,15 +21,14 @@ const msPerSecond = 1000;
 /**
  * Loops over the given callback at the given number of iterations/frames per second.
  */
-export class FPSLoop {
-	get currentLoop() {
-		return this.currentLoop_;
-	}
+export class FPSLoop extends Timer {
 	/**
 	 * @type {Promise<void> | undefined}
-	 * @private
 	 */
-	currentLoop_ = undefined;
+	#currentLoop = undefined;
+	get currentLoop() {
+		return this.#currentLoop;
+	}
 
 	/**
 	 * @type {() => void}
@@ -40,63 +40,34 @@ export class FPSLoop {
 	 */
 	duration;
 
-	get isPaused() {
-		return this.isPaused_;
+	#loopsPerSecond = NaN;
+	get loopsPerSecond() {
+		return this.#loopsPerSecond;
 	}
-	/**
-	 * @private
-	 */
-	isPaused_ = false;
+	set loopsPerSecond(/** @type {number} */value) {
+		this.#loopsPerSecond = value;
+		this.#period = msPerSecond / this.loopsPerSecond;
+	}
 
-	/**
-	 * @type {number | undefined}
-	 */
-	loopsPerSecond = undefined;
-
+	#loopsSoFar = 0;
 	get loopsSoFar() {
-		return this.loopsSoFar_;
+		return this.#loopsSoFar;
 	}
-	/**
-	 * @private
-	 */
-	loopsSoFar_ = 0;
+
+	#period = 0;
 
 	/**
-	 * @type {(() => void) | undefined}
-	 * @private
+	 * @type {((...args: any) => void) | undefined}
 	 */
-	resolve_ = undefined;
+	#resolve = undefined;
 
-	get status() {
-		return this.status_;
-	}
-	/**
-	 * @param {LoopStatus} value
-	 * @private
-	 */
-	set status(value) {
-		this.status_ = value;
-	}
 	/**
 	 * @type {LoopStatus}
 	 */
-	status_ = `unstarted`;
-
-	get timeElapsed() {
-		return this.timeElapsed_;
+	#status = `unstarted`;
+	get status() {
+		return this.#status;
 	}
-	/**
-	 * @private
-	 */
-	timeElapsed_ = 0;
-
-	get timeStarted() {
-		return this.timeStarted_;
-	}
-	/**
-	 * @private
-	 */
-	timeStarted_ = 0;
 
 	/**
 	 * @param {FPSLoop['doWhat']} doWhat
@@ -105,54 +76,51 @@ export class FPSLoop {
 	 * @param {FPSLoop['loopsPerSecond']} [options.loopsPerSecond]
 	 */
 	constructor(doWhat, options = {}) {
+		super();
 		this.doWhat = doWhat;
 		this.duration = options.duration ?? Infinity;
-		this.loopsPerSecond = options.loopsPerSecond;
+		this.loopsPerSecond = options.loopsPerSecond ?? 0;
 	}
 
 	end() {
-		if (this.resolve_) {
-			this.status_ = `ending`;
-			this.resolve_();
+		if (this.#resolve) {
+			this.#status = `ending`;
+			this.#resolve();
 		}
 
-		this.status_ = `ended`;
+		this.#status = `ended`;
 		return this;
 	}
 
-	pause() {
-		this.isPaused_ = true;
-		return this;
-	}
+	/**
+	 * @override
+	 * @returns {this}
+	 */
+	restart() {
+		super.restart();
 
-	start() {
-		this.currentLoop_ = new Promise(resolve => {
-			this.resolve_ = resolve;
+		this.#currentLoop = new Promise(resolve => {
+			this.#resolve = resolve;
 		});
-		this.status_ = `starting`;
-		this.timeStarted_ = performance.now();
-		this.timeElapsed_ = 0;
-		this.loopsSoFar_ = 0;
+		this.#status = `starting`;
+		this.#loopsSoFar = 0;
 
 		let timeElapsedNextLoop = -1;
 		const step = () => {
-			if (this.isPaused) {
+			if (this.paused) {
 				return;
 			}
 
-			this.timeElapsed_ = performance.now() - this.timeStarted;
+			const now = this.check();
 
-			if (this.timeElapsed_ >= timeElapsedNextLoop) {
-				const period = typeof this.loopsPerSecond === `number`
-					? msPerSecond / this.loopsPerSecond
-					: 0;
-				timeElapsedNextLoop = timeElapsedNextLoop + period;
+			if (now >= timeElapsedNextLoop) {
+				timeElapsedNextLoop += this.#period;
 
 				if (this.status === `started`) {
 					this.doWhat();
-					this.loopsSoFar_ += 1;
+					this.#loopsSoFar += 1;
 
-					if (this.timeElapsed > this.duration) {
+					if (now > this.duration) {
 						this.end();
 					}
 				}
@@ -163,14 +131,9 @@ export class FPSLoop {
 			}
 		};
 
-		this.status_ = `started`;
+		this.#status = `started`;
 		step();
 
-		return this.currentLoop_;
-	}
-
-	unpause() {
-		this.isPaused_ = false;
 		return this;
 	}
 }

@@ -45,10 +45,6 @@ export class Timer {
 		return this.#start;
 	}
 
-	constructor() {
-		this.restart();
-	}
-
 	check() {
 		if (isNaN(this.#start)) {
 			return NaN;
