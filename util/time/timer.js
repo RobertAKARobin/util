@@ -1,6 +1,26 @@
 import { preciseTo } from '../math/preciseTo.js';
 
 export class Timer {
+	get elapsed() {
+		if (isNaN(this.#start)) {
+			return NaN;
+		}
+
+		const now = performance.now();
+
+		let difference = now - this.#start + this.#pauseDurationCumulative;
+
+		if (this.#paused) {
+			difference -= now - this.#pauseStart;
+		}
+
+		if (difference === 0) {
+			return Number.MIN_VALUE; // Node's performance.now is higher-res than Chrome, which sometimes returns the same value multiple times. TODO3: Are there reasons to NOT always want performance.now() to increment?
+		}
+
+		return preciseTo(difference);
+	}
+
 	#paused = false;
 
 	get paused() {
@@ -43,26 +63,6 @@ export class Timer {
 
 	get start() {
 		return this.#start;
-	}
-
-	check() {
-		if (isNaN(this.#start)) {
-			return NaN;
-		}
-
-		const now = performance.now();
-
-		let difference = now - this.#start + this.#pauseDurationCumulative;
-
-		if (this.#paused) {
-			difference -= now - this.#pauseStart;
-		}
-
-		if (difference === 0) {
-			return Number.MIN_VALUE; // Node's performance.now is higher-res than Chrome, which sometimes returns the same value multiple times. TODO3: Are there reasons to NOT always want performance.now() to increment?
-		}
-
-		return preciseTo(difference);
 	}
 
 	/**

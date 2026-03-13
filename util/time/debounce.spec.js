@@ -20,24 +20,24 @@ export const spec = test(import.meta.url, async $ => {
 	const timer = new Timer();
 
 	$.assert(x => x(count) === 0);
-	$.assert(x => x(timer.check()) < timeLimit);
+	$.assert(x => x(timer.elapsed) < timeLimit);
 
 	next(3);
 
 	$.assert(x => x(count) === 3);
-	$.assert(x => x(timer.check()) < timeLimit);
+	$.assert(x => x(timer.elapsed) < timeLimit);
 
 	next(4);
 	next(5);
 	next(6);
 
 	$.assert(x => x(count) === 3);
-	$.assert(x => x(timer.check()) < timeLimit);
+	$.assert(x => x(timer.elapsed) < timeLimit);
 
 	await sleep(timeLimit);
 
 	next(4);
 
 	$.assert(x => x(count) === 3 + 4);
-	$.assert(x => x(timer.check()) > timeLimit);
+	$.assert(x => x(timer.elapsed) > timeLimit);
 });

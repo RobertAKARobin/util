@@ -10,17 +10,17 @@ export const spec = test(import.meta.url, async $ => {
 
 	let sleeper = sleep(20);
 
-	$.assert(x => x(timer.check()) < 20);
+	$.assert(x => x(timer.elapsed) < 20);
 
 	await sleeper;
 
-	$.assert(x => x(timer.check()) > 20);
+	$.assert(x => x(timer.elapsed) > 20);
 
 	sleeper = sleep(33);
 
-	$.assert(x => isBetween(20, x(timer.check()), 20 + 33));
+	$.assert(x => isBetween(20, x(timer.elapsed), 20 + 33));
 
 	await sleeper;
 
-	$.assert(x => x(timer.check()) > 20 + 33);
+	$.assert(x => x(timer.elapsed) > 20 + 33);
 });

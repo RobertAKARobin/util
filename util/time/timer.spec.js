@@ -7,26 +7,26 @@ import { preciseTo } from '../math/preciseTo.js';
 import { Timer } from './timer.js';
 
 export const spec = suite(import.meta.url, {},
-	test(`.check increments and .restart brings back to 0`, $ => {
+	test(`.time increments and .restart brings back to 0`, $ => {
 		const timer = new Timer();
 
-		$.assert(x => isNaN(x(timer.check())));
+		$.assert(x => isNaN(x(timer.elapsed)));
 
 		timer.restart();
 
-		$.assert(x => x(timer.check()) > 0);
+		$.assert(x => x(timer.elapsed) > 0);
 
-		let last = timer.check();
+		let last = timer.elapsed;
 
 		nTimes(10, () => {
-			const now = timer.check();
+			const now = timer.elapsed;
 			$.assert(x => x(now) > x(last));
 			last = now;
 		});
 
 		timer.restart();
 
-		const now = timer.check();
+		const now = timer.elapsed;
 		$.assert(x => x(now) < x(last));
 	}),
 
@@ -42,11 +42,11 @@ export const spec = suite(import.meta.url, {},
 
 			timer.pause();
 
-			let lastCheck = timer.check();
+			let lastCheck = timer.elapsed;
 
 			$.assert(x => x(timer.paused) === true);
 			$.assert(x => x(timer.start) === x(lastStart));
-			$.assert(x => x(timer.check()) === x(lastCheck));
+			$.assert(x => x(timer.elapsed) === x(lastCheck));
 
 			$.assert(x => isBetween(timer.start, x(timer.pauseStart), performance.now()));
 			$.assert(x => x(lastCheck) === x(preciseTo(timer.pauseStart - lastStart)));
@@ -56,7 +56,7 @@ export const spec = suite(import.meta.url, {},
 
 			$.assert(x => x(timer.paused) === false);
 			$.assert(x => x(timer.start) === x(lastStart));
-			$.assert(x => x(timer.check()) > x(lastCheck));
+			$.assert(x => x(timer.elapsed) > x(lastCheck));
 			$.assert(x => x(timer.pauseDurationCumulative) > 0);
 		}),
 
