@@ -3,7 +3,7 @@ import { preciseTo } from '../math/preciseTo.js';
 export class Timer {
 	get elapsed() {
 		if (isNaN(this.#start)) {
-			return NaN;
+			return 0;
 		}
 
 		const now = performance.now();
@@ -35,7 +35,7 @@ export class Timer {
 		return 0;
 	}
 
-	#pauseDurationCumulative = NaN;
+	#pauseDurationCumulative = 0;
 
 	/**
 	 * The total amount of time the timer has been paused since its last `.restart`.

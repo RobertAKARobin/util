@@ -10,7 +10,7 @@ export const spec = suite(import.meta.url, {},
 	test(`.time increments and .restart brings back to 0`, $ => {
 		const timer = new Timer();
 
-		$.assert(x => isNaN(x(timer.elapsed)));
+		$.assert(x => x(timer.elapsed) === 0);
 
 		timer.restart();
 
