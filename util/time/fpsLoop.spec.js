@@ -77,6 +77,14 @@ export const spec = suite(`FPSLoop`, {},
 		$.assert(x => x(restarted.status) === `ended`);
 		$.assert(x => x(restarted.iterationsSoFar) === 0);
 		$.assert(x => isBetween(x(duration), x(loop.elapsed), x(duration + msPerTick)));
+
+		restarted.restart();
+		$.assert(x => x(restarted.status) === `started`);
+		$.assert(x => isBetween(0, x(restarted.elapsed), x(duration)));
+
+		restarted.end();
+		$.assert(x => x(restarted.status) === `ended`);
+		$.assert(x => isBetween(0, x(restarted.elapsed), x(duration)));
 	}),
 
 	test(`expected number of iterations`, async $ => {
