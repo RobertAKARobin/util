@@ -124,7 +124,56 @@ export const spec = suite(`FPSLoop`, {},
 		$.assert(x => x(restarted.status) === `ended`);
 		$.assert(x => x(restarted.iterationsSoFar) === x(Math.ceil(duration / msPerSecond * rate)));
 		$.assert(x => isBetween(x(duration), x(restarted.elapsed), x(duration + msPerTick)));
+	}),
 
-		// TODO1: paused
+	test(`.pause causes time and iterations to stop incrementing`, async $ => {
+		const loop = new FPSLoop(() => ({}), {
+			rate: 10,
+		});
+		const sleepLength = loop.period * 2;
+
+		loop.restart();
+
+		let lastElapsed = loop.elapsed;
+		let lastIterations = loop.iterationsSoFar;
+		await sleep(sleepLength);
+
+		loop.pause();
+		$.assert(x => x(loop.paused));
+		$.assert(x => x(loop.elapsed) > x(lastElapsed));
+		$.assert(x => x(loop.iterationsSoFar) > x(lastIterations));
+
+		lastElapsed = loop.elapsed;
+		lastIterations = loop.iterationsSoFar;
+		await sleep(sleepLength);
+
+		$.assert(x => x(loop.paused));
+		$.assert(x => x(loop.elapsed) === x(lastElapsed));
+		$.assert(x => x(loop.iterationsSoFar) === x(lastIterations));
+
+		lastElapsed = loop.elapsed;
+		lastIterations = loop.iterationsSoFar;
+
+		loop.pause(false);
+		await sleep(sleepLength);
+		$.assert(x => x(loop.paused) === false);
+		$.assert(x => x(loop.elapsed) > x(lastElapsed));
+		$.assert(x => x(loop.iterationsSoFar) > x(lastIterations));
+
+		loop.pause();
+		lastElapsed = loop.elapsed;
+		lastIterations = loop.iterationsSoFar;
+		await sleep(sleepLength);
+
+		$.assert(x => x(loop.paused));
+		$.assert(x => x(loop.elapsed) === x(lastElapsed));
+		$.assert(x => x(loop.iterationsSoFar) === x(lastIterations));
+
+		loop.pause(false);
+		await sleep(sleepLength);
+
+		$.assert(x => x(loop.paused) === false);
+		$.assert(x => x(loop.elapsed) > x(lastElapsed));
+		$.assert(x => x(loop.iterationsSoFar) > x(lastIterations));
 	}),
 );

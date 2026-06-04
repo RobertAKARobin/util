@@ -117,24 +117,22 @@ export class FPSLoop extends Timer {
 				return;
 			}
 
-			if (this.paused) {
-				return;
-			}
+			if (this.paused === false) {
+				const elapsedActual = this.elapsed;
 
-			const elapsedActual = this.elapsed;
+				if (elapsedActual >= this.duration) {
+					this.end();
+					return;
+				}
 
-			if (elapsedActual >= this.duration) {
-				this.end();
-				return;
-			}
-
-			if (
-				this.rate > 0
-				&& elapsedActual >= elapsedExpected
-			) {
-				elapsedExpected += this.#period;
-				this.doWhat();
-				this.#iterationsSoFar += 1;
+				if (
+					this.rate > 0
+					&& elapsedActual >= elapsedExpected
+				) {
+					elapsedExpected += this.#period;
+					this.doWhat();
+					this.#iterationsSoFar += 1;
+				}
 			}
 
 			setImmediate(step);
