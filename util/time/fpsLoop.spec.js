@@ -102,10 +102,12 @@ export const spec = suite(`FPSLoop`, {},
 		$.assert(x => x(loop.elapsed) === 0);
 
 		loop.restart();
-		await loop.ending;
+		$.assert(x => x(loop.status) === `started`);
+		$.assert(x => x(loop.iterationsSoFar) === 1);
 
+		await loop.ending;
 		$.assert(x => x(loop.status) === `ended`);
-		$.assert(x => x(loop.iterationsSoFar) === x(Math.ceil(duration / msPerSecond * rate)));
+		$.assert(x => x(loop.iterationsSoFar) === Math.ceil(x(duration) / msPerSecond * x(rate)));
 		$.assert(x => isBetween(x(duration), x(loop.elapsed), x(duration + msPerTick)));
 
 		let last = 0;
@@ -117,12 +119,14 @@ export const spec = suite(`FPSLoop`, {},
 		loop.restart();
 		const restarted = loop;
 		$.assert(x => x(restarted.status) === `started`);
-		$.assert(x => x(loop.iterationsSoFar) < x(Math.ceil(duration / msPerSecond * rate)));
+		$.assert(x => x(loop.iterationsSoFar) === 1);
 		$.assert(x => isBetween(0, x(restarted.elapsed), x(duration)));
 
 		await restarted.ending;
 		$.assert(x => x(restarted.status) === `ended`);
-		$.assert(x => x(restarted.iterationsSoFar) === x(Math.ceil(duration / msPerSecond * rate)));
+		$.assert(x =>
+			x(restarted.iterationsSoFar) === Math.ceil(x(duration) / msPerSecond * x(rate)),
+		);
 		$.assert(x => isBetween(x(duration), x(restarted.elapsed), x(duration + msPerTick)));
 	}),
 
