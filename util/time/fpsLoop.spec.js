@@ -7,7 +7,7 @@ import { sleep } from './sleep.js';
 import { FPSLoop } from './fpsLoop.js';
 
 const msPerSecond = 1000;
-const msPerTick = runContext === `browser` ? 15 : 1;
+const msPerTick = runContext === `browser` ? 15 : 1; // TODO3: Extract this to /const?
 
 function loopArgs() {
 	return {

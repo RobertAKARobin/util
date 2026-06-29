@@ -216,7 +216,7 @@ export class SpecBuilder {
 		/** @type {Array<Type.SuiteResult | Type.TestResult>} */
 		const results = (input.timing === `consecutive`
 			? await promiseConsecutive(
-				input.children.map(child => async(_nil, index) => child(await input.args(), index)),
+				input.children.map(child => async index => child(await input.args(), index)),
 			)
 			: await Promise.all(
 				input.children.map(async(child, index) => child(await input.args(), index)),
