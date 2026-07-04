@@ -9,7 +9,7 @@ import { promiseConsecutive } from './promiseConsecutive.js';
 
 export const spec = test(import.meta.url, async $ => {
 	const times = nTimes(10).map(number => number * 10).reverse();
-	const timer = new Timer().restart();
+	const timer = new Timer();
 	const elapsedMin = getSum(...times);
 
 	let timesSoFar = /** @type {Array<number>} */([]);

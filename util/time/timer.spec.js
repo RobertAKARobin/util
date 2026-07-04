@@ -10,10 +10,6 @@ export const spec = suite(import.meta.url, {},
 	test(`.time increments and .restart brings back to 0`, $ => {
 		const timer = new Timer();
 
-		$.assert(x => x(timer.elapsed) === 0);
-
-		timer.restart();
-
 		$.assert(x => x(timer.elapsed) > 0);
 
 		let last = timer.elapsed;
@@ -32,7 +28,7 @@ export const spec = suite(import.meta.url, {},
 
 	suite(`.pause`, {},
 		test(`causes time to stay unchanged until unpaused`, $ => {
-			const timer = new Timer().restart();
+			const timer = new Timer();
 			let lastStart = timer.start;
 
 			$.assert(x => x(timer.paused) === false);
@@ -61,7 +57,7 @@ export const spec = suite(import.meta.url, {},
 		}),
 
 		test(`if doesn't change state, then doesn't do anything`, $ => {
-			const timer = new Timer().restart();
+			const timer = new Timer();
 
 			timer.pause();
 
@@ -82,7 +78,7 @@ export const spec = suite(import.meta.url, {},
 		}),
 
 		test(`repausing and restarting`, $ => {
-			const timer = new Timer().restart();
+			const timer = new Timer();
 
 			timer.pause();
 			timer.pause(false);

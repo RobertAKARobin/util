@@ -1,6 +1,6 @@
 import { preciseTo } from '../math/preciseTo.js';
 
-export class Timer { // TODO1: Start on construct?
+export class Timer {
 	get elapsed() {
 		if (isNaN(this.#start)) {
 			return 0;
@@ -67,6 +67,10 @@ export class Timer { // TODO1: Start on construct?
 
 	get start() {
 		return this.#start;
+	}
+
+	constructor() {
+		this.restart();
 	}
 
 	/**
