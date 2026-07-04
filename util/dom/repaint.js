@@ -1,5 +1,6 @@
 /**
  * Force the browser to repaint the current window and synchronously wait for it to finish.
+ * TODO1: Spec?
  * @returns {void}
  */
 export function repaint() {

@@ -70,7 +70,7 @@ export const colors = Object.entries(codesByName).reduce((colors, [name, code]) 
 
 /**
  * Wrap the given message in shell strings for the given colors
- * TODO2: Spec
+ * TODO1: Spec
  * @param {string} message
  * @param {Array<ColorName>} args
  * @returns {string}

@@ -1,6 +1,6 @@
 /**
  * Sets a cookie, or if `options.value` is `null` then deletes it
- * TODO2: Spec
+ * TODO1: Spec
  * @param {object} options
  * @param {string} [options.domain]
  * @param {string} [options.expires]

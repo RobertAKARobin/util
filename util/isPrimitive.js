@@ -1,6 +1,6 @@
 /**
  * Whether the given input is a primitive data type
- * TODO2: Spec
+ * TODO1: Spec
  * @param {unknown} input
  * @returns {boolean}
  * @see https://developer.mozilla.org/en-US/docs/Glossary/Primitive

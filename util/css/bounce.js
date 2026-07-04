@@ -2,7 +2,7 @@
  * @import { keyframesMulti } from './keyframes.js';
  */
 
-// TODO2: Spec
+// TODO1: Spec
 
 import { roundTo } from '../math/roundTo.js';
 

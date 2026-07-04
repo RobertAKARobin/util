@@ -4,6 +4,7 @@
 
 /**
  * Play the animation with the input name once on the given target
+ * TODO1: Spec
  * @param {HTMLElement} target
  * @param {Pick<AnimationData<PropertyKey>, 'name' | 'timeDuration'>} input
  * @returns {Promise<void>}

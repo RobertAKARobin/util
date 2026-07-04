@@ -6,6 +6,8 @@ import { pointToSvg } from '../svg/pointToSvg.js';
 
 export const customDragEventName = `customdrag`;
 
+// TODO1: Spec
+
 export class CustomDragEvent extends Event {
 	/**
 	 * The current coordinates of the pointer
@@ -46,7 +48,7 @@ export class CustomDragEvent extends Event {
 
 /**
  * Makes the given element emit a `customdrag` event on mousemove after it has emitted a mousedown, until mouseup.
- * TODO2: Spec
+ * TODO1: Spec
  * @param {Element} target
  * @param {object} [options]
  * @param {'center' | 'top left'} [options.offsetOrigin]
