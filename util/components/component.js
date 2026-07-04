@@ -10,7 +10,6 @@ import {
 	setAttributes,
 	setStyle,
 } from '../dom/attributes.js';
-import { isNotNull } from '../isNotNull.js';
 import { mixin } from '../mixin.js';
 import { newUid } from '../uid.js';
 import { runContext } from '../web/context.js';
@@ -819,8 +818,8 @@ export class Component extends HTMLElement {
 			if (tagName === `PLACEHOLDER`) {
 				const placeholder = /** @type {HTMLUnknownElement} */(target);
 				const id = placeholder.id;
-				let cached = isNotNull( // TODO3: Why nested `isNotNull`?
-					isNotNull(Component.cache.get(id)).deref(),
+				let cached = /** @type {NonNullable<Component>} */(
+					/** @type {NonNullable<WeakRef<Component>>} */(Component.cache.get(id)).deref()
 				);
 				Component.cache.delete(id);
 
@@ -838,7 +837,7 @@ export class Component extends HTMLElement {
 				continue;
 
 			} else if (tagName === `HOST`) {
-				const parent = isNotNull(target.parentElement) ?? template;
+				const parent = target.parentElement ?? template;
 				setAttributes(parent, target);
 				iterator.previousNode();
 				target.replaceWith(...target.childNodes);
@@ -854,7 +853,7 @@ export class Component extends HTMLElement {
 			: /** @type {HTMLElement} */(this.querySelector(rootSelector));
 
 		setAttributes(destinationRoot, /** @type {Element} */(sourceRoot));
-		destinationRoot.replaceChildren(...isNotNull(sourceRoot).childNodes);
+		destinationRoot.replaceChildren(.../** @type {NonNullable<Node>} */(sourceRoot).childNodes);
 		this.rendered();
 		return this;
 	}

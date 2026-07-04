@@ -1,5 +1,4 @@
 import { suite, test } from '../spec/index.js';
-import { isNotNull } from '../isNotNull.js';
 
 import { findOverlap } from './findOverlap.js';
 
@@ -17,7 +16,7 @@ function subject(
 		update.split(delimiter),
 		options,
 	);
-	return isNotNull(out);
+	return out;
 }
 
 export const spec = suite(import.meta.url, {},

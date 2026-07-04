@@ -4,7 +4,6 @@
  */
 
 import { arrayToEnum } from '../../group/arrayToEnum.js';
-import { isNotNull } from '../../isNotNull.js';
 import { nTimes } from '../../group/nTimes.js';
 import { promiseConsecutive } from '../../time/promiseConsecutive.js';
 
@@ -167,7 +166,8 @@ export class SpecBuilder {
 	suite(title, options, ...children) {
 		return async(inheritedArgs, index) => {
 			const args = typeof options?.args === `function`
-				? () => isNotNull(options.args)(inheritedArgs)
+				// @ts-expect-error Is not null
+				? () => options.args(inheritedArgs)
 				: () => ({ ...inheritedArgs });
 
 			const timing = options.timing ?? `consecutive`;
