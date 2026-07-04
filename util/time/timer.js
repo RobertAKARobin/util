@@ -6,7 +6,7 @@ export class Timer { // TODO1: Start on construct?
 			return 0;
 		}
 
-		const now = performance.now();
+		const now = this.#now;
 
 		let difference = now - this.#start + this.#pauseDurationCumulative;
 
@@ -21,6 +21,10 @@ export class Timer { // TODO1: Start on construct?
 		return preciseTo(difference);
 	}
 
+	get #now() {
+		return performance.now();
+	}
+
 	#paused = false;
 
 	get paused() {
@@ -29,7 +33,7 @@ export class Timer { // TODO1: Start on construct?
 
 	get pauseDuration() {
 		if (this.#paused) {
-			return performance.now() - this.pauseStart;
+			return this.#now - this.pauseStart;
 		}
 
 		return 0;
@@ -76,7 +80,7 @@ export class Timer { // TODO1: Start on construct?
 
 		this.#paused = isPaused;
 
-		const now = performance.now();
+		const now = this.#now;
 
 		if (this.#paused) {
 			this.#pauseStart = now;
@@ -88,7 +92,7 @@ export class Timer { // TODO1: Start on construct?
 	}
 
 	restart() {
-		this.#start = performance.now();
+		this.#start = this.#now;
 		this.#pauseDurationCumulative = 0;
 		this.#pauseStart = NaN;
 		this.#paused = false;
