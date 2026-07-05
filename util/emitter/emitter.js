@@ -2,8 +2,6 @@
  * @import { EmitEvent, EmitterCacheOptions, EmitterOptions, PipeFunction, Subscription, SubscriptionHandler } from './types.d';
  */
 
-import { isPrimitive } from '../isPrimitive.js';
-
 export const IGNORE = `_IGNORE_`;
 
 /**
@@ -127,7 +125,7 @@ export class Emitter {
 	 * @returns {this}
 	 */
 	patch(update) {
-		if (isPrimitive(update)) {
+		if (typeof update !== `object`) {
 			return this.set(/** @type {State} */(update));
 		}
 		return this.set({
