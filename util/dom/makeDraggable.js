@@ -6,8 +6,6 @@ import { pointToSvg } from '../svg/pointToSvg.js';
 
 export const customDragEventName = `customdrag`;
 
-// TODO1: Spec
-
 export class CustomDragEvent extends Event {
 	/**
 	 * The current coordinates of the pointer

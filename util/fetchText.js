@@ -7,7 +7,7 @@ import { runContext } from './web/context.js';
 
 /**
  * Loads and returns the text at the given target path
- * // TODO1: Spec for web
+ * TODO1: Spec for web
  * @param {string} target
  * @returns {Promise<string>}
  */

@@ -19,7 +19,7 @@ const msPerSecond = 1000;
 /**
  * Loops over the given callback at the given number of iterations per second.
  * Note: this uses `requestAnimationFrame` in the browser, which has a rate of about 16ms in an active tab and may stop entirely in an inactive tab.
- * TODO1: Option to use web worker with setInterval?
+ * TODO2: Option to use web worker with setInterval?
  */
 export class FPSLoop extends Timer {
 	/**
