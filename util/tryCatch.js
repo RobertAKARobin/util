@@ -4,17 +4,16 @@
 
 /**
  * Wraps around `try/catch`. Return the expected value, or an Error if it threw an Error
- * TODO1: Spec
- * @template Result
- * @overload
- * @param {IsAsync_Not<Result>} callback
- * @returns {Error | Result}
- */
-/**
  * @template Result
  * @overload
  * @param {IsAsync<Result>} callback
  * @returns {Promise<Error> | Result}
+ */
+/**
+ * @template Result
+ * @overload
+ * @param {IsAsync_Not<Result>} callback
+ * @returns {Error | Result}
  */
 /**
  * @template Result
