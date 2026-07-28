@@ -8,6 +8,7 @@ const prototypePropertiesToSkip = new Set([`constructor`]);
 /**
  * Copies all static and prototype (but not instance) methods/properties from `Source` to `Target`
  * Note the difference between `prototype` and `instance` properties when defining classes: https://stackoverflow.com/q/77733619/2053389
+ * TODO2: Support multiple sources, e.g. ...Source
  * @template Target
  * @template {ConstructorOf<Target>} TargetConstructor
  * @template Source

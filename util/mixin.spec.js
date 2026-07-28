@@ -2,7 +2,7 @@ import { test } from './spec/index.js';
 
 import { mixin } from './mixin.js';
 
-class Grandparent {
+class GrandparentMixin {
 	static staticProperty
 		= `static property grandparent`;
 	static staticProperty_grandparent
@@ -34,7 +34,7 @@ class Grandparent {
 	}
 }
 
-class Parent {
+class ParentMixin {
 	static staticProperty
 		= `static property parent`;
 	static staticProperty_parent
@@ -65,7 +65,7 @@ class Parent {
 		return `instance method traditional parent`;
 	}
 }
-class Child_ {
+class ChildMixin {
 	static staticProperty = `static property child`;
 	static staticMethodArrow = () => `static method arrow child`;
 	static staticMethodTraditional() {
@@ -79,21 +79,24 @@ class Child_ {
 	}
 }
 
-const Child = mixin(mixin(Child_, Grandparent), Parent);
+const ChildClass = mixin(
+	mixin(ChildMixin, ParentMixin),
+	GrandparentMixin,
+);
 
 export const spec = test(import.meta.url, $ => {
-	const child = new Child();
-	$.assert(x => x(Child.staticProperty) === `static property parent`);
-	$.assert(x => x(Child.staticProperty_parent) === `static property parent`);
-	$.assert(x => x(Child.staticProperty_grandparent) === `static property grandparent`);
+	const child = new ChildClass();
+	$.assert(x => x(ChildClass.staticProperty) === `static property parent`);
+	$.assert(x => x(ChildClass.staticProperty_parent) === `static property parent`);
+	$.assert(x => x(ChildClass.staticProperty_grandparent) === `static property grandparent`);
 
-	$.assert(x => x(Child.staticMethodArrow()) === `static method arrow parent`);
-	$.assert(x => x(Child.staticMethodArrow_parent()) === `static method arrow parent`);
-	$.assert(x => x(Child.staticMethodArrow_grandparent()) === `static method arrow grandparent`);
+	$.assert(x => x(ChildClass.staticMethodArrow()) === `static method arrow parent`);
+	$.assert(x => x(ChildClass.staticMethodArrow_parent()) === `static method arrow parent`);
+	$.assert(x => x(ChildClass.staticMethodArrow_grandparent()) === `static method arrow grandparent`);
 
-	$.assert(x => x(Child.staticMethodTraditional()) === `static method traditional parent`);
-	$.assert(x => x(Child.staticMethodTraditional_parent()) === `static method traditional parent`);
-	$.assert(x => x(Child.staticMethodTraditional_grandparent()) === `static method traditional grandparent`);
+	$.assert(x => x(ChildClass.staticMethodTraditional()) === `static method traditional parent`);
+	$.assert(x => x(ChildClass.staticMethodTraditional_parent()) === `static method traditional parent`);
+	$.assert(x => x(ChildClass.staticMethodTraditional_grandparent()) === `static method traditional grandparent`);
 
 	$.assert(x => x(child.instanceProperty) === `instance property child`);
 	// TODO1: Finish these
