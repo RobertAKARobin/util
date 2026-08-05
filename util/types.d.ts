@@ -35,7 +35,7 @@ export type Index1Forward<Input> =
 
 export type Nested<Type> = Array<Nested<Type> | Type>;
 
-export type IsAsync<Result extends Promise<unknown>> = () => Result;
+export type IsAsync<Result> = () => (Result extends Promise<unknown> ? Result : never);
 
 export type IsAsync_Not<Result> = () => (Result extends Promise<unknown> ? never : Result);
 
