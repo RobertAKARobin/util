@@ -2,7 +2,8 @@
 	"compilerOptions": {
 		"baseUrl": ".",
 		"noEmit": true,
-		"rootDir": "."
+		"rootDir": ".",
+		"skipLibCheck": true
 	},
 	"exclude": [
 		"example",
