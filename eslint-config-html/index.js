@@ -16,7 +16,6 @@ export const config = [
 			parser: htmlEslintParser,
 		},
 		plugins: {
-			// @ts-expect-error TODO3 Add bug to html-eslint for this?
 			'@html-eslint': htmlEslintPlugin,
 		},
 		rules: {

@@ -4,13 +4,13 @@
 		"cssts": "bin/cssts.sh"
 	},
 	"dependencies": {
-		"@stylistic/stylelint-plugin": "^3.0.1",
-		"postcss": "^8.4.47",
-		"postcss-html": "^1.7.0",
-		"postcss-lit": "^1.1.1",
-		"postcss-nested": "^6.2.0",
-		"stylelint": "^16.9.0",
-		"stylelint-order": "^6.0.4"
+		"@stylistic/stylelint-plugin": "^5.2.1",
+		"postcss": "^8.5.25",
+		"postcss-html": "^2.0.0",
+		"postcss-lit": "^1.4.1",
+		"postcss-nested": "^8.0.1",
+		"stylelint": "^17.14.1",
+		"stylelint-order": "^8.1.1"
 	},
 	"description": "Robin's stylelint configurations, and a `.css.ts`-to-`.css` compiler",
 	"main": "index.js",

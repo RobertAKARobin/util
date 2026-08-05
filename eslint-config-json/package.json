@@ -1,6 +1,6 @@
 {
 	"dependencies": {
-		"@eslint/json": "^0.10.0"
+		"@eslint/json": "^2.0.1"
 	},
 	"main": "index.js",
 	"name": "@robertakarobin/eslint-config-json",
