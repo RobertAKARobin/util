@@ -1,4 +1,3 @@
-import stylisticTsPlugin from '@stylistic/eslint-plugin-ts';
 import tsEslint from 'typescript-eslint';
 
 import { default as config, files } from '@robertakarobin/eslint-config';
@@ -22,20 +21,10 @@ export default tsEslint.config(
 		},
 		plugins: {
 			'@robertakarobin/ts': localPlugin,
-			'@stylistic/ts': stylisticTsPlugin,
 			'@typescript-eslint': tsEslint.plugin,
 		},
 		rules: {
 			'@robertakarobin/ts/no-partial-with-literal': `warn`,
-			'@stylistic/ts/member-delimiter-style': [`error`, {
-				singleline: {
-					requireLast: true,
-				},
-			}],
-			'@stylistic/ts/object-curly-spacing': [`error`, `always`],
-			'@stylistic/ts/semi': [`error`, `always`],
-			'@stylistic/ts/space-before-function-paren': [`error`, `never`],
-			'@stylistic/ts/type-annotation-spacing': [`error`],
 			'@typescript-eslint/array-type': [`error`, {
 				default: `generic`,
 			}],

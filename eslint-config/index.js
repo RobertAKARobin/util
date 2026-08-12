@@ -3,7 +3,7 @@
  */
 
 import globals from 'globals';
-import stylisticPlugin from '@stylistic/eslint-plugin-js';
+import stylisticPlugin from '@stylistic/eslint-plugin';
 
 import localPlugin from './rules/index.js';
 
@@ -60,6 +60,11 @@ export default [
 				ignoreStrings: false,
 				ignoreTemplateLiterals: true,
 			}],
+			'@stylistic/member-delimiter-style': [`error`, {
+				singleline: {
+					requireLast: true,
+				},
+			}],
 			'@stylistic/no-multi-spaces': [`error`],
 			'@stylistic/object-curly-spacing': [`error`, `always`],
 			'@stylistic/object-property-newline': [`error`, {
@@ -69,8 +74,10 @@ export default [
 			'@stylistic/quotes': [`error`, `backtick`],
 			'@stylistic/semi': [`error`, `always`],
 			'@stylistic/space-before-blocks': [`error`, `always`],
+			'@stylistic/space-before-function-paren': [`error`, `never`],
 			'@stylistic/space-in-parens': [`error`],
 			'@stylistic/space-infix-ops': [`error`],
+			'@stylistic/type-annotation-spacing': [`error`],
 
 			'curly': [`error`, `all`],
 			'eqeqeq': `error`,
