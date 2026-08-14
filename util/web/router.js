@@ -1,6 +1,5 @@
 /**
  * @import { EmitterOptions } from '../emitter/types.d';
- * @import { Params } from '../types.d';
  */
 
 import { baseUrl, defaultBaseUrl } from './context.js';
@@ -183,7 +182,7 @@ export class Router extends Emitter {
 	 * @template {keyof Routes} RouteName
 	 * @template {Routes[RouteName]} Route
 	 * @param {RouteName} target
-	 * @param {Params<Route>} args
+	 * @param {Parameters<Route>} args
 	 * @returns {this}
 	 */
 	go(target, ...args) {

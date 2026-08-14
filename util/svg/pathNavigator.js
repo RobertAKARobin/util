@@ -134,7 +134,7 @@ export class PathNavigator {
 				default:
 					throw new Error(`not a recognized command`);
 			}
-		} catch (error) {
+		} catch(error) {
 			const { message } = /** @type {Error} */(error);
 			throw new Error(`Error at '${command} ${values.join(`,`)}': ${message}`);
 		}

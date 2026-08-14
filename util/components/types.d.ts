@@ -13,15 +13,15 @@ export type EventHandlerTest<
 	EventDetail,
 > =
 	Listener[HandlerKey] extends (event: CustomEvent<EventDetail>) => void
-	? HandlerKey
-	: never;
+		? HandlerKey
+		: never;
 
 export type EventNameConfig<Instance, EventKey extends keyof Instance> =
 	Instance[EventKey] extends () => void
-	? (EventKey | [EventKey, string])
-	: never;
+		? (EventKey | [EventKey, string])
+		: never;
 
 export type EventNameTest<Instance, EventKey extends keyof Instance> =
 	Instance[EventKey] extends EventFlag
-	? EventKey
-	: never;
+		? EventKey
+		: never;

@@ -41,7 +41,7 @@ export type SpecResult = {
 
 export type SpecRunner<Args = {}> = (
 	specFilenames: Array<string>,
-	options?: SuiteOptions<{}, Args>
+	options?: SuiteOptions<{}, Args>,
 ) => Promise<SuiteResult>;
 
 export type SpecStepCount = Record<
@@ -79,10 +79,10 @@ export type SpecStepTypeName = typeof specStepTypes[number];
 export function Assertion(valueWrap: typeof AssertionValueWrap): Promise<boolean> | boolean;
 
 export function AssertionFactory(
-	assertion: (valueWrap: typeof AssertionValueWrap) => boolean
+	assertion: (valueWrap: typeof AssertionValueWrap) => boolean,
 ): void;
 export function AssertionFactory(
-	assertion: (valueWrap: typeof AssertionValueWrap) => Promise<boolean>
+	assertion: (valueWrap: typeof AssertionValueWrap) => Promise<boolean>,
 ): Promise<void>;
 
 export function AssertionValueWrap <Value>(value: Value): Value;

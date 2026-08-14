@@ -49,7 +49,7 @@ export function tryCatch(callback, defaultIfError) {
 		} else {
 			return result;
 		}
-	} catch (error) {
+	} catch(error) {
 		if (typeof defaultIfError === `undefined`) {
 			return /** @type {Error} */(error);
 		}

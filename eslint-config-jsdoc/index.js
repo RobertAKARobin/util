@@ -20,7 +20,9 @@ export default [
 			'jsdoc/check-access': `off`,
 			'jsdoc/check-alignment': `error`,
 			'jsdoc/check-examples': `off`,
-			'jsdoc/check-indentation': `error`,
+			'jsdoc/check-indentation': [`error`, {
+				allowIndentedSections: true,
+			}],
 			'jsdoc/check-line-alignment': `error`,
 			'jsdoc/check-param-names': `error`,
 			'jsdoc/check-property-names': `error`,

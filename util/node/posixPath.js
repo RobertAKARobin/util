@@ -17,7 +17,7 @@ export function posixPath(input, originPlatform = undefined) {
 		.join(path.posix.sep);
 	try {
 		return new URL(fileUrl).pathname;
-	} catch (_e) {
+	} catch(_e) {
 		return fileUrl;
 	}
 }
