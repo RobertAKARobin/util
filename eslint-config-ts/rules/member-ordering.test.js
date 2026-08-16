@@ -33,6 +33,8 @@ ruleTester.run(`member-ordering`, rule, {
 			constructor() {}
 
 			static {}
+
+			myMethodProperty = () => {}
 		}`,
 	],
 

@@ -16,10 +16,9 @@ export const messageId = /** @type {const} */`memberOrdering`;
  * 	kind?: TSESTree.MethodDefinition['kind'] | TSESTree.Property['kind']
  * 	static?: boolean;
  * 	type: TSESTree.AST_NODE_TYPES;
+ * 	value?: TSESTree.Expression;
  * }} Member
  */
-
-// TODO1: Methods set as properties `foo = () => {}` are still methods
 
 const memberGroup = () => ({
 	ctor: /** @type {Member | undefined} */(undefined),
@@ -28,11 +27,13 @@ const memberGroup = () => ({
 });
 
 const isProperty = (/** @type {Member} */member) => {
-	return member.type === AST_NODE_TYPES.PropertyDefinition
-		|| (
-			member.type === AST_NODE_TYPES.MethodDefinition
-			&& (member.kind === `get` || member.kind === `set`)
-		);
+	return (
+		member.type === AST_NODE_TYPES.PropertyDefinition
+		&& member.value?.type !== AST_NODE_TYPES.ArrowFunctionExpression
+	) || (
+		member.type === AST_NODE_TYPES.MethodDefinition
+		&& (member.kind === `get` || member.kind === `set`)
+	);
 };
 
 const getName = (/** @type {Member} */member) =>
