@@ -24,7 +24,9 @@ export default tsEslint.config(
 			'@typescript-eslint': tsEslint.plugin,
 		},
 		rules: {
+			'@robertakarobin/ts/member-ordering': `warn`,
 			'@robertakarobin/ts/no-partial-with-literal': `warn`,
+
 			'@typescript-eslint/array-type': [`error`, {
 				default: `generic`,
 			}],
@@ -35,42 +37,6 @@ export default tsEslint.config(
 			}],
 			'@typescript-eslint/explicit-member-accessibility': [`error`, {
 				accessibility: `no-public`,
-			}],
-			'@typescript-eslint/member-ordering': [`error`, {
-				default: {
-					memberTypes: [
-						`signature`,
-						`call-signature`,
-
-						[
-							`static-field`,
-							`static-get`,
-							`static-set`,
-						],
-
-						`static-initialization`,
-						`static-method`,
-
-						[
-							`abstract-field`,
-							`abstract-get`,
-							`abstract-set`,
-							`field`,
-							`instance-field`,
-							`instance-get`,
-							`instance-set`,
-						],
-
-						`constructor`,
-
-						[
-							`abstract-method`,
-							`instance-method`,
-							`method`,
-						],
-					],
-					order: `natural-case-insensitive`,
-				},
 			}],
 			'@typescript-eslint/no-array-constructor': `error`,
 			'@typescript-eslint/no-base-to-string': `off`,

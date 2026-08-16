@@ -1,6 +1,6 @@
 // TODO1: Alphabetize
 export type ConstructorOf<Type> = {
-	prototype: Type;
+	prototype: Type; // eslint-disable-line @robertakarobin/ts/member-ordering
 	new(...args: any): Type; // eslint-disable-line @typescript-eslint/no-explicit-any
 };
 

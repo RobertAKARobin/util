@@ -15,9 +15,11 @@ export const messageId = /** @type {const} */`memberOrdering`;
  * 	key?: TSESTree.Identifier | TSESTree.Literal;
  * 	kind?: TSESTree.MethodDefinition['kind'] | TSESTree.Property['kind']
  * 	static?: boolean;
- * 	type: keyof typeof TSESTree.AST_NODE_TYPES;
+ * 	type: TSESTree.AST_NODE_TYPES;
  * }} Member
  */
+
+// TODO1: Methods set as properties `foo = () => {}` are still methods
 
 const memberGroup = () => ({
 	ctor: /** @type {Member | undefined} */(undefined),
@@ -29,14 +31,14 @@ const isProperty = (/** @type {Member} */member) => {
 	return member.type === AST_NODE_TYPES.PropertyDefinition
 		|| (
 			member.type === AST_NODE_TYPES.MethodDefinition
-			&& (member.kind === 'get' || member.kind === 'set')
+			&& (member.kind === `get` || member.kind === `set`)
 		);
-}
+};
 
 const getName = (/** @type {Member} */member) =>
 	member.key?.type === AST_NODE_TYPES.Literal
-		? (member.key.value || member.key.raw).toString()
-		: (member.key?.name || ``);
+		? (member.key.value ?? member.key.raw).toString()
+		: (member.key?.name ?? ``);
 
 
 const getReportableName = (/** @type {Member} */member) => {
@@ -45,7 +47,7 @@ const getReportableName = (/** @type {Member} */member) => {
 	if (member.type === AST_NODE_TYPES.StaticBlock) {
 		out.push(`static constructor`);
 	} else {
-		 if (member.static) {
+		if (member.static === true) {
 			out.push(`static`);
 		} else {
 			out.push(`instance`);
@@ -71,6 +73,7 @@ const getSortableName = (/** @type {Member} */member) => {
 	let name = getName(member);
 
 	name = name.replace(/^[#_$]/, ``);
+	name = name.toLowerCase();
 
 	if (member.kind === `get`) {
 		name += `__get`;
@@ -96,7 +99,7 @@ export default ESLintUtils.RuleCreator.withoutDocs({
 
 	create(context) {
 		function validateOrder(
-			/** @type {Array<TSESTree.ClassElement | TSESTree.TypeElement>} */ nodes
+			/** @type {Array<TSESTree.ClassElement | TSESTree.TypeElement>} */ nodes,
 		) {
 			const members = /** @type {Array<Member>} */(nodes);
 
@@ -108,7 +111,7 @@ export default ESLintUtils.RuleCreator.withoutDocs({
 			for (const member of /** @type {Array<Member>} */(members)) {
 				if (member.type === AST_NODE_TYPES.StaticBlock) {
 					ordered.static.ctor = member;
-				} else if (member.static) {
+				} else if (member.static === true) {
 					if (isProperty(member)) {
 						ordered.static.properties.push(member);
 					} else {
@@ -139,12 +142,6 @@ export default ESLintUtils.RuleCreator.withoutDocs({
 				ordered.instance.methods,
 			]).flat();
 
-			for (const member of membersByRank) {
-				if (member) {
-					console.log(getReportableName(member));
-				}
-			}
-
 			const ranksByMember = /** @type {Map<Member, number>} */(new Map());
 			membersByRank.forEach((member, index) => {
 				if (member === undefined) {
@@ -157,7 +154,7 @@ export default ESLintUtils.RuleCreator.withoutDocs({
 			members.forEach((member, index) => {
 				const memberNext = members[index + 1];
 
-				const rank = /** @type {Number} */(ranksByMember.get(member));
+				const rank = /** @type {number} */(ranksByMember.get(member));
 				const rankNext = ranksByMember.get(memberNext);
 
 				if (rankNext === undefined) {

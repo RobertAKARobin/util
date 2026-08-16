@@ -265,16 +265,17 @@ export class Emitter {
  */
 export class EmitterCache {
 	/**
+	 * @protected
+	 */
+	_count = 0;
+
+	/**
 	 * The number of values that have been set in this cache, regardless of its limit
 	 * @returns {number}
 	 */
 	get count() {
-		return this.count_;
+		return this._count;
 	}
-	/**
-	 * @private
-	 */
-	count_ = 0;
 
 	/**
 	 * The quantity of values to cache.
@@ -322,7 +323,7 @@ export class EmitterCache {
 	addMany(entries) {
 		for (const entry of entries) {
 			this.memory.unshift(entry);
-			this.count_ += 1;
+			this._count += 1;
 		}
 		this.memory.splice(this.limit);
 		return this;

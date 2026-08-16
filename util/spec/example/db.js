@@ -32,12 +32,11 @@ export class DB {
 		return sleep(10 * Math.random());
 	}
 
+	#isConnected = false;
+
 	get isConnected() {
 		return this.#isConnected;
 	}
-
-	#isConnected = false;
-
 
 	constructor() {
 		this.#isConnected = true;
