@@ -24,8 +24,8 @@ export default tsEslint.config(
 			'@typescript-eslint': tsEslint.plugin,
 		},
 		rules: {
-			'@robertakarobin/ts/member-ordering': `warn`,
-			'@robertakarobin/ts/no-partial-with-literal': `warn`,
+			'@robertakarobin/ts/member-ordering': `error`,
+			'@robertakarobin/ts/no-partial-with-literal': `error`,
 
 			'@typescript-eslint/array-type': [`error`, {
 				default: `generic`,
@@ -60,16 +60,16 @@ export default tsEslint.config(
 			'@typescript-eslint/no-non-null-asserted-optional-chain': `error`,
 			'@typescript-eslint/no-redundant-type-constituents': `error`,
 			'@typescript-eslint/no-this-alias': `off`,
-			'@typescript-eslint/no-unnecessary-type-assertion': `warn`,
-			'@typescript-eslint/no-unnecessary-type-constraint': `warn`,
-			'@typescript-eslint/no-unsafe-argument': `warn`,
-			'@typescript-eslint/no-unsafe-assignment': `warn`,
-			'@typescript-eslint/no-unsafe-call': `warn`,
-			'@typescript-eslint/no-unsafe-declaration-merging': `warn`,
-			'@typescript-eslint/no-unsafe-enum-comparison': `warn`,
-			'@typescript-eslint/no-unsafe-member-access': `warn`,
+			'@typescript-eslint/no-unnecessary-type-assertion': `error`,
+			'@typescript-eslint/no-unnecessary-type-constraint': `error`,
+			'@typescript-eslint/no-unsafe-argument': `error`,
+			'@typescript-eslint/no-unsafe-assignment': `error`,
+			'@typescript-eslint/no-unsafe-call': `error`,
+			'@typescript-eslint/no-unsafe-declaration-merging': `error`,
+			'@typescript-eslint/no-unsafe-enum-comparison': `error`,
+			'@typescript-eslint/no-unsafe-member-access': `error`,
 			'@typescript-eslint/no-unsafe-return': `error`,
-			'@typescript-eslint/no-unused-vars': [`warn`, {
+			'@typescript-eslint/no-unused-vars': [`error`, {
 				argsIgnorePattern: `^_`,
 				caughtErrorsIgnorePattern: `^_`,
 				destructuredArrayIgnorePattern: `^_`,
@@ -84,7 +84,7 @@ export default tsEslint.config(
 			'@typescript-eslint/sort-type-constituents': [`error`],
 			'@typescript-eslint/strict-boolean-expressions': `error`,
 			'@typescript-eslint/triple-slash-reference': `error`,
-			'@typescript-eslint/unbound-method': [`warn`, {
+			'@typescript-eslint/unbound-method': [`error`, {
 				ignoreStatic: true,
 			}],
 
@@ -108,7 +108,7 @@ export default tsEslint.config(
 				],
 			}],
 			'no-restricted-syntax': [
-				`warn`,
+				`error`,
 				{
 					message: `Don't use enums; use 'const' instead`,
 					selector: `TSEnumDeclaration`,

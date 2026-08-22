@@ -36,7 +36,7 @@ export default [
 		},
 		rules: {
 			'@robertakarobin/import-quotes': [`error`],
-			'@robertakarobin/no-bang-negation': [`warn`],
+			'@robertakarobin/no-bang-negation': [`error`],
 			'@stylistic/arrow-parens': [`error`, `as-needed`],
 			'@stylistic/arrow-spacing': `error`,
 			'@stylistic/brace-style': [`error`, `1tbs`],
@@ -53,7 +53,7 @@ export default [
 				mode: `strict`,
 			}],
 			'@stylistic/keyword-spacing': [`error`],
-			'@stylistic/max-len': [`warn`, {
+			'@stylistic/max-len': [`error`, {
 				code: 100,
 				ignoreComments: true,
 				ignoreRegExpLiterals: false,
@@ -82,7 +82,7 @@ export default [
 			'curly': [`error`, `all`],
 			'eqeqeq': `error`,
 			'no-undef': [`error`],
-			'no-unused-vars': [`warn`, {
+			'no-unused-vars': [`error`, {
 				argsIgnorePattern: `^_`,
 				destructuredArrayIgnorePattern: `^_`,
 				ignoreRestSiblings: true,
