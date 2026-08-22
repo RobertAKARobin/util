@@ -19,7 +19,7 @@ export function transition(options, doWhat) {
 
 	const loop = new FPSLoop(
 		() => {
-			const remainingTime = loop.duration - loop.timeElapsed;
+			const remainingTime = loop.duration - loop.elapsed;
 			const remainingTimeAsPercent = (remainingTime / loop.duration);
 			value = valueEnd + (remainingTimeAsPercent * difference);
 

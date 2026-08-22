@@ -264,9 +264,6 @@ export class Emitter {
  * @template State
  */
 export class EmitterCache {
-	/**
-	 * @protected
-	 */
 	_count = 0;
 
 	/**

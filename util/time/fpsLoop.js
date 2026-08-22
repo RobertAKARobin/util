@@ -35,44 +35,44 @@ export class FPSLoop extends Timer {
 	/**
 	 * @type {Promise<void> | undefined}
 	 */
-	#ending = undefined;
+	_ending = undefined;
 	get ending() {
-		return this.#ending;
+		return this._ending;
 	}
 
-	#iterationsSoFar = 0;
+	_iterationsSoFar = 0;
 	get iterationsSoFar() {
-		return this.#iterationsSoFar;
+		return this._iterationsSoFar;
 	}
 
-	#period = 0;
+	_period = 0;
 	get period() {
-		return this.#period;
+		return this._period;
 	}
 
 	/**
 	 * Iterations per second
 	 */
-	#rate = NaN;
+	_rate = NaN;
 	get rate() {
-		return this.#rate;
+		return this._rate;
 	}
 	set rate(/** @type {number} */value) {
-		this.#rate = value;
-		this.#period = msPerSecond / this.#rate;
+		this._rate = value;
+		this._period = msPerSecond / this._rate;
 	}
 
 	/**
 	 * @type {((...args: any) => void) | undefined}
 	 */
-	#resolve = undefined;
+	_resolve = undefined;
 
 	/**
 	 * @type {LoopStatus}
 	 */
-	#status = `unstarted`;
+	_status = `unstarted`;
 	get status() {
-		return this.#status;
+		return this._status;
 	}
 
 	/**
@@ -90,10 +90,10 @@ export class FPSLoop extends Timer {
 
 	end() {
 		this.pause(true);
-		this.#status = `ended`;
+		this._status = `ended`;
 
-		if (this.#resolve) {
-			this.#resolve();
+		if (this._resolve) {
+			this._resolve();
 		}
 
 		return this;
@@ -106,10 +106,10 @@ export class FPSLoop extends Timer {
 	restart() {
 		super.restart();
 
-		this.#ending = new Promise(resolve => {
-			this.#resolve = resolve;
+		this._ending = new Promise(resolve => {
+			this._resolve = resolve;
 		});
-		this.#iterationsSoFar = 0;
+		this._iterationsSoFar = 0;
 
 		let elapsedExpected = -1;
 		const step = () => {
@@ -129,16 +129,16 @@ export class FPSLoop extends Timer {
 					this.rate > 0
 					&& elapsedActual >= elapsedExpected
 				) {
-					elapsedExpected += this.#period;
+					elapsedExpected += this._period;
 					this.doWhat();
-					this.#iterationsSoFar += 1;
+					this._iterationsSoFar += 1;
 				}
 			}
 
 			setImmediate(step);
 		};
 
-		this.#status = `started`;
+		this._status = `started`;
 		step();
 
 		return this;

@@ -3,7 +3,7 @@ import { test } from '../spec/index.js';
 
 import { transition } from './transition.js';
 
-export const spec = test(import.meta.url, async $ => {
+export const spec = test(import.meta.url, $ => {
 	const loopsPerSecond = 60;
 	const durationTarget = 1000;
 	let subject = 0;
@@ -16,8 +16,8 @@ export const spec = test(import.meta.url, async $ => {
 
 	$.log(`enter`);
 	$.assert(x => x(subject) === 0);
-	await enter.start();
-	$.assert(x => getDifference(x(enter.timeElapsed), x(durationTarget)) <= 50);
+	// await enter.start();
+	$.assert(x => getDifference(x(enter.elapsed), x(durationTarget)) <= 50);
 	$.assert(x => x(subject) === 1);
 
 	$.log(`exit`);
@@ -27,7 +27,7 @@ export const spec = test(import.meta.url, async $ => {
 		valueEnd: 0,
 		valueStart: 1,
 	}, value => subject = value);
-	await exit.start();
-	$.assert(x => getDifference(x(exit.timeElapsed), x(durationTarget)) <= 50);
+	// await exit.start();
+	$.assert(x => getDifference(x(exit.elapsed), x(durationTarget)) <= 50);
 	$.assert(x => x(subject) === 0);
 });

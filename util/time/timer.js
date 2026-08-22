@@ -2,16 +2,16 @@ import { preciseTo } from '../math/preciseTo.js';
 
 export class Timer {
 	get elapsed() {
-		if (isNaN(this.#start)) {
+		if (isNaN(this._start)) {
 			return 0;
 		}
 
-		const now = this.#now;
+		const now = this.now;
 
-		let difference = now - this.#start + this.#pauseDurationCumulative;
+		let difference = now - this.start + this.pauseDurationCumulative;
 
-		if (this.#paused) {
-			difference -= now - this.#pauseStart;
+		if (this._paused) {
+			difference -= now - this.pauseStart;
 		}
 
 		if (difference === 0) {
@@ -21,25 +21,25 @@ export class Timer {
 		return preciseTo(difference);
 	}
 
-	get #now() {
+	get now() {
 		return performance.now();
 	}
 
-	#paused = false;
+	_paused = false;
 
 	get paused() {
-		return this.#paused;
+		return this._paused;
 	}
 
 	get pauseDuration() {
-		if (this.#paused) {
-			return this.#now - this.pauseStart;
+		if (this._paused) {
+			return this.now - this.pauseStart;
 		}
 
 		return 0;
 	}
 
-	#pauseDurationCumulative = 0;
+	_pauseDurationCumulative = 0;
 
 	/**
 	 * The total amount of time the timer has been paused since its last `.restart`.
@@ -47,26 +47,23 @@ export class Timer {
 	 * @returns {number}
 	 */
 	get pauseDurationCumulative() {
-		return this.#pauseDurationCumulative;
+		return this._pauseDurationCumulative;
 	}
 
-	#pauseStart = NaN;
+	_pauseStart = NaN;
 
 	/**
 	 * The timestamp when `.pause()` was first called. Persists until `.restart()` is called
 	 * @returns {number}
 	 */
 	get pauseStart() {
-		return this.#pauseStart;
+		return this._pauseStart;
 	}
 
-	/**
-	 * @type {number}
-	 */
-	#start = NaN;
+	_start = NaN;
 
 	get start() {
-		return this.#start;
+		return this._start;
 	}
 
 	constructor() {
@@ -78,28 +75,28 @@ export class Timer {
 	 * @returns {this}
 	 */
 	pause(isPaused = true) {
-		if (isPaused === this.#paused) {
+		if (isPaused === this._paused) {
 			return this;
 		}
 
-		this.#paused = isPaused;
+		this._paused = isPaused;
 
-		const now = this.#now;
+		const now = this.now;
 
-		if (this.#paused) {
-			this.#pauseStart = now;
+		if (this._paused) {
+			this._pauseStart = now;
 		} else {
-			this.#pauseDurationCumulative += now - this.#pauseStart;
+			this._pauseDurationCumulative += now - this._pauseStart;
 		}
 
 		return this;
 	}
 
 	restart() {
-		this.#start = this.#now;
-		this.#pauseDurationCumulative = 0;
-		this.#pauseStart = NaN;
-		this.#paused = false;
+		this._start = this.now;
+		this._pauseDurationCumulative = 0;
+		this._pauseStart = NaN;
+		this._paused = false;
 
 		return this;
 	}
