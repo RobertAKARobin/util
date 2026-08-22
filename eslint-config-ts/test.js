@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-misused-promises */
-import * as test from 'node:test';
+import * as test from 'node:test'; // TODO3: Replace with util/spec?
 import path from 'path';
 
 import { RuleTester } from '@typescript-eslint/rule-tester';
