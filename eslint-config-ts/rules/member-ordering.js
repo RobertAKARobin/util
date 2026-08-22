@@ -73,7 +73,7 @@ const getReportableName = (/** @type {Member} */member) => {
 const getSortableName = (/** @type {Member} */member) => {
 	let name = getName(member);
 
-	name = name.replace(/^[#_$]/, ``);
+	name = name.replace(/^[#_]/, ``);
 	name = name.toLowerCase();
 
 	if (member.kind === `get`) {
@@ -89,7 +89,7 @@ export default ESLintUtils.RuleCreator.withoutDocs({
 	defaultOptions: [],
 	meta: {
 		docs: {
-			description: `TODO 1`,
+			description: `Enforces a specific class member order: static properties (get before set), static constructor, static methods, instance properties (get before set), static constructor, static methods. Alphabetical within each. Leading '#' (private) and '_' (protected) are ignored.`,
 		},
 		messages: {
 			[messageId]: `{{name}} should go after {{nameNext}}`,
