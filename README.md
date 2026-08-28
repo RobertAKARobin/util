@@ -51,16 +51,11 @@ When prompted whether you want VSCode to use the locally-installed Typescript, s
 
 ## TODO
 
--	TODO1: Replace `@typedef import` with `@import` and add a TODO for requiring `@import`
--	TODO1: Extract complex types to more `.d.ts`
 -	TODO1: Component: Extract out the build step so that ESBuild isn't required
 	-	rm esbuild
 	-	rm tsx
 	-	rm diff
 	-	rm glob
--	TODO1: Validate it all works with regular JS, not TS
--	TODO1: Eslint: Use `#` private fields
-
 -	TODO1: Component: Add `<host>` back in
 -	TODO1: Component: Add TS preprocessing back in
 -	TODO1: Component: Image preprocessing
