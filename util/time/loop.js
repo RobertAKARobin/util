@@ -16,8 +16,7 @@ export const loopStatus = enumy(...loopStatuses);
 const msPerSecond = 1000;
 
 /**
- * Repeats the given callback.
- * TODO1: Option to use requestAnimationFrame or setTimeout
+ * Repeats the given callback
  * TODO2: Option to use web worker with setInterval?
  */
 export class Loop extends Timer {
@@ -43,6 +42,11 @@ export class Loop extends Timer {
 	get iterationsSoFar() {
 		return this._iterationsSoFar;
 	}
+
+	/**
+	 * @type {typeof requestAnimationFrame | typeof setImmediate | typeof setTimeout}
+	 */
+	method;
 
 	_period = 0;
 	get period() {
@@ -78,12 +82,14 @@ export class Loop extends Timer {
 	 * @param {Loop['doWhat']} doWhat
 	 * @param {object} [options]
 	 * @param {Loop['duration']} [options.duration=Infinity]
+	 * @param {Loop['method']} [options.method] - Iterations per second
 	 * @param {Loop['rate']} [options.rate] - Iterations per second
 	 */
 	constructor(doWhat, options = {}) {
 		super();
 		this.doWhat = doWhat;
 		this.duration = options.duration ?? Infinity;
+		this.method = options.method ?? setTimeout;
 		this.rate = options.rate ?? 0;
 	}
 
@@ -130,7 +136,7 @@ export class Loop extends Timer {
 				}
 			}
 
-			setImmediate(step);
+			this.method(step);
 		};
 
 		this._status = `started`;
