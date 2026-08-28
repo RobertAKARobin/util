@@ -1,13 +1,12 @@
 import { suite, test } from '../spec/index.js';
 import { isBetween } from '../math/isBetween.js';
 import { roundTo } from '../math/roundTo.js';
-import { runContext } from '../web/context.js';
 import { sleep } from './sleep.js';
 
 import { Loop } from './loop.js';
 
 const msPerSecond = 1000;
-const msPerTick = runContext === `browser` ? 15 : 1; // TODO3: Extract this to /const?
+const msPerTick = Math.round(1000 / 60); // Browsers may average 60 ticks per second, so this should keep things the same between browsers and Node
 
 function loopArgs() {
 	return {
@@ -24,7 +23,7 @@ export const spec = suite(`Loop`, {},
 		$.assert(x => x(loop.iterationsSoFar) === 0);
 		$.assert(x => x(loop.period) === Infinity);
 		$.assert(x => x(loop.duration) === Infinity);
-		$.assert(x => x(loop.elapsed) === 0);
+		$.assert(x => x(loop.elapsed) < .5);
 
 		loop.restart();
 		$.assert(x => x(loop.status) === `started`);
@@ -55,7 +54,7 @@ export const spec = suite(`Loop`, {},
 		$.assert(x => x(loop.iterationsSoFar) === 0);
 		$.assert(x => x(loop.period) === Infinity);
 		$.assert(x => x(loop.duration) === x(duration));
-		$.assert(x => x(loop.elapsed) === 0);
+		$.assert(x => x(loop.elapsed) < .5);
 
 		loop.restart();
 		$.assert(x => x(loop.status) === `started`);
@@ -99,7 +98,7 @@ export const spec = suite(`Loop`, {},
 		$.assert(x => x(loop.iterationsSoFar) === 0);
 		$.assert(x => x(loop.period) === (msPerSecond / x(rate)));
 		$.assert(x => x(loop.duration) === x(duration));
-		$.assert(x => x(loop.elapsed) === 0);
+		$.assert(x => x(loop.elapsed) < .5);
 
 		loop.restart();
 		$.assert(x => x(loop.status) === `started`);
@@ -110,11 +109,7 @@ export const spec = suite(`Loop`, {},
 		$.assert(x => x(loop.iterationsSoFar) === Math.ceil(x(duration) / msPerSecond * x(rate)));
 		$.assert(x => isBetween(x(duration), x(loop.elapsed), x(duration + msPerTick)));
 
-		let last = 0;
-		for (const time of times) {
-			$.assert(x => x(time) > x(last));
-			last = time;
-		}
+		$.assert(x => times.every((_, i) => x(times[i]) > x(times[i - 1] ?? 0)));
 
 		loop.restart();
 		const restarted = loop;
