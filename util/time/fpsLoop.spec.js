@@ -4,7 +4,7 @@ import { roundTo } from '../math/roundTo.js';
 import { runContext } from '../web/context.js';
 import { sleep } from './sleep.js';
 
-import { FPSLoop } from './fpsLoop.js';
+import { Loop } from './fpsLoop.js';
 
 const msPerSecond = 1000;
 const msPerTick = runContext === `browser` ? 15 : 1; // TODO3: Extract this to /const?
@@ -16,10 +16,10 @@ function loopArgs() {
 	};
 }
 
-export const spec = suite(`FPSLoop`, {},
+export const spec = suite(`Loop`, {},
 
 	test(`with no duration or rate, no iterations and ends only on .end`, $ => {
-		const loop = new FPSLoop(() => {});
+		const loop = new Loop(() => {});
 		$.assert(x => x(loop.status) === `unstarted`);
 		$.assert(x => x(loop.iterationsSoFar) === 0);
 		$.assert(x => x(loop.period) === Infinity);
@@ -50,7 +50,7 @@ export const spec = suite(`FPSLoop`, {},
 
 	test(`with no rate, no iterations and ends on .end or after duration`, async $ => {
 		const duration = 10 * msPerTick;
-		const loop = new FPSLoop(() => {}, { duration });
+		const loop = new Loop(() => {}, { duration });
 		$.assert(x => x(loop.status) === `unstarted`);
 		$.assert(x => x(loop.iterationsSoFar) === 0);
 		$.assert(x => x(loop.period) === Infinity);
@@ -90,7 +90,7 @@ export const spec = suite(`FPSLoop`, {},
 	test(`expected number of iterations`, async $ => {
 		const times = /** @type {Array<number>} */([]);
 		const { duration, rate } = loopArgs();
-		const loop = new FPSLoop(
+		const loop = new Loop(
 			() => times.push(loop.elapsed),
 			{ duration, rate },
 		);
@@ -131,7 +131,7 @@ export const spec = suite(`FPSLoop`, {},
 	}),
 
 	test(`.pause causes time and iterations to stop incrementing`, async $ => {
-		const loop = new FPSLoop(() => ({}), {
+		const loop = new Loop(() => ({}), {
 			rate: 10,
 		});
 		const sleepLength = loop.period * 2;

@@ -1,5 +1,4 @@
 import { enumy } from '../group/enumy.js';
-import { setImmediate } from './setImmediate.js';
 import { Timer } from './timer.js';
 
 export const loopStatuses = /** @type {const} */([
@@ -17,11 +16,11 @@ export const loopStatus = enumy(...loopStatuses);
 const msPerSecond = 1000;
 
 /**
- * Loops over the given callback at the given number of iterations per second.
- * Note: this uses `requestAnimationFrame` in the browser, which has a rate of about 16ms in an active tab and may stop entirely in an inactive tab.
+ * Repeats the given callback.
+ * TODO1: Option to use requestAnimationFrame or setTimeout
  * TODO2: Option to use web worker with setInterval?
  */
-export class FPSLoop extends Timer {
+export class Loop extends Timer {
 	/**
 	 * @type {() => void}
 	 */
@@ -76,10 +75,10 @@ export class FPSLoop extends Timer {
 	}
 
 	/**
-	 * @param {FPSLoop['doWhat']} doWhat
+	 * @param {Loop['doWhat']} doWhat
 	 * @param {object} [options]
-	 * @param {FPSLoop['duration']} [options.duration=Infinity]
-	 * @param {FPSLoop['rate']} [options.rate] - Iterations per second
+	 * @param {Loop['duration']} [options.duration=Infinity]
+	 * @param {Loop['rate']} [options.rate] - Iterations per second
 	 */
 	constructor(doWhat, options = {}) {
 		super();

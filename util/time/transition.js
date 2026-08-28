@@ -1,4 +1,4 @@
-import { FPSLoop } from './fpsLoop.js';
+import { Loop } from './fpsLoop.js';
 
 /**
  * Execute the given function over the given interval while on each execution incrementing `valueStart` toward `valueEnd`
@@ -8,7 +8,7 @@ import { FPSLoop } from './fpsLoop.js';
  * @param {number} [options.valueEnd]
  * @param {number} [options.valueStart]
  * @param {(value: number) => void} doWhat
- * @returns {FPSLoop}
+ * @returns {Loop}
  */
 export function transition(options, doWhat) {
 	const valueStart = options.valueStart ?? 0;
@@ -17,7 +17,7 @@ export function transition(options, doWhat) {
 
 	let value = valueStart;
 
-	const loop = new FPSLoop(
+	const loop = new Loop(
 		() => {
 			const remainingTime = loop.duration - loop.elapsed;
 			const remainingTimeAsPercent = (remainingTime / loop.duration);

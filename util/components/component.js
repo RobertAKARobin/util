@@ -673,12 +673,12 @@ export class Component extends HTMLElement {
 	 * @template {ReturnType<NonNullable<Self['attributes'][AttributeKey]['fromAttribute']>>} AttributeType
 	 * @template {{ [key in keyof object]: (arg: CustomEvent<AttributeType>) => void }} Listener
 	 * @template {keyof Listener} HandlerKey
-	 * @param {AttributeKey} attributeKey
-	 * @param {Listener} listener
-	 * @param {EventHandlerTest<Listener, HandlerKey, AttributeType>} handlerKey
+	 * @param {AttributeKey} _attributeKey
+	 * @param {Listener} _listener
+	 * @param {EventHandlerTest<Listener, HandlerKey, AttributeType>} _handlerKey
 	 * @returns {this}
 	 */
-	onChange(attributeKey, listener, handlerKey) {
+	onChange(_attributeKey, _listener, _handlerKey) {
 		// return this.onEmitCallback(`attributeChanged`, event => {
 		// 	const emittedName = /** @type {keyof this} */(event.detail);
 		// 	if (emittedName !== attrName) {
