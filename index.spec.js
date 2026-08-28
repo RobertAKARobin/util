@@ -10,7 +10,7 @@ const filenames = targetFiles.sort();
 
 const runner = args.platform === `web` ? specRunWeb : specRunNative;
 const rootResult = await runner(filenames, {
-	timing: `consecutive`, // `concurrent` causes timing issues, e.g. blocking FPSLoop until another test completes which throws off FPSLoop's timers
+	timing: `consecutive`, // `concurrent` causes timing issues, e.g. blocking time/Loop until another test completes which throws off Loop's timers
 });
 
 const basedir = `file://` + process.cwd();

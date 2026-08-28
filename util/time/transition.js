@@ -1,4 +1,4 @@
-import { Loop } from './fpsLoop.js';
+import { Loop } from './loop.js';
 
 /**
  * Execute the given function over the given interval while on each execution incrementing `valueStart` toward `valueEnd`

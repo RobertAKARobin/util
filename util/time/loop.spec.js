@@ -4,7 +4,7 @@ import { roundTo } from '../math/roundTo.js';
 import { runContext } from '../web/context.js';
 import { sleep } from './sleep.js';
 
-import { Loop } from './fpsLoop.js';
+import { Loop } from './loop.js';
 
 const msPerSecond = 1000;
 const msPerTick = runContext === `browser` ? 15 : 1; // TODO3: Extract this to /const?
