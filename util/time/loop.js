@@ -98,17 +98,13 @@ export class Loop extends Timer {
 		return this;
 	}
 
-	/**
-	 * @override
-	 * @returns {this}
-	 */
 	restart() {
-		super.restart();
+		this.reset();
+		this._iterationsSoFar = 0;
 
 		this._ending = new Promise(resolve => {
 			this._resolve = resolve;
 		});
-		this._iterationsSoFar = 0;
 
 		let elapsedExpected = -1;
 		const step = () => {

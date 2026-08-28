@@ -67,7 +67,7 @@ export class Timer {
 	}
 
 	constructor() {
-		this.restart();
+		this.reset();
 	}
 
 	/**
@@ -92,7 +92,7 @@ export class Timer {
 		return this;
 	}
 
-	restart() {
+	reset() {
 		this._start = this.now;
 		this._pauseDurationCumulative = 0;
 		this._pauseStart = NaN;

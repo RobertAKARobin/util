@@ -20,7 +20,7 @@ export const spec = suite(import.meta.url, {},
 			last = now;
 		});
 
-		timer.restart();
+		timer.reset();
 
 		const now = timer.elapsed;
 		$.assert(x => x(now) < x(last));
@@ -91,7 +91,7 @@ export const spec = suite(import.meta.url, {},
 			$.assert(x => x(timer.pauseDurationCumulative) > lastPauseDuration);
 
 			timer.pause();
-			timer.restart();
+			timer.reset();
 
 			$.assert(x => isNaN(x(timer.pauseStart)));
 			$.assert(x => x(timer.pauseDurationCumulative) === 0);
