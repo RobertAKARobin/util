@@ -7,6 +7,7 @@ import { runContext } from './context.js';
  * This means:
  * - `sharedEnv` has to be called at least once by the server before it can be called by the browser, in order for the JSON file to exist
  * - The given `fileBase` has to be servable to the front-end, and it's up to the developer to serve it
+ * TODO1: Test server and then browser E2E
  * @template Value
  * @param {string} fileBase - The basename of the JSON file where the variables will be stored, e.g. `env`
  * @param {(existing: Value | undefined) => Promise<Value> | Value} backendSetter - A function that returns the values that will be calculated on the backend and used on the frontend.
