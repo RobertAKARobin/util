@@ -8,8 +8,10 @@ import { tryCatch } from '../tryCatch.js';
 import { readRelative } from './readRelative.js';
 
 export const spec = test(import.meta.url, $ => {
-	fs.writeFileSync(pathRelative(import.meta.url, `foo`), `42`);
+	const filepath = pathRelative(import.meta.url, `foo`);
+	fs.writeFileSync(filepath, `42`);
 	$.assert(x => x(readRelative(import.meta.url, `foo`)) === `42`);
-	fs.rmSync(pathRelative(import.meta.url, `foo`));
-	$.assert(x => (x(/** @type {Error} */(tryCatch(() => readRelative(import.meta.url, `foo`))).message).startsWith(`ENOENT`)));
+	$.assert(x => x(readRelative(filepath)) === `42`);
+	fs.rmSync(filepath);
+	$.assert(x => (x(/** @type {Error} */(tryCatch(() => readRelative(filepath))).message).startsWith(`ENOENT`)));
 });

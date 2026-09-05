@@ -5,9 +5,13 @@ import { pathRelative } from './pathRelative.js';
 /**
  * Returns the contents of the file at the given target that is relative to the given `import.meta.url`
  * @param {string} importMetaUrl
- * @param {string} target
+ * @param {string} [target]
  * @returns {string}
  */
 export function readRelative(importMetaUrl, target) {
-	return fs.readFileSync(pathRelative(importMetaUrl, target), { encoding: `utf8` });
+	const path = target === undefined
+		? importMetaUrl
+		: pathRelative(importMetaUrl, target);
+
+	return fs.readFileSync(path, { encoding: `utf8` });
 }
