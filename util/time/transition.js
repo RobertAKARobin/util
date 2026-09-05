@@ -2,6 +2,7 @@ import { Loop } from './loop.js';
 
 /**
  * Execute the given function over the given interval while on each execution incrementing `valueStart` toward `valueEnd`
+ * TODO1: Refactor to subclass Loop?
  * @param {object} options
  * @param {number} options.duration
  * @param {number} [options.loopsPerSecond]
