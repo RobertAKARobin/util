@@ -1,4 +1,3 @@
-// TODO1: Alphabetize
 export type ConstructorOf<Type> = {
 	prototype: Type; // eslint-disable-line @robertakarobin/ts/member-ordering
 	new(...args: any): Type; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -7,16 +6,6 @@ export type ConstructorOf<Type> = {
 export type KeysMatching<Type, Value> = { // https://stackoverflow.com/q/77571882/2053389
 	[Key in keyof Type]: Type[Key] extends Value ? Key : never
 }[keyof Type];
-
-export type Index1<Input> =
-	Input extends [param1: infer Param, ...rest: any] // eslint-disable-line @typescript-eslint/no-explicit-any
-		? Param
-		: never;
-
-export type Index1Forward<Input> =
-	Input extends [param1: any, ...rest: infer Rest] // eslint-disable-line @typescript-eslint/no-explicit-any
-		? Rest
-		: never;
 
 export type Nested<Type> = Array<Nested<Type> | Type>;
 
