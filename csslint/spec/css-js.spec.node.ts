@@ -1,5 +1,5 @@
 import { diff } from '../../util/spec/diff';
-import { execUntil } from '../../util/node/execUntil';
+import { execUntilSame } from '../../util/node/execUntil';
 import { pathRelative } from '../../util/node/pathRelative';
 import { readRelative } from '../../util/node/readRelative';
 import { test } from '../../util/spec/index';
@@ -12,7 +12,7 @@ export const spec = test(import.meta.url, async $ => {
 		pathRelative(import.meta.url, `./css-js.spec.css`),
 	);
 
-	execUntil(`stylelint --fix csslint/spec/css-js.spec.css`);
+	await execUntilSame(`stylelint --fix csslint/spec/css-js.spec.css`);
 
 	const golden = readRelative(import.meta.url, `./css-js.spec.golden.css`);
 	const subject = readRelative(import.meta.url, `./css-js.spec.css`);

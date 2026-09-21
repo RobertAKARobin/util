@@ -1,41 +1,104 @@
-import { execSync } from 'child_process';
+/**
+ * @import { ExecOptions, ExecResult } from './execAsync.js';
+ */
 
+import { execAsync } from './execAsync.js';
 import { tryCatch } from '../tryCatch.js';
 
 /**
- * Run command until the same stdout is output twice
- * Useful when running commands that require multiple "passes", e.g. some linter auto-fixes
- * TODO1: Spec
- * @param {string} command
- * @param {object} [options]
- * @param {number} [options.attemptsMax=10]
- * @returns {Error | string}
+ * @typedef {ExecResult & {
+ * error?: Error;
+ * }} ExecUntilResult
  */
-export function execUntil(command, options = {}) {
+
+/**
+ * @typedef {{
+ * attempt: number;
+ * previous: ExecUntilResult | undefined;
+ * }} ExecUntilState
+ */
+
+/**
+ * @typedef {{
+ * attemptsMax?: number;
+ * doCatch?: boolean;
+ * }} ExecUntilOptions
+ */
+
+/**
+ * Run command until the given condition is met.
+ * @param {string | ((state: ExecUntilState) => string)} command
+ * @param {(state: ExecUntilState & { result: ExecUntilResult }) => boolean} endCondition
+ * @param {ExecOptions & ExecUntilOptions} [options]
+ * @returns {Promise<ExecUntilResult>}
+ */
+export async function execUntil(
+	command,
+	endCondition,
+	options = { encoding: `utf8` },
+) {
 	const attemptsMax = options.attemptsMax ?? 10;
+	let attempt = 0;
 
-	let attemptCount = 0;
-	let previousAttemptReport = ``;
-	while (attemptCount < attemptsMax) {
-		console.log(`Attempt #${attemptCount + 1}:\t\`${command}\`...`);
+	/**
+	 * @type {undefined | ExecUntilResult}
+	 */
+	let previous;
 
-		const result = tryCatch(() => execSync(command, { encoding: `utf8`, stdio: `pipe` })); // TODO3: Async? Blocking due to sync can cause issues when processes are running concurrently, like time/loop spec
+	while (attempt < attemptsMax) {
+		const state = /** @type {ExecUntilState} */({
+			attempt,
+			previous,
+		});
 
-		if (result instanceof Error) {
-			const attemptReport = result.toString();
+		const commandString = typeof command === `string`
+			? command
+			: command({ attempt, previous });
 
-			if (attemptReport === previousAttemptReport) {
-				return result;
+		const output = await tryCatch(() => execAsync(commandString, options));
+
+		const result = output instanceof Error
+			? {
+				error: output,
+				stderr: ``,
+				stdout: ``,
 			}
+			: output;
 
-			previousAttemptReport = attemptReport;
-			attemptCount += 1;
+		const stateResult = {
+			...state,
+			result,
+		};
 
-		} else {
+		if (endCondition(stateResult)) {
 			return result;
 		}
+
+		previous = result;
+		attempt += 1;
 	}
 
-	throw new Error(`Command didn't produce same result twice in ${attemptsMax} attempts`);
+	throw new Error(`End condition wasn't met in ${attemptsMax} attempts`);
 }
 
+/**
+ * Run command until it gives the same stdout/stderr or error twice in a row.
+ * Useful when running commands that require multiple "passes", e.g. some linter auto-fixes.
+ * @param {Parameters<typeof execUntil>[0]} command
+ * @param {Parameters<typeof execUntil>[2]} [options]
+ * @returns {Promise<ExecUntilResult>}
+ */
+export async function execUntilSame(command, options) {
+	return execUntil(
+		command,
+		({ previous, result }) =>
+			(
+				result.error === undefined
+				&& previous?.error === undefined
+				&& result.stdout === previous?.stdout
+				&& result.stderr === previous?.stderr
+			)
+			|| result.error?.message === previous?.error?.message,
+		options,
+	);
+}
