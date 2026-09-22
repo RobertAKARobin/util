@@ -1,36 +1,29 @@
 /**
- * Iterate through a tree of nodes and return comment nodes that match the goven contents
- * TODO1: Spec
- * TODO3: Add partial matches, RegEx, etc
+ * Find all commment nodes within a node tree
  * @param {Node} root
- * @param {string} contents
  * @param {object} [options]
- * @param {number} [options.limitTo=Infinity]
+ * @param {(comments: Array<Comment>) => boolean} [options.endCondition]
  * @returns {Array<Comment>}
  */
-export function findCommentsByContents(root, contents, options = {}) {
-	const newCommentIterator = () => document.createNodeIterator(
+export function findComments(root, options = {}) {
+	const comments = /** @type {Array<Comment>} */([]);
+	const iterator = (() => document.createNodeIterator(
 		root,
 		NodeFilter.SHOW_COMMENT,
 		() => NodeFilter.FILTER_ACCEPT,
-	);
-	const comments = /** @type {Array<Comment>} */([]);
+	))();
+	const endCondition = options.endCondition ?? (() => false);
 
+	/** @type {Comment | null} */
 	let comment;
-	let count = 0;
-	const limit = options?.limitTo ?? Infinity;
-	const iterator = newCommentIterator();
-	while (count < limit) {
+	while (true) {
 		comment = /** @type {Comment} */(iterator.nextNode());
 
-		if (comment === null) {
+		if (comment === null || endCondition(comments)) {
 			break;
 		}
 
-		if (comment.textContent === contents) {
-			comments.push(comment);
-			count += 0;
-		}
+		comments.push(comment);
 	}
 
 	return comments;
