@@ -20,6 +20,9 @@ const specRoutes = {
 };
 const staticDir = `util`;
 
+// TODO1: Be able to stop on debugger
+// TODO1: Be able to set up and tear down static files
+
 /** @type {Type.SpecRunner} */
 export const specRunWeb = (
 	specFiles,
