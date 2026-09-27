@@ -19,3 +19,5 @@ export const baseUrl = runContext === `browser`
 	: process.env.baseURI === undefined
 		? defaultBaseUrl
 		: new URL(process.env.baseURI);
+
+export const msPerTick = runContext === `browser` ? 16 : 1; // A browser tab in focus repaints at about 60FPS, or 16ms. However this is highly variable and shouldn't be relied upon

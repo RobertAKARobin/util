@@ -4,7 +4,7 @@
 
 /**
  * Play the animation with the input name once on the given target
- * TODO1: Spec
+ * TODO3: Keep this from overwriting existing animations
  * @param {HTMLElement} target
  * @param {Pick<AnimationData<PropertyKey>, 'name' | 'timeDuration'>} input
  * @returns {Promise<void>}
@@ -16,13 +16,13 @@ export function cssAnimate(target, input) {
 		 */
 		const handler = event => {
 			if (event.animationName === input.name) {
-				target.style.setProperty(`animation`, `none`);
+				target.style.removeProperty(`animation`);
 				target.removeEventListener(`animationend`, handler);
 				resolve();
 			}
 		};
 		target.addEventListener(`animationend`, handler);
 
-		target.style.setProperty(`animation`, `${/** @type {string} */(input.name)} ${input.timeDuration}s forwards`);
+		target.style.setProperty(`animation`, String(input.name) + ` ${input.timeDuration}s forwards`);
 	});
 }
