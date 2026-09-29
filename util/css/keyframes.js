@@ -41,7 +41,10 @@ export function keyframes(
 /**
  * Returns the keyframes and timing information for multiple CSS animations.
  * @template {string} AnimationName
- * @param {[Record<AnimationName, string | undefined>, ...Array<Partial<Record<AnimationName, string>> | number>,]} args
+ * @param {[
+ * Record<AnimationName, string | undefined>,
+ * ...Array<Partial<Record<AnimationName, string>> | number>
+ * ]} args
  * @returns {Record<AnimationName, AnimationData<AnimationName>>}
  * @see {@link keyframes}
  */

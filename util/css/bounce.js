@@ -1,48 +1,63 @@
-/**
- * @import { keyframesMulti } from './keyframes.js';
- */
-
 import { roundTo } from '../math/roundTo.js';
 
 /**
- * Returns a series of keyframes that make an object appear to bounce
- * TODO1: Spec
- * @param {object} [options]
- * @param {number} [options.bounciness=.5]
- * @param {number} [options.distance=100]
- * @param {number} [options.distanceMin=1]
- * @param {number} [options.duration=.5]
- * @param {number} [options.durationMin=.01]
- * @param {(distance: number) => string} [options.setter]
- * @returns {Parameters<typeof keyframesMulti<'bounce'>>}
- * @see {@link keyframesMulti}
+ * @typedef {Array<{
+ * distance: number;
+ * duration: number;
+ * easing: string;
+ * }>} BounceKeyframes
  */
-export function bounce(options = {}) {
+
+/**
+ * Returns a series of keyframes that make an object appear to bounce
+ * @param {object} options
+ * @param {number} [options.bounciness]
+ * @param {number} [options.distance]
+ * @param {number} [options.distanceMin]
+ * @param {number} [options.duration]
+ * @param {number} [options.durationMin]
+ * @param {number} [options.precision]
+ * @returns {BounceKeyframes}
+ */
+export function bounceKeyframes(options = {}) {
 	const bounciness = options.bounciness ?? .5;
 	const distanceMax = options.distance ?? 100;
 	const distanceMin = options.distanceMin ?? 1;
 	const durationMax = options.duration ?? .5;
 	const durationMin = options.durationMin ?? .01;
-	const setter = options.setter ?? (distance => `bottom: ${distance}px`);
+	const precision = options.precision ?? .01;
 
 	if (bounciness >= 1 || bounciness <= 0) {
-		throw new Error(`Infinite loop in bounce`);
+		throw new Error(`Bounciness must be between 0 and 1`);
 	}
 
-	const states = /** @type {Parameters<typeof keyframesMulti<'bounce'>>} */([
-		{ bounce: setter(0) },
-	]);
+	/** @type {BounceKeyframes} */
+	const distancesByDuration = [];
 
-	let distance = distanceMax;
-	let duration = durationMax;
-	while (duration >= durationMin && distance >= distanceMin) {
-		states.push(duration, { bounce: `${setter(distance)};animation-timing-function:ease-in` });
+	let count = 0;
+	while (true) {
+		const bounceFactor = Math.pow(bounciness, count);
+		const duration = roundTo(durationMax * bounceFactor, precision);
+		const distance = roundTo(distanceMax * bounceFactor, precision);
+		distancesByDuration.push(
+			{
+				distance,
+				duration,
+				easing: `animation-timing-function:ease-out`,
+			},
+			{
+				distance: 0,
+				duration,
+				easing: `animation-timing-function:ease-in`,
+			},
+		);
 
-		duration = roundTo(duration * bounciness, .01);
-		distance = roundTo(distance * bounciness, .01);
+		if (duration <= durationMin || distance <= distanceMin) {
+			break;
+		}
 
-		states.push(duration, { bounce: `${setter(0)};animation-timing-function:ease-out` });
+		count += 1;
 	}
 
-	return states;
+	return distancesByDuration;
 }
