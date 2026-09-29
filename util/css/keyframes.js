@@ -35,7 +35,7 @@ export function keyframes(
 		...formatted,
 	);
 
-	return result.animation.keyframes;
+	return result.animation.keyframes.trim();
 }
 
 /**
@@ -120,11 +120,12 @@ export function keyframesMulti(...args) {
 	let compiled = ``;
 	for (const animationName in animationsByName) {
 		const animation = animationsByName[animationName];
-		compiled += `@keyframes ${animationName} {\n${animation.keyframes}}\n`;
+		animation.keyframes = animation.keyframes.trim();
+		compiled += `@keyframes ${animationName} {\n${animation.keyframes}\n}\n`;
 	}
 	Object.defineProperty(animationsByName, `toString`, {
 		enumerable: false,
-		value: () => compiled,
+		value: () => compiled.trim(),
 	});
 
 	return animationsByName;
