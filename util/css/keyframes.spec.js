@@ -1,5 +1,8 @@
-import { keyframes, keyframesMulti } from './keyframes.js';
 import { test } from '../spec/index.js';
+
+import { unindent } from '../string/unindent.js';
+
+import { keyframes, keyframesMulti } from './keyframes.js';
 
 export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(keyframes(
@@ -7,10 +10,12 @@ export const spec = test(import.meta.url, $ => {
 		1, `bottom: 0%`,
 		8, `bottom: 0%`,
 		1, `bottom: -100%`,
-	)) === `0% {position: absolute; bottom: 100%}
-10% {bottom: 0%}
-90% {bottom: 0%}
-100% {bottom: -100%}`);
+	)) === unindent(
+		`0% {position: absolute; bottom: 100%}
+		10% {bottom: 0%}
+		90% {bottom: 0%}
+		100% {bottom: -100%}`,
+	));
 
 	const animations = keyframesMulti(
 		{
@@ -44,19 +49,23 @@ export const spec = test(import.meta.url, $ => {
 
 	$.assert(x => x(animations.container.initialState) === `background: #fff; opacity: 0`);
 
-	const keyframesContainer = `0% {background: #fff; opacity: 0}
-10% {opacity: 1}
-50% {background: #fff}
-55% {background: #f00; opacity: 1}
-100% {opacity: 0}`;
+	const keyframesContainer = unindent(
+		`0% {background: #fff; opacity: 0}
+		10% {opacity: 1}
+		50% {background: #fff}
+		55% {background: #f00; opacity: 1}
+		100% {opacity: 0}`,
+	);
 	$.assert(x => x(animations.container.keyframes) === x(keyframesContainer));
 	$.assert(x => x(animations.container.timeStart) === 0);
 	$.assert(x => x(animations.container.timeEnd) === 10);
 	$.assert(x => x(animations.container.timeDuration) === 10);
 
-	const keyframesFront = `0% {opacity: 0; top: 50%}
-25% {opacity: 1; top: 50%}
-100% {top: 0%}`;
+	const keyframesFront = unindent(
+		`0% {opacity: 0; top: 50%}
+		25% {opacity: 1; top: 50%}
+		100% {top: 0%}`,
+	);
 	$.assert(x => x(animations.front.initialState) === `opacity: 0; top: 50%`);
 	$.assert(x => x(animations.front.keyframes) === x(keyframesFront));
 	$.assert(x => x(animations.front.timeStart) === 1);
