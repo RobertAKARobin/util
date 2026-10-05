@@ -6,7 +6,7 @@ export { css } from '../string/template.js';
  * @typedef {Record<string, {
  * display?: 'auto' | 'block' | 'fallback' | 'optional' | 'swap';
  * name?: string;
- * src: string;
+ * src?: string;
  * style?: 'italic' | 'normal' | 'oblique';
  * weight?: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
  * }>} GenericFonts
@@ -31,7 +31,6 @@ text-decoration: inherit;
 
 /**
  * Produces a bunch of useful CSS helpers, given the constants that underly your application's styling
- * TODO1: Spec
  * @template {GenericBreakpoints} Breakpoints
  * @template {GenericConstants} Constants
  * @template {GenericFonts} Fonts
@@ -48,23 +47,29 @@ export class CssTheme {
 	};
 	/**
 	 * The contents of `this.fonts` as a string of `@font-face` declarations.
-	 * @type {string}
-	 * @readonly
+	 * @returns {string}
 	 */
-	fontFaces;
+	get fontFaces() {
+		return Object.entries(this.fonts).map(([fontName, font]) => /*css*/`@font-face {
+${font.display ? `	font-display: ${font.display};` : ``}
+${typeof font.name === `string` ? `	font-family: ${fontName};` : ``}
+${font.style ? `	font-style: ${font.style};` : ``}
+${font.weight ? `	font-weight: ${font.weight ?? 400};` : ``}
+${typeof font.src === `string` ? `	src: url('${font.src}');` : ``}
+}`).join(`\n`);
+	}
 	/**
 	 * A map of font names to their font-face configuration properties.
 	 * @type {Fonts}
-	 * @readonly
 	 */
-	fonts;
+	fonts = /** @type {Fonts} */({});
 	/**
 	 * A CSS snippet that resets most of the browser's default styles
+	 * @returns {string}
 	 */
-	/**
-	 * @readonly
-	 */
-	reset = reset;
+	get reset() {
+		return reset;
+	}
 	/**
 	 * The styles for this themes's typefaces as CSS classes, e.g. `{ subtitle: 'font-size: 3rem;' }` becomes `.type-subtitle { font-size: 3rem; }`
 	 * @type {string}
@@ -114,15 +119,6 @@ export class CssTheme {
 	 */
 	constructor(input = {}) {
 		this.fonts = input.fonts ?? /** @type {Fonts} */({});
-		this.fontFaces = Object.entries(this.fonts).map(([fontName, font]) => /*css*/`
-@font-face {
-	${font.display ? `font-display: ${font.display};` : ``}
-	font-family: ${font.name ?? fontName};
-	${font.style ? `font-style: ${font.style};` : ``}
-	font-weight: ${font.weight ?? 400};
-	src: url('${font.src}');
-}
-		`).join(`\n`);
 
 		const breakpoints = input.bps ?? /** @type {Breakpoints} */({});
 		this.val = {
