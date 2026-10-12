@@ -2,6 +2,7 @@
  * Creates an object that, when it or any of its properties/methods are cast to a string, returns the given placeholder.
  * Current use-case is, given a function that concats its params into a string, and a string that was produced by that function, we want to figure out which parts of the string were produced by which params. See Router.toUrl.
  * Note that when used with a spread operator it'll only return up to 10 values. Had to pick an upper bound because otherwise it caused an infinite loop.
+ * TODO1: Move into Router
  * @template Value
  * @param {Value} placeholder
  * @returns {Value}
