@@ -8,7 +8,7 @@ export default css`
 	${types.body}
 }
 
-${theme.fontFaces}
+${Object.values(theme.fonts()).map(fontFace => fontFace).join(`\n`)}
 ${theme.typeClasses}
 
 h1 {

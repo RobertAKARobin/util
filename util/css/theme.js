@@ -1,16 +1,43 @@
+import { mapObject } from '../group/mapObject.js';
+
 export { css } from '../string/template.js';
 
 /**
- * @typedef {Record<string, number>} GenericBreakpoints
- * @typedef {Record<string, number | string>} GenericConstants
- * @typedef {Record<string, {
+ * @typedef {Record<string, number>} CssThemeSourceBreakpoints
+ */
+
+/**
+ * @typedef {Record<string, number | string>} CssThemeSourceConstants
+ */
+
+/**
+ * @typedef {{
  * display?: 'auto' | 'block' | 'fallback' | 'optional' | 'swap';
  * name?: string;
  * src?: string;
  * style?: 'italic' | 'normal' | 'oblique';
  * weight?: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
- * }>} GenericFonts
- * @typedef {Record<string, string>} GenericTypefaces
+ * }} CssThemeSourceFont
+ */
+
+/**
+ * @typedef {Record<string, CssThemeSourceFont>} CssThemeSourceFonts
+ */
+
+/**
+ * @typedef {Record<string, string>} CssThemeSourceTypefaces
+ */
+
+/**
+ * @template {CssThemeSourceBreakpoints} Breakpoints
+ * @template {CssThemeSourceConstants} Constants
+ * @template {CssThemeSourceFonts} Fonts
+ * @template {CssThemeSourceTypefaces} Typefaces
+ * @typedef {object} CssThemeSource
+ * @property {Breakpoints} [bps] - TODO1
+ * @property {Fonts} [fonts] - TODO1
+ * @property {Typefaces} [types] - TODO1
+ * @property {Constants} [val] - TODO1
  */
 
 export const reset = `
@@ -29,12 +56,46 @@ padding: 0;
 text-decoration: inherit;
 `;
 
+export class CssThemeFont {
+	/** @type {CssThemeSourceFont['display']} */
+	display;
+
+	/** @type {CssThemeSourceFont['name']} */
+	name;
+
+	/** @type {CssThemeSourceFont['src']} */
+	src;
+
+	/** @type {CssThemeSourceFont['style']} */
+	style;
+
+	/** @type {CssThemeSourceFont['weight']} */
+	weight;
+
+	/**
+	 * @param {CssThemeSourceFont} source
+	 */
+	constructor(source) {
+		Object.assign(this, source);
+	}
+
+	toFontFace() {
+		return /*css*/`@font-face {
+${this.display ? `font-display: ${this};` : ``}
+${typeof this.name === `string` ? `font-family: ${String(this.name)};` : ``}
+${this.style ? `font-style: ${this.style};` : ``}
+${this.weight ? `font-weight: ${this.weight ?? 400};` : ``}
+${typeof this.src === `string` ? `src: url('${this.src}');` : ``}
+}`;
+	}
+}
+
 /**
  * Produces a bunch of useful CSS helpers, given the constants that underly your application's styling
- * @template {GenericBreakpoints} Breakpoints
- * @template {GenericConstants} Constants
- * @template {GenericFonts} Fonts
- * @template {GenericTypefaces} Typefaces
+ * @template {CssThemeSourceBreakpoints} Breakpoints
+ * @template {CssThemeSourceConstants} Constants
+ * @template {CssThemeSourceFonts} Fonts
+ * @template {CssThemeSourceTypefaces} Typefaces
  */
 export class CssTheme {
 	/**
@@ -46,30 +107,16 @@ export class CssTheme {
 		moreThan: /** @type {Record<keyof Breakpoints, string>} */({}),
 	};
 	/**
-	 * The contents of `this.fonts` as a string of `@font-face` declarations.
-	 * @returns {string}
-	 */
-	get fontFaces() {
-		return Object.entries(this.fonts).map(([fontName, font]) => /*css*/`@font-face {
-${font.display ? `	font-display: ${font.display};` : ``}
-${typeof font.name === `string` ? `	font-family: ${fontName};` : ``}
-${font.style ? `	font-style: ${font.style};` : ``}
-${font.weight ? `	font-weight: ${font.weight ?? 400};` : ``}
-${typeof font.src === `string` ? `	src: url('${font.src}');` : ``}
-}`).join(`\n`);
-	}
-	/**
-	 * A map of font names to their font-face configuration properties.
-	 * @type {Fonts}
-	 */
-	fonts = /** @type {Fonts} */({});
-	/**
 	 * A CSS snippet that resets most of the browser's default styles
 	 * @returns {string}
 	 */
 	get reset() {
 		return reset;
 	}
+	/**
+	 * @type {CssThemeSource<Breakpoints, Constants, Fonts, Typefaces>}
+	 */
+	source = {};
 	/**
 	 * The styles for this themes's typefaces as CSS classes, e.g. `{ subtitle: 'font-size: 3rem;' }` becomes `.type-subtitle { font-size: 3rem; }`
 	 * @type {string}
@@ -111,14 +158,10 @@ ${typeof font.src === `string` ? `	src: url('${font.src}');` : ``}
 	vname = /** @type {Record<keyof Constants, string>} */({});
 
 	/**
-	 * @param {object} [input]
-	 * @param {Breakpoints} [input.bps]
-	 * @param {Fonts} [input.fonts]
-	 * @param {Typefaces} [input.types]
-	 * @param {Constants} [input.val]
+	 * @param {CssThemeSource<Breakpoints, Constants, Fonts, Typefaces>} [input]
 	 */
 	constructor(input = {}) {
-		this.fonts = input.fonts ?? /** @type {Fonts} */({});
+		this.source.fonts = input.fonts ?? /** @type {Fonts} */({});
 
 		const breakpoints = input.bps ?? /** @type {Breakpoints} */({});
 		this.val = {
@@ -164,8 +207,23 @@ ${typeof font.src === `string` ? `	src: url('${font.src}');` : ``}
 	}
 
 	/**
+	 * TODO1
+	 * @returns {Record<keyof Fonts, CssThemeFont>}
+	 */
+	fonts() {
+		if (typeof this.source.fonts === `undefined`) {
+			return /** @type {Record<keyof Fonts, CssThemeFont>} */({});
+		}
+
+		return mapObject(this.source.fonts, (fontName, source) => [
+			fontName,
+			new CssThemeFont(source),
+		]);
+	}
+
+	/**
 	 * Outputs a string that declares all vals as CSS variables
-	 * @param {GenericConstants} vals
+	 * @param {CssThemeSourceConstants} vals
 	 * @returns {string}
 	 * @see {@link CssTheme.val}
 	 * @see {@link CssTheme.vars}

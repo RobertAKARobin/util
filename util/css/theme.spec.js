@@ -50,19 +50,31 @@ export const spec = test(import.meta.url, $ => {
 
 	$.assert(x => x(theme.reset.length) === 251);
 
-	$.assert(x => x(theme.fonts.wingdings.name) === `myWingdings`);
-	$.assert(x => x(theme.fontFaces) === `@font-face {
+	$.assert(x => x(theme.fonts().wingdings.name) === `myWingdings`);
+	$.assert(x => x(theme.fonts().wingdings.toFontFace()) === `@font-face {
 
-	font-family: comic;
+font-family: myWingdings;
 
-
-	src: url('/myComic.ttf');
-}
-@font-face {
-
-	font-family: wingdings;
-
-	font-weight: 400;
-	src: url('/assets/myWingdings.ttf');
+font-weight: 400;
+src: url('/assets/myWingdings.ttf');
 }`);
 });
+
+
+/*
+Want POJO so can update with spread
+
+theme.source.fonts = {
+	...theme.source.fonts,
+	foo: {
+		display: foo,
+	}
+}
+
+theme.fonts().foo.display
+theme.fonts().foo.toFontFace()
+theme.fonts().toFontFaces()
+
+theme.types.body.toCssClass()
+theme.types.toCssClasses()
+*/
