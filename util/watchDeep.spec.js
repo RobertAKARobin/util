@@ -1,5 +1,5 @@
 /**
- * @import { WatchDeepGet, WatchDeepSet } from './watchDeep.js';
+ * @import { WatchDeepReport } from './watchDeep.js';
  */
 
 import { test } from './spec/index.js';
@@ -15,9 +15,9 @@ export const spec = test(import.meta.url, $ => {
 		},
 	};
 
-	/** @type {WatchDeepGet<typeof data>} */
+	/** @type {WatchDeepReport<typeof data>} */
 	let lastGet;
-	/** @type {WatchDeepSet<typeof data>} */
+	/** @type {WatchDeepReport<typeof data>} */
 	let lastSet;
 
 	const subject = watchDeep(data, {
@@ -42,7 +42,6 @@ export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(lastGet.property) === `parent`);
 	$.assert(x => x(lastSet.property) === `child`);
 	$.assert(x => x(lastSet.value) === 43);
-	$.assert(x => x(lastSet.valueOld) === 42);
 
 	const childOld = subject.grand.parent.child;
 
@@ -56,5 +55,4 @@ export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(lastGet.property) === `parent`);
 	$.assert(x => x(lastSet.property) === `child`);
 	$.assert(x => x(lastSet.value) === 45);
-	$.assert(x => x(lastSet.valueOld) === 44);
 });

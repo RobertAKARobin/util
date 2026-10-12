@@ -2,18 +2,10 @@ const isProxied = new WeakMap();
 
 /**
  * @template {object} Input
- * @typedef {{
- * property: PropertyKey,
- * target: unknown,
- * value: unknown,
- * }} WatchDeepGet
- */
-
-/**
- * @template {object} Input
- * @typedef {WatchDeepGet<Input> & {
- * valueOld: unknown
- * }} WatchDeepSet
+ * @typedef {object} WatchDeepReport
+ * @property {PropertyKey} property - The name of the property being accessed
+ * @property {unknown} target - The object containing the property being accessed
+ * @property {unknown} value - The value of the property being accessed
  */
 
 /**
@@ -21,8 +13,8 @@ const isProxied = new WeakMap();
  * @template {object} Input
  * @param {Input} input
  * @param {object} options
- * @param {(params: {property: PropertyKey, target: unknown, value: unknown}) => unknown} [options.onGet]
- * @param {(params: {property: PropertyKey, target: unknown, value: unknown, valueOld: unknown}) => unknown} [options.onSet]
+ * @param {(report: WatchDeepReport<Input>) => unknown} [options.onGet]
+ * @param {(report: WatchDeepReport<Input>) => unknown} [options.onSet]
  * @returns {Input}
  */
 export function watchDeep(input, options) {
@@ -37,7 +29,8 @@ export function watchDeep(input, options) {
 			const value = target[/** @type {keyof Input} */(property)];
 
 			if (typeof value === `object` && value !== null) {
-				return onGet({ property, target, value: watchDeep(value, options) });
+				const subProxy = watchDeep(/** @type {Input} */(value), options);
+				return onGet({ property, target, value: subProxy });
 			}
 
 			return onGet({ property, target, value });
@@ -49,7 +42,7 @@ export function watchDeep(input, options) {
 
 			if (value !== valueOld) {
 				target[property] = /** @type {Input[keyof Input]} */(
-					onSet({ property, target, value, valueOld })
+					onSet({ property, target, value })
 				);
 			}
 
