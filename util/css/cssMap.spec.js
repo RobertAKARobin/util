@@ -1,6 +1,6 @@
 import { test } from '../spec/index.js';
 
-import { cssMap, cssMapFactory, cssMapToString } from './cssMap.js';
+import { CssMap } from './cssMap.js';
 
 /**
  * @typedef {{
@@ -10,29 +10,21 @@ import { cssMap, cssMapFactory, cssMapToString } from './cssMap.js';
  */
 
 export const spec = test(import.meta.url, $ => {
-	$.assert(x => x(`${cssMap({})}`) === ``);
+	$.assert(x => x(`${new CssMap({})}`) === ``);
 
-	let subject = cssMap(/** @type {CssMapSubject} */({ display: `block` }));
+	let subject = new CssMap(/** @type {CssMapSubject} */({ display: `block` }));
 	$.assert(x => x(`${subject}`) === `display: block;`);
-	$.assert(x => x(subject.display) === `block`);
-	$.assert(x => x(Object.keys(subject).join(` `)) === `display`);
+	$.assert(x => x(subject.source.display) === `block`);
+	$.assert(x => x(Object.keys(subject.source).join(` `)) === `display`);
 
-	subject.display = `none`;
+	subject.source.display = `none`;
 	$.assert(x => x(`${subject}`) === `display: none;`);
-	$.assert(x => x(subject.display) === `none`);
-	$.assert(x => x(Object.keys(subject).join(` `)) === `display`);
+	$.assert(x => x(subject.source.display) === `none`);
+	$.assert(x => x(Object.keys(subject.source).join(` `)) === `display`);
 
-	subject.content = `"foo"`;
+	subject.source.content = `"foo"`;
 	$.assert(x => x(`${subject}`) === `content: "foo";\ndisplay: none;`); // Note alphabetical
-	$.assert(x => x(subject.content) === `"foo"`);
-	$.assert(x => x(Object.keys(subject).join(` `)) === `display content`);
-
-	const custom = cssMapFactory(/** @type {CssMapSubject} */({ content: `"default"` }), source =>
-		`custom {${cssMapToString(source)}}`,
-	);
-	subject = custom({ display: `inline` });
-	$.assert(x => x(`${subject}`) === `custom {content: "default";\ndisplay: inline;}`);
-	$.assert(x => x(subject.content) === `"default"`);
-	$.assert(x => x(Object.keys(subject).join(` `)) === `content display`); // Note order reflects insertion
+	$.assert(x => x(subject.source.content) === `"foo"`);
+	$.assert(x => x(Object.keys(subject.source).join(` `)) === `display content`);
 });
 

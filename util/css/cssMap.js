@@ -15,34 +15,20 @@ export function cssMapToString(source) {
 }
 
 /**
- * Takes a map of CSS declarations and overwrites its `.toString` method so it prints as valid CSS. See {@link cssMapToString}
- * @template {object} CssSource
- * @param {CssSource} source
- * @param {(source: CssSource) => string} [toString]
- * @returns {CssSource}
+ * A wrapper around a map of CSS declarations, with a `.toString` that converts it to a CSS-style string
+ * @template {object} Source
  */
-export function cssMap(source, toString) {
-	Object.defineProperties(source, {
-		[Symbol.toPrimitive]: {
-			value: () => toString ? toString(source) : cssMapToString(source),
-		},
-	});
+export class CssMap {
+	source = /** @type {Source} */({}); // Wanted to just use a plain object and overwrite its `toString` with `Object.defineProperties`, but that felt too hacky
 
-	return source;
-}
+	/**
+	 * @param {Source} source
+	 */
+	constructor(source) {
+		this.source = source;
+	}
 
-/**
- * Returns {@link cssMap} with custom typing and/or a custom `.toString`
- * @template {object} CssSource
- * @param {CssSource} sourceDefault
- * @param {(source: CssSource) => string} [toString]
- * @returns {(source: CssSource) => CssSource}
- */
-export function cssMapFactory(sourceDefault, toString) {
-	return (/** @type {CssSource} */source) => {
-		return cssMap({
-			...sourceDefault,
-			...source,
-		}, toString);
-	};
+	toString() {
+		return cssMapToString(this.source);
+	}
 }
