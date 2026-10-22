@@ -13,18 +13,20 @@ export const spec = test(import.meta.url, $ => {
 	$.assert(x => x(`${new CssMap({})}`) === ``);
 
 	let subject = new CssMap(/** @type {CssMapSubject} */({ display: `block` }));
+	$.assert(() => subject.$ === subject.source);
+
 	$.assert(x => x(`${subject}`) === `display: block;`);
-	$.assert(x => x(subject.source.display) === `block`);
-	$.assert(x => x(Object.keys(subject.source).join(` `)) === `display`);
+	$.assert(x => x(subject.$.display) === `block`);
+	$.assert(x => x(Object.keys(subject.$).join(` `)) === `display`);
 
-	subject.source.display = `none`;
+	subject.$.display = `none`;
 	$.assert(x => x(`${subject}`) === `display: none;`);
-	$.assert(x => x(subject.source.display) === `none`);
-	$.assert(x => x(Object.keys(subject.source).join(` `)) === `display`);
+	$.assert(x => x(subject.$.display) === `none`);
+	$.assert(x => x(Object.keys(subject.$).join(` `)) === `display`);
 
-	subject.source.content = `"foo"`;
+	subject.$.content = `"foo"`;
 	$.assert(x => x(`${subject}`) === `content: "foo";\ndisplay: none;`); // Note alphabetical
-	$.assert(x => x(subject.source.content) === `"foo"`);
-	$.assert(x => x(Object.keys(subject.source).join(` `)) === `display content`);
+	$.assert(x => x(subject.$.content) === `"foo"`);
+	$.assert(x => x(Object.keys(subject.$).join(` `)) === `display content`);
 });
 

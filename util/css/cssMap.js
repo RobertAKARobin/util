@@ -19,6 +19,10 @@ export function cssMapToString(source) {
  * @template {object} Source
  */
 export class CssMap {
+	get $() {
+		return this.source;
+	}
+
 	source = /** @type {Source} */({}); // Wanted to just use a plain object and overwrite its `toString` with `Object.defineProperties`, but that felt too hacky
 
 	/**
