@@ -19,7 +19,7 @@ function argsFor(command) {
  * @ignore
  */
 function restFor(command) {
-	return cliArgs(command.split(` `)).slice(1);
+	return /** @type {Array<string>} */(cliArgs(command.split(` `)).slice(1)); // TODO3: cliArgs returns `[object, ...Array<string>]`. Would be better to get the correct "slice" of the returntype than hard casting to Array<string>. See https://stackoverflow.com/questions/67605122/obtain-a-slice-of-a-typescript-parameters-tuple
 }
 
 export const spec = test(import.meta.url, $ => {

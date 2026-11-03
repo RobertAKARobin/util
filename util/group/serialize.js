@@ -30,7 +30,7 @@ export function serialize(input) {
 			return ``;
 		}
 		if (typeof input === `object`) {
-			const toString = input.toString();
+			const toString = input.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
 			if (toString === `[object Object]`) {
 				let out = ``;
 				const inputObject = /** @type {Record<string, unknown>} */(input);
@@ -61,6 +61,6 @@ export function serialize(input) {
 				.replaceAll(`'`, `\\'`);
 			return `'${out}'`;
 		}
-		return input.toString();
+		return input.toString(); // eslint-disable-line @typescript-eslint/no-base-to-string
 	}
 }

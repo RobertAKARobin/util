@@ -45,7 +45,7 @@ export function keyframes(
  * Record<AnimationName, string | undefined>,
  * ...Array<Partial<Record<AnimationName, string>> | number>
  * ]} args
- * @returns {Record<AnimationName, AnimationData<AnimationName>>}
+ * @returns {Record<AnimationName, AnimationData<AnimationName>> & { toString(): string }}
  * @see {@link keyframes}
  */
 export function keyframesMulti(...args) {

@@ -39,7 +39,7 @@ export default tsEslint.config(
 				accessibility: `no-public`,
 			}],
 			'@typescript-eslint/no-array-constructor': `error`,
-			'@typescript-eslint/no-base-to-string': `off`,
+			'@typescript-eslint/no-base-to-string': `error`,
 			'@typescript-eslint/no-duplicate-enum-values': `error`,
 			'@typescript-eslint/no-duplicate-type-constituents': `error`,
 			'@typescript-eslint/no-empty-interface': `off`,
