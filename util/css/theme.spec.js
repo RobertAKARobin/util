@@ -1,6 +1,6 @@
-import { test } from '../spec/index.js';
+import { suite, test } from '../spec/index.js';
 
-import { CssTheme } from './theme.js';
+import { CssFontface, CssFontfaces, CssTheme } from './theme.js';
 
 const breakpoints = {
 	phone: 600,
@@ -40,29 +40,55 @@ const typefaces = {
 	`,
 };
 
-export const spec = test(import.meta.url, $ => {
-	const theme = new CssTheme({
-		bps: breakpoints,
-		fonts,
-		types: typefaces,
-		val: constants,
-	});
+export const spec = suite(import.meta.url, {},
+	test(`reset`, $ => {
+		const theme = new CssTheme({
+			bps: breakpoints,
+			fonts,
+			types: typefaces,
+			val: constants,
+		});
 
-	$.assert(x => x(theme.reset.length) === 251);
-
-	$.assert(x => x(theme.fonts.wingdings.name) === `myWingdings`);
-	$.assert(x => x(theme.fontFaces) === `@font-face {
-
-	font-family: comic;
+		$.assert(x => x(theme.reset.length) === 251);
+	}),
 
 
-	src: url('/myComic.ttf');
+	test(`CssFontface`, $ => {
+		$.assert(x => x(`${new CssFontface()}`) === ``);
+
+		let subject = CssFontface.from({ display: `block` });
+		$.assert(x => x(`${subject}`) === `font-display: block;`);
+
+		subject.display = `optional`;
+		subject.src = `/foo.ttf`;
+		$.assert(x => x(`${subject}`) === `font-display: optional;
+src: url('/foo.ttf');`);
+	}),
+
+	test(`CssFontfaces`, $ => {
+		$.assert(x => x(`${new CssFontfaces()}`) === ``);
+
+		let subject = CssFontfaces.from({
+			comic: {},
+			wingdings: {
+				family: `myWingdings`,
+				src: `/assets/myWingdings.ttf`,
+				weight: 400,
+			},
+		});
+
+		$.assert(x => x(`${subject.comic}`) === `font-family: comic;`);
+
+		subject.comic.src = `/assets/myComic.ttf`;
+
+		$.assert(x => x(`${subject}`) === `@font-face {
+font-family: comic;
+src: url('/assets/myComic.ttf');
 }
 @font-face {
-
-	font-family: wingdings;
-
-	font-weight: 400;
-	src: url('/assets/myWingdings.ttf');
+font-family: myWingdings;
+font-weight: 400;
+src: url('/assets/myWingdings.ttf');
 }`);
-});
+	}),
+);

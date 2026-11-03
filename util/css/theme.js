@@ -1,5 +1,90 @@
 export { css } from '../string/template.js';
 
+import { mapObject } from '../group/mapObject.js';
+
+import { CssBlock, CssMap } from './cssMap.js';
+
+export { CssBlock };
+
+export class CssFontface extends CssMap {
+	/**
+	 * @param {Partial<CssFontface>} source
+	 * @returns {CssFontface}
+	 */
+	static from(source) {
+		return Object.assign(new CssFontface(), source);
+	}
+
+	/**
+	 * @type {undefined | 'auto' | 'block' | 'fallback' | 'optional' | 'swap'}
+	 */
+	display;
+
+	/**
+	 * @type {undefined | string}
+	 */
+
+	family;
+
+	/**
+	 * @type {undefined | string}
+	 */
+	src;
+
+	/**
+	 * @type {undefined | 'italic' | 'normal' | 'oblique'}
+	 */
+	style;
+
+	/**
+	 * @type {undefined | 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900}
+	 */
+	weight;
+
+	/**
+	 * @override
+	 * @returns {string}
+	 */
+	toString() {
+		return CssMap.toBlock({
+			'font-display': this.display,
+			'font-family': this.family,
+			'font-style': this.style,
+			'font-weight': this.weight,
+			'src': (this.src ?? ``).length > 0 ? `url('${this.src}')` : ``,
+		});
+	}
+}
+
+export class CssFontfaces extends CssMap {
+	/**
+	 * @template {Record<string, Partial<CssFontface>>} Source
+	 * @param {Source} source
+	 * @returns {CssFontfaces & Record<keyof Source, CssFontface>}
+	 */
+	static from(source) {
+		const fontfaces = mapObject(source, (key, value) => [
+			key,
+			CssFontface.from({
+				family: key,
+				...value,
+			}),
+		]);
+		return Object.assign(new CssFontfaces(), fontfaces);
+	}
+
+	/**
+	 * @override
+	 * @param {keyof this} key
+	 * @param {this[keyof this]} value
+	 */
+	toStringEach(key, value) {
+		return /*css*/`@font-face {
+${value}
+}`;
+	}
+}
+
 /**
  * @typedef {Record<string, number>} GenericBreakpoints
  * @typedef {Record<string, number | string>} GenericConstants
