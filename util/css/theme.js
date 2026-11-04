@@ -6,6 +6,10 @@ import { CssBlock, CssMap } from './cssMap.js';
 
 export { CssBlock };
 
+/**
+ * @typedef {Record<string, number | string>} CssDeclarations
+ */
+
 export class CssFontface extends CssMap {
 	/**
 	 * @param {Partial<CssFontface>} source
@@ -63,14 +67,70 @@ export class CssFontfaces extends CssMap {
 	 * @returns {CssFontfaces & Record<keyof Source, CssFontface>}
 	 */
 	static from(source) {
-		const fontfaces = mapObject(source, (key, value) => [
-			key,
+		const fontfaces = mapObject(source, (fontfaceName, fontface) => [
+			fontfaceName,
 			CssFontface.from({
-				family: key,
-				...value,
+				family: fontfaceName,
+				...fontface,
 			}),
 		]);
 		return Object.assign(new CssFontfaces(), fontfaces);
+	}
+
+	/**
+	 * @override
+	 * @param {keyof this} fontfaceName
+	 * @param {this[keyof this]} fontface
+	 */
+	toStringEach(fontfaceName, fontface) {
+		return /*css*/`@font-face {
+${fontface}
+}`;
+	}
+}
+
+export class CssTypeface extends CssMap {
+	/**
+	 * @template {CssDeclarations} Source
+	 * @param {Source} source
+	 * @returns {CssTypeface & Source}
+	 */
+	static from(source) {
+		return Object.assign(new this(), source);
+	}
+
+	name = ``;
+
+	// TODO1: Add size unit?
+
+	/**
+	 * @override
+	 * @returns {string}
+	 */
+	toString() {
+		const { name, ...properties } = this;
+		return CssMap.toBlock({
+			...properties,
+			'--typeface-name': this.name,
+		});
+	}
+}
+
+export class CssTypefaces extends CssMap {
+	/**
+	 * @template {Record<string, CssDeclarations>} Source
+	 * @param {Source} source
+	 * @returns {CssTypefaces & Record<keyof Source, CssTypeface>}
+	 */
+	static from(source) {
+		const typefaces = mapObject(source, (typefaceName, typeface) => [
+			typefaceName,
+			CssTypeface.from({
+				name: `type-${String(typefaceName)}`,
+				...typeface,
+			}),
+		]);
+		return Object.assign(new CssTypefaces(), typefaces);
 	}
 
 	/**
@@ -79,8 +139,9 @@ export class CssFontfaces extends CssMap {
 	 * @param {this[keyof this]} value
 	 */
 	toStringEach(key, value) {
-		return /*css*/`@font-face {
-${value}
+		const typeface = /** @type {CssTypeface} */(value);
+		return `.${typeface.name} {
+${typeface}
 }`;
 	}
 }
@@ -88,13 +149,6 @@ ${value}
 /**
  * @typedef {Record<string, number>} GenericBreakpoints
  * @typedef {Record<string, number | string>} GenericConstants
- * @typedef {Record<string, {
- * display?: 'auto' | 'block' | 'fallback' | 'optional' | 'swap';
- * name?: string;
- * src?: string;
- * style?: 'italic' | 'normal' | 'oblique';
- * weight?: 100 | 200 | 300 | 400 | 500 | 600 | 700 | 800 | 900;
- * }>} GenericFonts
  * @typedef {Record<string, string>} GenericTypefaces
  */
 
@@ -118,7 +172,7 @@ text-decoration: inherit;
  * Produces a bunch of useful CSS helpers, given the constants that underly your application's styling
  * @template {GenericBreakpoints} Breakpoints
  * @template {GenericConstants} Constants
- * @template {GenericFonts} Fonts
+ * @template {Record<string, Partial<CssFontface>>} Fonts
  * @template {GenericTypefaces} Typefaces
  */
 export class CssTheme {
@@ -130,24 +184,6 @@ export class CssTheme {
 		lessThan: /** @type {Record<keyof Breakpoints, string>} */({}),
 		moreThan: /** @type {Record<keyof Breakpoints, string>} */({}),
 	};
-	/**
-	 * The contents of `this.fonts` as a string of `@font-face` declarations.
-	 * @returns {string}
-	 */
-	get fontFaces() {
-		return Object.entries(this.fonts).map(([fontName, font]) => /*css*/`@font-face {
-${font.display ? `	font-display: ${font.display};` : ``}
-${typeof font.name === `string` ? `	font-family: ${fontName};` : ``}
-${font.style ? `	font-style: ${font.style};` : ``}
-${font.weight ? `	font-weight: ${font.weight ?? 400};` : ``}
-${typeof font.src === `string` ? `	src: url('${font.src}');` : ``}
-}`).join(`\n`);
-	}
-	/**
-	 * A map of font names to their font-face configuration properties.
-	 * @type {Fonts}
-	 */
-	fonts = /** @type {Fonts} */({});
 	/**
 	 * A CSS snippet that resets most of the browser's default styles
 	 * @returns {string}
@@ -203,8 +239,6 @@ ${typeof font.src === `string` ? `	src: url('${font.src}');` : ``}
 	 * @param {Constants} [input.val]
 	 */
 	constructor(input = {}) {
-		this.fonts = input.fonts ?? /** @type {Fonts} */({});
-
 		const breakpoints = input.bps ?? /** @type {Breakpoints} */({});
 		this.val = {
 			...input.val ?? /** @type {Constants} */({}),
