@@ -91,7 +91,7 @@ font-weight: bold;`);
 		let subject = CssTypefaces.from({
 			body: {
 				'font-family': `monospace`,
-				'font-size': 24,
+				'font-size': 24, // For units see ./cssUnit
 			},
 			h1: {
 				color: `darkgreen`,

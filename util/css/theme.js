@@ -4,7 +4,9 @@ import { mapObject } from '../group/mapObject.js';
 
 import { CssBlock, CssMap } from './cssMap.js';
 
-export { CssBlock };
+import { CssUnit } from './cssUnit.js';
+
+export { CssBlock, CssUnit };
 
 /**
  * @typedef {Record<string, number | string>} CssDeclarations
