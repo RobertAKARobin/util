@@ -1,6 +1,6 @@
 import { suite, test } from '../spec/index.js';
 
-import { CssFontface, CssFontfaces, CssTypeface, CssTypefaces } from './theme.js';
+import { CssFontface, CssFontfaces, CssTypeface, CssTypefaces, CssVariables } from './theme.js';
 
 // const breakpoints = {
 // 	phone: 600,
@@ -118,5 +118,23 @@ color: darkgreen;
 font-family: monospace;
 font-size: 24;
 }`);
+	}),
+
+	test(`CssVariables`, $ => {
+		$.assert(x => x(`${new CssVariables()}`) === ``);
+
+		let subject = CssVariables.from({
+			'age': 42,
+			'name-first': `Alice`,
+		});
+
+		$.assert(x => x(`${subject}`) === `--age: 42;
+--name-first: Alice;`);
+
+		// @ts-expect-error `delete` should only be used on optional properties
+		delete subject[`name-first`];
+		subject.age = Infinity;
+
+		$.assert(x => x(`${subject}`) === `--age: Infinity;`);
 	}),
 );

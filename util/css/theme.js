@@ -148,6 +148,27 @@ ${typeface}
 	}
 }
 
+export class CssVariables extends CssMap {
+	/**
+	 * @template Source
+	 * @param {Source} source
+	 * @returns {CssVariables & Source}
+	 */
+	static from(source) {
+		return Object.assign(new this(), source);
+	}
+
+	/**
+	 * @override
+	 * @param {keyof this} key
+	 * @param {this[keyof this]} value
+	 * @returns {string}
+	 */
+	toStringEach(key, value) {
+		return `--${String(key)}: ${value};`;
+	}
+}
+
 /**
  * @typedef {Record<string, number>} GenericBreakpoints
  * @typedef {Record<string, number | string>} GenericConstants
