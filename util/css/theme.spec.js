@@ -1,6 +1,13 @@
 import { suite, test } from '../spec/index.js';
 
-import { CssFontface, CssFontfaces, CssTypeface, CssTypefaces, CssVariables } from './theme.js';
+import {
+	CssBreakpoints,
+	CssFontface,
+	CssFontfaces,
+	CssTypeface,
+	CssTypefaces,
+	CssVariables,
+} from './theme.js';
 
 // const breakpoints = {
 // 	phone: 600,
@@ -24,6 +31,21 @@ export const spec = suite(import.meta.url, {},
 	// 	$.assert(x => x(theme.reset.length) === 251);
 	// }),
 
+	test(`CssBreakpoints`, $ => {
+		let subject = CssBreakpoints.from({
+			phone: 600,
+			tablet: 1000,
+		});
+
+		$.assert(x => x(subject.lessThan(`phone`)) === `(width < 600)`);
+		$.assert(x => x(subject.moreThan(`phone`)) === `(width >= 600)`);
+		$.assert(x => x(subject.lessThan(`tablet`)) === `(width < 1000)`);
+		$.assert(x => x(subject.moreThan(`tablet`)) === `(width >= 1000)`);
+
+		subject.tablet = 2000;
+
+		$.assert(x => x(subject.moreThan(`tablet`)) === `(width >= 2000)`);
+	}),
 
 	test(`CssFontface`, $ => {
 		$.assert(x => x(`${new CssFontface()}`) === ``);

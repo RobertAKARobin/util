@@ -8,6 +8,36 @@ import { CssUnit } from './cssUnit.js';
 
 export { CssBlock, CssUnit };
 
+export class CssBreakpoints {
+	/**
+	 * @template {Record<string, CssUnit | number>} Source
+	 * @param {Source} source
+	 * @returns {CssBreakpoints & Source}
+	 */
+	static from(source) {
+		return Object.assign(new this(), source);
+	}
+
+	/**
+	 * @param {keyof this} breakpointName
+	 * @returns {string}
+	 */
+	lessThan(breakpointName) {
+		const breakpoint = this[breakpointName];
+		return `(width < ${breakpoint})`;
+	}
+
+	/**
+	 * Usually I write two media queries: one for smaller than a breakpoint and one for larger. I always forget to include the breakpoint itself in one of the queries. This way I can just write `lessThan` and `moreThan` without having to remember which is inclusive.
+	 * @param {keyof this} breakpointName
+	 * @returns {string}
+	 */
+	moreThan(breakpointName) {
+		const breakpoint = this[breakpointName];
+		return `(width >= ${breakpoint})`;
+	}
+}
+
 /**
  * @typedef {Record<string, number | string>} CssDeclarations
  */
@@ -18,7 +48,7 @@ export class CssFontface extends CssMap {
 	 * @returns {CssFontface}
 	 */
 	static from(source) {
-		return Object.assign(new CssFontface(), source);
+		return Object.assign(new this(), source);
 	}
 
 	/**
@@ -76,7 +106,7 @@ export class CssFontfaces extends CssMap {
 				...fontface,
 			}),
 		]);
-		return Object.assign(new CssFontfaces(), fontfaces);
+		return Object.assign(new this(), fontfaces);
 	}
 
 	/**
@@ -132,7 +162,7 @@ export class CssTypefaces extends CssMap {
 				...typeface,
 			}),
 		]);
-		return Object.assign(new CssTypefaces(), typefaces);
+		return Object.assign(new this(), typefaces);
 	}
 
 	/**
