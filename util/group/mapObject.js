@@ -2,7 +2,7 @@
  * Given an object, returns a new object with keys that are based on the old ones and strongly-typed. https://stackoverflow.com/a/68546630
  * @template OldValue
  * @template NewValue
- * @template {Record<string, OldValue>} Source
+ * @template {Record<PropertyKey, OldValue>} Source
  * @template {PropertyKey} NewKey
  * @param {Source} source
  * @param {(
