@@ -10,7 +10,7 @@ export { CssBlock, CssUnit };
 
 export class CssBreakpoints {
 	/**
-	 * @template {Record<string, CssUnit | number>} Source
+	 * @template {Record<PropertyKey, CssUnit | number>} Source
 	 * @param {Source} source
 	 * @returns {CssBreakpoints & Source}
 	 */
@@ -178,24 +178,74 @@ ${typeface}
 	}
 }
 
+/**
+ * @template Value
+ */
+export class CssVariable {
+	/**
+	 * @template Value
+	 * @param {PropertyKey} name
+	 * @param {Value} value
+	 * @returns {CssVariable<Value>}
+	 */
+	static from(name, value) {
+		return new this(name, value);
+	}
+
+	/**
+	 * @type {PropertyKey}
+	 */
+	name;
+
+	/**
+	 * @type {Value}
+	 */
+	value;
+
+	get varName() {
+		return `--${String(this.name)}`;
+	}
+
+	/**
+	 * @param {PropertyKey} name
+	 * @param {Value} value
+	 */
+	constructor(name, value) {
+		this.name = name;
+		this.value = value;
+	}
+
+	toDeclaration() {
+		return `${this.varName}: ${this.value};`;
+	}
+
+	toString() {
+		return `var(${this.varName})`;
+	}
+}
+
 export class CssVariables extends CssMap {
 	/**
-	 * @template Source
+	 * @template {Record<PropertyKey, number | string>} Source
 	 * @param {Source} source
-	 * @returns {CssVariables & Source}
+	 * @returns {CssVariables & {[Key in keyof Source]: CssVariable<Source[Key]>}}
 	 */
 	static from(source) {
-		return Object.assign(new this(), source);
+		return Object.assign(
+			new this(),
+			/** @type {{[Key in keyof Source]: CssVariable<Source[Key]>}} */(
+				mapObject(source, (key, value) => [key, CssVariable.from(key, value)])
+			),
+		);
 	}
 
 	/**
 	 * @override
-	 * @param {keyof this} key
-	 * @param {this[keyof this]} value
-	 * @returns {string}
+	 * @param {keyof this} variableKey
+	 * @param {CssVariable<any>} variable
 	 */
-	toStringEach(key, value) {
-		return `--${String(key)}: ${value};`;
+	toStringEach(variableKey, variable) {
+		return variable.toDeclaration();
 	}
 }
 

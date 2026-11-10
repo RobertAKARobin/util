@@ -38,7 +38,7 @@ export class CssMap {
 
 	/**
 	 * @param {keyof this} key
-	 * @param {this[keyof this]} value
+	 * @param {any} value
 	 * @returns {string}
 	 */
 	toStringEach(key, value) {

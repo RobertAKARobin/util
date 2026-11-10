@@ -6,6 +6,7 @@ import {
 	CssFontfaces,
 	CssTypeface,
 	CssTypefaces,
+	CssVariable,
 	CssVariables,
 } from './theme.js';
 
@@ -142,20 +143,40 @@ font-size: 24;
 }`);
 	}),
 
+	test(`CssVariable`, $ => {
+		const subject = new CssVariable(`name-first`, `Alice`);
+
+		$.assert(x => x(`${subject}`) === `var(--name-first)`);
+		$.assert(x => x(subject.varName) === `--name-first`);
+		$.assert(x => x(subject.value) === `Alice`);
+		$.assert(x => x(subject.toDeclaration()) === `--name-first: Alice;`);
+
+		subject.name = `moniker`;
+		subject.value = `Bob`;
+		$.assert(x => x(`${subject}`) === `var(--moniker)`);
+		$.assert(x => x(subject.varName) === `--moniker`);
+		$.assert(x => x(subject.value) === `Bob`);
+		$.assert(x => x(subject.toDeclaration()) === `--moniker: Bob;`);
+	}),
+
 	test(`CssVariables`, $ => {
 		$.assert(x => x(`${new CssVariables()}`) === ``);
 
 		let subject = CssVariables.from({
-			'age': 42,
-			'name-first': `Alice`,
+			age: 42,
+			name: `Alice`,
 		});
 
+		$.assert(x => x(`${subject}`) === `--age: 42;
+--name: Alice;`);
+
+		subject.name.name = `name-first`;
 		$.assert(x => x(`${subject}`) === `--age: 42;
 --name-first: Alice;`);
 
 		// @ts-expect-error `delete` should only be used on optional properties
-		delete subject[`name-first`];
-		subject.age = Infinity;
+		delete subject.name;
+		subject.age.value = Infinity;
 
 		$.assert(x => x(`${subject}`) === `--age: Infinity;`);
 	}),
