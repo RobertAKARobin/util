@@ -8,39 +8,47 @@ import { CssUnit } from './cssUnit.js';
 
 export { CssBlock, CssUnit };
 
+/**
+ * @typedef {Record<string, number | string>} CssDeclarations
+ */
+
+/**
+ * @typedef {Record<PropertyKey, CssUnit | number>} CssBreakpointsSource
+ */
+
+/**
+ * A map of breakpoints that can be used in `@media` queries.
+ * @template {CssBreakpointsSource} Source
+ */
 export class CssBreakpoints {
 	/**
-	 * @template {Record<PropertyKey, CssUnit | number>} Source
+	 * @template {CssBreakpointsSource} Source
 	 * @param {Source} source
-	 * @returns {CssBreakpoints & Source}
+	 * @returns {CssBreakpoints<Source> & Source}
 	 */
 	static from(source) {
 		return Object.assign(new this(), source);
 	}
 
 	/**
-	 * @param {keyof this} breakpointName
+	 * @param {keyof Source} breakpointName
 	 * @returns {string}
 	 */
 	lessThan(breakpointName) {
-		const breakpoint = this[breakpointName];
+		const breakpoint = this[/** @type {keyof this} */(breakpointName)];
 		return `(width < ${breakpoint})`;
 	}
 
 	/**
 	 * Usually I write two media queries: one for smaller than a breakpoint and one for larger. I always forget to include the breakpoint itself in one of the queries. This way I can just write `lessThan` and `moreThan` without having to remember which is inclusive.
-	 * @param {keyof this} breakpointName
+	 * @param {keyof Source} breakpointName
 	 * @returns {string}
 	 */
 	moreThan(breakpointName) {
-		const breakpoint = this[breakpointName];
+		const breakpoint = this[/** @type {keyof this} */(breakpointName)];
 		return `(width >= ${breakpoint})`;
 	}
 }
-
-/**
- * @typedef {Record<string, number | string>} CssDeclarations
- */
 
 export class CssFontface extends CssMap {
 	/**
@@ -92,9 +100,17 @@ export class CssFontface extends CssMap {
 	}
 }
 
+/**
+ * @typedef {Record<string, Partial<CssFontface>>} CssFontfacesSource
+ */
+
+/**
+ * A map of CSS fontface definitions.
+ * `.toString()` returns a block of CSS `@fontface` declarations.
+ */
 export class CssFontfaces extends CssMap {
 	/**
-	 * @template {Record<string, Partial<CssFontface>>} Source
+	 * @template {CssFontfacesSource} Source
 	 * @param {Source} source
 	 * @returns {CssFontfaces & Record<keyof Source, CssFontface>}
 	 */
@@ -148,9 +164,18 @@ export class CssTypeface extends CssMap {
 	}
 }
 
+/**
+ * @typedef {Record<string, CssDeclarations>} CssTypefacesSource
+ */
+
+/**
+ * A map of the styles for this theme's typefaces.
+ * `toString` returns a block of CSS classes, one for each typeface.
+ * Each includes a `--varName` CSS variable, so that when a typeface is used as a mixin the name of the original type can be found for referencein the compiled code.
+ */
 export class CssTypefaces extends CssMap {
 	/**
-	 * @template {Record<string, CssDeclarations>} Source
+	 * @template {CssTypefacesSource} Source
 	 * @param {Source} source
 	 * @returns {CssTypefaces & Record<keyof Source, CssTypeface>}
 	 */
@@ -224,9 +249,17 @@ export class CssVariable {
 	}
 }
 
+/**
+ * @typedef {Record<PropertyKey, number | string>} CssVariablesSource
+ */
+
+/**
+ * A map of the constant values passed into this theme, to be used as CSS variables.
+ * `toString` returns a block of CSS variable declarations.
+ */
 export class CssVariables extends CssMap {
 	/**
-	 * @template {Record<PropertyKey, number | string>} Source
+	 * @template {CssVariablesSource} Source
 	 * @param {Source} source
 	 * @returns {CssVariables & {[Key in keyof Source]: CssVariable<Source[Key]>}}
 	 */
@@ -250,12 +283,9 @@ export class CssVariables extends CssMap {
 }
 
 /**
- * @typedef {Record<string, number>} GenericBreakpoints
- * @typedef {Record<string, number | string>} GenericConstants
- * @typedef {Record<string, string>} GenericTypefaces
+ * A CSS snippet that resets most of the browser's default styles
  */
-
-export const reset = `
+export const cssReset = `
 background: transparent;
 border: 0;
 border-collapse: collapse;
@@ -270,131 +300,3 @@ margin: 0;
 padding: 0;
 text-decoration: inherit;
 `;
-
-/**
- * Produces a bunch of useful CSS helpers, given the constants that underly your application's styling
- * @template {GenericBreakpoints} Breakpoints
- * @template {GenericConstants} Constants
- * @template {Record<string, Partial<CssFontface>>} Fonts
- * @template {GenericTypefaces} Typefaces
- */
-export class CssTheme {
-	/**
-	 * A map of CSS breakpoints to strings that can be used in `@media` queries, e.g. `bp.lessThan.phone` translates to `(max-width: ${phone}px)`
-	 * @readonly
-	 */
-	bp = {
-		lessThan: /** @type {Record<keyof Breakpoints, string>} */({}),
-		moreThan: /** @type {Record<keyof Breakpoints, string>} */({}),
-	};
-	/**
-	 * A CSS snippet that resets most of the browser's default styles
-	 * @returns {string}
-	 */
-	get reset() {
-		return reset;
-	}
-	/**
-	 * The styles for this themes's typefaces as CSS classes, e.g. `{ subtitle: 'font-size: 3rem;' }` becomes `.type-subtitle { font-size: 3rem; }`
-	 * @type {string}
-	 * @readonly
-	 */
-	typeClasses;
-	/**
-	 * The names of this theme's typefaces as CSS class names, e.g. `type-h1`;
-	 * @type {Record<keyof Typefaces, string>}
-	 * @readonly
-	 */
-	typeClassNames;
-	/**
-	 * A map of the styles for this theme's typefaces. Each includes a `--varName` CSS variable, so that when a typeface is used as a mixin the name of the original type can be found for referencein the compiled code.
-	 * @readonly
-	 */
-	types = /** @type {Typefaces} */({});
-	/**
-	 * A map of the constant values passed into this theme
-	 * @type {Constants}
-	 * @readonly
-	 */
-	val;
-	/**
-	 * The keys of `this.val` written as CSS variables, e.g. `var(--foo)`;
-	 * @readonly
-	 */
-	vars = /** @type {Record<keyof Constants, string>} */({});
-	/**
-	 * The contents of `this.val` as CSS variables, such as can be inserted into the `root:` of a stylesheet
-	 * @type {string}
-	 * @readonly
-	 */
-	varsDeclarations;
-	/**
-	 * The keys of `this.val` written as CSS variable names, e.g. `--foo`
-	 * @readonly
-	 */
-	vname = /** @type {Record<keyof Constants, string>} */({});
-
-	/**
-	 * @param {object} [input]
-	 * @param {Breakpoints} [input.bps]
-	 * @param {Fonts} [input.fonts]
-	 * @param {Typefaces} [input.types]
-	 * @param {Constants} [input.val]
-	 */
-	constructor(input = {}) {
-		const breakpoints = input.bps ?? /** @type {Breakpoints} */({});
-		this.val = {
-			...input.val ?? /** @type {Constants} */({}),
-			...breakpoints,
-		};
-		for (const constantName in this.val) {
-			const vname = `--${constantName}`;
-			this.vname[constantName] = vname;
-			this.vars[constantName] = `var(${vname})`;
-		}
-		this.varsDeclarations = this.toCssVariables(this.val);
-
-		const typefaces = input.types ?? /** @type {Record<string, string>} */({});
-
-		this.typeClassNames = Object.keys(typefaces).reduce((typeClassNames, typeface) => {
-			const typeName = /** @type {keyof Typefaces} */(typeface);
-			typeClassNames[typeName] = `type-${typeface}`;
-			return typeClassNames;
-		}, /** @type {Record<keyof Typefaces, string>} */({}));
-
-		const typeClasses = [];
-		for (const typeName in typefaces) {
-			const typeStyles = typefaces[typeName];
-			typefaces[typeName] = `
-				--typeface-name: '${typeName}';
-				${typeStyles}
-			`;
-			typeClasses.push(`
-				.${this.typeClassNames[typeName]} {
-					${typeStyles}
-				}
-			`);
-		}
-		this.types = /** @type {Typefaces} */(typefaces);
-		this.typeClasses = typeClasses.join(`\n`);
-
-		for (const bpName in breakpoints) {
-			const bpSize = breakpoints[bpName];
-			this.bp.lessThan[bpName] = `(width < ${bpSize - 1}px)`;
-			this.bp.moreThan[bpName] = `(width > ${bpSize}px)`; // TODO3: Had `>=`, but jsBeautify kept removing the space after it which made stylelint fail
-		}
-	}
-
-	/**
-	 * Outputs a string that declares all vals as CSS variables
-	 * @param {GenericConstants} vals
-	 * @returns {string}
-	 * @see {@link CssTheme.val}
-	 * @see {@link CssTheme.vars}
-	 */
-	toCssVariables(vals) {
-		return Object.entries(vals).map(([constant, value]) => `
-			--${constant}: ${value};
-		`).join(``);
-	}
-}

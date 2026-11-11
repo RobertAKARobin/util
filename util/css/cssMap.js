@@ -47,7 +47,7 @@ export class CssMap {
 }
 
 /**
- * TODO1
+ * A strongly-typed map of CSS properties
  */
 export class CssBlock extends CssMap {
 	/**

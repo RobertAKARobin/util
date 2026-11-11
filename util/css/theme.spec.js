@@ -4,34 +4,14 @@ import {
 	CssBreakpoints,
 	CssFontface,
 	CssFontfaces,
+	cssReset,
 	CssTypeface,
 	CssTypefaces,
 	CssVariable,
 	CssVariables,
 } from './theme.js';
 
-// const breakpoints = {
-// 	phone: 600,
-// 	tablet: 1000,
-// };
-
-// const constants = {
-// 	fontBase_family: `monospace`,
-// 	fontBase_size: 24,
-// };
-
 export const spec = suite(import.meta.url, {},
-	// test(`reset`, $ => {
-	// 	const theme = new CssTheme({
-	// 		bps: breakpoints,
-	// 		fonts,
-	// 		types: typefaces,
-	// 		val: constants,
-	// 	});
-
-	// 	$.assert(x => x(theme.reset.length) === 251);
-	// }),
-
 	test(`CssBreakpoints`, $ => {
 		let subject = CssBreakpoints.from({
 			phone: 600,
@@ -179,5 +159,9 @@ font-size: 24;
 		subject.age.value = Infinity;
 
 		$.assert(x => x(`${subject}`) === `--age: Infinity;`);
+	}),
+
+	test(`cssReset`, $ => {
+		$.assert(x => x(cssReset.length) === 251);
 	}),
 );
