@@ -1,10 +1,13 @@
 import { suite, test } from '../spec/index.js';
 
+import { cssUnit } from './cssUnit.js';
+
 import {
 	CssBreakpoints,
 	CssFontface,
 	CssFontfaces,
 	cssReset,
+	CssTheme,
 	CssTypeface,
 	CssTypefaces,
 	CssVariable,
@@ -35,7 +38,7 @@ export const spec = suite(import.meta.url, {},
 		$.assert(x => x(`${subject}`) === `font-display: block;`);
 
 		subject.display = `optional`;
-		subject.src = `/foo.ttf`;
+		subject.src = `url('/foo.ttf')`;
 		$.assert(x => x(`${subject}`) === `font-display: optional;
 src: url('/foo.ttf');`);
 	}),
@@ -47,18 +50,18 @@ src: url('/foo.ttf');`);
 			comic: {},
 			wingdings: {
 				family: `myWingdings`,
-				src: `/assets/myWingdings.ttf`,
+				src: `url('/assets/myWingdings.ttf')`,
 				weight: 400,
 			},
 		});
 
 		$.assert(x => x(`${subject.comic}`) === `font-family: comic;`);
 
-		subject.comic.src = `/assets/myComic.ttf`;
+		subject.comic.src = `local('Comic Sans MS')`;
 
 		$.assert(x => x(`${subject}`) === `@font-face {
 font-family: comic;
-src: url('/assets/myComic.ttf');
+src: local('Comic Sans MS');
 }
 @font-face {
 font-family: myWingdings;
@@ -163,5 +166,69 @@ font-size: 24;
 
 	test(`cssReset`, $ => {
 		$.assert(x => x(cssReset.length) === 251);
+	}),
+
+	test(`CssTheme`, $ => {
+		const subject = new CssTheme({
+			breakpoints: {
+				phone: cssUnit.px(600),
+				tablet: cssUnit.px(1000),
+			},
+			fontfaces: {
+				comic: {
+					family: `myComic`,
+					src: `url('/fonts/comic.ttf')`,
+				},
+				wingdings: {
+					src: `local('Wingdings Font')`,
+					weight: 400,
+				},
+			},
+			typefaces: {
+				body: {
+					'font-family': `monospace`,
+					'font-size': cssUnit.px(24), // For units see ./cssUnit
+				},
+				h1: {
+					color: `darkgreen`,
+					name: `myH1`,
+				},
+			},
+			variables: {
+				age: 42,
+				name: `Alice`,
+			},
+		});
+
+		$.assert(x => x(subject.reset.length) === 251);
+
+		$.assert(x => x(subject.breakpoints) instanceof CssBreakpoints);
+		$.assert(x => x(subject.breakpoints.lessThan(`phone`)) === `(width < 600px)`);
+
+		$.assert(x => x(subject.fontfaces) instanceof CssFontfaces);
+		$.assert(x => x(`${subject.fontfaces}`) === `@font-face {
+font-family: myComic;
+src: url('/fonts/comic.ttf');
+}
+@font-face {
+font-family: wingdings;
+font-weight: 400;
+src: local('Wingdings Font');
+}`);
+
+		$.assert(x => x(subject.typefaces) instanceof CssTypefaces);
+		$.assert(x => x(`${subject.typefaces}`) === `.type-body {
+--typeface-name: type-body;
+font-family: monospace;
+font-size: 24px;
+}
+.myH1 {
+--typeface-name: myH1;
+color: darkgreen;
+}`);
+
+		$.assert(x => x(subject.variables) instanceof CssVariables);
+		$.assert(x => x(`${subject.variables}`) === `--age: 42;
+--name: Alice;`);
 	}),
 );

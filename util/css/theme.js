@@ -9,7 +9,7 @@ import { CssUnit } from './cssUnit.js';
 export { CssBlock, CssUnit };
 
 /**
- * @typedef {Record<string, number | string>} CssDeclarations
+ * @typedef {Record<string, number | string | CssUnit>} CssDeclarations
  */
 
 /**
@@ -95,7 +95,7 @@ export class CssFontface extends CssMap {
 			'font-family': this.family,
 			'font-style': this.style,
 			'font-weight': this.weight,
-			'src': (this.src ?? ``).length > 0 ? `url('${this.src}')` : ``,
+			'src': this.src,
 		});
 	}
 }
@@ -148,8 +148,6 @@ export class CssTypeface extends CssMap {
 	}
 
 	name = ``;
-
-	// TODO1: Add size unit?
 
 	/**
 	 * @override
@@ -300,3 +298,52 @@ margin: 0;
 padding: 0;
 text-decoration: inherit;
 `;
+
+/**
+ * @template {CssBreakpointsSource} Breakpoints
+ * @template {CssFontfacesSource} Fontfaces
+ * @template {CssTypefacesSource} Typefaces
+ * @template {CssVariablesSource} Variables
+ */
+export class CssTheme {
+	/**
+	 * @type {CssBreakpoints<Breakpoints>}
+	 */
+	breakpoints;
+
+	/**
+	 * @type {CssFontfaces & Record<keyof Fontfaces, CssFontface>}
+	 */
+	fontfaces;
+
+	/**
+	 * @returns {string}
+	 */
+	get reset() {
+		return cssReset;
+	}
+
+	/**
+	 * @type {CssTypefaces & Record<keyof Typefaces, CssTypeface>}
+	 */
+	typefaces;
+
+	/**
+	 * @type {CssVariables & {[Key in keyof Variables]: CssVariable<Variables[Key]>}}
+	 */
+	variables;
+
+	/**
+	 * @param {object} input
+	 * @param {Breakpoints} [input.breakpoints]
+	 * @param {Fontfaces} [input.fontfaces]
+	 * @param {Typefaces} [input.typefaces]
+	 * @param {Variables} [input.variables]
+	 */
+	constructor(input) {
+		this.breakpoints = CssBreakpoints.from(input.breakpoints ?? {});
+		this.fontfaces = CssFontfaces.from(input.fontfaces ?? /** @type {Fontfaces} */({}));
+		this.typefaces = CssTypefaces.from(input.typefaces ?? /** @type {Typefaces} */({}));
+		this.variables = CssVariables.from(input.variables ?? /** @type {Variables} */({}));
+	}
+}
