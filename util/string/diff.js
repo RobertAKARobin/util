@@ -1,6 +1,10 @@
 /**
+ * @typedef {`-` | `+` | `.`} DiffAction
+ */
+
+/**
  * @typedef {{
- * action: `-` | `+` | ``;
+ * action: DiffAction;
  * text: string;
  * }} DiffChunk
  */
@@ -25,34 +29,84 @@ export function diff(inputExpected, inputActual, options) {
 
 	const delimiter = options?.delimiter ?? `\n`;
 
-	const expecteds = inputExpected.split(delimiter);
-	const actuals = inputActual.split(delimiter);
+	const deletions = inputExpected.split(delimiter);
+	const additions = inputActual.split(delimiter);
 
-	let changesMax = inputExpected.length + inputActual.length;
-	let changes = 0;
+	let editsMax = inputExpected.length + inputActual.length;
+	let edits = 0;
 	let chunks = /** @type {Array<DiffChunk>} */([]);
-	let indexExpected = 0;
-	let indexActual = 0;
 	let loops = 0;
 
-	while (true) {
+	// down, diagonal, right
+
+	// while (true) {
+	// 	loops += 1;
+
+	// 	if (indexActual >= actuals.length) {
+	// 		indexExpected += 1;
+	// 		indexActual = 0;
+	// 	}
+
+	// 	if (indexExpected >= expecteds.length) {
+	// 		break;
+	// 	}
+
+	// 	// const expected = expecteds[indexExpected];
+	// 	// const actual = actuals[indexActual];
+
+	// 	// indexActual += 1;
+	// }
+
+	let steps = /** @type {Array<[DiffAction]>} */([]);
+	let indexDeletion = -1;
+	let indexAddition = -1;
+
+	step(`.`);
+
+	function step(
+		/** @type {DiffAction} */direction,
+	) {
 		loops += 1;
+		steps.push([direction]);
 
-		if (indexActual >= actuals.length) {
-			indexExpected += 1;
-			indexActual = 0;
+		if (direction === `-`) {
+			indexDeletion += 1;
+		} else if (direction === `+`) {
+			indexAddition += 1;
+		} else {
+			indexDeletion += 1;
+			indexAddition += 1;
 		}
 
-		if (indexExpected >= expecteds.length) {
-			break;
+		if (indexDeletion < deletions.length) {
+			step(`-`);
 		}
 
-		const expected = expecteds[indexExpected];
-		const actual = actuals[indexActual];
-		console.log(loops, expected, actual);
+		if (indexAddition < additions.length) {
+			step(`+`);
+		}
 
-		indexActual += 1;
+		if (indexDeletion < deletions.length && indexAddition < additions.length) {
+			step(`.`);
+		}
+
+		if (indexDeletion === deletions.length && indexAddition === additions.length) {
+			console.log(steps.slice(1).join(` `));
+		}
+
+		if (direction === `-`) {
+			indexDeletion -= 1;
+		} else if (direction === `+`) {
+			indexAddition -= 1;
+		} else {
+			indexDeletion -= 1;
+			indexAddition -= 1;
+		}
+
+		steps.pop();
 	}
+
+	console.log(loops);
 
 	return output;
 }
