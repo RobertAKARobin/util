@@ -21,7 +21,7 @@ export function diff(inputExpected, inputActual, options) {
 
 	if (inputExpected === inputActual) {
 		output.push({
-			action: ``,
+			action: `.`,
 			text: inputExpected,
 		});
 		return output;
@@ -32,81 +32,80 @@ export function diff(inputExpected, inputActual, options) {
 	const deletions = inputExpected.split(delimiter);
 	const additions = inputActual.split(delimiter);
 
-	let editsMax = inputExpected.length + inputActual.length;
-	let edits = 0;
-	let chunks = /** @type {Array<DiffChunk>} */([]);
-	let loops = 0;
+	let editCountMax = inputExpected.length + inputActual.length;
+	let sequences = (() => {
+		let sequences = /** @type {Array<Array<DiffAction>>} */([]);
 
-	// down, diagonal, right
+		let editCount = 0;
+		let sequence = /** @type {Array<DiffAction>} */([]);
+		let deletionsIndex = 0;
+		let additionsIndex = 0;
 
-	// while (true) {
-	// 	loops += 1;
+		step(`-`);
+		step(`+`);
+		step(`.`);
 
-	// 	if (indexActual >= actuals.length) {
-	// 		indexExpected += 1;
-	// 		indexActual = 0;
-	// 	}
+		return sequences;
 
-	// 	if (indexExpected >= expecteds.length) {
-	// 		break;
-	// 	}
+		function step(/** @type {DiffAction} */action) {
+			if (editCount >= editCountMax) {
+				return;
+			}
 
-	// 	// const expected = expecteds[indexExpected];
-	// 	// const actual = actuals[indexActual];
+			sequence.push(action);
 
-	// 	// indexActual += 1;
-	// }
+			if (action === `-`) {
+				editCount += 1;
+				deletionsIndex += 1;
+			} else if (action === `+`) {
+				editCount += 1;
+				additionsIndex += 1;
+			} else {
+				deletionsIndex += 1;
+				additionsIndex += 1;
+			}
 
-	let steps = /** @type {Array<[DiffAction]>} */([]);
-	let indexDeletion = -1;
-	let indexAddition = -1;
+			if (deletionsIndex < deletions.length) {
+				step(`-`);
+			}
 
-	step(`.`);
+			if (additionsIndex < additions.length) {
+				step(`+`);
+			}
 
-	function step(
-		/** @type {DiffAction} */direction,
-	) {
-		loops += 1;
-		steps.push([direction]);
+			if (deletionsIndex < deletions.length && additionsIndex < additions.length) {
+				step(`.`);
+			}
 
-		if (direction === `-`) {
-			indexDeletion += 1;
-		} else if (direction === `+`) {
-			indexAddition += 1;
-		} else {
-			indexDeletion += 1;
-			indexAddition += 1;
+			if (
+				deletionsIndex === deletions.length
+				&& additionsIndex === additions.length
+			) {
+				console.log(sequence.join(` `));
+				if (editCount === editCountMax) {
+					sequences.push([...sequence]);
+				} else if (editCount < editCountMax) {
+					editCountMax = editCount;
+					sequences = [[...sequence]];
+				}
+			}
+
+			if (action === `-`) {
+				editCount -= 1;
+				deletionsIndex -= 1;
+			} else if (action === `+`) {
+				editCount -= 1;
+				additionsIndex -= 1;
+			} else {
+				deletionsIndex -= 1;
+				additionsIndex -= 1;
+			}
+
+			sequence.pop();
 		}
+	})();
 
-		if (indexDeletion < deletions.length) {
-			step(`-`);
-		}
-
-		if (indexAddition < additions.length) {
-			step(`+`);
-		}
-
-		if (indexDeletion < deletions.length && indexAddition < additions.length) {
-			step(`.`);
-		}
-
-		if (indexDeletion === deletions.length && indexAddition === additions.length) {
-			console.log(steps.slice(1).join(` `));
-		}
-
-		if (direction === `-`) {
-			indexDeletion -= 1;
-		} else if (direction === `+`) {
-			indexAddition -= 1;
-		} else {
-			indexDeletion -= 1;
-			indexAddition -= 1;
-		}
-
-		steps.pop();
-	}
-
-	console.log(loops);
+	console.log(sequences);
 
 	return output;
 }
