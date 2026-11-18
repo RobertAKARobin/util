@@ -13,13 +13,26 @@ export function diff(inputExpected, inputActual, options) {
 	const delimiter = options?.delimiter ?? `\n`;
 
 	const expecteds = inputExpected === `` ? [] : inputExpected.split(delimiter);
-	const expectedsLength = expecteds.length;
 	const actuals = inputActual === `` ? [] : inputActual.split(delimiter);
+
+	if (inputExpected === inputActual) {
+		return /** @type {Array<DiffAction>} */(Array(expecteds.length)).fill(`.`);
+	}
+
+	if (inputExpected.length === 0 && inputActual.length !== 0) {
+		return /** @type {Array<DiffAction>} */(Array(actuals.length)).fill(`+`);
+	}
+
+	if (inputExpected.length !== 0 && inputActual.length === 0) {
+		return /** @type {Array<DiffAction>} */(Array(expecteds.length)).fill(`-`);
+	}
+
+	const expectedsLength = expecteds.length;
 	const actualsLength = actuals.length;
 
 	let editCountMax = inputExpected.length + inputActual.length;
-	const sequenceBest = (() => {
-		let sequenceBest = /** @type {Array<DiffAction>} */([]);
+	const sequences = (() => {
+		let sequences = /** @type {Array<Array<DiffAction>>} */([]);
 
 		let editCount = 0;
 		let sequence = /** @type {Array<DiffAction>} */([]);
@@ -29,7 +42,7 @@ export function diff(inputExpected, inputActual, options) {
 
 		step();
 
-		return sequenceBest;
+		return sequences;
 
 		function step() {
 			if (editCount > editCountMax) {
@@ -40,8 +53,12 @@ export function diff(inputExpected, inputActual, options) {
 				expectedsIndex === expectedsLength
 				&& actualsIndex === actualsLength
 			) {
-				editCountMax = editCount;
-				sequenceBest = [...sequence];
+				if (editCount === editCountMax) {
+					sequences.push([...sequence]);
+				} else {
+					editCountMax = editCount;
+					sequences = [[...sequence]];
+				}
 			}
 
 			if (actualsIndex < actualsLength) {
@@ -96,5 +113,5 @@ export function diff(inputExpected, inputActual, options) {
 		}
 	})();
 
-	return sequenceBest;
+	return sequences[sequences.length - 1];
 }
