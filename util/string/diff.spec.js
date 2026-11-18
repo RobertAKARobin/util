@@ -1,7 +1,3 @@
-/**
- * @import { DiffChunk } from './diff.js';
- */
-
 import { test } from '../spec/index.js';
 
 import { diff } from './diff.js';
@@ -14,11 +10,13 @@ import { diff } from './diff.js';
 export function subject(expected, actual) {
 	return diff(expected, actual, {
 		delimiter: ` `,
-	}).map(chunk => `${chunk.action}${chunk.text}`).join(`|`);
+	}).join(` `);
 }
 
 export const spec = test(import.meta.url, $ => {
-	// $.assert(x => x(subject(`a`, `a`)) === `a`);
-	// $.assert(x => x(subject(`a`, `b`)) === `-a|+b`);
-	$.assert(x => x(subject(`a a b b`, `b b c c`)) === `-a a|b b|+c c`);
+	$.assert(x => x(subject(`a`, `a`)) === `.`);
+	$.assert(x => x(subject(`a`, `b`)) === `- +`);
+	$.assert(x => x(subject(`a a b b`, `b b c c`)) === `- - . . + +`);
+	$.assert(x => x(subject(`a a b b`, `b b a a`)) === `- - . . + +`);
+	$.assert(x => x(subject(`a b c`, `d e f`)) === `- - - + + +`);
 });

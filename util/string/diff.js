@@ -3,41 +3,25 @@
  */
 
 /**
- * @typedef {{
- * action: DiffAction;
- * text: string;
- * }} DiffChunk
- */
-
-/**
  * @param {string} inputExpected
  * @param {string} inputActual
  * @param {object} [options={}]
  * @param {string} [options.delimiter]
- * @returns {Array<DiffChunk>}
+ * @returns {Array<DiffAction>}
  */
 export function diff(inputExpected, inputActual, options) {
-	const output = /** @type {Array<DiffChunk>} */([]);
-
-	if (inputExpected === inputActual) {
-		output.push({
-			action: `.`,
-			text: inputExpected,
-		});
-		return output;
-	}
-
 	const delimiter = options?.delimiter ?? `\n`;
 
 	const deletions = inputExpected.split(delimiter);
 	const additions = inputActual.split(delimiter);
 
 	let editCountMax = inputExpected.length + inputActual.length;
-	let sequences = (() => {
-		let sequences = /** @type {Array<Array<DiffAction>>} */([]);
+	const sequenceBest = (() => {
+		let sequenceBest = /** @type {Array<DiffAction>} */([]);
 
 		let editCount = 0;
 		let sequence = /** @type {Array<DiffAction>} */([]);
+		let chunks = /** @type {Array<string>} */([]);
 		let deletionsIndex = 0;
 		let additionsIndex = 0;
 
@@ -45,7 +29,7 @@ export function diff(inputExpected, inputActual, options) {
 		step(`+`);
 		step(`.`);
 
-		return sequences;
+		return sequenceBest;
 
 		function step(/** @type {DiffAction} */action) {
 			if (editCount >= editCountMax) {
@@ -58,9 +42,11 @@ export function diff(inputExpected, inputActual, options) {
 				editCount += 1;
 				deletionsIndex += 1;
 			} else if (action === `+`) {
+				chunks.push(additions[additionsIndex]);
 				editCount += 1;
 				additionsIndex += 1;
 			} else {
+				chunks.push(deletions[deletionsIndex]);
 				deletionsIndex += 1;
 				additionsIndex += 1;
 			}
@@ -81,12 +67,11 @@ export function diff(inputExpected, inputActual, options) {
 				deletionsIndex === deletions.length
 				&& additionsIndex === additions.length
 			) {
-				console.log(sequence.join(` `));
-				if (editCount === editCountMax) {
-					sequences.push([...sequence]);
-				} else if (editCount < editCountMax) {
+				const output = chunks.join(delimiter);
+
+				if (output === inputActual) {
 					editCountMax = editCount;
-					sequences = [[...sequence]];
+					sequenceBest = [...sequence];
 				}
 			}
 
@@ -94,9 +79,11 @@ export function diff(inputExpected, inputActual, options) {
 				editCount -= 1;
 				deletionsIndex -= 1;
 			} else if (action === `+`) {
+				chunks.pop();
 				editCount -= 1;
 				additionsIndex -= 1;
 			} else {
+				chunks.pop();
 				deletionsIndex -= 1;
 				additionsIndex -= 1;
 			}
@@ -105,7 +92,5 @@ export function diff(inputExpected, inputActual, options) {
 		}
 	})();
 
-	console.log(sequences);
-
-	return output;
+	return sequenceBest;
 }
