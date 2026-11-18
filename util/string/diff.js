@@ -31,38 +31,9 @@ export function diff(inputExpected, inputActual, options) {
 
 		return sequenceBest;
 
-		function step(/** @type {DiffAction | undefined} */action = undefined) {
+		function step() {
 			if (editCount > editCountMax) {
 				return;
-			}
-
-			if (action) {
-				sequence.push(action);
-			}
-
-			if (action === `-`) {
-				editCount += 1;
-				expectedsIndex += 1;
-			} else if (action === `+`) {
-				chunks.push(actuals[actualsIndex]);
-				editCount += 1;
-				actualsIndex += 1;
-			} else if (action === `.`) {
-				chunks.push(expecteds[expectedsIndex]);
-				expectedsIndex += 1;
-				actualsIndex += 1;
-			}
-
-			if (actualsIndex < actualsLength) {
-				step(`+`);
-			}
-
-			if (expectedsIndex < expectedsLength) {
-				step(`-`);
-			}
-
-			if (expectedsIndex < expectedsLength && actualsIndex < actualsLength) {
-				step(`.`);
 			}
 
 			if (
@@ -77,21 +48,44 @@ export function diff(inputExpected, inputActual, options) {
 				}
 			}
 
-			if (action === `-`) {
-				editCount -= 1;
-				expectedsIndex -= 1;
-			} else if (action === `+`) {
+			if (actualsIndex < actualsLength) {
+				sequence.push(`+`);
+				chunks.push(actuals[actualsIndex]);
+				editCount += 1;
+				actualsIndex += 1;
+
+				step();
+
+				sequence.pop();
 				chunks.pop();
 				editCount -= 1;
-				actualsIndex -= 1;
-			} else if (action === `.`) {
-				chunks.pop();
-				expectedsIndex -= 1;
 				actualsIndex -= 1;
 			}
 
-			if (action) {
+			if (expectedsIndex < expectedsLength) {
+				sequence.push(`-`);
+				editCount += 1;
+				expectedsIndex += 1;
+
+				step();
+
 				sequence.pop();
+				editCount -= 1;
+				expectedsIndex -= 1;
+			}
+
+			if (expectedsIndex < expectedsLength && actualsIndex < actualsLength) {
+				sequence.push(`.`);
+				chunks.push(expecteds[expectedsIndex]);
+				expectedsIndex += 1;
+				actualsIndex += 1;
+
+				step();
+
+				sequence.pop();
+				chunks.pop();
+				expectedsIndex -= 1;
+				actualsIndex -= 1;
 			}
 		}
 	})();
