@@ -14,9 +14,26 @@ export function subject(expected, actual) {
 }
 
 export const spec = test(import.meta.url, $ => {
+	$.assert(x => x(subject(``, ``)) === ``);
+
 	$.assert(x => x(subject(`a`, `a`)) === `.`);
+	$.assert(x => x(subject(`a b`, `a b`)) === `. .`);
+
+	$.assert(x => x(subject(``, `a`)) === `+`);
+	$.assert(x => x(subject(``, `a a`)) === `+ +`);
+	$.assert(x => x(subject(`a`, ``)) === `-`);
+	$.assert(x => x(subject(`a a`, ``)) === `- -`);
+
 	$.assert(x => x(subject(`a`, `b`)) === `- +`);
-	$.assert(x => x(subject(`a a b b`, `b b c c`)) === `- - . . + +`);
+	$.assert(x => x(subject(`a b`, `b a`)) === `- . +`);
+
 	$.assert(x => x(subject(`a a b b`, `b b a a`)) === `- - . . + +`);
+
+	$.assert(x => x(subject(`a b a b`, `b a b a`)) === `- . . . +`);
+
+	$.assert(x => x(subject(`a b b a`, `a b a`)) === `. . - .`);
+	$.assert(x => x(subject(`a b a`, `a b b a`)) === `. . + .`);
+
+	$.assert(x => x(subject(`a a b b`, `b b c c`)) === `- - . . + +`);
 	$.assert(x => x(subject(`a b c`, `d e f`)) === `- - - + + +`);
 });

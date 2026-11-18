@@ -12,9 +12,9 @@
 export function diff(inputExpected, inputActual, options) {
 	const delimiter = options?.delimiter ?? `\n`;
 
-	const expecteds = inputExpected.split(delimiter);
+	const expecteds = inputExpected === `` ? [] : inputExpected.split(delimiter);
 	const expectedsLength = expecteds.length;
-	const actuals = inputActual.split(delimiter);
+	const actuals = inputActual === `` ? [] : inputActual.split(delimiter);
 	const actualsLength = actuals.length;
 
 	let editCountMax = inputExpected.length + inputActual.length;
