@@ -12,8 +12,10 @@
 export function diff(inputExpected, inputActual, options) {
 	const delimiter = options?.delimiter ?? `\n`;
 
-	const deletions = inputExpected.split(delimiter);
-	const additions = inputActual.split(delimiter);
+	const expecteds = inputExpected.split(delimiter);
+	const expectedsLength = expecteds.length;
+	const actuals = inputActual.split(delimiter);
+	const actualsLength = actuals.length;
 
 	let editCountMax = inputExpected.length + inputActual.length;
 	const sequenceBest = (() => {
@@ -22,50 +24,50 @@ export function diff(inputExpected, inputActual, options) {
 		let editCount = 0;
 		let sequence = /** @type {Array<DiffAction>} */([]);
 		let chunks = /** @type {Array<string>} */([]);
-		let deletionsIndex = 0;
-		let additionsIndex = 0;
+		let expectedsIndex = 0;
+		let actualsIndex = 0;
 
-		step(`-`);
-		step(`+`);
-		step(`.`);
+		step();
 
 		return sequenceBest;
 
-		function step(/** @type {DiffAction} */action) {
-			if (editCount >= editCountMax) {
+		function step(/** @type {DiffAction | undefined} */action = undefined) {
+			if (editCount > editCountMax) {
 				return;
 			}
 
-			sequence.push(action);
+			if (action) {
+				sequence.push(action);
+			}
 
 			if (action === `-`) {
 				editCount += 1;
-				deletionsIndex += 1;
+				expectedsIndex += 1;
 			} else if (action === `+`) {
-				chunks.push(additions[additionsIndex]);
+				chunks.push(actuals[actualsIndex]);
 				editCount += 1;
-				additionsIndex += 1;
-			} else {
-				chunks.push(deletions[deletionsIndex]);
-				deletionsIndex += 1;
-				additionsIndex += 1;
+				actualsIndex += 1;
+			} else if (action === `.`) {
+				chunks.push(expecteds[expectedsIndex]);
+				expectedsIndex += 1;
+				actualsIndex += 1;
 			}
 
-			if (deletionsIndex < deletions.length) {
-				step(`-`);
-			}
-
-			if (additionsIndex < additions.length) {
+			if (actualsIndex < actualsLength) {
 				step(`+`);
 			}
 
-			if (deletionsIndex < deletions.length && additionsIndex < additions.length) {
+			if (expectedsIndex < expectedsLength) {
+				step(`-`);
+			}
+
+			if (expectedsIndex < expectedsLength && actualsIndex < actualsLength) {
 				step(`.`);
 			}
 
 			if (
-				deletionsIndex === deletions.length
-				&& additionsIndex === additions.length
+				expectedsIndex === expectedsLength
+				&& actualsIndex === actualsLength
 			) {
 				const output = chunks.join(delimiter);
 
@@ -77,18 +79,20 @@ export function diff(inputExpected, inputActual, options) {
 
 			if (action === `-`) {
 				editCount -= 1;
-				deletionsIndex -= 1;
+				expectedsIndex -= 1;
 			} else if (action === `+`) {
 				chunks.pop();
 				editCount -= 1;
-				additionsIndex -= 1;
-			} else {
+				actualsIndex -= 1;
+			} else if (action === `.`) {
 				chunks.pop();
-				deletionsIndex -= 1;
-				additionsIndex -= 1;
+				expectedsIndex -= 1;
+				actualsIndex -= 1;
 			}
 
-			sequence.pop();
+			if (action) {
+				sequence.pop();
+			}
 		}
 	})();
 
