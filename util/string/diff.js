@@ -40,17 +40,18 @@ export function diff(inputExpected, inputActual, options) {
 				expectedsIndex === expectedsLength
 				&& actualsIndex === actualsLength
 			) {
-				const output = chunks.join(delimiter);
-
-				if (output === inputActual) {
-					editCountMax = editCount;
-					sequenceBest = [...sequence];
-				}
+				editCountMax = editCount;
+				sequenceBest = [...sequence];
 			}
 
 			if (actualsIndex < actualsLength) {
+				const chunk = actuals[actualsIndex];
+				if (chunk !== actuals[chunks.length]) {
+					return;
+				}
+
 				sequence.push(`+`);
-				chunks.push(actuals[actualsIndex]);
+				chunks.push(chunk);
 				editCount += 1;
 				actualsIndex += 1;
 
@@ -75,8 +76,13 @@ export function diff(inputExpected, inputActual, options) {
 			}
 
 			if (expectedsIndex < expectedsLength && actualsIndex < actualsLength) {
+				const chunk = expecteds[expectedsIndex];
+				if (chunk !== actuals[chunks.length]) {
+					return;
+				}
+
 				sequence.push(`.`);
-				chunks.push(expecteds[expectedsIndex]);
+				chunks.push(chunk);
 				expectedsIndex += 1;
 				actualsIndex += 1;
 
