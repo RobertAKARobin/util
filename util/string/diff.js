@@ -13,24 +13,24 @@ export function diff(inputExpected, inputActual, options) {
 	const delimiter = options?.delimiter ?? `\n`;
 
 	const expecteds = inputExpected === `` ? [] : inputExpected.split(delimiter);
-	const actuals = inputActual === `` ? [] : inputActual.split(delimiter);
-
-	if (inputExpected === inputActual) {
-		return /** @type {Array<DiffAction>} */(Array(expecteds.length)).fill(`.`);
-	}
-
-	if (inputExpected.length === 0 && inputActual.length !== 0) {
-		return /** @type {Array<DiffAction>} */(Array(actuals.length)).fill(`+`);
-	}
-
-	if (inputExpected.length !== 0 && inputActual.length === 0) {
-		return /** @type {Array<DiffAction>} */(Array(expecteds.length)).fill(`-`);
-	}
-
 	const expectedsLength = expecteds.length;
+	const actuals = inputActual === `` ? [] : inputActual.split(delimiter);
 	const actualsLength = actuals.length;
 
-	let editCountMax = inputExpected.length + inputActual.length;
+	if (inputExpected === inputActual) {
+		return /** @type {Array<DiffAction>} */(Array(expectedsLength)).fill(`.`);
+	}
+
+	if (expectedsLength === 0 && actualsLength !== 0) {
+		return /** @type {Array<DiffAction>} */(Array(actualsLength)).fill(`+`);
+	}
+
+	if (expectedsLength !== 0 && actualsLength === 0) {
+		return /** @type {Array<DiffAction>} */(Array(expectedsLength)).fill(`-`);
+	}
+
+	let editCountMax = expectedsLength + actualsLength;
+
 	const sequences = (() => {
 		let sequences = /** @type {Array<Array<DiffAction>>} */([]);
 
@@ -59,6 +59,8 @@ export function diff(inputExpected, inputActual, options) {
 					editCountMax = editCount;
 					sequences = [[...sequence]];
 				}
+
+				return;
 			}
 
 			if (actualsIndex < actualsLength) {
