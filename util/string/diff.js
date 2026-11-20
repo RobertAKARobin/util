@@ -3,33 +3,33 @@
  */
 
 /**
- * @param {string} inputExpected
- * @param {string} inputActual
+ * @param {string} aaInput
+ * @param {string} bbInput
  * @param {object} [options={}]
  * @param {string} [options.delimiter]
  * @returns {Array<DiffAction>}
  */
-export function diff(inputExpected, inputActual, options) {
+export function diff(aaInput, bbInput, options) {
 	const delimiter = options?.delimiter ?? `\n`;
 
-	const expecteds = inputExpected === `` ? [] : inputExpected.split(delimiter);
-	const expectedsLength = expecteds.length;
-	const actuals = inputActual === `` ? [] : inputActual.split(delimiter);
-	const actualsLength = actuals.length;
+	const aaChunks = aaInput === `` ? [] : aaInput.split(delimiter);
+	const aaLength = aaChunks.length;
+	const bbChunks = bbInput === `` ? [] : bbInput.split(delimiter);
+	const bbLength = bbChunks.length;
 
-	if (inputExpected === inputActual) {
-		return /** @type {Array<DiffAction>} */(Array(expectedsLength)).fill(`.`);
+	if (aaInput === bbInput) {
+		return /** @type {Array<DiffAction>} */(Array(aaLength)).fill(`.`);
 	}
 
-	if (expectedsLength === 0 && actualsLength !== 0) {
-		return /** @type {Array<DiffAction>} */(Array(actualsLength)).fill(`+`);
+	if (aaLength === 0 && bbLength !== 0) {
+		return /** @type {Array<DiffAction>} */(Array(bbLength)).fill(`+`);
 	}
 
-	if (expectedsLength !== 0 && actualsLength === 0) {
-		return /** @type {Array<DiffAction>} */(Array(expectedsLength)).fill(`-`);
+	if (aaLength !== 0 && bbLength === 0) {
+		return /** @type {Array<DiffAction>} */(Array(aaLength)).fill(`-`);
 	}
 
-	let editCountMax = expectedsLength + actualsLength;
+	let editCountMax = aaLength + bbLength;
 
 	const sequences = (() => {
 		let sequences = /** @type {Array<Array<DiffAction>>} */([]);
@@ -37,8 +37,8 @@ export function diff(inputExpected, inputActual, options) {
 		let editCount = 0;
 		let sequence = /** @type {Array<DiffAction>} */([]);
 		let chunks = /** @type {Array<string>} */([]);
-		let expectedsIndex = 0;
-		let actualsIndex = 0;
+		let aaIndex = 0;
+		let bbIndex = 0;
 
 		step();
 
@@ -50,8 +50,8 @@ export function diff(inputExpected, inputActual, options) {
 			}
 
 			if (
-				expectedsIndex === expectedsLength
-				&& actualsIndex === actualsLength
+				aaIndex === aaLength
+				&& bbIndex === bbLength
 			) {
 				if (editCount === editCountMax) {
 					sequences.push([...sequence]);
@@ -63,54 +63,54 @@ export function diff(inputExpected, inputActual, options) {
 				return;
 			}
 
-			if (actualsIndex < actualsLength) {
-				const chunk = actuals[actualsIndex];
-				if (chunk !== actuals[chunks.length]) {
+			if (bbIndex < bbLength) {
+				const chunk = bbChunks[bbIndex];
+				if (chunk !== bbChunks[chunks.length]) {
 					return;
 				}
 
 				sequence.push(`+`);
 				chunks.push(chunk);
 				editCount += 1;
-				actualsIndex += 1;
+				bbIndex += 1;
 
 				step();
 
 				sequence.pop();
 				chunks.pop();
 				editCount -= 1;
-				actualsIndex -= 1;
+				bbIndex -= 1;
 			}
 
-			if (expectedsIndex < expectedsLength) {
+			if (aaIndex < aaLength) {
 				sequence.push(`-`);
 				editCount += 1;
-				expectedsIndex += 1;
+				aaIndex += 1;
 
 				step();
 
 				sequence.pop();
 				editCount -= 1;
-				expectedsIndex -= 1;
+				aaIndex -= 1;
 			}
 
-			if (expectedsIndex < expectedsLength && actualsIndex < actualsLength) {
-				const chunk = expecteds[expectedsIndex];
-				if (chunk !== actuals[chunks.length]) {
+			if (aaIndex < aaLength && bbIndex < bbLength) {
+				const chunk = aaChunks[aaIndex];
+				if (chunk !== bbChunks[chunks.length]) {
 					return;
 				}
 
 				sequence.push(`.`);
 				chunks.push(chunk);
-				expectedsIndex += 1;
-				actualsIndex += 1;
+				aaIndex += 1;
+				bbIndex += 1;
 
 				step();
 
 				sequence.pop();
 				chunks.pop();
-				expectedsIndex -= 1;
-				actualsIndex -= 1;
+				aaIndex -= 1;
+				bbIndex -= 1;
 			}
 		}
 	})();
